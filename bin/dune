@@ -1,0 +1,10 @@
+(executables
+ (names main)
+ (libraries hflmc2))
+
+(install
+ (package hflmc2)
+ (section bin)
+ (files (main.exe as hello_world)))
+
+(env (dev (flags (:standard -warn-error -A))))

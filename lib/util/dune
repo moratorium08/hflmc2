@@ -1,0 +1,7 @@
+(library
+ (public_name hflmc2_util)
+ (libraries fmt base core))
+
+(env
+  (dev
+    (flags (:standard -warn-error -A))))
