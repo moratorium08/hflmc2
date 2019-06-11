@@ -9,6 +9,7 @@
 
     hflmc2_util
     hflmc2_syntax
+    hflmc2_abstraction
     ))
 
 (env (dev (flags (:standard -warn-error -A))))

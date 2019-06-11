@@ -14,6 +14,5 @@ type 'ty t =
   | App    of 'ty t * 'ty t
   (* constructers only for hflz *)
   | Arith  of Arith.t
-  | Pred   of string * Arith.t list
+  | Pred   of Formula.pred * Arith.t list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
-

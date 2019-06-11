@@ -20,6 +20,8 @@ let gen_id () =
   let () = id_count := x + 1 in
   x
 
+let to_string id = id.name ^ string_of_int id.id
+
 let gen : ?name:string -> 'annot -> 'anno t =
   fun ?(name="x") ann ->
      { name = name

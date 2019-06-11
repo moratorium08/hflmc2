@@ -1,5 +1,7 @@
 open Hflmc2_util
 
+(* General Type *)
+
 type 'ty arg
   = TyInt
   | TySigma of 'ty
@@ -10,13 +12,17 @@ type 'annot ty
   | TyArrow of 'annot ty arg Id.t * 'annot ty
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
+(* Simple Type *)
+
 type simple_ty = unit ty
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
+(* Abstraction Type *)
+
 type abstraction_ty = Formula.t list ty
   [@@deriving eq,ord,show,iter,map,fold,sexp]
-
-
+type abstraction_argty = abstraction_ty arg
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 type abstracted_ty =
   | ATyBool
@@ -32,5 +38,4 @@ let rec abstract : abstraction_ty -> abstracted_ty = function
       abstract ret
   | TyArrow({ Id.ty = TySigma arg; _}, ret) ->
       ATyArrow(abstract arg, abstract ret)
-
 

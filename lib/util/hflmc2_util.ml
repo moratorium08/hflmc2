@@ -6,6 +6,20 @@ module List     = struct
   let enumurate xs = List.zip_exn xs (List.init (List.length xs) ~f:(fun x -> x))
   let find_with_index (p : 'a -> bool) (xs : 'a list) =
     List.find_exn (enumurate xs) ~f:(fun (x,_) -> p x)
+  let rec powerset = function
+    | [] -> [[]]
+    | x :: xs ->
+       let ps = powerset xs in
+       ps @ List.map ~f:(fun ss -> x :: ss) ps
+  let rec powerset_with_limit n = function
+    | [] -> if n >= 0 then [[]] else []
+    | x :: xs ->
+        let ps = powerset_with_limit n xs in
+        let ps'= powerset_with_limit (n-1) xs in
+        ps @ List.map ~f:(fun ss -> x :: ss) ps'
+  let powerset ?limit xs = match limit with
+    | None -> powerset xs
+    | Some n -> powerset_with_limit n xs
 end
 
 module Map      = Map
@@ -31,8 +45,8 @@ module Fn = struct
 
   let print ?(tag="") pp x =
     if tag = ""
-    then Format.printf "%a@." pp x
-    else Format.printf "%s: %a@." tag pp x
+    then Format.printf "@[%a@]@." pp x
+    else Format.printf "%s: @[%a@]@." tag pp x
 
   let curry f x y = f (x, y)
   let uncurry f (x,y) = f x y
