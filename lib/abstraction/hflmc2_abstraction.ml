@@ -1,7 +1,6 @@
 open Hflmc2_util
 open Hflmc2_syntax
 open Type
-open Fpat.Z3Interface
 module Fpat = FpatInterface
 
 type env = abstraction_ty IdMap.t
@@ -33,7 +32,7 @@ let merge_lambda : int -> (Hfl.t -> Hfl.t -> Hfl.t) -> Hfl.t -> Hfl.t -> Hfl.t =
           | Invalid_argument _ -> assert false
           | _ -> assert false
       in
-      Hfl.subst map t
+      Subst.Hfl.hfl map t
     in
 
     let u1' = Fn.uncurry rename @@ gather_vars len t1 in
@@ -45,7 +44,7 @@ let merge_lambda : int -> (Hfl.t -> Hfl.t -> Hfl.t) -> Hfl.t -> Hfl.t -> Hfl.t =
 let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hfl.t =
   fun env sigma sigma' phi ->
     let debug = false in
-    if debug then begin
+    if false then begin
       Format_.pr "==================@.";
       Format_.print ~tag:"σ " Format_.abstraction_ty sigma;
       Format_.print ~tag:"σ'" Format_.abstraction_ty sigma';
@@ -56,11 +55,13 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
         let xs = List.init (List.length qs) ~f:(fun _ -> Id.gen ATyBool) in
         begin
         try
-          if true then raise Not_found;
           (* Simple case: forall p[i], there exists j_i s.t. p[i] = q[j_i] *)
           let qxs = List.zip_exn qs xs in
-          (* gather x[j_i] *) (* TODO p <=> q で判定する方がよい *)
-          let pxs = List.map ps ~f:(fun p -> snd @@ List.find_exn qxs ~f:(fun (q,_) -> p=q)) in
+          (* gather x[j_i] *)
+          let pxs = List.map ps ~f:begin fun p ->
+              snd @@ List.find_exn qxs ~f:(fun (q,_) -> Fpat.(p <=> q))
+            end
+          in
           (* assemble *)
           let phi' = Hfl.mk_abss xs @@ Hfl.mk_apps phi (List.map ~f:Hfl.mk_var pxs) in
           phi'
@@ -72,16 +73,17 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
           end;
           (* Let ps be P1,...,Pk and qs be Q1,...,Ql.
            * To compute φ, find I ⊆ {1,...,l} and J1,...,Jm ⊆ {1,...,k} such that
-           *    ∧ _{i \in I}Qi => ∨ _{h \in 1,...,m}∧ _{j \in Jh} Pj
+           *    [1] ∧ _{i \in I}Qi => ∨ _{h \in 1,...,m}∧ _{j \in Jh} Pj
            * Let
-           *    φ'_{I,J1,...,Jm} = ∧ _{i \in I}b_i ∧ _{h \in 1,...,m} φ (1 \in Jh) ... (l \in Jh)
+           *    [2] φ'_{I,J1,...,Jm} = ∧ _{i \in I}b_i ∧ _{h \in 1,...,m} φ (1 \in Jh) ... (l \in Jh)
            * then φ' is the union of all φ'_{I,J1,...,Jm}.
            * *)
-          (* とりあえず全探索で実装してみる: O(2^(l+2k))
-           * 後で自明な枝刈りを入れたい *)
+          (* TODO Pjは束としてみたときの極大元のみ考える
+           *      P1 = {1} と P2 = {1,2} を同時に考えてはいけない（式のサイズがヤバいことになる）
+           *)
           let l = List.length qs in
           let k = List.length ps in
-          let max_ors = 2 in (* TODO オプションでいじれるように *)
+          let max_ors = 3 in (* TODO オプションで変えられるように *)
 
           let one_to_l = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 l) in
           let one_to_k = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 k) in
@@ -94,42 +96,65 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
           in
           let _Jss = List.filter (List.powerset ~limit:max_ors _Js)
               ~f:(fun l -> not (List.is_empty l)) in
-          let phi's = List.filter_map _Is ~f:begin fun _I ->
-              (* Format_.print ~tag:"I " Format_.(list_comma int) _I; *)
+          let phi's = List.map _Is ~f:begin fun _I ->
               let xs' = List.(map ~f:(nth_exn xs) _I) in
               let qs' = List.(map ~f:(nth_exn qs) _I) in
               let _Q  = Formula.mk_ands qs' in
               if Fpat.is_consistent_set qs' then begin
-                let phi's = List.filter_map _Jss ~f:begin fun _Js ->
-                    (* Format_.print ~tag:"  Js" Format_.(list_comma (list_comma int)) _Js; *)
+                let candidates : (int list list * Formula.t) list =
+                  List.filter_map _Jss ~f:begin fun _Js ->
+                    let pss =
+                          List.map _Js ~f:begin fun _J ->
+                            List.map _J ~f:begin fun j ->
+                              List.nth_exn ps j end end
+                    in
                     let body =
-                          Formula.mk_ors @@ List.map _Js ~f:begin fun _J ->
-                            Formula.mk_ands @@ List.map _J ~f:begin fun j ->
-                              List.nth_exn ps j
-                            end
-                          end
+                          Formula.mk_ors @@ List.map ~f:Formula.mk_ands pss
                     in
                     if Fpat.(_Q ==> body)
-                    then
-                      let mk_atom _J = Hfl.mk_apps phi @@ List.map one_to_k ~f:begin fun j ->
-                          Hfl.Bool (List.mem ~equal:(=) _J j)
-                        end
-                      in Some(Hfl.mk_ands @@ List.map xs' ~f:Hfl.mk_var
-                                           @ List.map _Js ~f:mk_atom)
+                    then Some (_Js, body)
                     else None
                   end
                 in
-                if List.length phi's = 0
-                then None (* そのままfalseを返してもいいけど式が大きくなると困るので *)
-                else Some(Hfl.mk_ors phi's)
+                (* 極大なものだけ取る *)
+                let candidates' =
+                  let (<=) (_,p1) (_,p2) = Fpat.(p2 ==> p1) in
+                  List.map ~f:fst @@ Fn.maximals' (<=) candidates
+                in
+                if false then List.iter candidates' ~f:begin fun _Js ->
+                  let pss =
+                        List.map _Js ~f:begin fun _J ->
+                          List.map _J ~f:begin fun j ->
+                            List.nth_exn ps j end end
+                  in
+                  Logs.info begin fun m -> m "I = %a,@ J = %a"
+                    Format_.(list_set formula) qs'
+                    Format_.(list_set (list_set formula)) pss
+                  end
+                end;
+                let phi's = List.map candidates' ~f:begin fun _Js ->
+                    let mk_atom _J =
+                          Hfl.mk_apps phi @@
+                            List.map one_to_k ~f:begin fun j ->
+                              Hfl.Bool (List.mem ~equal:(=) _J j)
+                            end
+                    in
+                    Hfl.mk_ands ~kind:`Inserted
+                            @@ List.map xs' ~f:Hfl.mk_var
+                             @ List.map _Js ~f:mk_atom
+                  end
+                in
+                Hfl.mk_ors ~kind:`Inserted phi's
               end else begin
-                (* Format_.pr "  I is inconsistent@."; *)
-                Some(Hfl.mk_ands @@ List.map ~f:Hfl.mk_var xs')
+                Logs.info begin fun m -> m "I = {%a}, J = {}"
+                  Format_.(list ~sep:(fun ppf _ -> string ppf ", ") formula) qs'
+                end;
+                Hfl.mk_ands @@ List.map ~f:Hfl.mk_var xs'
               end
             end
           in
           (* Format_.print ~tag:"φs" Format_.(list_comma hfl) phi's; *)
-          let phi' = Hfl.mk_abss xs @@ Hfl.mk_ors phi's in
+          let phi' = Hfl.mk_abss xs @@ Hfl.mk_ors ~kind:`Inserted phi's in
           (* Format_.print ~tag:"φ'" Format_.hfl phi'; *)
           phi'
         end
@@ -182,15 +207,15 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
       (* And, Or *)
       | And(psi1,psi2) | Hflz.Or(psi1,psi2) ->
           let make_ope = match psi with
-            | And _ -> fun x y -> Hfl.And(x,y)
-            | Or _  -> fun x y -> Hfl.Or (x,y)
+            | And _ -> fun x y -> Hfl.mk_and x y
+            | Or _  -> fun x y -> Hfl.mk_or  x y
             | _     -> assert false
           in
           begin match abstract_infer env psi1, abstract_infer env psi2 with
           | (TyBool preds1, phi1), (TyBool preds2, phi2) ->
               let preds' = List.remove_consecutive_duplicates
                             (List.append preds1 preds2)
-                            ~equal:Formula.equal
+                            ~equal:Fpat.(<=>)
               in
               let sigma = TyBool preds' in
               let phi1' = abstract_coerce env (TyBool preds1) sigma phi1 in
@@ -203,15 +228,18 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
       | Fix(x, psi, Greatest) ->
           let sigma = try IdMap.lookup env x with _ -> assert false in
           let phi = abstract_check env psi sigma in
-          (sigma, phi)
+          (sigma, Fix({x with ty = Type.abstract sigma}, phi, Greatest))
 
       | Exists _ | Forall _ | Fix(_,_,Least) -> assert false (* unimplemented *)
       | Abs _ | Arith _ -> assert false (* impossible *)
           (* NOTE Absはpsiがβ-reduxを持たないという仮定の元でimpossible *)
     in
-      Format_.pr "@[<hov 2>==> %a ⇢@ %a@]@."
+      let phi = Simplify.hfl ~force:false phi in
+      Logs.debug begin fun m -> m "@[<0>%a@]@ ==> @[<0>%a@ ⇢ %a@]"
+        Format_.(hflz simple_ty_) psi
         Format_.abstraction_ty sigma
-        Format_.hfl phi;
+        Format_.hfl phi
+      end;
       sigma, phi
 
 and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
@@ -224,8 +252,29 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
           let sigma', phi = abstract_infer env psi in
           abstract_coerce env sigma' sigma phi
     in
-      Format_.pr "@[<hov 2><== %a ⇢@ %a@]@."
+      let phi = Simplify.hfl ~force:false phi in
+      Logs.debug begin fun m -> m "@[<0>%a@]@ <== @[<0>%a@ ⇢ %a@]"
+        Format_.(hflz simple_ty_) psi
         Format_.abstraction_ty sigma
-        Format_.hfl phi;
+        Format_.hfl phi
+      end;
       phi
+
+let abstract : env -> simple_ty Hflz.t -> Hfl.t =
+  fun env psi ->
+    let sigma, phi = abstract_infer env psi in
+    match sigma with
+    | TyBool ps ->
+        let complement = Formula.(mk_not (mk_ors ps)) in
+        let ps' =
+          if Fpat.(complement ==> Formula.Bool false)
+          then ps
+          else complement::ps
+        in
+        phi
+        |> abstract_coerce env (TyBool ps ) (TyBool ps')
+        |> abstract_coerce env (TyBool ps') (TyBool [])
+    | _ -> assert false
+(* let abstract : env -> simple_ty Hflz.t -> Hfl.t = *)
+(*   fun env psi -> abstract_check env psi (TyBool []) *)
 

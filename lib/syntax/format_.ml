@@ -11,9 +11,14 @@ let list_semi : 'a Fmt.t -> 'a list Fmt.t =
   fun format_x ppf xs ->
     let sep ppf () = Fmt.pf ppf ";@," in
     Fmt.pf ppf "[@[%a@]]" Fmt.(list ~sep format_x) xs
+let list_set : 'a Fmt.t -> 'a list Fmt.t =
+  fun format_x ppf xs ->
+    let sep ppf () = Fmt.pf ppf ",@," in
+    Fmt.pf ppf "{@[%a@]}" Fmt.(list ~sep format_x) xs
 
 
 module Prec = struct
+  type t = int
   let succ x = x + 1
   let succ_if b x = if b then x + 1 else x
 
@@ -64,76 +69,81 @@ let op : Arith.op Fmt.t =
     | Sub  -> Fmt.string ppf "-"
     | Mult -> Fmt.string ppf "*"
 
-let arith : Arith.t Fmt.t =
-  let rec go prec ppf (a : Arith.t) = match a with
+let rec arith_ : Prec.t -> Arith.t Fmt.t =
+  fun prec ppf a -> match a with
     | Int n -> Fmt.int ppf n
     | Var x -> id ppf x
     | Op (op',[a1;a2]) ->
         let op_prec = Prec.of_op op' in
         let prec_l = Prec.(succ_if (not @@ op_is_leftassoc op') op_prec) in
         let prec_r = Prec.(succ_if (not @@ op_is_rightassoc op') op_prec) in
-        show_paren (prec > op_prec) ppf "@[<hov 1>%a@ %a@ %a@]"
-          (go prec_l) a1
+        show_paren (prec > op_prec) ppf "@[<1>%a@ %a@ %a@]"
+          (arith_ prec_l) a1
           op op'
-          (go prec_r) a2
+          (arith_ prec_r) a2
     | _ -> assert false (* 今の所2項演算子しか考えていない *)
-  in go Prec.zero
+let arith : Arith.t Fmt.t = arith_ Prec.zero
 
 (* Formula *)
 
 let pred : Formula.pred Fmt.t =
   fun ppf pred -> match pred with
-    | Eq -> Fmt.string ppf "="
-    | Le -> Fmt.string ppf "<="
-    | Ge -> Fmt.string ppf ">="
-    | Lt -> Fmt.string ppf "<"
-    | Gt -> Fmt.string ppf ">"
+    | Eq  -> Fmt.string ppf "="
+    | Neq -> Fmt.string ppf "<>"
+    | Le  -> Fmt.string ppf "<="
+    | Ge  -> Fmt.string ppf ">="
+    | Lt  -> Fmt.string ppf "<"
+    | Gt  -> Fmt.string ppf ">"
 
-let formula : Formula.t Fmt.t =
-  let open Formula in
-  let rec go prec ppf (f : Formula.t) = match f with
+let rec formula_ : Prec.t -> Formula.t Fmt.t =
+  fun prec ppf f -> match f with
     | Bool true -> Fmt.string ppf "true"
     | Bool false -> Fmt.string ppf "false"
-    | Var x -> id ppf x
+    (* | Var x -> id ppf x *)
     | Or(f1,f2) ->
-        show_paren (prec > Prec.or_) ppf "@[<hov 1>%a@ ||@ %a@]"
-          (go Prec.(succ or_)) f1 (* infixr *)
-          (go Prec.or_) f2
+        show_paren (prec > Prec.or_) ppf "@[<1>%a@ || %a@]"
+          (formula_ Prec.(succ or_)) f1 (* infixr *)
+          (formula_ Prec.or_) f2
     | And(f1,f2) ->
-        show_paren (prec > Prec.and_) ppf "@[<hov 1>%a@ &&@ %a@]"
-          (go Prec.(succ and_)) f1 (* infixr *)
-          (go Prec.and_) f2
+        show_paren (prec > Prec.and_) ppf "@[<1>%a@ && %a@]"
+          (formula_ Prec.(succ and_)) f1 (* infixr *)
+          (formula_ Prec.and_) f2
     | Pred(pred',[f1;f2]) ->
-        Fmt.pf ppf "@[<hov 1>%a@ %a@ %a@]"
+        Fmt.pf ppf "@[<1>%a@ %a@ %a@]"
           arith f1
           pred pred'
           arith f2
     | _ -> assert false
-  in go Prec.zero
+let formula : Formula.t Fmt.t = formula_ Prec.zero
 
 (* Type *)
+
+let argty_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Type.arg Fmt.t =
+  fun format_ty_ prec ppf arg -> match arg with
+    | TyInt -> Fmt.string ppf "int"
+    | TySigma sigma -> format_ty_ prec ppf sigma
 
 let argty : 'ty Fmt.t -> 'ty Type.arg Fmt.t =
   fun format_ty ppf arg -> match arg with
     | TyInt -> Fmt.string ppf "int"
     | TySigma sigma -> format_ty ppf sigma
 
-let ty : 'annot Fmt.t -> 'annot Type.ty Fmt.t =
-  fun format_annot ->
-    let rec go prec ppf (arg : 'annot Type.ty) = match arg with
+let rec ty_ : 'annot Fmt.t -> Prec.t -> 'annot Type.ty Fmt.t =
+  fun format_annot prec ppf ty -> match ty with
       | TyBool annot ->
           Fmt.pf ppf "bool@[%a@]" format_annot annot
       | TyArrow (x, ret) ->
-          show_paren (prec > Prec.arrow) ppf "@[<hov 1>%a:%a ->@ %a"
+          show_paren (prec > Prec.arrow) ppf "@[<1>%a:%a ->@ %a"
             id x
-            (argty (go Prec.(succ arrow))) x.ty
-            (go Prec.arrow) ret
-    in go Prec.zero
+            (argty (ty_ format_annot Prec.(succ arrow))) x.ty
+            (ty_ format_annot Prec.arrow) ret
+let ty : 'annot Fmt.t -> 'annot Type.ty Fmt.t =
+  fun format_annot -> ty_ format_annot Prec.zero
 
-let simple_ty : Type.simple_ty Fmt.t =
-  ty Fmt.nop
-let simple_argty : Type.simple_ty Type.arg Fmt.t =
-  argty simple_ty
+let simple_ty_ : Prec.t -> Type.simple_ty Fmt.t = ty_ Fmt.nop
+let simple_ty : Type.simple_ty Fmt.t = simple_ty_ Prec.zero
+let simple_argty_ : Prec.t -> Type.simple_ty Type.arg Fmt.t = argty_ simple_ty_
+let simple_argty : Type.simple_ty Type.arg Fmt.t = simple_argty_ Prec.zero
 
 let abstraction_ty : Type.abstraction_ty Fmt.t =
   let annot ppf fs =
@@ -143,16 +153,17 @@ let abstraction_ty : Type.abstraction_ty Fmt.t =
 let abstraction_argty  : Type.abstraction_argty Fmt.t =
   argty @@ ty (Fmt.list ~sep:Fmt.comma formula)
 
-let abstracted_ty : Type.abstracted_ty Fmt.t =
-  let rec go prec ppf (aty : Type.abstracted_ty) = match aty with
+
+let rec abstracted_ty_ : Prec.t -> Type.abstracted_ty Fmt.t =
+  fun prec ppf aty -> match aty with
     | ATyBool ->
         Fmt.string ppf "bool"
     | ATyArrow(arg,ret) ->
-        show_paren (prec > Prec.arrow) ppf "(%a) ->@ %a"
-          (go Prec.(succ arrow)) arg
-          (go Prec.arrow) ret
-  in go Prec.zero
-let abstracted_argty = abstracted_ty
+        show_paren (prec > Prec.arrow) ppf "%a ->@ %a"
+          (abstracted_ty_ Prec.(succ arrow)) arg
+          (abstracted_ty_ Prec.arrow) ret
+let abstracted_ty : Type.abstracted_ty Fmt.t = abstracted_ty_ Prec.zero
+let abstracted_argty : Type.abstracted_argty Fmt.t = abstracted_ty
 
 (* Fixpoint *)
 
@@ -163,91 +174,98 @@ let fixpoint : Fixpoint.t Fmt.t =
 
 (* Hfl *)
 
-let hfl : Hfl.t Fmt.t =
-  let rec go prec ppf (phi : Hfl.t) = match phi with
-    | Bool true ->
-        Fmt.string ppf "true"
-    | Bool false ->
-        Fmt.string ppf "false"
-    | Var x ->
-        id ppf x
-    | Or (phi1, phi2) ->
-        show_paren (prec > Prec.or_) ppf "@[<hov 1>%a@ ||@ %a@]"
-          (go Prec.(succ or_)) phi1
-          (go Prec.or_) phi2
-    | And (phi1, phi2) ->
-        show_paren (prec > Prec.and_) ppf "@[<hov 1>%a@ &&@ %a@]"
-          (go Prec.(succ and_)) phi1
-          (go Prec.and_) phi2
-    | Exists (l, phi) ->
-        show_paren (prec > Prec.app) ppf "@[<hov 1><%s>%a@]"
-          l
-          (go Prec.(succ app)) phi
-    | Forall (l, psi) ->
-        show_paren (prec > Prec.app) ppf "@[<hov 1>[%s]%a@]"
-          l
-          (go Prec.(succ app)) psi
-    | Fix (x, psi, fix) ->
-        show_paren (prec > Prec.abs) ppf "@[<hov 1>%a%a:(%a).@,%a@]"
-          fixpoint fix
-          id x
-          abstracted_ty x.ty (* TODO arrowのときだけ()付ける*)
-          (go Prec.abs) psi
-    | Abs (x, psi) ->
-        show_paren (prec > Prec.abs) ppf "@[<hov 1>λ%a:(%a).@,%a@]"
-          id x
-          abstracted_ty x.ty
-          (go Prec.abs) psi
-    | App (psi1, psi2) ->
-        show_paren (prec > Prec.app) ppf "@[<hov 1>%a@ %a@]"
-          (go Prec.app) psi1
-          (go Prec.(succ app)) psi2
-  in go Prec.zero
+
+let rec hfl_ prec ppf (phi : Hfl.t) = match phi with
+  | Bool true ->
+      Fmt.string ppf "true"
+  | Bool false ->
+      Fmt.string ppf "false"
+  | Var x ->
+      id ppf x
+  | Or (phi1, phi2, `Inserted) ->
+      show_paren (prec > Prec.or_) ppf "@[<1>%a@ ||' %a@]"
+        (hfl_ Prec.(succ or_)) phi1
+        (hfl_ Prec.or_) phi2
+  | And (phi1, phi2, `Inserted) ->
+      show_paren (prec > Prec.and_) ppf "@[<1>%a@ &&' %a@]"
+        (hfl_ Prec.(succ and_)) phi1
+        (hfl_ Prec.and_) phi2
+  | Or (phi1, phi2, _) ->
+      show_paren (prec > Prec.or_) ppf "@[<1>%a@ || %a@]"
+        (hfl_ Prec.(succ or_)) phi1
+        (hfl_ Prec.or_) phi2
+  | And (phi1, phi2, _) ->
+      show_paren (prec > Prec.and_) ppf "@[<1>%a@ && %a@]"
+        (hfl_ Prec.(succ and_)) phi1
+        (hfl_ Prec.and_) phi2
+  | Exists (l, phi) ->
+      show_paren (prec > Prec.app) ppf "@[<1><%s>%a@]"
+        l
+        (hfl_ Prec.(succ app)) phi
+  | Forall (l, psi) ->
+      show_paren (prec > Prec.app) ppf "@[<1>[%s]%a@]"
+        l
+        (hfl_ Prec.(succ app)) psi
+  | Fix (x, psi, fix) ->
+      show_paren (prec > Prec.abs) ppf "@[<1>%a%a:%a.@,%a@]"
+        fixpoint fix
+        id x
+        (abstracted_ty_ Prec.(succ arrow)) x.ty (* TODO arrowのときだけ()付ける*)
+        (hfl_ Prec.abs) psi
+  | Abs (x, psi) ->
+      show_paren (prec > Prec.abs) ppf "@[<1>λ%a:%a.@,%a@]"
+        id x
+        (abstracted_ty_ Prec.(succ arrow)) x.ty
+        (hfl_ Prec.abs) psi
+  | App (psi1, psi2) ->
+      show_paren (prec > Prec.app) ppf "@[<1>%a@ %a@]"
+        (hfl_ Prec.app) psi1
+        (hfl_ Prec.(succ app)) psi2
+let hfl : Hfl.t Fmt.t = hfl_ Prec.zero
 
 (* Hflz *)
 
-let hflz : 'ty Fmt.t -> 'ty Hflz.t Fmt.t =
-  fun format_ty ->
-    let rec go prec ppf (phi : 'ty Hflz.t) = match phi with
-      | Bool true -> Fmt.string ppf "true"
-      | Bool false -> Fmt.string ppf "false"
-      | Var x -> id ppf x
-      | Or (psi1, psi2) ->
-          show_paren (prec > Prec.or_) ppf "@[<hov 1>%a@ ||@ %a@]"
-            (go Prec.(succ or_)) psi1
-            (go Prec.or_) psi2
-      | And (psi1, psi2) ->
-          show_paren (prec > Prec.and_) ppf "@[<hov 1>%a@ &&@ %a@]"
-            (go Prec.(succ and_)) psi1
-            (go Prec.and_) psi2
-      | Exists (l, psi) ->
-          show_paren (prec > Prec.app) ppf "@[<hov 1><%s>%a@]"
-            l
-            (go Prec.(succ app)) psi
-      | Forall (l, psi) ->
-          show_paren (prec > Prec.app) ppf "@[<hov 1>[%s]%a@]"
-            l
-            (go Prec.(succ app)) psi
-      | Fix (x, psi, fix) ->
-          show_paren (prec > Prec.abs) ppf "@[<hov 1>%a%a:(%a).@,%a@]"
-            fixpoint fix
-            id x
-            format_ty x.ty
-            (go Prec.abs) psi
-      | Abs (x, psi) ->
-          show_paren (prec > Prec.abs) ppf "@[<hov 1>λ%a:(%a).@,%a@]"
-            id x
-            (argty format_ty) x.ty
-            (go Prec.abs) psi
-      | App (psi1, psi2) ->
-          show_paren (prec > Prec.app) ppf "@[<hov 1>%a@,%a@]"
-            (go Prec.app) psi1
-            (go Prec.(succ app)) psi2
-      | Arith a ->
-          show_paren (prec > Prec.eq) ppf "%a"
-            arith a
-      | Pred (pred, as') ->
-          show_paren (prec > Prec.eq) ppf "%a"
-            formula (Formula.Pred(pred, as'))
-   in go Prec.zero
+let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
+  fun format_ty_ prec ppf (phi : 'ty Hflz.t) -> match phi with
+    | Bool true -> Fmt.string ppf "true"
+    | Bool false -> Fmt.string ppf "false"
+    | Var x -> id ppf x
+    | Or (psi1, psi2) ->
+        show_paren (prec > Prec.or_) ppf "@[<1>%a@ || %a@]"
+          (hflz_ format_ty_ Prec.(succ or_)) psi1
+          (hflz_ format_ty_ Prec.or_) psi2
+    | And (psi1, psi2) ->
+        show_paren (prec > Prec.and_) ppf "@[<1>%a@ && %a@]"
+          (hflz_ format_ty_ Prec.(succ and_)) psi1
+          (hflz_ format_ty_ Prec.and_) psi2
+    | Exists (l, psi) ->
+        show_paren (prec > Prec.app) ppf "@[<1><%s>%a@]"
+          l
+          (hflz_ format_ty_ Prec.(succ app)) psi
+    | Forall (l, psi) ->
+        show_paren (prec > Prec.app) ppf "@[<1>[%s]%a@]"
+          l
+          (hflz_ format_ty_ Prec.(succ app)) psi
+    | Fix (x, psi, fix) ->
+        show_paren (prec > Prec.abs) ppf "@[<1>%a%a:%a.@,%a@]"
+          fixpoint fix
+          id x
+          (format_ty_ Prec.(succ arrow)) x.ty
+          (hflz_ format_ty_ Prec.abs) psi
+    | Abs (x, psi) ->
+        show_paren (prec > Prec.abs) ppf "@[<1>λ%a:%a.@,%a@]"
+          id x
+          (argty (format_ty_ Prec.(succ arrow))) x.ty
+          (hflz_ format_ty_ Prec.abs) psi
+    | App (psi1, psi2) ->
+        show_paren (prec > Prec.app) ppf "@[<1>%a@ %a@]"
+          (hflz_ format_ty_ Prec.app) psi1
+          (hflz_ format_ty_ Prec.(succ app)) psi2
+    | Arith a ->
+        arith_ prec ppf a
+    | Pred (pred, as') ->
+        show_paren (prec > Prec.eq) ppf "%a"
+          formula (Formula.Pred(pred, as'))
+let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.t Fmt.t =
+  fun format_ty_ -> hflz_ format_ty_ Prec.zero
 

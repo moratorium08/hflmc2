@@ -1,5 +1,9 @@
 open Hflmc2_util
 include Map.Make(Id.Key)
+
+let singleton : 'a Id.t -> 'x -> 'x t =
+  fun v x ->
+    singleton (Id.remove_ty v) x
 let add : 'x t -> 'a Id.t -> 'x -> 'x t =
   fun env v data ->
     add_exn env ~key:(Id.remove_ty v) ~data

@@ -22,6 +22,8 @@ module List     = struct
     | Some n -> powerset_with_limit n xs
 end
 
+module String   = String
+
 module Map      = Map
 
 module Set      = Set
@@ -40,8 +42,11 @@ module Fn = struct
   exception Fatal of string
   exception Unsupported of string
   exception TODO of string
-  let unsupported ?(info="") () = raise (Fatal info)
+  let fatal s = raise (Fatal s)
+  let unsupported ?(info="") () = raise (Unsupported info)
   let todo ?(info="") () = raise (TODO info)
+
+  let neg i = -i
 
   let print ?(tag="") pp x =
     if tag = ""
@@ -50,6 +55,58 @@ module Fn = struct
 
   let curry f x y = f (x, y)
   let uncurry f (x,y) = f x y
+
+  let ( <<< ) f g x = f (g x)
+  let ( >>> ) f g x = g (f x)
+  let ( -$- ) f x y = f y x
+
+  (* compareをリスペクトするtotal orderがあればmerge sortの
+   * 要領でO(n log n)でできるがこれがボトルネックとなるとは思えないので
+   * とりあえず O(n^2) で実装する
+   *)
+  let rec maximals
+       : 'a list
+      -> compare:('a -> 'a -> int option)
+      -> 'a list =
+    fun xs ~compare ->
+      let remove_lt x ys =
+        let is_maximal = ref true in
+        let rec go x ys =
+          match ys with
+          | [] -> []
+          | y::ys ->
+              begin match compare x y with
+              | Some n when n >= 0 ->
+                  go x ys
+              | Some _ ->
+                  is_maximal := false;
+                  y :: go y ys (* xでもよいがこの方が速い *)
+              | None ->
+                  y :: go x ys
+              end
+        in
+        let ys' = go x ys in
+        (!is_maximal, ys')
+      in
+      match xs with
+      | [] -> []
+      | x::xs ->
+          let (is_maximal, ys) = remove_lt x xs in
+          if is_maximal
+          then x :: maximals ~compare ys
+          else maximals ~compare ys
+  let maximals' (<=) xs =
+    let compare a b =
+      let a_le_b = a <= b in
+      let b_le_a = b <= a in
+      match () with
+      | _ when a_le_b && b_le_a -> Some 0
+      | _ when a_le_b           -> Some (-1)
+      | _ when b_le_a           -> Some 1
+      | _                       -> None
+    in
+    maximals ~compare xs
+
 
   let assert_no_exn f = try f () with e -> print_endline (Exn.to_string e); assert false
 end
@@ -83,3 +140,7 @@ let sexp_of_unit      = sexp_of_unit
 
 module Fmt = Fmt
 
+module Log = Log
+module Logs = Logs
+module Logs_cli = Logs_cli
+module Logs_fmt = Logs_fmt

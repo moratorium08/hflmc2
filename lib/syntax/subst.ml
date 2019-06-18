@@ -1,6 +1,8 @@
 open Hflmc2_util
 open Type
 
+type 'x t = 'x IdMap.t
+
 (* TODO IdMapを使う *)
 module Arith = struct
   let rec arith : unit Id.t -> Arith.t -> Arith.t -> Arith.t =
@@ -51,16 +53,16 @@ module Hfl = struct
           | exception Not_found -> Var x
           end
       | Bool _ -> phi
-      | Or(phi1,phi2) -> Or(hfl env phi1, hfl env phi2)
-      | And(phi1,phi2) -> And(hfl env phi1, hfl env phi2)
+      | Or(phi1,phi2,k) -> Or(hfl env phi1, hfl env phi2, k)
+      | And(phi1,phi2,k) -> And(hfl env phi1, hfl env phi2, k)
       | App(phi1,phi2) -> App(hfl env phi1, hfl env phi2)
       | Exists(label,t) -> Exists(label, hfl env t)
       | Forall(label,t) -> Forall(label, hfl env t)
       | Fix(x, t, z) -> Fix(x, hfl (IdMap.remove env x) t, z)
       | Abs(x, t) -> Abs(x, hfl (IdMap.remove env x) t)
   let rec reduce : Hfl.t -> Hfl.t = function
-    | Or(phi1, phi2) -> Or(reduce phi1, reduce phi2)
-    | And(phi1, phi2) -> And(reduce phi1, reduce phi2)
+    | Or (phi1, phi2, k) -> Or (reduce phi1, reduce phi2, k)
+    | And(phi1, phi2, k) -> And(reduce phi1, reduce phi2, k)
     | App(phi1, phi2) ->
         begin match reduce phi1, reduce phi2 with
         | Abs(x, phi1), phi2 -> hfl (IdMap.of_list [x,phi2]) phi1

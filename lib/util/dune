@@ -1,6 +1,11 @@
 (library
  (public_name hflmc2_util)
- (libraries fmt base core))
+ (libraries
+   fmt
+   logs
+   logs.fmt
+   dolog
+   core))
 
 (env
   (dev

@@ -1,17 +1,11 @@
 open Hflmc2_util
 
-type ('ty, 'identifier) id_aux =
+(** ['ty] is typically a type of the id *)
+type 'ty t =
   { name : string
-  ; id   : 'identifier
+  ; id   : int
   ; ty   : 'ty
   }
-  [@@deriving eq,ord,show,iter,map,fold,sexp]
-
-type 'ty raw_id = ('ty, unit) id_aux
-  [@@deriving eq,ord,show,iter,map,fold,sexp]
-
-(** ['ty] is typically a type of the id *)
-type 'ty t = ('ty, int) id_aux
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 let id_count = ref 0

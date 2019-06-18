@@ -1,5 +1,6 @@
 (executables
  (names main)
+ (modes native)
  (libraries hflmc2))
 
 (install
