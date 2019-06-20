@@ -14,15 +14,15 @@ let _X = Id.gen ~name:"X" @@ TyArrow(z, TyBool ())
 (* let _X_ty = TyArrow(z, TyBool []) *)
 (* let _X_ty = TyArrow(z, TyBool Formula.[Pred(Ge, Arith.[mk_var z; mk_int 0])]) *)
 (* let _X_ty = TyArrow(z, TyBool Formula.[Pred(Eq, Arith.[mk_var z; mk_int 0])]) *)
-let _X_ty = TyArrow(z, TyBool
-              Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0])
-                      ; Pred(Eq, Arith.[mk_var z; mk_int 1])
-                      (* ; Pred(Eq, Arith.[mk_var z; mk_int 2]) *)
-                      ])
-(* let _X_ty = (TyArrow(z, TyBool *)
-(*                 Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0]) *)
-(*                         ; Pred(Ge, Arith.[mk_var z; mk_int 1]) *)
-(*                         ])) *)
+(* let _X_ty = TyArrow(z, TyBool *)
+(*               Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0]) *)
+(*                       ; Pred(Eq, Arith.[mk_var z; mk_int 1]) *)
+(*                       (* ; Pred(Eq, Arith.[mk_var z; mk_int 2]) *) *)
+(*                       ]) *)
+let _X_ty = (TyArrow(z, TyBool
+                Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0])
+                        ; Pred(Ge, Arith.[mk_var z; mk_int 1])
+                        ]))
 
 let gamma = IdMap.singleton _X _X_ty
 
@@ -30,20 +30,19 @@ let gamma = IdMap.singleton _X _X_ty
 (* S   = X n || n < 0
  * X y = y = 0 || y >= 1 && X (y - 1)
  *)
-
 let psi =
   let open Hflz in
   let y = Id.gen ~name:"y" TyInt in
   let y_eq_0 = Pred(Eq , Arith.[mk_var y; mk_int 0]) in
   let y_ge_1 = Pred(Ge, Arith.[mk_var y; mk_int 1]) in
-  let rest   = App(Var _X, Arith(Arith.(mk_op Sub [mk_var y; mk_int 1]))) in
-  Or(App(Fix( _X, Abs(y,
-                      Or( y_eq_0
-                        , And( y_ge_1
-                             , rest)))
-            , Fixpoint.Greatest),
-         Arith(Arith.mk_var n)),
-     Pred(Lt, Arith.[mk_var n; mk_int 0]))
+  let rest = App(Var _X, Arith(Arith.(mk_op Sub [mk_var y; mk_int 1]))) in
+  let abs = Abs(y, Or[ y_eq_0
+                     ; And [ y_ge_1
+                           ; rest]
+                     ]) in
+  let fix = Fix(_X, abs, Fixpoint.Greatest) in
+  Or [ App (fix, Arith(Arith.mk_var n))
+     ; Pred(Lt, Arith.[mk_var n; mk_int 0])]
 
 let phi = Simplify.hfl @@ Hflmc2.Abstraction.abstract gamma psi
 

@@ -4,7 +4,7 @@ open Core
 module List     = struct
   include List
   let enumurate xs = List.zip_exn xs (List.init (List.length xs) ~f:(fun x -> x))
-  let find_with_index (p : 'a -> bool) (xs : 'a list) =
+  let find_with_index ~f:(p : 'a -> bool) (xs : 'a list) =
     List.find_exn (enumurate xs) ~f:(fun (x,_) -> p x)
   let rec powerset = function
     | [] -> [[]]

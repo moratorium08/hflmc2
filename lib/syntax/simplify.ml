@@ -2,58 +2,58 @@
 (* バグっとるかも *)
 (*
 *)
-let rec is_true : Hfl.t -> bool =
-  fun phi -> match phi with
-  | Bool b -> b
-  | And(phi1, phi2, _) -> is_true phi1 && is_true phi2
-  | Or (phi1, phi2, _) -> is_true phi1 || is_true phi2
-  | _ -> false
-let rec is_false : Hfl.t -> bool =
-  fun phi -> match phi with
-  | Bool b -> not b
-  | And(phi1, phi2, _) -> is_false phi1 || is_false phi2
-  | Or (phi1, phi2, _) -> is_false phi1 && is_false phi2
-  | _ -> false
+(* let rec is_true : Hfl.t -> bool = *)
+(*   fun phi -> match phi with *)
+(*   | Bool b -> b *)
+(*   | And(phi1, phi2, _) -> is_true phi1 && is_true phi2 *)
+(*   | Or (phi1, phi2, _) -> is_true phi1 || is_true phi2 *)
+(*   | _ -> false *)
+(* let rec is_false : Hfl.t -> bool = *)
+(*   fun phi -> match phi with *)
+(*   | Bool b -> not b *)
+(*   | And(phi1, phi2, _) -> is_false phi1 || is_false phi2 *)
+(*   | Or (phi1, phi2, _) -> is_false phi1 && is_false phi2 *)
+(*   | _ -> false *)
 
 let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =
   fun ?(force=false) phi ->
     match Subst.Hfl.reduce phi with
-    | And(phi1, phi2, k) when k = `Inserted || force ->
-        let phi1 = hfl ~force phi1 in
-        let phi2 = hfl ~force phi2 in
-        begin match () with
-        | _ when is_true  phi2 -> phi1
-        | _ when is_true  phi1 -> phi2
-        | _ when is_false phi2 -> Bool false
-        | _ when is_false phi1 -> Bool false
-        | _                    -> And(phi1, phi2, k)
-        end
-    | Or(phi1, phi2, k) when k = `Inserted || force ->
-        let phi1 = hfl ~force phi1 in
-        let phi2 = hfl ~force phi2 in
-        begin match () with
-        | _ when is_false phi2 -> phi1
-        | _ when is_false phi1 -> phi2
-        | _ when is_true  phi2 -> Bool true
-        | _ when is_true  phi1 -> Bool true
-        | _ -> Or(phi1, phi2, k)
-        end
-    | And(phi1, phi2, k) -> (* preserve the structure *)
-        let phi1 = hfl ~force phi1 in
-        let phi2 = hfl ~force phi2 in
-        begin match () with
-        | _ when is_false phi1 -> And(Bool false, Bool true, k)
-        | _ when is_false phi2 -> And(Bool true, Bool false, k)
-        | _                    -> And(phi1, phi2, k)
-        end
-    | Or(phi1, phi2, k) -> (* preserve the structure *)
-        let phi1 = hfl ~force phi1 in
-        let phi2 = hfl ~force phi2 in
-        begin match () with
-        | _ when is_true phi1 -> Or(Bool true, Bool false, k)
-        | _ when is_true phi2 -> Or(Bool false, Bool true, k)
-        | _                   -> Or(phi1, phi2, k)
-        end
+    (* | And(phi1, phi2, k) when k = `Inserted || force -> *)
+    (*     let phi1 = hfl ~force phi1 in *)
+    (*     let phi2 = hfl ~force phi2 in *)
+    (*     begin match () with *)
+    (*     | _ when is_true  phi2 -> phi1 *)
+    (*     | _ when is_true  phi1 -> phi2 *)
+    (*     | _ when is_false phi2 -> Bool false *)
+    (*     | _ when is_false phi1 -> Bool false *)
+    (*     | _                    -> And(phi1, phi2, k) *)
+    (*     end *)
+    (* | Or(phi1, phi2, k) when k = `Inserted || force -> *)
+    (*     let phi1 = hfl ~force phi1 in *)
+    (*     let phi2 = hfl ~force phi2 in *)
+    (*     begin match () with *)
+    (*     | _ when is_false phi2 -> phi1 *)
+    (*     | _ when is_false phi1 -> phi2 *)
+    (*     | _ when is_true  phi2 -> Bool true *)
+    (*     | _ when is_true  phi1 -> Bool true *)
+    (*     | _ -> Or(phi1, phi2, k) *)
+    (*     end *)
+    (* | And(phi1, phi2, k) -> (* preserve the structure *) *)
+    (*     let phi1 = hfl ~force phi1 in *)
+    (*     let phi2 = hfl ~force phi2 in *)
+    (*     begin match () with *)
+    (*     | _ when is_false phi1 -> And(Bool false, Bool true, k) *)
+    (*     | _ when is_false phi2 -> And(Bool true, Bool false, k) *)
+    (*     | _                    -> And(phi1, phi2, k) *)
+    (*     end *)
+    (* | Or(phi1, phi2, k) -> (* preserve the structure *) *)
+    (*     let phi1 = hfl ~force phi1 in *)
+    (*     let phi2 = hfl ~force phi2 in *)
+    (*     begin match () with *)
+    (*     | _ when is_true phi1 -> Or(Bool true, Bool false, k) *)
+    (*     | _ when is_true phi2 -> Or(Bool false, Bool true, k) *)
+    (*     | _                   -> Or(phi1, phi2, k) *)
+    (*     end *)
     | Exists(l,phi)  -> Exists(l, hfl ~force phi)
     | Forall(l,phi)  -> Forall(l, hfl ~force phi)
     | Fix(x,phi,z)   -> Fix(x, hfl ~force phi, z)

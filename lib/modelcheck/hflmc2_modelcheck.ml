@@ -2,72 +2,69 @@ open Hflmc2_util
 open Hflmc2_syntax
 module Hoge = Horsat2
 
-(*
-  e.g.
-  (t_or t_false (t_and _ (t_or t_false t_false)))
-   => Or (False, AndR (Or False False))
-*)
 type counterexample =
   | False
-  | AndL of counterexample
-  | AndR of counterexample
-  | Or   of counterexample * counterexample
-  | Nd   of counterexample list
+  | And of int * int * counterexample (** (n,i,_) ith branch in n. 0-indexed *)
+  | Or  of counterexample list
+  | Nd  of counterexample list (* or_inserted *)
   [@@deriving eq,ord,show,iter,map,fold]
-let rec sexp_of_counterexample : counterexample -> Sexp.t = function
-  | False -> Atom "t_false"
-  | AndR c -> List [ Atom "t_and"; Atom "_"; sexp_of_counterexample c ]
-  | AndL c -> List [ Atom "t_and"; sexp_of_counterexample c; Atom "_" ]
-  | Or (c1,c2) -> List [ Atom "t_or"
-                       ; sexp_of_counterexample c1
-                       ; sexp_of_counterexample c2 ]
-  | Nd [] -> assert false
-  | Nd (c0::cs) ->
-      let s0 = sexp_of_counterexample c0 in
-      List.fold_left cs ~init:s0 ~f:begin fun s c ->
-        let open Sexp in
-        List [Atom "t_or_inserted"; s; sexp_of_counterexample c]
-      end
+let rec sexp_of_counterexample : counterexample -> Sexp.t =
+  function
+  | False -> Sexp.Atom "t_false"
+  | And (n,i,c) ->
+      let head = Sexp.Atom ("t_and" ^ string_of_int n) in
+      let rest = List.init n ~f:begin fun j ->
+          if i = 0 && 0 = j
+          then sexp_of_counterexample c
+          else Sexp.Atom "_"
+        end
+      in List (head::rest)
+  | Or cs ->
+      let n    = List.length cs in
+      let head = Sexp.Atom ("t_or" ^ string_of_int n) in
+      let rest = List.map ~f:sexp_of_counterexample cs in
+      List (head::rest)
+  | Nd cs ->
+      let n    = List.length cs in
+      let head = Sexp.Atom ("t_or_inserted" ^ string_of_int n) in
+      let rest = List.map ~f:sexp_of_counterexample cs in
+      List (head::rest)
 let rec counterexample_of_sexp : Sexp.t -> counterexample =
+  let error s = Sexp.Of_sexp_error((Failure "counterexample_of_sexp"), s) in
   let open Sexp in
   function
   | Atom "t_false" -> False
-  | List [Atom "t_and"; Atom "_"; s] -> AndR (counterexample_of_sexp s)
-  | List [Atom "t_and"; s; Atom "_"] -> AndL (counterexample_of_sexp s)
-  | List [Atom "t_or"; s1; s2]       -> Or ( counterexample_of_sexp s1
-                                           , counterexample_of_sexp s2 )
-  | List [Atom "t_and_inserted"; Atom "_"; s] -> counterexample_of_sexp s
-  | List [Atom "t_and_inserted"; s; Atom "_"] -> counterexample_of_sexp s
-  | List [Atom "t_or_inserted"; s1; s2] ->
-      let rec go acc = function
-        | List [Atom "t_or_inserted"; s1; s2] ->
-            go (counterexample_of_sexp s2::acc) s1
-        | s -> Nd (counterexample_of_sexp s :: acc)
-      in go [counterexample_of_sexp s2] s1
-  | _ -> assert false
-
+  | List (Atom a :: ss) when String.is_prefix ~prefix:"t_and_inserted" a ->
+      let s = List.find_exn ss ~f:(fun s -> s <> Atom "_") in
+      counterexample_of_sexp s
+  | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or_inserted" a ->
+      Nd(List.map ~f:counterexample_of_sexp ss)
+  | List (Atom a :: ss) when String.is_prefix ~prefix:"t_and" a ->
+      let n = List.length ss in
+      let s,i = List.find_with_index ss ~f:(fun s -> s <> Atom "_") in
+      And (n, i, counterexample_of_sexp s)
+  | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or" a ->
+      Or(List.map ~f:counterexample_of_sexp ss)
+  | s -> raise (error s)
 let rec simplify : counterexample -> counterexample = function
-  | False      -> False
-  | AndL c     -> AndL (simplify c)
-  | AndR c     -> AndR (simplify c)
-  | Or (c1,c2) -> Or (simplify c1, simplify c2)
-  | Nd cs      ->
-      let rec cmp c1 c2 = match c1, c2 with
-        | False, False -> Some 0
-        | False, _     -> Some (-1)
-        | _,     False -> Some 1
-        | AndL c1, AndL c2 -> cmp c1 c2
-        | AndR c1, AndR c2 -> cmp c1 c2
-        | Or(c11,c12), Or(c21,c22) ->
-            begin match cmp c11 c21, cmp c12 c22 with
-            | Some n, Some n' when n = n' -> Some n
-            | Some n, Some 0
-            | Some 0, Some n -> Some n
-            | _ -> None
+  | False       -> False
+  | And (n,i,c) -> And (n,i,simplify c)
+  | Or cs       -> Or (List.map ~f:simplify cs)
+  | Nd cs       ->
+      let rec (<=) c1 c2 = match c1, c2 with
+        | False, _     -> true
+        | And (n1,i1,c1), And (n2,i2,c2)
+            when n1 = n2 && i1 = i2 -> c1 <= c2
+        | Or cs1, Or cs2 ->
+            begin match List.zip_exn cs1 cs2 with
+            | x -> List.for_all ~f:(Fn.uncurry (<=)) x
+            | exception _ -> false
             end
-        | _ -> None (* Ndのときはこれでいいんか *)
+        | _ -> false
       in
-      Nd (Fn.maximals ~compare:cmp @@ List.map ~f:simplify cs)
+      match Fn.maximals' (<=) @@ List.map ~f:simplify cs with
+      | [x] -> x
+      | xs -> Nd xs
 
 (* from Horsat2 *)
 type head = Horsat2.Syntax.head
@@ -88,10 +85,10 @@ module ToHOMC = struct
   let q_true = "q_true"
   let t_true = "t_true"
   let t_false = "t_false"
-  let t_or = "t_or"
-  let t_and = "t_and"
-  let t_or_inserted = "t_or_inserted"
-  let t_and_inserted = "t_and_inserted"
+  let t_or           n = "t_or"           ^ string_of_int n
+  let t_and          n = "t_and"          ^ string_of_int n
+  let t_or_inserted  n = "t_or_inserted"  ^ string_of_int n
+  let t_and_inserted n = "t_and_inserted" ^ string_of_int n
 
   let to_hors : Hfl.t -> hors =
     fun phi ->
@@ -103,10 +100,10 @@ module ToHOMC = struct
       let rec term (phi : Hfl.t) : term = match phi with
         | Bool true  -> PTapp(Name t_true,  [])
         | Bool false -> PTapp(Name t_false, [])
-        | Or (phi1,phi2,`Original) -> PTapp(Name t_or,  [term phi1; term phi2])
-        | And(phi1,phi2,`Original) -> PTapp(Name t_and, [term phi1; term phi2])
-        | Or (phi1,phi2,`Inserted) -> PTapp(Name t_or_inserted,  [term phi1; term phi2])
-        | And(phi1,phi2,`Inserted) -> PTapp(Name t_and_inserted, [term phi1; term phi2])
+        | Or (phis,`Original) -> PTapp(Name (t_or           (List.length phis)), List.map ~f:term phis)
+        | And(phis,`Original) -> PTapp(Name (t_and          (List.length phis)), List.map ~f:term phis)
+        | Or (phis,`Inserted) -> PTapp(Name (t_or_inserted  (List.length phis)), List.map ~f:term phis)
+        | And(phis,`Inserted) -> PTapp(Name (t_and_inserted (List.length phis)), List.map ~f:term phis)
         | Abs(x,phi)     -> PTapp(FUN ([Id.to_string x], term phi), [])
         | App(phi1,phi2) ->
             let Horsat2.Syntax.PTapp(head, args) = term phi1 in
@@ -135,25 +132,25 @@ module ToHOMC = struct
         add_rule (rule s phi);
         List.remove_consecutive_duplicates !rules ~equal:(=)
 
-  let to_automaton : unit -> automaton = fun _ ->
-    let ranks =
-        [ t_true, 0
-        ; t_false, 0
-        ; t_or, 2
-        ; t_and, 2
-        ]
-    in
-    let rules : Horsat2.Syntax.ata_trans list =
-      [ ((q_true, t_true) , FConst "true")
-      ; ((q_true, t_false), FConst "false")
-      ; ((q_true, t_and)  , FAnd(FVar(0, q_true), FVar(1, q_true)))
-      ; ((q_true, t_or)   , FOr (FVar(0, q_true), FVar(1, q_true)))
-      ]
-    in
-    Alternating(ranks, rules)
-
-  let to_homc : Hfl.t -> hors * automaton = fun phi ->
-    to_hors phi, to_automaton ()
+  (* let to_automaton : unit -> automaton = fun _ -> *)
+  (*   let ranks = *)
+  (*       [ t_true, 0 *)
+  (*       ; t_false, 0 *)
+  (*       ; t_or, 2 *)
+  (*       ; t_and, 2 *)
+  (*       ] *)
+  (*   in *)
+  (*   let rules : Horsat2.Syntax.ata_trans list = *)
+  (*     [ ((q_true, t_true) , FConst "true") *)
+  (*     ; ((q_true, t_false), FConst "false") *)
+  (*     ; ((q_true, t_and)  , FAnd(FVar(0, q_true), FVar(1, q_true))) *)
+  (*     ; ((q_true, t_or)   , FOr (FVar(0, q_true), FVar(1, q_true))) *)
+  (*     ] *)
+  (*   in *)
+  (*   Alternating(ranks, rules) *)
+  (*  *)
+  (* let to_homc : Hfl.t -> hors * automaton = fun phi -> *)
+  (*   to_hors phi, to_automaton () *)
 end
 
 module Print = struct
@@ -192,21 +189,37 @@ module Print = struct
       Fmt.string ppf @@ String.concat ~sep:"\n"
         [ ""
         ; "%BEGINR"
-        ; "t_or_inserted -> 2."
-        ; "t_and_inserted -> 2."
-        ; "t_or -> 2."
-        ; "t_and -> 2."
         ; "t_true -> 0."
         ; "t_false -> 0."
+        ; "t_or2 -> 2."
+        ; "t_and2 -> 2."
+        ; "t_or_inserted2 -> 2."
+        ; "t_and_inserted2 -> 2."
+        ; "t_or3 -> 3."
+        ; "t_and3 -> 3."
+        ; "t_or_inserted3 -> 3."
+        ; "t_and_inserted3 -> 3."
+        ; "t_or4 -> 4."
+        ; "t_and4 -> 4."
+        ; "t_or_inserted4 -> 4."
+        ; "t_and_inserted4 -> 4."
         ; "%ENDR"
         ; ""
         ; "%BEGINATA"
-        ; "q0 t_or_inserted -> (1, q0) \\/ (2, q0)."
-        ; "q0 t_and_inserted -> (1, q0) /\\ (2, q0)."
-        ; "q0 t_or -> (1, q0) \\/ (2, q0)."
-        ; "q0 t_and -> (1, q0) /\\ (2, q0)."
-        ; "q0 t_true -> true."
-        ; "q0 t_false -> false."
+        ; "q0 t_true          -> true."
+        ; "q0 t_false         -> false."
+        ; "q0 t_or2           -> (1, q0) \\/ (2, q0)."
+        ; "q0 t_and2          -> (1, q0) /\\ (2, q0)."
+        ; "q0 t_or_inserted2  -> (1, q0) \\/ (2, q0)."
+        ; "q0 t_and_inserted2 -> (1, q0) /\\ (2, q0)."
+        ; "q0 t_or3           -> (1, q0) \\/ (2, q0) \\/ (3, q0)."
+        ; "q0 t_and3          -> (1, q0) /\\ (2, q0) /\\ (3, q0)."
+        ; "q0 t_or_inserted3  -> (1, q0) \\/ (2, q0) \\/ (3, q0)."
+        ; "q0 t_and_inserted3 -> (1, q0) /\\ (2, q0) /\\ (3, q0)."
+        ; "q0 t_or4           -> (1, q0) \\/ (2, q0) \\/ (3, q0) \\/ (4, q0)."
+        ; "q0 t_and4          -> (1, q0) /\\ (2, q0) /\\ (3, q0) /\\ (4, q0)."
+        ; "q0 t_or_inserted4  -> (1, q0) \\/ (2, q0) \\/ (3, q0) \\/ (4, q0)."
+        ; "q0 t_and_inserted4 -> (1, q0) /\\ (2, q0) /\\ (3, q0) /\\ (4, q0)."
         ; "%ENDATA"
         ]
   let counterexample : counterexample Fmt.t =

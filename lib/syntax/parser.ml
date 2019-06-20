@@ -139,8 +139,16 @@ let hflz : unit Hflz.t t =
             app_expr
         ] <?> "modal_expr"
       in
-      let and_expr = chainl1 app_expr (symbol "/\\" *> return Hflz.mk_and) <?> "and_expr" in
-      let or_expr  = chainl1 and_expr (symbol "\\/" *> return Hflz.mk_or ) <?> "or_expr"  in
+      let and_expr =
+        chainl1 app_expr
+          (symbol "/\\" *> return (fun x y -> Hflz.mk_ands [x;y]))
+        <?> "and_expr"
+      in
+      let or_expr =
+        chainl1 and_expr
+          (symbol "\\/" *> return (fun x y -> Hflz.mk_ors [x;y]))
+        <?> "or_expr"
+      in
       choice ~failure_msg:"hflz"
         [ or_expr
         ; lex (char '\\') >>= fun _ ->

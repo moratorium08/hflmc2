@@ -6,39 +6,30 @@ module Fpat = FpatInterface
 type env = abstraction_ty IdMap.t
 
 (* For Or and And: (λxs.u1, λxs.u2) -> λxs.f u1 u2 *)
-let merge_lambda : int -> (Hfl.t -> Hfl.t -> Hfl.t) -> Hfl.t -> Hfl.t -> Hfl.t =
-  (*{{{*)
-  fun len merge t1 t2 ->
+let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
+  fun len merge phis ->
     let new_vars = List.init len ~f:(fun _ -> Id.gen ATyBool) in
-
-    let rec gather_vars len t = match t with
+    let rec gather_vars len phi = match phi with
       | _ when len = 0 ->
-          ([], t)
-      | Hfl.Abs(x, t) ->
-          let (xs, u) = gather_vars (len-1) t in
-          (x::xs, u)
+          ([], phi)
+      | Hfl.Abs(x, phi) ->
+          let (xs, phi') = gather_vars (len-1) phi in
+          (x::xs, phi')
       | _ ->
           let x = Id.gen ATyBool in
-          let (xs, u) = gather_vars (len-1) (Hfl.App(t, Var(x))) in
-          (x::xs, u)
+          let xs, phi = gather_vars (len-1) (Hfl.App(phi, Var(x))) in
+          (x::xs, phi)
     in
-
-    let rename orig_vars t =
+    let rename orig_vars phi =
       let map =
         try IdMap.of_alist_exn @@ List.zip_exn
               (List.map ~f:Id.remove_ty orig_vars)
               (List.map ~f:Hfl.mk_var new_vars)
-        with
-          | Invalid_argument _ -> assert false
-          | _ -> assert false
-      in
-      Subst.Hfl.hfl map t
+        with _ -> assert false
+      in Subst.Hfl.hfl map phi
     in
-
-    let u1' = Fn.uncurry rename @@ gather_vars len t1 in
-    let u2' = Fn.uncurry rename @@ gather_vars len t2 in
-    Hfl.mk_abss new_vars (merge u1' u2')
-(*}}}*)
+    let phis' = List.map phis ~f:Fn.(uncurry rename <<< gather_vars len) in
+    Hfl.mk_abss new_vars (merge phis')
 
 (* Γ |- σ <= σ ↪ φ' で得たφ'にφを適用 *)
 let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hfl.t =
@@ -204,10 +195,33 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
           end
 
       (* And, Or *)
+      | And psis | Or psis ->
+          let make_ope = match psi with
+            | And _ -> Hfl.mk_ands ~kind:`Original
+            | Or _  -> Hfl.mk_ors  ~kind:`Original
+            | _ -> assert false
+          in
+          let sigma_phis = List.map psis ~f:(abstract_infer env) in
+          let preds' =
+            List.remove_consecutive_duplicates ~equal:Fpat.(<=>) @@
+              List.concat @@ List.map sigma_phis ~f:begin function
+                | TyBool pred, _ -> pred
+                | _ -> assert false
+                end
+          in
+          let sigma' = TyBool preds' in
+          let phis' = List.map sigma_phis ~f:begin fun (sigma, phi) ->
+                abstract_coerce env sigma sigma' phi
+            end
+          in
+          (* let phi' = make_ope phis' in *)
+          let phi' = merge_lambda (List.length preds') make_ope phis' in
+          (sigma', phi')
+      (*
       | And(psi1,psi2) | Hflz.Or(psi1,psi2) ->
           let make_ope = match psi with
-            | And _ -> fun x y -> Hfl.mk_and x y
-            | Or _  -> fun x y -> Hfl.mk_or  x y
+            | And _ -> fun x y -> Hfl.mk_ands [x; y]
+            | Or _  -> fun x y -> Hfl.mk_ors  [x; y]
             | _     -> assert false
           in
           begin match abstract_infer env psi1, abstract_infer env psi2 with
@@ -223,7 +237,7 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
               (sigma, phi)
           | _ -> assert false
           end
-
+      *)
       | Fix(x, psi, Greatest) ->
           let sigma = try IdMap.lookup env x with _ -> assert false in
           let phi = abstract_check env psi sigma in

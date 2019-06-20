@@ -6,8 +6,8 @@ open Type
 type t =
   | Bool   of bool
   | Var    of abstracted_ty Id.t
-  | Or     of t * t * [ `Original | `Inserted ]
-  | And    of t * t * [ `Original | `Inserted ]
+  | Or     of t list * [ `Original | `Inserted ]
+  | And    of t list * [ `Original | `Inserted ]
   | Exists of string * t
   | Forall of string * t
   | Fix    of abstracted_ty Id.t * t * Fixpoint.t
@@ -19,17 +19,15 @@ type t =
 
 let mk_var x = Var x
 
-let mk_and ?(kind=`Original) a b= And(a,b,kind)
-
 let mk_ands ?(kind=`Original) = function
   | [] -> Bool true
-  | x::xs -> List.fold_right xs ~init:x ~f:(mk_and ~kind)
-
-let mk_or ?(kind=`Original) a b = Or(a,b,kind)
+  | [x] -> x
+  | xs -> And(xs, kind)
 
 let mk_ors ?(kind=`Original) = function
   | [] -> Bool false
-  | x::xs -> List.fold_right xs ~init:x ~f:(mk_or ~kind)
+  | [x] -> x
+  | xs -> Or(xs, kind)
 
 let mk_app t1 t2 = App(t1,t2)
 let mk_apps t ts = List.fold_left ts ~init:t ~f:mk_app

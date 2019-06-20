@@ -99,7 +99,6 @@ let rec formula_ : Prec.t -> Formula.t Fmt.t =
   fun prec ppf f -> match f with
     | Bool true -> Fmt.string ppf "true"
     | Bool false -> Fmt.string ppf "false"
-    (* | Var x -> id ppf x *)
     | Or(f1,f2) ->
         show_paren (prec > Prec.or_) ppf "@[<0>%a@ || %a@]"
           (formula_ Prec.(succ or_)) f1 (* infixr *)
@@ -182,22 +181,22 @@ let rec hfl_ prec ppf (phi : Hfl.t) = match phi with
       Fmt.string ppf "false"
   | Var x ->
       id ppf x
-  | Or (phi1, phi2, `Inserted) ->
-      show_paren (prec > Prec.or_) ppf "@[<0>%a@ ||' %a@]"
-        (hfl_ Prec.(succ or_)) phi1
-        (hfl_ Prec.or_) phi2
-  | And (phi1, phi2, `Inserted) ->
-      show_paren (prec > Prec.and_) ppf "@[<0>%a@ &&' %a@]"
-        (hfl_ Prec.(succ and_)) phi1
-        (hfl_ Prec.and_) phi2
-  | Or (phi1, phi2, _) ->
-      show_paren (prec > Prec.or_) ppf "@[<0>%a@ || %a@]"
-        (hfl_ Prec.(succ or_)) phi1
-        (hfl_ Prec.or_) phi2
-  | And (phi1, phi2, _) ->
-      show_paren (prec > Prec.and_) ppf "@[<0>%a@ && %a@]"
-        (hfl_ Prec.(succ and_)) phi1
-        (hfl_ Prec.and_) phi2
+  | Or (phis, `Inserted) ->
+      let sep ppf () = Fmt.pf ppf "@ ||' " in
+      show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@]"
+        (list ~sep (hfl_ Prec.or_)) phis
+  | And (phis, `Inserted) ->
+      let sep ppf () = Fmt.pf ppf "@ &&' " in
+      show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@]"
+        (list ~sep (hfl_ Prec.and_)) phis
+  | Or (phis, `Original) ->
+      let sep ppf () = Fmt.pf ppf "@ || " in
+      show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@]"
+        (list ~sep (hfl_ Prec.or_)) phis
+  | And (phis, `Original) ->
+      let sep ppf () = Fmt.pf ppf "@ && " in
+      show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@]"
+        (list ~sep (hfl_ Prec.and_)) phis
   | Exists (l, phi) ->
       show_paren (prec > Prec.app) ppf "@[<1><%s>%a@]"
         l
@@ -210,7 +209,7 @@ let rec hfl_ prec ppf (phi : Hfl.t) = match phi with
       show_paren (prec > Prec.abs) ppf "@[<1>%a%a:%a.@,%a@]"
         fixpoint fix
         id x
-        (abstracted_ty_ Prec.(succ arrow)) x.ty (* TODO arrowのときだけ()付ける*)
+        (abstracted_ty_ Prec.(succ arrow)) x.ty
         (hfl_ Prec.abs) psi
   | Abs (x, psi) ->
       show_paren (prec > Prec.abs) ppf "@[<1>λ%a:%a.@,%a@]"
@@ -230,14 +229,14 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
     | Bool true -> Fmt.string ppf "true"
     | Bool false -> Fmt.string ppf "false"
     | Var x -> id ppf x
-    | Or (psi1, psi2) ->
-        show_paren (prec > Prec.or_) ppf "@[<0>%a@ || %a@]"
-          (hflz_ format_ty_ Prec.(succ or_)) psi1
-          (hflz_ format_ty_ Prec.or_) psi2
-    | And (psi1, psi2) ->
-        show_paren (prec > Prec.and_) ppf "@[<0>%a@ && %a@]"
-          (hflz_ format_ty_ Prec.(succ and_)) psi1
-          (hflz_ format_ty_ Prec.and_) psi2
+    | Or phis  ->
+        let sep ppf () = Fmt.pf ppf "@ || " in
+        show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@]"
+          (list ~sep (hflz_ format_ty_ Prec.or_)) phis
+    | And phis  ->
+        let sep ppf () = Fmt.pf ppf "@ && " in
+        show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@]"
+          (list ~sep (hflz_ format_ty_ Prec.and_)) phis
     | Exists (l, psi) ->
         show_paren (prec > Prec.app) ppf "@[<1><%s>%a@]"
           l

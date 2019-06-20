@@ -53,16 +53,16 @@ module Hfl = struct
           | exception Not_found -> Var x
           end
       | Bool _ -> phi
-      | Or(phi1,phi2,k) -> Or(hfl env phi1, hfl env phi2, k)
-      | And(phi1,phi2,k) -> And(hfl env phi1, hfl env phi2, k)
-      | App(phi1,phi2) -> App(hfl env phi1, hfl env phi2)
+      | Or(phis,k)      -> Or(List.map ~f:(hfl env) phis, k)
+      | And(phis,k)     -> And(List.map ~f:(hfl env) phis, k)
+      | App(phi1,phi2)  -> App(hfl env phi1, hfl env phi2)
       | Exists(label,t) -> Exists(label, hfl env t)
       | Forall(label,t) -> Forall(label, hfl env t)
-      | Fix(x, t, z) -> Fix(x, hfl (IdMap.remove env x) t, z)
-      | Abs(x, t) -> Abs(x, hfl (IdMap.remove env x) t)
+      | Fix(x, t, z)    -> Fix(x, hfl (IdMap.remove env x) t, z)
+      | Abs(x, t)       -> Abs(x, hfl (IdMap.remove env x) t)
   let rec reduce : Hfl.t -> Hfl.t = function
-    | Or (phi1, phi2, k) -> Or (reduce phi1, reduce phi2, k)
-    | And(phi1, phi2, k) -> And(reduce phi1, reduce phi2, k)
+    | Or (phis, k) -> Or (List.map ~f:reduce phis, k)
+    | And(phis, k) -> And(List.map ~f:reduce phis, k)
     | App(phi1, phi2) ->
         begin match reduce phi1, reduce phi2 with
         | Abs(x, phi1), phi2 -> hfl (IdMap.of_list [x,phi2]) phi1
