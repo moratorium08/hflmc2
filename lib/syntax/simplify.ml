@@ -1,6 +1,7 @@
 
-(* バグっとる *)
+(* バグっとるかも *)
 (*
+*)
 let rec is_true : Hfl.t -> bool =
   fun phi -> match phi with
   | Bool b -> b
@@ -59,11 +60,10 @@ let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =
     | Abs(x,phi)     -> Abs(x, hfl ~force phi)
     | App(phi1,phi2) -> App(hfl ~force phi1, hfl ~force phi2)
     | phi -> phi
-*)
 
-let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =
-  fun ?(force=false) phi ->
-    match Subst.Hfl.reduce phi with
+(* let rec hfl : ?force:bool -> Hfl.t -> Hfl.t = *)
+(*   fun ?(force=false) phi -> *)
+(*     match Subst.Hfl.reduce phi with *)
     (* | And(phi1, phi2, k) when k = `Inserted || force -> *)
     (*     begin match hfl ~force phi1, hfl ~force phi2 with *)
     (*     | phi1, Bool true -> phi1 *)
@@ -97,6 +97,6 @@ let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =
     (* | Fix(x,phi,z)   -> Fix(x, hfl ~force phi, z) *)
     (* | Abs(x,phi)     -> Abs(x, hfl ~force phi) *)
     (* | App(phi1,phi2) -> App(hfl ~force phi1, hfl ~force phi2) *)
-    | phi -> phi
+    (* | phi -> phi *)
 (* let hfl : ?force:bool -> Hfl.t -> Hfl.t = *)
 (*   fun ?(force=false) x -> x *)

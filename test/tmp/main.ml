@@ -11,9 +11,14 @@ let z = Id.gen ~name:"z" TyInt
 let _X = Id.gen ~name:"X" @@ TyArrow(z, TyBool ())
 
 (* empty *)
-let _X_ty = TyArrow(z, TyBool [])
-let _X_ty = TyArrow(z, TyBool Formula.[Pred(Ge, Arith.[mk_var z; mk_int 0])])
-let _X_ty = TyArrow(z, TyBool Formula.[Pred(Eq, Arith.[mk_var z; mk_int 0])])
+(* let _X_ty = TyArrow(z, TyBool []) *)
+(* let _X_ty = TyArrow(z, TyBool Formula.[Pred(Ge, Arith.[mk_var z; mk_int 0])]) *)
+(* let _X_ty = TyArrow(z, TyBool Formula.[Pred(Eq, Arith.[mk_var z; mk_int 0])]) *)
+let _X_ty = TyArrow(z, TyBool
+              Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0])
+                      ; Pred(Eq, Arith.[mk_var z; mk_int 1])
+                      (* ; Pred(Eq, Arith.[mk_var z; mk_int 2]) *)
+                      ])
 (* let _X_ty = (TyArrow(z, TyBool *)
 (*                 Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0]) *)
 (*                         ; Pred(Ge, Arith.[mk_var z; mk_int 1]) *)

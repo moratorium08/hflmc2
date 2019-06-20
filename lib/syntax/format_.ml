@@ -101,11 +101,11 @@ let rec formula_ : Prec.t -> Formula.t Fmt.t =
     | Bool false -> Fmt.string ppf "false"
     (* | Var x -> id ppf x *)
     | Or(f1,f2) ->
-        show_paren (prec > Prec.or_) ppf "@[<1>%a@ || %a@]"
+        show_paren (prec > Prec.or_) ppf "@[<0>%a@ || %a@]"
           (formula_ Prec.(succ or_)) f1 (* infixr *)
           (formula_ Prec.or_) f2
     | And(f1,f2) ->
-        show_paren (prec > Prec.and_) ppf "@[<1>%a@ && %a@]"
+        show_paren (prec > Prec.and_) ppf "@[<0>%a@ && %a@]"
           (formula_ Prec.(succ and_)) f1 (* infixr *)
           (formula_ Prec.and_) f2
     | Pred(pred',[f1;f2]) ->
@@ -183,19 +183,19 @@ let rec hfl_ prec ppf (phi : Hfl.t) = match phi with
   | Var x ->
       id ppf x
   | Or (phi1, phi2, `Inserted) ->
-      show_paren (prec > Prec.or_) ppf "@[<1>%a@ ||' %a@]"
+      show_paren (prec > Prec.or_) ppf "@[<0>%a@ ||' %a@]"
         (hfl_ Prec.(succ or_)) phi1
         (hfl_ Prec.or_) phi2
   | And (phi1, phi2, `Inserted) ->
-      show_paren (prec > Prec.and_) ppf "@[<1>%a@ &&' %a@]"
+      show_paren (prec > Prec.and_) ppf "@[<0>%a@ &&' %a@]"
         (hfl_ Prec.(succ and_)) phi1
         (hfl_ Prec.and_) phi2
   | Or (phi1, phi2, _) ->
-      show_paren (prec > Prec.or_) ppf "@[<1>%a@ || %a@]"
+      show_paren (prec > Prec.or_) ppf "@[<0>%a@ || %a@]"
         (hfl_ Prec.(succ or_)) phi1
         (hfl_ Prec.or_) phi2
   | And (phi1, phi2, _) ->
-      show_paren (prec > Prec.and_) ppf "@[<1>%a@ && %a@]"
+      show_paren (prec > Prec.and_) ppf "@[<0>%a@ && %a@]"
         (hfl_ Prec.(succ and_)) phi1
         (hfl_ Prec.and_) phi2
   | Exists (l, phi) ->
@@ -231,11 +231,11 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
     | Bool false -> Fmt.string ppf "false"
     | Var x -> id ppf x
     | Or (psi1, psi2) ->
-        show_paren (prec > Prec.or_) ppf "@[<1>%a@ || %a@]"
+        show_paren (prec > Prec.or_) ppf "@[<0>%a@ || %a@]"
           (hflz_ format_ty_ Prec.(succ or_)) psi1
           (hflz_ format_ty_ Prec.or_) psi2
     | And (psi1, psi2) ->
-        show_paren (prec > Prec.and_) ppf "@[<1>%a@ && %a@]"
+        show_paren (prec > Prec.and_) ppf "@[<0>%a@ && %a@]"
           (hflz_ format_ty_ Prec.(succ and_)) psi1
           (hflz_ format_ty_ Prec.and_) psi2
     | Exists (l, psi) ->

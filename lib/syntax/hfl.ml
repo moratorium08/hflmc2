@@ -23,13 +23,13 @@ let mk_and ?(kind=`Original) a b= And(a,b,kind)
 
 let mk_ands ?(kind=`Original) = function
   | [] -> Bool true
-  | x::xs -> List.fold_left xs ~init:x ~f:(mk_and ~kind)
+  | x::xs -> List.fold_right xs ~init:x ~f:(mk_and ~kind)
 
 let mk_or ?(kind=`Original) a b = Or(a,b,kind)
 
 let mk_ors ?(kind=`Original) = function
   | [] -> Bool false
-  | x::xs -> List.fold_left xs ~init:x ~f:(mk_or ~kind)
+  | x::xs -> List.fold_right xs ~init:x ~f:(mk_or ~kind)
 
 let mk_app t1 t2 = App(t1,t2)
 let mk_apps t ts = List.fold_left ts ~init:t ~f:mk_app
@@ -55,6 +55,4 @@ let decompose_lambda =
     | _ -> (acc, phi)
   in
   go []
-
-
 

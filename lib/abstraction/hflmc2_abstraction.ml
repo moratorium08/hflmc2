@@ -78,12 +78,9 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
            *    [2] φ'_{I,J1,...,Jm} = ∧ _{i \in I}b_i ∧ _{h \in 1,...,m} φ (1 \in Jh) ... (l \in Jh)
            * then φ' is the union of all φ'_{I,J1,...,Jm}.
            * *)
-          (* TODO Pjは束としてみたときの極大元のみ考える
-           *      P1 = {1} と P2 = {1,2} を同時に考えてはいけない（式のサイズがヤバいことになる）
-           *)
           let l = List.length qs in
           let k = List.length ps in
-          let max_ors = 3 in (* TODO オプションで変えられるように *)
+          let max_ors = 10 in (* TODO オプションで変えられるように *)
 
           let one_to_l = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 l) in
           let one_to_k = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 k) in
@@ -96,66 +93,68 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
           in
           let _Jss = List.filter (List.powerset ~limit:max_ors _Js)
               ~f:(fun l -> not (List.is_empty l)) in
+
           let phi's = List.map _Is ~f:begin fun _I ->
               let xs' = List.(map ~f:(nth_exn xs) _I) in
               let qs' = List.(map ~f:(nth_exn qs) _I) in
               let _Q  = Formula.mk_ands qs' in
-              if Fpat.is_consistent_set qs' then begin
-                let candidates : (int list list * Formula.t) list =
-                  List.filter_map _Jss ~f:begin fun _Js ->
-                    let pss =
-                          List.map _Js ~f:begin fun _J ->
-                            List.map _J ~f:begin fun j ->
-                              List.nth_exn ps j end end
-                    in
-                    let body =
-                          Formula.mk_ors @@ List.map ~f:Formula.mk_ands pss
-                    in
-                    if Fpat.(_Q ==> body)
-                    then Some (_Js, body)
-                    else None
-                  end
-                in
-                (* 極大なものだけ取る *)
-                let candidates' =
-                  let (<=) (_,p1) (_,p2) = Fpat.(p2 ==> p1) in
-                  List.map ~f:fst @@ Fn.maximals' (<=) candidates
-                in
-                if false then List.iter candidates' ~f:begin fun _Js ->
-                  let pss =
-                        List.map _Js ~f:begin fun _J ->
-                          List.map _J ~f:begin fun j ->
-                            List.nth_exn ps j end end
+
+              (* /\Q => \/i(/\Ji) を満たす極大の J1,...,Jh の集合を得る *)
+              let ans =
+                if not (Fpat.is_consistent_set qs')
+                then
+                  [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
+                else
+                  let candidates : (int list list * Formula.t) list =
+                    List.filter_map _Jss ~f:begin fun _Js ->
+                      let pss =
+                            List.map _Js ~f:begin fun _J ->
+                              List.map _J ~f:begin fun j ->
+                                List.nth_exn ps j end end
+                      in
+                      let body =
+                            Formula.mk_ors @@ List.map ~f:Formula.mk_ands pss
+                      in
+                      if Fpat.(_Q ==> body)
+                      then Some (_Js, body)
+                      else None
+                    end
                   in
-                  Logs.info begin fun m -> m "I = %a,@ J = %a"
-                    Format_.(list_set formula) qs'
-                    Format_.(list_set (list_set formula)) pss
-                  end
-                end;
-                let phi's = List.map candidates' ~f:begin fun _Js ->
-                    let mk_atom _J =
-                          Hfl.mk_apps phi @@
-                            List.map one_to_k ~f:begin fun j ->
-                              Hfl.Bool (List.mem ~equal:(=) _J j)
-                            end
-                    in
-                    Hfl.mk_ands ~kind:`Inserted
-                            @@ List.map xs' ~f:Hfl.mk_var
-                             @ List.map _Js ~f:mk_atom
-                  end
+                  if true
+                  then
+                    let (<=) (_,p1) (_,p2) = Fpat.(p2 ==> p1) in
+                    List.map ~f:fst @@ Fn.maximals' (<=) candidates
+                  else
+                    List.map ~f:fst candidates
+              in
+              let nodes = List.map ans ~f:begin fun _Js ->
+                  let mk_atom _J =
+                        Hfl.mk_apps phi @@
+                          List.map one_to_k ~f:begin fun j ->
+                            Hfl.Bool (List.mem ~equal:(=) _J j)
+                          end
+                  in
+                  Hfl.mk_ands ~kind:`Inserted
+                      @@ List.map xs' ~f:Hfl.mk_var
+                       @ List.map _Js ~f:mk_atom
+                end
+              in
+              (* log *)
+              if true then List.iter ans ~f:begin fun _Js ->
+                let pss =
+                      List.map _Js ~f:begin fun _J ->
+                        List.map _J ~f:begin fun j ->
+                          List.nth_exn ps j end end
                 in
-                Hfl.mk_ors ~kind:`Inserted phi's
-              end else begin
-                Logs.info begin fun m -> m "I = {%a}, J = {}"
-                  Format_.(list ~sep:(fun ppf _ -> string ppf ", ") formula) qs'
-                end;
-                Hfl.mk_ands @@ List.map ~f:Hfl.mk_var xs'
-              end
+                Logs.info begin fun m -> m "I = %a,@ J = %a"
+                  Format_.(list_set formula) qs'
+                  Format_.(list_set (list_set formula)) pss
+                end
+              end;
+              Hfl.mk_ors ~kind:`Inserted nodes
             end
           in
-          (* Format_.print ~tag:"φs" Format_.(list_comma hfl) phi's; *)
           let phi' = Hfl.mk_abss xs @@ Hfl.mk_ors ~kind:`Inserted phi's in
-          (* Format_.print ~tag:"φ'" Format_.hfl phi'; *)
           phi'
         end
     | TyArrow({ty = TyInt; _} as x, sigma), TyArrow({ty = TyInt; _} as y, sigma') ->
@@ -266,15 +265,14 @@ let abstract : env -> simple_ty Hflz.t -> Hfl.t =
     match sigma with
     | TyBool ps ->
         let complement = Formula.(mk_not (mk_ors ps)) in
-        let ps' =
-          if Fpat.(complement ==> Formula.Bool false)
-          then ps
-          else complement::ps
-        in
-        phi
-        |> abstract_coerce env (TyBool ps ) (TyBool ps')
-        |> abstract_coerce env (TyBool ps') (TyBool [])
+        if Fpat.(complement ==> Formula.Bool false)
+        then
+          phi
+          |> abstract_coerce env (TyBool ps) (TyBool [])
+        else
+          let ps' = complement::ps in
+          phi
+          |> abstract_coerce env (TyBool ps ) (TyBool ps')
+          |> abstract_coerce env (TyBool ps') (TyBool [])
     | _ -> assert false
-(* let abstract : env -> simple_ty Hflz.t -> Hfl.t = *)
-(*   fun env psi -> abstract_check env psi (TyBool []) *)
 
