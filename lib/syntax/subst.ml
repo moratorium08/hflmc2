@@ -58,7 +58,6 @@ module Hfl = struct
       | App(phi1,phi2)  -> App(hfl env phi1, hfl env phi2)
       | Exists(label,t) -> Exists(label, hfl env t)
       | Forall(label,t) -> Forall(label, hfl env t)
-      | Fix(x, t, z)    -> Fix(x, hfl (IdMap.remove env x) t, z)
       | Abs(x, t)       -> Abs(x, hfl (IdMap.remove env x) t)
   let rec reduce : Hfl.t -> Hfl.t = function
     | Or (phis, k) -> Or (List.map ~f:reduce phis, k)
@@ -70,7 +69,6 @@ module Hfl = struct
         end
     | Exists(label, t) -> Exists(label, reduce t)
     | Forall(label, t) -> Forall(label, reduce t)
-    | Fix(x, phi, z) -> Fix(x, reduce phi, z)
     | Abs(x, phi) -> Abs(x, reduce phi)
     | phi -> phi
 end

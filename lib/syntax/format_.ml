@@ -205,12 +205,6 @@ let rec hfl_ prec ppf (phi : Hfl.t) = match phi with
       show_paren (prec > Prec.app) ppf "@[<1>[%s]%a@]"
         l
         (hfl_ Prec.(succ app)) psi
-  | Fix (x, psi, fix) ->
-      show_paren (prec > Prec.abs) ppf "@[<1>%a%a:%a.@,%a@]"
-        fixpoint fix
-        id x
-        (abstracted_ty_ Prec.(succ arrow)) x.ty
-        (hfl_ Prec.abs) psi
   | Abs (x, psi) ->
       show_paren (prec > Prec.abs) ppf "@[<1>λ%a:%a.@,%a@]"
         id x
@@ -221,6 +215,18 @@ let rec hfl_ prec ppf (phi : Hfl.t) = match phi with
         (hfl_ Prec.app) psi1
         (hfl_ Prec.(succ app)) psi2
 let hfl : Hfl.t Fmt.t = hfl_ Prec.zero
+
+let hfl_hes_rule : Hfl.hes_rule Fmt.t =
+  fun ppf rule ->
+    Fmt.pf ppf "@[<2>%s =%a %a@]"
+      (Id.to_string rule.var)
+      fixpoint rule.fix
+      hfl rule.body
+
+let hfl_hes : Hfl.hes Fmt.t =
+  fun ppf hes ->
+    Fmt.pf ppf "@[<v>%a@]"
+      (Fmt.list hfl_hes_rule) hes
 
 (* Hflz *)
 
@@ -245,12 +251,6 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
         show_paren (prec > Prec.app) ppf "@[<1>[%s]%a@]"
           l
           (hflz_ format_ty_ Prec.(succ app)) psi
-    | Fix (x, psi, fix) ->
-        show_paren (prec > Prec.abs) ppf "@[<1>%a%a:%a.@,%a@]"
-          fixpoint fix
-          id x
-          (format_ty_ Prec.(succ arrow)) x.ty
-          (hflz_ format_ty_ Prec.abs) psi
     | Abs (x, psi) ->
         show_paren (prec > Prec.abs) ppf "@[<1>λ%a:%a.@,%a@]"
           id x

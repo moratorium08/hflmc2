@@ -6,7 +6,6 @@
    lwt.unix
    unix
    spawn
-   horsat2
    hflmc2_util
    hflmc2_syntax
    )

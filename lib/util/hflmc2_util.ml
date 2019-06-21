@@ -25,8 +25,12 @@ end
 module String   = String
 
 module Map      = Map
+module IntMap   = Map.Make(Int)
+module StrMap   = Map.Make(String)
 
 module Set      = Set
+module IntSet   = Set.Make(Int)
+module StrSet   = Set.Make(String)
 
 module Option   = Option
 
@@ -107,6 +111,7 @@ module Fn = struct
     in
     maximals ~compare xs
 
+  let read_file file = In_channel.(with_file file ~f:input_all)
 
   let assert_no_exn f = try f () with e -> print_endline (Exn.to_string e); assert false
 end

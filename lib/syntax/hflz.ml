@@ -9,13 +9,21 @@ type 'ty t =
   | And    of 'ty t list
   | Exists of string * 'ty t
   | Forall of string * 'ty t
-
-  | Fix    of 'ty Id.t * 'ty t * Fixpoint.t
   | Abs    of 'ty arg Id.t * 'ty t
   | App    of 'ty t * 'ty t
   (* constructers only for hflz *)
   | Arith  of Arith.t
   | Pred   of Formula.pred * Arith.t list
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
+
+type 'ty hes_rule =
+  { var  : 'ty Id.t
+  ; body : 'ty t
+  ; fix  : Fixpoint.t
+  }
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
+
+type 'ty hes = 'ty hes_rule list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 (* Construction *)

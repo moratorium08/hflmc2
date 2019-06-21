@@ -10,9 +10,19 @@ type t =
   | And    of t list * [ `Original | `Inserted ]
   | Exists of string * t
   | Forall of string * t
-  | Fix    of abstracted_ty Id.t * t * Fixpoint.t
+  (* | Fix    of abstracted_ty Id.t * t * Fixpoint.t *)
   | Abs    of abstracted_argty Id.t * t
   | App    of t * t
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
+
+type hes_rule =
+  { var  : abstracted_ty Id.t
+  ; body : t
+  ; fix  : Fixpoint.t
+  }
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
+
+type hes = hes_rule list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 (* Construction *)
@@ -53,4 +63,12 @@ let decompose_lambda =
     | _ -> (acc, phi)
   in
   go []
+
+let decompose_app =
+  let rec go phi acc = match phi with
+    | App(phi,x) -> go phi (x::acc)
+    | _ -> (phi, acc)
+  in
+  fun phi -> go phi []
+
 

@@ -56,7 +56,6 @@ let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =
     (*     end *)
     | Exists(l,phi)  -> Exists(l, hfl ~force phi)
     | Forall(l,phi)  -> Forall(l, hfl ~force phi)
-    | Fix(x,phi,z)   -> Fix(x, hfl ~force phi, z)
     | Abs(x,phi)     -> Abs(x, hfl ~force phi)
     | App(phi1,phi2) -> App(hfl ~force phi1, hfl ~force phi2)
     | phi -> phi
