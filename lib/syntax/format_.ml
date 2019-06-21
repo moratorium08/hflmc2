@@ -132,7 +132,7 @@ let rec ty_ : 'annot Fmt.t -> Prec.t -> 'annot Type.ty Fmt.t =
       | TyBool annot ->
           Fmt.pf ppf "bool@[%a@]" format_annot annot
       | TyArrow (x, ret) ->
-          show_paren (prec > Prec.arrow) ppf "@[<1>%a:%a ->@ %a"
+          show_paren (prec > Prec.arrow) ppf "@[<1>%a:%a ->@ %a@]"
             id x
             (argty (ty_ format_annot Prec.(succ arrow))) x.ty
             (ty_ format_annot Prec.arrow) ret
