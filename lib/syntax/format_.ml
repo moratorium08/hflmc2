@@ -268,3 +268,15 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
 let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.t Fmt.t =
   fun format_ty_ -> hflz_ format_ty_ Prec.zero
 
+let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
+  fun format_ty_ ppf rule ->
+    Fmt.pf ppf "@[<2>%s =%a %a@]"
+      (Id.to_string rule.var)
+      fixpoint rule.fix
+      (hflz format_ty_) rule.body
+
+let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes Fmt.t =
+  fun format_ty_ ppf hes ->
+    Fmt.pf ppf "@[<v>%a@]"
+      (Fmt.list (hflz_hes_rule format_ty_)) hes
+

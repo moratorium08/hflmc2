@@ -1,3 +1,4 @@
+
 (executables
  (names main)
  (modules main)
@@ -6,7 +7,7 @@
 (install
  (package hflmc2)
  (section bin)
- (files (main.exe as hello_world)))
+ (files (main.exe as main)))
 
 (executables
  (names tmp)

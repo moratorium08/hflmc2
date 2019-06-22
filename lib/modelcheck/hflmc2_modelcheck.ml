@@ -1,6 +1,8 @@
 open Hflmc2_util
 open Hflmc2_syntax
 
+module Log = (val Logs.src_log @@ Logs.Src.create "Modelcheck")
+
 type counterexample =
   | False
   | And of int * int * counterexample (** (n,i,_) ith branch in n. 0-indexed *)
@@ -187,7 +189,7 @@ module Parse = struct
       in
       match result_lines with
       | "The property is NOT satisfied."::_::cex::_ ->
-          if true then begin Logs.debug @@ fun m ->
+          if true then begin Log.debug @@ fun m ->
             m "@[<2>raw counterexample:@ %a@]" Sexp.pp_hum @@ Sexp.of_string cex
           end;
           Error (counterexample cex);

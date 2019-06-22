@@ -1,11 +1,12 @@
 open Hflmc2_util
 open Hflmc2_syntax
 open Type
+module Option = Hflmc2_option
 module Fpat = FpatInterface
 
+module Log = (val Logs.src_log @@ Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
+
 type env = abstraction_ty IdMap.t
-let src = Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction"
-module Log = (val Logs.src_log src)
 
 (* For Or and And: (λxs.u1, λxs.u2) -> λxs.f u1 u2 *)
 let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
@@ -37,7 +38,7 @@ let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
 let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hfl.t =
   fun env sigma sigma' phi ->
     let debug = false in
-    if false then begin
+    if debug then begin
       Format_.pr "==================@.";
       Format_.print ~tag:"σ " Format_.abstraction_ty sigma;
       Format_.print ~tag:"σ'" Format_.abstraction_ty sigma';
@@ -73,21 +74,22 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
            * *)
           let l = List.length qs in
           let k = List.length ps in
-          let max_ors = 10 in (* TODO オプションで変えられるように *)
-
+          let max_ors = !Option.Abstraction.max_ors in
           let one_to_l = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 l) in
           let one_to_k = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 k) in
           let _Is = List.powerset one_to_l in
           let _Js =
-              List.filter (List.powerset one_to_k) ~f:begin fun _J ->
-                let ps' = List.(map ~f:(nth_exn ps) _J) in
-                Fpat.is_consistent_set ps' && not (List.is_empty _J)
-              end
+            List.filter (List.powerset one_to_k) ~f:begin fun _J ->
+              let ps' = List.(map ~f:(nth_exn ps) _J) in
+              Fpat.is_consistent_set ps' && not (List.is_empty _J)
+            end
           in
-          let _Jss = List.filter (List.powerset ~limit:max_ors _Js)
-              ~f:(fun l -> not (List.is_empty l)) in
-
-          let phi's = List.map _Is ~f:begin fun _I ->
+          let _Jss =
+            List.filter (List.powerset ~limit:max_ors _Js)
+              ~f:(fun l -> not (List.is_empty l))
+          in
+          let phi's =
+            List.map _Is ~f:begin fun _I ->
               let xs' = List.(map ~f:(nth_exn xs) _I) in
               let qs' = List.(map ~f:(nth_exn qs) _I) in
               let _Q  = Formula.mk_ands qs' in
@@ -128,8 +130,8 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                           end
                   in
                   Hfl.mk_ands ~kind:`Inserted
-                      @@ List.map xs' ~f:Hfl.mk_var
-                       @ List.map _Js ~f:mk_atom
+                      @@ Hfl.mk_ands (List.map xs' ~f:Hfl.mk_var)
+                      :: List.map _Js ~f:mk_atom
                 end
               in
               (* log *)
@@ -166,7 +168,13 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
     let (sigma, phi) : Type.abstraction_ty * Hfl.t = match psi with
       (* Var *)
       | Var v ->
-          let sigma = try IdMap.lookup env v with _ -> assert false in
+          let sigma =
+            try
+              IdMap.lookup env v
+            with _ ->
+              Fn.fatal @@
+                Fmt.strf "Variable %s not found in environment" (Id.to_string v)
+            in
           (sigma , Var { v with ty = Type.abstract sigma })
       (* Bool *)
       | Bool b ->
@@ -216,36 +224,13 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
                 abstract_coerce env sigma sigma' phi
             end
           in
-          (* let phi' = make_ope phis' in *)
           let phi' = merge_lambda (List.length preds') make_ope phis' in
           (sigma', phi')
-      (*
-      | And(psi1,psi2) | Hflz.Or(psi1,psi2) ->
-          let make_ope = match psi with
-            | And _ -> fun x y -> Hfl.mk_ands [x; y]
-            | Or _  -> fun x y -> Hfl.mk_ors  [x; y]
-            | _     -> assert false
-          in
-          begin match abstract_infer env psi1, abstract_infer env psi2 with
-          | (TyBool preds1, phi1), (TyBool preds2, phi2) ->
-              let preds' = List.remove_consecutive_duplicates
-                            (List.append preds1 preds2)
-                            ~equal:Fpat.(<=>)
-              in
-              let sigma = TyBool preds' in
-              let phi1' = abstract_coerce env (TyBool preds1) sigma phi1 in
-              let phi2' = abstract_coerce env (TyBool preds2) sigma phi2 in
-              let phi   = merge_lambda (List.length preds') make_ope phi1' phi2' in
-              (sigma, phi)
-          | _ -> assert false
-          end
-      *)
       | Exists _ | Forall _ -> assert false (* unimplemented *)
       | Abs _ | Arith _ -> assert false (* impossible *)
           (* NOTE Absはpsiがβ-reduxを持たないという仮定の元でimpossible *)
     in
       let phi = Simplify.hfl ~force:false phi in
-      (* Log.debug begin fun m -> m ~header:"Term" "@[<0>%a@]@ ==> @[<0>%a@;<1 -3>⇢ %a@]" *)
       Log.debug begin fun m -> m ~header:"Term" "@[<hv 0>%a@ ==> %a@;<1 1>⇢  %a@]"
         Format_.(hflz simple_ty_) psi
         Format_.abstraction_ty sigma
@@ -264,7 +249,6 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
           abstract_coerce env sigma' sigma phi
     in
       let phi = Simplify.hfl ~force:false phi in
-      (* Log.debug begin fun m -> m ~header:"Term" "@[<0>%a@]@ <== @[<0>%a@;<1 -3>⇢ %a@]" *)
       Log.debug begin fun m -> m ~header:"Term" "@[<hv 0>%a@ <== %a@;<1 1>⇢  %a@]"
         Format_.(hflz simple_ty_) psi
         Format_.abstraction_ty sigma
@@ -301,22 +285,22 @@ let abstract_rule : env -> simple_ty Hflz.hes_rule -> Hfl.hes_rule =
           }
     in
     begin Log.debug @@ fun m -> m ~header:"Nonterminal" "%a"
-        Format_.hfl_hes_rule rule'
+      Format_.hfl_hes_rule rule'
     end;
     rule'
 
 let abstract : env -> simple_ty Hflz.hes -> Hfl.hes =
   fun env hes -> match hes with
     | main::hes ->
-      let main' =
-        Hfl.{ var  = Id.{ main.var with ty = ATyBool }
-            ; body = abstract_main env main.body
-            ; fix  = main.fix
-            }
-      in
-      begin Log.debug @@ fun m -> m ~header:"Nonterminal" "%a"
-          Format_.hfl_hes_rule main'
-      end;
-      main' :: List.map ~f:(abstract_rule env) hes
+        let main' =
+          Hfl.{ var  = Id.{ main.var with ty = ATyBool }
+              ; body = abstract_main env main.body
+              ; fix  = main.fix
+              }
+        in
+        begin Log.debug @@ fun m -> m ~header:"Nonterminal" "%a"
+            Format_.hfl_hes_rule main'
+        end;
+        main' :: List.map ~f:(abstract_rule env) hes
     | [] -> assert false
 

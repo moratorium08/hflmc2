@@ -40,6 +40,9 @@ module Hashtbl  = Hashtbl
 
 module Hash_set = Hash_set
 
+module Arg      = Arg
+module Command  = Command
+
 module Fn = struct
   include Fn
 
