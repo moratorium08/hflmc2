@@ -110,10 +110,6 @@ let hflz : unit Hflz.t t =
         [ lift Hflz.mk_bool bool
         ; lift Hflz.mk_var var
         ; lift Hflz.mk_arith arith
-        (* ; choice ~failure_msg:"pred" @@ *)
-        (*     List.map Formula.[Eq; Le; Ge; Lt; Gt] ~f:begin fun pred -> *)
-        (*       lift2 (Hflz.mk_pred pred) arith arith *)
-        (*     end *)
         ; parens hflz
         ] <?> "hflz:atom"
       in
@@ -244,7 +240,7 @@ module Alpha = struct
 
       let rule : unit Hflz.hes_rule -> unit Hflz.hes_rule =
         fun r ->
-          let var = Hflz.{ r.var with id = StrMap.find_exn env r.var.name } in
+          let var = { r.var with id = StrMap.find_exn env r.var.name } in
           let body = term env r.body in
           Hflz.{ var; fix = r.fix; body = body }
       in
@@ -405,9 +401,9 @@ let parse_string s =
     | Ok rhes -> rhes
     | Error s -> raise (ParseError s)
   in
-  let identified = Alpha.hes rhes in
-  let typed = Typing.hes identified in
-  typed
+  rhes
+  |> Alpha.hes
+  |> Typing.hes
 
 let parse_file file = parse_string @@ Fn.read_file file
 
