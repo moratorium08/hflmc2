@@ -1,6 +1,8 @@
 open Hflmc2_util
 
 include Fmt
+include Format
+
 let print = Fn.print
 
 let list_comma : 'a Fmt.t -> 'a list Fmt.t =
@@ -49,8 +51,8 @@ end
 
 let show_paren
      : bool
-    -> Format.formatter
-    -> ('a, Format.formatter, unit) format
+    -> formatter
+    -> ('a, formatter, unit) format
     -> 'a =
   fun b ppf fmt ->
     if b

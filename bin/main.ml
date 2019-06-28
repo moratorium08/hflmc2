@@ -20,11 +20,12 @@ let cegar_loop psi gamma =
 
 let main () =
   match Hflmc2.Option.parse() with
-  | None -> ()
+  | None ->
+      Fmt.pr "No input specified. try `--help`@."
   | Some input_file ->
       let psi = Parser.parse_file input_file in
       begin Log.app @@ fun m -> m ~header:"Input" "%a"
-        Format_.(hflz_hes simple_ty_) psi
+        Format.(hflz_hes simple_ty_) psi
       end;
       let gamma =
         IdMap.of_list @@ List.map psi ~f:begin fun { var; _ } ->
