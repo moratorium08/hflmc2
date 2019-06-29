@@ -2,11 +2,14 @@ open Hflmc2_util
 open Hflmc2_syntax
 open Type
 module Option = Hflmc2_option
-module Fpat = FpatInterface
 
 module Log = (val Logs.src_log @@ Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
 
 type env = abstraction_ty IdMap.t
+
+(* options *)
+let exhaustive_search = ref false
+
 
 (* For Or and And: (λxs.u1, λxs.u2) -> λxs.f u1 u2 *)
 let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
@@ -53,17 +56,15 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
           let qxs = List.zip_exn qs xs in
           (* gather x[j_i] *)
           let pxs = List.map ps ~f:begin fun p ->
-              snd @@ List.find_exn qxs ~f:(fun (q,_) -> Fpat.(p <=> q))
+              snd @@ List.find_exn qxs ~f:(fun (q,_) -> FpatInterface.(p <=> q))
             end
           in
           (* assemble *)
           let phi' = Hfl.mk_abss xs @@ Hfl.mk_apps phi (List.map ~f:Hfl.mk_var pxs) in
           phi'
         with Not_found ->
-          if debug then begin
-            Format.pr "==================@.";
-            Format.print ~tag:"xs" (Format.list_comma Format.id) xs;
-            Format.print ~tag:"φ " Format.hfl phi;
+          if false then begin
+            Format.print ~tag:"ps" Format.(list_comma formula) ps;
           end;
           (* Let ps be P1,...,Pk and qs be Q1,...,Ql.
            * To compute φ, find I ⊆ {1,...,l} and J1,...,Jm ⊆ {1,...,k} such that
@@ -81,7 +82,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
           let _Js =
             List.filter (List.powerset one_to_k) ~f:begin fun _J ->
               let ps' = List.(map ~f:(nth_exn ps) _J) in
-              Fpat.is_consistent_set ps' && not (List.is_empty _J)
+              FpatInterface.is_consistent_set ps' && not (List.is_empty _J)
             end
           in
           let _Jss =
@@ -96,10 +97,13 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
 
               (* /\Q => \/i(/\Ji) を満たす極大の J1,...,Jh の集合を得る *)
               let ans =
-                if not (Fpat.is_consistent_set qs')
+                if FpatInterface.(_Q ==> Formula.Bool false)
                 then
                   [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
-                else
+                else if
+                  (* See [FpatInterface.strongest_post_cond'] *)
+                  FpatInterface.(Formula.Bool true ==> _Q) || !exhaustive_search
+                then
                   let candidates : (int list list * Formula.t) list =
                     List.filter_map _Jss ~f:begin fun _Js ->
                       let pss =
@@ -110,17 +114,19 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                       let body =
                             Formula.mk_ors @@ List.map ~f:Formula.mk_ands pss
                       in
-                      if Fpat.(_Q ==> body)
+                      if FpatInterface.(_Q ==> body)
                       then Some (_Js, body)
                       else None
                     end
                   in
-                  if true
+                  if true (* もしかしたらバグってるかも知れない *)
                   then
-                    let (<=) (_,p1) (_,p2) = Fpat.(p2 ==> p1) in
+                    let (<=) (_,p1) (_,p2) = FpatInterface.(p2 ==> p1) in
                     List.map ~f:fst @@ Fn.maximals' (<=) candidates
                   else
                     List.map ~f:fst candidates
+                else
+                  [FpatInterface.strongest_post_cond _Q ps]
               in
               let nodes = List.map ans ~f:begin fun _Js ->
                   let mk_atom _J =
@@ -130,7 +136,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                           end
                   in
                   Hfl.mk_ands ~kind:`Inserted
-                      @@ Hfl.mk_ands (List.map xs' ~f:Hfl.mk_var)
+                      @@ Hfl.mk_ands ~kind:`Inserted (List.map xs' ~f:Hfl.mk_var)
                       :: List.map _Js ~f:mk_atom
                 end
               in
@@ -144,7 +150,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                 Log.debug begin fun m -> m ~header:"Coerce" "I = %a,@ J = %a"
                   Format.(list_set formula) qs'
                   Format.(list_set (list_set formula)) pss
-                end
+                end;
               end;
               Hfl.mk_ors ~kind:`Inserted nodes
             end
@@ -172,8 +178,7 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
             try
               IdMap.lookup env v
             with _ ->
-              Fn.fatal @@
-                Fmt.strf "Variable %s not found in environment" (Id.to_string v)
+              Fn.fatal @@ Fmt.strf "Variable %s not found in environment" (Id.to_string v)
             in
           (sigma , Var { v with ty = Type.abstract sigma })
       (* Bool *)
@@ -213,7 +218,7 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
           in
           let sigma_phis = List.map psis ~f:(abstract_infer env) in
           let preds' =
-            List.remove_consecutive_duplicates ~equal:Fpat.(<=>) @@
+            List.remove_consecutive_duplicates ~equal:FpatInterface.(<=>) @@
               List.concat @@ List.map sigma_phis ~f:begin function
                 | TyBool pred, _ -> pred
                 | _ -> assert false
@@ -262,7 +267,7 @@ let abstract_main : env -> simple_ty Hflz.t -> Hfl.t =
     match sigma with
     | TyBool ps ->
         let complement = Formula.(mk_not (mk_ors ps)) in
-        if Fpat.(complement ==> Formula.Bool false)
+        if FpatInterface.(complement ==> Formula.Bool false)
         then
           phi
           |> abstract_coerce env (TyBool ps) (TyBool [])
