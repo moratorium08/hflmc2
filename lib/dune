@@ -11,6 +11,7 @@
     hflmc2_syntax
     hflmc2_abstraction
     hflmc2_modelcheck
+    hflmc2_refine
     ))
 
 (env (dev (flags (:standard -warn-error -A))))

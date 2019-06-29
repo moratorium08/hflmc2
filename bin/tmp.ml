@@ -54,7 +54,7 @@ let phi = Hflmc2.Abstraction.abstract gamma psi
 
 let () =
   Log.app @@ fun m -> m ~header:"AbstractedFormula" "%a"
-    Format.hfl_hes phi
+    Print.hfl_hes phi
 
 let () =
   match Hflmc2.Modelcheck.run phi with
@@ -62,6 +62,6 @@ let () =
       Fmt.pr "Sat@."
   | Error cex ->
       let open Hflmc2.Modelcheck in
-      Format.pr "@[<v 2>Counterexample:@ = %a@ → %a@]@."
+      Print.pr "@[<v 2>Counterexample:@ = %a@ → %a@]@."
         Sexp.pp_hum (sexp_of_counterexample cex)
         Sexp.pp_hum (sexp_of_counterexample (simplify cex))

@@ -30,7 +30,7 @@ let main () =
           Fmt.pr "%s@." e; assert false
       in
       begin Log.app @@ fun m -> m ~header:"Input" "%a"
-        Format.(hflz_hes simple_ty_) psi
+        Print.(hflz_hes simple_ty_) psi
       end;
       let gamma =
         IdMap.of_list @@ List.map psi ~f:begin fun { var; _ } ->

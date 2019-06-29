@@ -42,9 +42,9 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
   fun env sigma sigma' phi ->
     let debug = false in
     if debug then begin
-      Format.pr "==================@.";
-      Format.print ~tag:"σ " Format.abstraction_ty sigma;
-      Format.print ~tag:"σ'" Format.abstraction_ty sigma';
+      Print.pr "==================@.";
+      Print.print ~tag:"σ " Print.abstraction_ty sigma;
+      Print.print ~tag:"σ'" Print.abstraction_ty sigma';
     end;
     match sigma, sigma' with
     | TyBool ps, TyBool qs ->
@@ -64,7 +64,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
           phi'
         with Not_found ->
           if false then begin
-            Format.print ~tag:"ps" Format.(list_comma formula) ps;
+            Print.print ~tag:"ps" Print.(list_comma formula) ps;
           end;
           (* Let ps be P1,...,Pk and qs be Q1,...,Ql.
            * To compute φ, find I ⊆ {1,...,l} and J1,...,Jm ⊆ {1,...,k} such that
@@ -148,8 +148,8 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                           List.nth_exn ps j end end
                 in
                 Log.debug begin fun m -> m ~header:"Coerce" "I = %a,@ J = %a"
-                  Format.(list_set formula) qs'
-                  Format.(list_set (list_set formula)) pss
+                  Print.(list_set formula) qs'
+                  Print.(list_set (list_set formula)) pss
                 end;
               end;
               Hfl.mk_ors ~kind:`Inserted nodes
@@ -237,9 +237,9 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
     in
       let phi = Simplify.hfl ~force:false phi in
       Log.debug begin fun m -> m ~header:"Term" "@[<hv 0>%a@ ==> %a@;<1 1>⇢  %a@]"
-        Format.(hflz simple_ty_) psi
-        Format.abstraction_ty sigma
-        Format.hfl phi
+        Print.(hflz simple_ty_) psi
+        Print.abstraction_ty sigma
+        Print.hfl phi
       end;
       sigma, phi
 
@@ -255,9 +255,9 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
     in
       let phi = Simplify.hfl ~force:false phi in
       Log.debug begin fun m -> m ~header:"Term" "@[<hv 0>%a@ <== %a@;<1 1>⇢  %a@]"
-        Format.(hflz simple_ty_) psi
-        Format.abstraction_ty sigma
-        Format.hfl phi
+        Print.(hflz simple_ty_) psi
+        Print.abstraction_ty sigma
+        Print.hfl phi
       end;
       phi
 
@@ -290,7 +290,7 @@ let abstract_rule : env -> simple_ty Hflz.hes_rule -> Hfl.hes_rule =
           }
     in
     begin Log.debug @@ fun m -> m ~header:"Nonterminal" "%a"
-      Format.hfl_hes_rule rule'
+      Print.hfl_hes_rule rule'
     end;
     rule'
 
@@ -304,7 +304,7 @@ let abstract : env -> simple_ty Hflz.hes -> Hfl.hes =
               }
         in
         begin Log.debug @@ fun m -> m ~header:"Nonterminal" "%a"
-            Format.hfl_hes_rule main'
+            Print.hfl_hes_rule main'
         end;
         main' :: List.map ~f:(abstract_rule env) hes
     | [] -> assert false

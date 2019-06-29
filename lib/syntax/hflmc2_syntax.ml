@@ -1,7 +1,7 @@
 open Hflmc2_util
 module Arith    = Arith
 module Fixpoint = Fixpoint
-module Format   = Format_
+module Print    = Print
 module Formula  = Formula
 module Hfl      = Hfl
 module Hflz     = Hflz
