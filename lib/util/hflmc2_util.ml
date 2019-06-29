@@ -25,8 +25,20 @@ end
 module String   = String
 
 module Map      = Map
-module IntMap   = Map.Make(Int)
-module StrMap   = Map.Make(String)
+module IntMap   = struct
+  include Map.Make(Int)
+  let add_override : 'a t -> key:int -> data:'a -> 'a t =
+    fun map ~key ~data ->
+      let map = remove map key in
+      add_exn map ~key ~data
+end
+module StrMap   = struct
+  include Map.Make(String)
+  let add_override : 'a t -> key:string -> data:'a -> 'a t =
+    fun map ~key ~data ->
+      let map = remove map key in
+      add_exn map ~key ~data
+end
 
 module Set      = Set
 module IntSet   = Set.Make(Int)
@@ -42,6 +54,8 @@ module Hash_set = Hash_set
 
 module Arg      = Arg
 module Command  = Command
+
+module In_channel = In_channel
 
 module Fn = struct
   include Fn
@@ -119,6 +133,10 @@ module Fn = struct
   let assert_no_exn f = try f () with e -> print_endline (Exn.to_string e); assert false
 end
 
+let (>>>) = Fn.(>>>)
+let (<<<) = Fn.(<<<)
+let (-$-) = Fn.(-$-)
+
 let char_of_sexp      = char_of_sexp
 let sexp_of_char      = sexp_of_char
 let bool_of_sexp      = bool_of_sexp
@@ -145,8 +163,6 @@ let bytes_of_sexp     = bytes_of_sexp
 let sexp_of_bytes     = sexp_of_bytes
 let unit_of_sexp      = unit_of_sexp
 let sexp_of_unit      = sexp_of_unit
-
-module Fmt = Fmt
 
 module Log = Log
 module Logs = Logs
