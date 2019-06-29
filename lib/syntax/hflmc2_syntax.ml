@@ -1,3 +1,4 @@
+open Hflmc2_util
 module Arith    = Arith
 module Fixpoint = Fixpoint
 module Format   = Format_
@@ -6,103 +7,138 @@ module Hfl      = Hfl
 module Hflz     = Hflz
 module Id       = Id
 module Type     = Type
-module Lexer    = Lexer
-module Mparser  = Mparser
-module Parser   = Parser
 module Raw_hflz = Raw_hflz
 module Simplify = Simplify
 module Subst    = Subst
 module IdMap    = IdMap
 module IdSet    = IdSet
 
-module P = struct
-  module I = Mparser.MenhirInterpreter
+exception ParseError of string
+module Parser : sig
+  val main : Lexing.lexbuf -> Raw_hflz.hes
+end = struct
+  module P = Parser
+  module I = P.MenhirInterpreter
 
-  (* -------------------------------------------------------------------------- *)
+  (*********************)
+  (* Print error state *)
+  (*********************)
+  module type PRINTER_DEF = sig
+    val print: string -> unit
+    val print_symbol: I.xsymbol -> unit
+    val print_element: (I.element -> unit) option
+  end
 
-  (* The loop which drives the parser. At each iteration, we analyze a
-     checkpoint produced by the parser, and act in an appropriate manner.
-     [lexbuf] is the lexing buffer. [checkpoint] is the last checkpoint produced
-     by the parser. *)
+  let make_printer ppf =
+  (* {{{ 自動化する方法はあるにはあるけどmenhirレポジトリをcloneしてmenhir-generate-printersというのをbuildする必要があって大変なのでやりたくない．悲しい *)
+    let module User = struct
+      let print s = Fmt.pf ppf "%s" s
+      let print_symbol = function
+        | I.X (I.T x) -> print @@ begin match x with
+            | I.T_error     -> "error"
+            | I.T_UIDENT    -> "UIDENT"
+            | I.T_TRUE      -> "TRUE"
+            | I.T_START_HES -> "START_HES"
+            | I.T_STAR      -> "STAR"
+            | I.T_RSQUARE   -> "RSQUARE"
+            | I.T_RPAREN    -> "RPAREN"
+            | I.T_RANGRE    -> "RANGRE"
+            | I.T_PLUS      -> "PLUS"
+            | I.T_OR        -> "OR"
+            | I.T_NEQ       -> "NEQ"
+            | I.T_NEG       -> "NEG"
+            | I.T_MINUS     -> "MINUS"
+            | I.T_LSQUARE   -> "LSQUARE"
+            | I.T_LPAREN    -> "LPAREN"
+            | I.T_LIDENT    -> "LIDENT"
+            | I.T_LE        -> "LE"
+            | I.T_LANGRE    -> "LANGRE"
+            | I.T_LAMBDA    -> "LAMBDA"
+            | I.T_INT       -> "INT"
+            | I.T_GE        -> "GE"
+            | I.T_FALSE     -> "FALSE"
+            | I.T_EQ        -> "EQ"
+            | I.T_EOF       -> "EOF"
+            | I.T_DOT       -> "DOT"
+            | I.T_DEF_L     -> "DEF_L"
+            | I.T_DEF_G     -> "DEF_G"
+            | I.T_AND       -> "AND"
+            end
+        | I.X (I.N x) -> print @@ begin match x with
+            | I.N_uvar                     -> "uvar"
+            | I.N_pred_expr                -> "pred_expr"
+            | I.N_pred                     -> "pred"
+            | I.N_nonempty_list_hflz_rule_ -> "nonempty_list_hflz_rule_"
+            | I.N_modal_expr               -> "modal_expr"
+            | I.N_lvar                     -> "lvar"
+            | I.N_list_lvar_               -> "list_lvar_"
+            | I.N_list_lambda_             -> "list_lambda_"
+            | I.N_list_atom_               -> "list_atom_"
+            | I.N_lambda                   -> "lambda"
+            | I.N_hflz_rule                -> "hflz_rule"
+            | I.N_hflz                     -> "hflz"
+            | I.N_hes                      -> "hes"
+            | I.N_def_fixpoint             -> "def_fixpoint"
+            | I.N_bool                     -> "bool"
+            | I.N_atom                     -> "atom"
+            | I.N_arith_expr               -> "arith_expr"
+            | I.N_app_expr                 -> "app_expr"
+            | I.N_and_or_expr              -> "and_or_expr"
+            | I.N_abs_expr                 -> "abs_expr"
+            end
+      let print_element = None
+    end in (module User : PRINTER_DEF)
+  (* }}} *)
 
-  (* let rec loop lexbuf (checkpoint : Raw_hflz.raw_hflz_hes I.checkpoint) = *)
-  (*   match checkpoint with *)
-  (*   | I.InputNeeded _env -> *)
-  (*       (* The parser needs a token. Request one from the lexer, *)
-  (*          and offer it to the parser, which will produce a new *)
-  (*          checkpoint. Then, repeat. *) *)
-  (*       let token = Lexer.token lexbuf in *)
-  (*       let startp = lexbuf.lex_start_p *)
-  (*       and endp = lexbuf.lex_curr_p in *)
-  (*       let checkpoint = I.offer checkpoint (token, startp, endp) in *)
-  (*       loop lexbuf checkpoint *)
-  (*   | I.Shifting _ *)
-  (*   | I.AboutToReduce _ -> *)
-  (*       let checkpoint = I.resume checkpoint in *)
-  (*       loop lexbuf checkpoint *)
-  (*   | I.HandlingError _env -> *)
-  (*       (* The parser has suspended itself because of a syntax error. Stop. *) *)
-  (*       Printf.fprintf stderr *)
-  (*         "At offset %d: syntax error.\n%!" *)
-  (*         (Lexing.lexeme_start lexbuf) *)
-  (*   | I.Accepted v -> *)
-  (*       (* The parser has succeeded and produced a semantic value. Print it. *) *)
-  (*       Format.printf "%a\n%!" Raw_hflz.pp_raw_hflz_hes v *)
-  (*   | I.Rejected -> *)
-  (*       (* The parser rejects this input. This cannot happen, here, because *)
-  (*          we stop as soon as the parser reports [HandlingError]. *) *)
-  (*       assert false *)
+  let pp_env ppf env =
+    Fmt.pf ppf "%a"
+      begin fun ppf env ->
+        let module Printer =
+          MenhirLib.Printers.Make(I)(val make_printer ppf)
+        in
+        Printer.print_env env
+      end env
 
-  (* -------------------------------------------------------------------------- *)
 
-  (* The above loop is shown for explanatory purposes, but can in fact be
-     replaced with the following code, which exploits the functions
-     [lexer_lexbuf_to_supplier] and [loop_handle] offered by Menhir. *)
+  (******************)
+  (* Main procedure *)
+  (******************)
 
-  let succeed (v : Raw_hflz.raw_hflz_hes) =
-    (* The parser has succeeded and produced a semantic value. Print it. *)
-    Format.printf "%a@." Raw_hflz.pp_raw_hflz_hes v
-
-  let fail lexbuf (_ : Raw_hflz.raw_hflz_hes I.checkpoint) =
-    (* The parser has suspended itself because of a syntax error. Stop. *)
-    Printf.fprintf stderr
-      "At offset %d: syntax error.\n%!"
-      (Lexing.lexeme_start lexbuf)
-
-  let loop lexbuf result =
+  let loop lexbuf checkpoint =
+    let succeed v = v in
+    let fail checkpoint =
+      match checkpoint with
+      | I.HandlingError env ->
+          let open Lexing in
+          let pos = lexbuf.lex_curr_p in
+          let str =
+            Fmt.strf "@[<v>Parse Error at %s%d:%d:@;Error happened after reading@;%a@]@."
+              (if pos.pos_fname="" then "" else pos.pos_fname^":")
+              pos.pos_lnum
+              (pos.pos_cnum - pos.pos_bol)
+              pp_env env
+          in raise (ParseError str)
+      | _ -> assert false
+    in
     let supplier = I.lexer_lexbuf_to_supplier Lexer.token lexbuf in
-    I.loop_handle succeed (fail lexbuf) supplier result
+    I.loop_handle succeed fail supplier checkpoint
 
-  (* -------------------------------------------------------------------------- *)
-
-  (* Initialize the lexer, and catch any exception raised by the lexer. *)
-
-  let process (line : string) =
-    let lexbuf = Lexing.from_string line in
-    try
-      loop lexbuf (Mparser.Incremental.hes lexbuf.lex_curr_p)
-    with
-    | Lexer.Error msg -> Printf.fprintf stderr "%s%!" msg
-
-  (* -------------------------------------------------------------------------- *)
-
-  (* The rest of the code is as in the [calc] demo. *)
-
-  (* let process (optional_line : string option) = *)
-  (*   match optional_line with *)
-  (*   | None -> *)
-  (*       () *)
-  (*   | Some line -> *)
-  (*       process line *)
-  (*  *)
-  (* let rec repeat channel = *)
-  (*   (* Attempt to read one line. *) *)
-  (*   let optional_line, continue = Lexer.token channel in *)
-  (*   process optional_line; *)
-  (*   if continue then *)
-  (*     repeat channel *)
-  (*  *)
-  (* let () = *)
-  (*   repeat (Lexing.from_channel stdin) *)
-
+  let main lexbuf = loop lexbuf (P.Incremental.hes lexbuf.lex_curr_p)
 end
+
+let parse_string str =
+  str
+  |> Lexing.from_string
+  |> Parser.main
+  |> Raw_hflz.to_typed
+
+let parse_file file =
+  In_channel.with_file file ~f:begin fun ch ->
+    let lexbuf = Lexing.from_channel ch in
+    lexbuf.lex_start_p <- { lexbuf.lex_start_p with pos_fname = file };
+    lexbuf.lex_curr_p  <- { lexbuf.lex_curr_p  with pos_fname = file };
+    lexbuf
+    |> Parser.main
+    |> Raw_hflz.to_typed
+  end
+

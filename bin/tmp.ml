@@ -3,7 +3,12 @@ open Util
 open Syntax
 open Type
 
+(*============================================================================*)
+
 module Log = (val Logs.src_log @@ Logs.Src.create ~doc:"Main" "Main")
+let _ = Hflmc2.Option.parse()
+
+(*============================================================================*)
 
 let _ = Hflmc2.Option.parse()
 
@@ -12,13 +17,13 @@ let z = Id.gen ~name:"z" TyInt
 let _S = Id.gen ~name:"S" @@ TyBool()
 let _S_ty = TyBool []
 let _X = Id.gen ~name:"X" @@ TyArrow(z, TyBool ())
-(* let _X_ty = TyArrow(z, TyBool []) *)
-(* let _X_ty = TyArrow(z, TyBool Formula.[Pred(Ge, Arith.[mk_var z; mk_int 0])]) *)
+let _X_ty = TyArrow(z, TyBool Formula.[Pred(Ge, Arith.[mk_var z; mk_int 0])])
 (* let _X_ty = TyArrow(z, TyBool Formula.[Pred(Eq, Arith.[mk_var z; mk_int 0])]) *)
-let _X_ty = TyArrow(z, TyBool
-              Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0])
-                      ; Pred(Eq, Arith.[mk_var z; mk_int 1])
-                      ])
+(* let _X_ty = TyArrow(z, TyBool *)
+(*               Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0]) *)
+(*                       ; Pred(Eq, Arith.[mk_var z; mk_int 1]) *)
+(*                       (* ; Pred(Eq, Arith.[mk_var z; mk_int 2]) *) *)
+(*                       ]) *)
 (* let _X_ty = (TyArrow(z, TyBool *)
 (*                 Formula.[ Pred(Eq, Arith.[mk_var z; mk_int 0]) *)
 (*                         ; Pred(Ge, Arith.[mk_var z; mk_int 1]) *)
@@ -49,7 +54,7 @@ let phi = Hflmc2.Abstraction.abstract gamma psi
 
 let () =
   Log.app @@ fun m -> m ~header:"AbstractedFormula" "%a"
-    Format_.hfl_hes phi
+    Format.hfl_hes phi
 
 let () =
   match Hflmc2.Modelcheck.run phi with
@@ -57,6 +62,6 @@ let () =
       Fmt.pr "Sat@."
   | Error cex ->
       let open Hflmc2.Modelcheck in
-      Format_.pr "@[<v 2>Counterexample:@ = %a@ → %a@]@."
+      Format.pr "@[<v 2>Counterexample:@ = %a@ → %a@]@."
         Sexp.pp_hum (sexp_of_counterexample cex)
         Sexp.pp_hum (sexp_of_counterexample (simplify cex))

@@ -99,6 +99,8 @@ let pred : Formula.pred Fmt.t =
 
 let rec formula_ : Prec.t -> Formula.t Fmt.t =
   fun prec ppf f -> match f with
+    | Var (x, `Pos) -> Fmt.string ppf x
+    | Var (x, `Neg) -> Fmt.string ppf ("¬"^x)
     | Bool true -> Fmt.string ppf "true"
     | Bool false -> Fmt.string ppf "false"
     | Or(f1,f2) ->
@@ -114,7 +116,7 @@ let rec formula_ : Prec.t -> Formula.t Fmt.t =
           arith f1
           pred pred'
           arith f2
-    | _ -> assert false
+    | Pred _ -> assert false
 let formula : Formula.t Fmt.t = formula_ Prec.zero
 
 (* Type *)
@@ -129,19 +131,24 @@ let argty : 'ty Fmt.t -> 'ty Type.arg Fmt.t =
     | TyInt -> Fmt.string ppf "int"
     | TySigma sigma -> format_ty ppf sigma
 
-let rec ty_ : 'annot Fmt.t -> Prec.t -> 'annot Type.ty Fmt.t =
-  fun format_annot prec ppf ty -> match ty with
+let rec ty_ : ?with_var:bool -> 'annot Fmt.t -> Prec.t -> 'annot Type.ty Fmt.t =
+  fun ?(with_var=true) format_annot prec ppf ty -> match ty with
       | TyBool annot ->
           Fmt.pf ppf "bool@[%a@]" format_annot annot
       | TyArrow (x, ret) ->
-          show_paren (prec > Prec.arrow) ppf "@[<1>%a:%a ->@ %a@]"
-            id x
-            (argty (ty_ format_annot Prec.(succ arrow))) x.ty
-            (ty_ format_annot Prec.arrow) ret
-let ty : 'annot Fmt.t -> 'annot Type.ty Fmt.t =
-  fun format_annot -> ty_ format_annot Prec.zero
+          if with_var then
+            show_paren (prec > Prec.arrow) ppf "@[<1>%a:%a ->@ %a@]"
+              id x
+              (argty (ty_ ~with_var format_annot Prec.(succ arrow))) x.ty
+              (ty_ ~with_var format_annot Prec.arrow) ret
+          else
+            show_paren (prec > Prec.arrow) ppf "@[<1>%a ->@ %a@]"
+              (argty (ty_ ~with_var format_annot Prec.(succ arrow))) x.ty
+              (ty_ ~with_var format_annot Prec.arrow) ret
+let ty : ?with_var:bool  -> 'annot Fmt.t -> 'annot Type.ty Fmt.t =
+  fun ?(with_var=true) format_annot -> ty_ ~with_var format_annot Prec.zero
 
-let simple_ty_ : Prec.t -> Type.simple_ty Fmt.t = ty_ Fmt.nop
+let simple_ty_ : Prec.t -> Type.simple_ty Fmt.t = ty_ ~with_var:false Fmt.nop
 let simple_ty : Type.simple_ty Fmt.t = simple_ty_ Prec.zero
 let simple_argty_ : Prec.t -> Type.simple_ty Type.arg Fmt.t = argty_ simple_ty_
 let simple_argty : Type.simple_ty Type.arg Fmt.t = simple_argty_ Prec.zero
@@ -220,8 +227,9 @@ let hfl : Hfl.t Fmt.t = hfl_ Prec.zero
 
 let hfl_hes_rule : Hfl.hes_rule Fmt.t =
   fun ppf rule ->
-    Fmt.pf ppf "@[<2>%s =%a %a@]"
+    Fmt.pf ppf "@[<2>%s : %a =%a %a@]"
       (Id.to_string rule.var)
+      abstracted_ty rule.var.ty
       fixpoint rule.fix
       hfl rule.body
 
@@ -272,8 +280,9 @@ let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.t Fmt.t =
 
 let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
   fun format_ty_ ppf rule ->
-    Fmt.pf ppf "@[<2>%s =%a %a@]"
+    Fmt.pf ppf "@[<2>%s : %a =%a %a@]"
       (Id.to_string rule.var)
+      (format_ty_ Prec.zero) rule.var.ty
       fixpoint rule.fix
       (hflz format_ty_) rule.body
 

@@ -23,7 +23,12 @@ let main () =
   | None ->
       Fmt.pr "No input specified. try `--help`@."
   | Some input_file ->
-      let psi = Parser.parse_file input_file in
+      let psi =
+        try
+          Syntax.parse_file input_file
+        with Syntax.ParseError e ->
+          Fmt.pr "%s@." e; assert false
+      in
       begin Log.app @@ fun m -> m ~header:"Input" "%a"
         Format.(hflz_hes simple_ty_) psi
       end;

@@ -17,6 +17,9 @@ type 'annot ty
 type simple_ty = unit ty
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
+let to_simple : 'a ty -> simple_ty = 
+  fun x -> map_ty (fun _ -> ()) x
+
 (* Abstraction Type *)
 
 type abstraction_ty = Formula.t list ty

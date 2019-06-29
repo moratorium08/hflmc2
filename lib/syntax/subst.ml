@@ -5,14 +5,14 @@ type 'x t = 'x IdMap.t
 
 (* TODO IdMapを使う *)
 module Arith = struct
-  let rec arith : unit Id.t -> Arith.t -> Arith.t -> Arith.t =
+  let rec arith : [`Int] Id.t -> Arith.t -> Arith.t -> Arith.t =
     fun x a a' ->
       match a' with
       | Int _ -> a'
       | Var x' -> if Id.equal (=) x x' then a else a'
       | Op(op, as') -> Op(op, List.map ~f:(arith x a) as')
   let arith : 'a. 'a Id.t -> Arith.t -> Arith.t -> Arith.t =
-    fun x a a' -> arith (Id.remove_ty x) a a'
+    fun x a a' -> arith {x with ty=`Int} a a'
 
   let rec formula : unit Id.t -> Arith.t -> Formula.t -> Formula.t =
     fun x a p ->
