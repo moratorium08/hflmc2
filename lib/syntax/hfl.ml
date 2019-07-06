@@ -67,7 +67,7 @@ let decompose_lambda =
 let decompose_app =
   let rec go phi acc = match phi with
     | App(phi,x) -> go phi (x::acc)
-    | _ -> (phi, acc)
+    | _ -> (phi, List.rev acc)
   in
   fun phi -> go phi []
 
