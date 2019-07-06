@@ -29,8 +29,8 @@ let set_debug_modules modules =
 (******************************************************************************)
 
 type params =
-  (* { input : string [@pos 0] [@docv "FILE"] *)
-  { input : string option [@docv "FILE"]
+  { input : string [@pos 0] [@docv "FILE"]
+  (* { input : string option [@docv "FILE"] *)
 
   (* Logging *)
   ; debug : string list [@default []] [@docv "MODULE,..."]

@@ -1,7 +1,7 @@
 open Hflmc2_util
 open Hflmc2_syntax
 open Type
-module Option = Hflmc2_option
+module Options = Hflmc2_options
 
 module Log = (val Logs.src_log @@ Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
 
@@ -67,7 +67,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
              * *)
             let l = List.length qs in
             let k = List.length ps in
-            let max_ors = !Option.Abstraction.max_ors in
+            let max_ors = !Options.Abstraction.max_ors in
             let one_to_l = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 l) in
             let one_to_k = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 k) in
             let _Is = List.powerset one_to_l in

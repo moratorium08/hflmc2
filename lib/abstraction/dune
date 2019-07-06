@@ -4,7 +4,7 @@
  (libraries
    fpat
    hflmc2_util
-   hflmc2_option
+   hflmc2_options
    hflmc2_syntax)
  (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv)))
 (env (dev (flags (:standard -warn-error -A -w -3-33))))

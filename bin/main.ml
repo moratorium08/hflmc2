@@ -46,7 +46,7 @@ let rec cegar_loop ?prev_cex psi gamma =
       end
 
 let main () =
-  match Hflmc2.Option.parse() with
+  match Hflmc2.Options.parse() with
   | None ->
       Fmt.pr "No input specified. try `--help`@."
   | Some input_file ->

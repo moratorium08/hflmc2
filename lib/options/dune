@@ -1,5 +1,5 @@
 (library
- (public_name hflmc2_option)
+ (public_name hflmc2_options)
  (modes native)
  (libraries
    fmt
