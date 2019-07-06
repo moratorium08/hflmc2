@@ -10,34 +10,42 @@ type pred =
   | Gt
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
-type t
-  = Bool of bool
-  | Var  of string * [`Pos|`Neg] (* negate or not *)
-  | Or   of t * t
-  | And  of t * t
-  | Pred of pred * Arith.t list
+(* formula parametrized by variable type and arith type *)
+type ('bvar, 'avar) gen_t =
+  | Bool of bool
+  | Var  of 'bvar
+  | Or   of ('bvar, 'avar) gen_t list
+  | And  of ('bvar, 'avar) gen_t list
+  | Pred of pred * 'avar Arith.gen_t list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
-let mk_var x = Var (x, `Pos)
+(* type t = ((string * [`Pos|`Neg]), [`Int] Id.t) gen_t *)
+type t = (Void.t, [`Int] Id.t) gen_t
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
 
-let mk_and a b = And(a,b)
+let mk_var x = Var x
+
+let mk_and a b = And [a;b]
 
 let mk_ands = function
   | [] -> Bool true
-  | x::xs -> List.fold_left xs ~init:x ~f:mk_and
+  | [x] -> x
+  | xs -> And xs
 
-let mk_or a b = Or(a,b)
+let mk_or a b = Or [a;b]
 
 let mk_ors = function
   | [] -> Bool false
+  | [x] -> x
   | x::xs -> List.fold_left xs ~init:x ~f:mk_or
 
-let rec mk_not = function
+let mk_pred pred as' = Pred (pred, as')
+
+let rec mk_not' (negate_var : 'bvar -> 'bvar) = function
+  | Var x  -> Var (negate_var x)
   | Bool b -> Bool (not b)
-  | Var (x, `Neg) -> Var(x, `Pos)
-  | Var (x, `Pos) -> Var(x, `Neg)
-  | Or (f1,f2) -> And(mk_not f1, mk_not f2)
-  | And(f1,f2) -> Or (mk_not f1, mk_not f2)
+  | Or  fs -> And (List.map fs ~f:(mk_not' negate_var))
+  | And fs -> Or  (List.map fs ~f:(mk_not' negate_var))
   | Pred(pred, as') ->
       let pred' = match pred with
         | Eq  -> Neq
@@ -47,21 +55,27 @@ let rec mk_not = function
         | Lt  -> Ge
         | Ge  -> Lt
       in Pred(pred', as')
+let mk_not f = mk_not' Void.absurd f
 
 let mk_implies a b = mk_or (mk_not a) b
 
-let rec to_DNF : t -> t list list =
+let rec to_DNF : ('var, 'arith) gen_t -> ('var, 'arith) gen_t list list =
   fun f -> match f with
-  | Var _ | Pred _ ->  [[f]]
+  | Var _ ->  [[f]]
+  | Pred _ ->  [[f]]
   | Bool true -> [[]]
   | Bool false -> []
-  | Or (f1, f2) -> to_DNF f1 @ to_DNF f2
-  | And (f1, f2) ->
-      let f1' = to_DNF f1 in
-      let f2' = to_DNF f2 in
-      List.concat_map f1' ~f:begin fun x ->
-        List.concat_map f2' ~f:begin fun y ->
-          [x @ y] (* 効率的にはList.rev_appendのほうが良いがrevが入ると見難くなるかなと思って *)
-        end
-      end
+  | Or fs -> List.concat_map fs ~f:to_DNF
+  | And fs ->
+      let open List in
+      map ~f:concat (cartesian_products (map fs ~f:to_DNF))
+
+let rec fvs : ('bvar, 'avar) gen_t -> 'bvar list * 'avar list =
+  function
+    | Bool _ -> [], []
+    | Var x  -> [x], []
+    | Pred (_, as') -> [], List.concat_map as' ~f:Arith.fvs
+    | Or fs' | And fs' ->
+        let vss, avss = List.unzip @@ List.map fs' ~f:fvs in
+        List.concat vss, List.concat avss
 
