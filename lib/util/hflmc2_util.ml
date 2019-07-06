@@ -1,7 +1,7 @@
 
 open Core
 
-module List     = struct
+module List = struct
   include List
   let enumurate xs = List.zip_exn xs (List.init (List.length xs) ~f:(fun x -> x))
   let find_with_index ~f:(p : 'a -> bool) (xs : 'a list) =
@@ -20,6 +20,25 @@ module List     = struct
   let powerset ?limit xs = match limit with
     | None -> powerset xs
     | Some n -> powerset_with_limit n xs
+  let singleton x = [x]
+  let snoc xs = match rev xs with
+    | []    -> failwith "List.snoc"
+    | x::xs -> (rev xs, x)
+  let cartesian_products : 'a list list -> 'a list list =
+    fun xss ->
+      fold_right xss ~init:[[]] ~f:begin fun xs acc ->
+        map (cartesian_product xs acc) ~f:begin fun (y,ys) -> y::ys end
+      end
+  let zipper_map ~f =
+    function
+    | [] -> []
+    | x::xs ->
+        let rec go xs y zs =
+          f xs y zs ::
+            match zs with
+            | [] -> []
+            | z::zs -> go (y::xs) z zs
+        in go [] x xs
 end
 
 module String   = String
@@ -56,6 +75,16 @@ module Arg      = Arg
 module Command  = Command
 
 module In_channel = In_channel
+
+module Void = struct
+  type t = Void of { absurd : 'a. 'a }
+  let absurd (Void void) = void.absurd
+  let equal v _     = absurd v
+  let compare v _   = absurd v
+  let pp _ v        = absurd v
+  let t_of_sexp _   = failwith "void_of_sexp"
+  let sexp_of_t v   = absurd v
+end
 
 module Fn = struct
   include Fn
@@ -131,7 +160,16 @@ module Fn = struct
   let read_file file = In_channel.(with_file file ~f:input_all)
 
   let assert_no_exn f = try f () with e -> print_endline (Exn.to_string e); assert false
+
+  class counter = object
+    val mutable cnt = 0
+    method tick =
+      let x = cnt in
+      cnt <- x + 1;
+      x
+  end
 end
+
 
 let (>>>) = Fn.(>>>)
 let (<<<) = Fn.(<<<)
@@ -164,7 +202,6 @@ let sexp_of_bytes     = sexp_of_bytes
 let unit_of_sexp      = unit_of_sexp
 let sexp_of_unit      = sexp_of_unit
 
-module Log = Log
-module Logs = Logs
+module Logs     = Logs
 module Logs_cli = Logs_cli
 module Logs_fmt = Logs_fmt

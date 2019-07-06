@@ -7,6 +7,8 @@ let singleton : 'a Id.t -> 'x -> 'x t =
 let add : 'x t -> 'a Id.t -> 'x -> 'x t =
   fun env v data ->
     add_exn env ~key:(Id.remove_ty v) ~data
+let find : 'x t -> 'a Id.t -> 'x option =
+  fun map v -> find map (Id.remove_ty v)
 let lookup : 'x t -> 'a Id.t -> 'x =
   fun map v -> find_exn map (Id.remove_ty v)
 let remove : 'x t -> 'a Id.t -> 'x t =

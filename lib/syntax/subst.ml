@@ -1,7 +1,43 @@
 open Hflmc2_util
 open Type
 
+(* TODO 適切な場所にmove *)
+
 type 'x t = 'x IdMap.t
+
+module Id' = struct
+  let rec arith : [`Int] Id.t -> [`Int ] Id.t -> Arith.t -> Arith.t =
+    fun x x' a ->
+      match a with
+      | Int _ -> a
+      | Var v -> if Id.equal (=) v x then Var x' else Var v
+      | Op(op, as') -> Op(op, List.map ~f:(arith x x') as')
+  let arith : 'a. 'a Id.t -> [`Int ] Id.t -> Arith.t -> Arith.t =
+    fun x x' a' -> arith {x with ty=`Int} x' a'
+
+  let rec formula : unit Id.t -> [`Int] Id.t -> Formula.t -> Formula.t =
+    fun x a p ->
+      match p with
+      | Pred(prim, as') -> Pred(prim, List.map as' ~f:(arith x a))
+      | And ps -> And(List.map ~f:(formula x a) ps)
+      | Or  ps -> Or (List.map ~f:(formula x a) ps)
+      | _ -> p
+  let formula : 'a. 'a Id.t -> [`Int] Id.t -> Formula.t -> Formula.t =
+    fun x a p -> formula (Id.remove_ty x) a p
+
+  let rec abstraction_ty : unit Id.t -> [`Int] Id.t -> abstraction_ty -> abstraction_ty =
+    fun x x' ty -> match ty with
+      | TyBool fs -> TyBool (List.map fs ~f:(formula x x'))
+      | TyArrow({ty=TyInt;_} as y, _) when Id.eq x y ->
+          assert false
+      | TyArrow({ty=TyInt;_} as y, ty) ->
+          TyArrow(y, abstraction_ty x x' ty)
+      | TyArrow({ty=TySigma ty_arg;_} as y, ret_ty) ->
+          TyArrow( { y with ty = TySigma (abstraction_ty x x' ty_arg)}
+                 , abstraction_ty x x' ret_ty)
+  let abstraction_ty : 'a. 'a Id.t -> [`Int] Id.t -> abstraction_ty -> abstraction_ty =
+    fun x a a' -> abstraction_ty (Id.remove_ty x) a a'
+end
 
 (* TODO IdMapを使う *)
 module Arith = struct
@@ -18,8 +54,8 @@ module Arith = struct
     fun x a p ->
       match p with
       | Pred(prim, as') -> Pred(prim, List.map as' ~f:(arith x a))
-      | And(p1,p2) -> And(formula x a p1, formula x a p2)
-      | Or(p1,p2) -> Or(formula x a p1, formula x a p2)
+      | And ps -> And(List.map ~f:(formula x a) ps)
+      | Or  ps -> Or (List.map ~f:(formula x a) ps)
       | _ -> p
   let formula : 'a. 'a Id.t -> Arith.t -> Formula.t -> Formula.t =
     fun x a p -> formula (Id.remove_ty x) a p
@@ -42,6 +78,48 @@ module Arith = struct
     fun x a sigma -> abstraction_ty (Id.remove_ty x) a sigma
   let abstraction_argty : 'a Id.t -> Arith.t -> abstraction_ty arg -> abstraction_ty arg =
     fun x a arg -> abstraction_argty (Id.remove_ty x) a arg
+end
+
+module Hflz = struct
+  let rec hflz : 'ty Hflz.t t -> 'ty Hflz.t -> 'ty Hflz.t =
+    fun env phi -> match phi with
+      | Var x ->
+          begin match IdMap.lookup env x with
+          | t -> t
+          | exception Not_found -> Var x
+          end
+      | Or(phis)      -> Or(List.map ~f:(hflz env) phis)
+      | And(phis)     -> And(List.map ~f:(hflz env) phis)
+      | App(phi1,phi2)  -> App(hflz env phi1, hflz env phi2)
+      | Exists(label,t) -> Exists(label, hflz env t)
+      | Forall(label,t) -> Forall(label, hflz env t)
+      | Abs(x, t)       -> Abs(x, hflz (IdMap.remove env x) t)
+      | Bool _
+      | Pred _
+      | Arith _  -> phi
+
+  (** Invariant: phi must have type TyBool *)
+  let reduce_head : 'ty Hflz.hes -> 'ty Hflz.t -> 'ty Hflz.t =
+    fun hes phi -> match phi with
+    | Var x ->
+        begin match x.ty, List.find hes ~f:(fun rule -> Id.eq x rule.var) with
+        | TyBool _, Some phi -> phi.body
+        | _ -> invalid_arg "reduce_head"
+        end
+    | App(_, _) ->
+        let head, args = Hflz.decompose_app phi in
+        let vars, body =
+          match Hflz.decompose_abs head with
+          | vars0, Var x ->
+              let x_rule = List.find_exn hes ~f:(fun rule -> Id.eq x rule.var) in
+              (* TODO このbodyがTyBool型を持っていることは隠れinvariant．parserで保証されている？ *)
+              let vars1, body = Hflz.decompose_abs x_rule.body in
+              (vars0@vars1), body
+          | vars, body -> vars, body
+        in
+        let env = IdMap.of_list @@ List.zip_exn vars args in
+        hflz env body
+    | _ -> invalid_arg "reduce_head"
 end
 
 module Hfl = struct
