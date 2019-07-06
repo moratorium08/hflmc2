@@ -11,42 +11,45 @@ let digit = ['0'-'9']
 let lower = ['a'-'z' '_']
 let upper = ['A'-'Z']
 let alphanum = ['0'-'9' 'a'-'z' 'A'-'Z' '_']
+let ope_symbols = [ '=' '<' '>' '+' '-' '*' '&' '|' '\\' '/' ]
 
 rule token = parse
-| "\n"   { Lexing.new_line lexbuf; token lexbuf }
-| space+ { token lexbuf }
-| newline
-    { end_of_previousline := Lexing.lexeme_end lexbuf
-    ; line_no := !line_no+1
-    ; token lexbuf
-    }
-| "/*"            { comment lexbuf; token lexbuf }
-| eof             { EOF }
-| "%HES"          { START_HES }
-| "("             { LPAREN    }
-| ")"             { RPAREN    }
-| "["             { LSQUARE   }
-| "]"             { RSQUARE   }
-| "<"             { LANGRE    }
-| ">"             { RANGRE    }
-| "true"          { TRUE      }
-| "false"         { FALSE     }
-| ("\\"|"λ")      { LAMBDA    }
-| "."             { DOT       }
-| ("=v"|"=ν")     { DEF_G     }
-| ("=m"|"=μ")     { DEF_L     }
-| "+"             { PLUS      }
-| "-"             { MINUS     }
-| "*"             { STAR      }
-| "="             { EQ        }
-| "<>"            { NEQ       }
-| "<="            { LE        }
-| ">="            { GE        }
-| ("&&"|"/\\")    { AND       }
-| ("||"|"\\/")    { OR        }
-| digit digit*    { INT (int_of_string (Lexing.lexeme lexbuf)) }
-| upper alphanum* { UIDENT (Lexing.lexeme lexbuf) }
-| lower alphanum* { LIDENT (Lexing.lexeme lexbuf) }
+| "\n"                     { Lexing.new_line lexbuf; token lexbuf }
+| space+                   { token lexbuf }
+| newline                  { end_of_previousline := Lexing.lexeme_end lexbuf
+                           ; line_no := !line_no+1
+                           ; token lexbuf
+                           }
+| "/*"                     { comment lexbuf; token lexbuf }
+| eof                      { EOF }
+| "%HES"                   { START_HES }
+| "("                      { LPAREN    }
+| ")"                      { RPAREN    }
+| "["                      { LSQUARE   }
+| "]"                      { RSQUARE   }
+| "true"                   { TRUE      }
+| "false"                  { FALSE     }
+| ("\\"|"λ")               { LAMBDA    }
+| ("=v"|"=ν")              { DEF_G     }
+| ("=m"|"=μ")              { DEF_L     }
+| "."                      { DOT       }
+| digit digit*             { INT (int_of_string (Lexing.lexeme lexbuf)) }
+| upper alphanum*          { UIDENT (Lexing.lexeme lexbuf) }
+| lower alphanum*          { LIDENT (Lexing.lexeme lexbuf) }
+| ope_symbols ope_symbols* { match Lexing.lexeme lexbuf with
+                           | "+"           -> PLUS
+                           | "-"           -> MINUS
+                           | "*"           -> STAR
+                           | "="           -> EQ
+                           | "<>"          -> NEQ
+                           | "<="          -> LE
+                           | ">="          -> GE
+                           | "<"           -> LANGRE
+                           | ">"           -> RANGRE
+                           | ("&&"|"/\\")  -> AND
+                           | ("||"|"\\/")  -> OR
+                           | s -> raise (Error ("unknown operater: " ^ s))
+                           }
 
 and comment = parse
 | "*/"

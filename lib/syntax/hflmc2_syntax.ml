@@ -112,7 +112,7 @@ end = struct
           let open Lexing in
           let pos = lexbuf.lex_curr_p in
           let str =
-            Fmt.strf "@[<v>Parse Error at %s%d:%d:@;Error happened after reading@;%a@]@."
+            Fmt.strf "@[<v>Parse Error at %s%d:%d:@;Cousumed input:@;%a@]@."
               (if pos.pos_fname="" then "" else pos.pos_fname^":")
               pos.pos_lnum
               (pos.pos_cnum - pos.pos_bol)

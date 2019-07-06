@@ -3,69 +3,88 @@ open Hflmc2_syntax
 
 module Log = (val Logs.src_log @@ Logs.Src.create "Modelcheck")
 
-type counterexample =
-  | False
-  | And of int * int * counterexample (** (n,i,_) ith branch in n. 0-indexed *)
-  | Or  of counterexample list
-  | Nd  of counterexample list (* or_inserted *)
-  [@@deriving eq,ord,show,iter,map,fold]
-let rec sexp_of_counterexample : counterexample -> Sexp.t =
-  function
-  | False -> Sexp.Atom "t_false"
-  | And (n,i,c) ->
-      let head = Sexp.Atom ("t_and" ^ string_of_int n) in
-      let rest = List.init n ~f:begin fun j ->
-          if i = 0 && 0 = j
-          then sexp_of_counterexample c
-          else Sexp.Atom "_"
-        end
-      in List (head::rest)
-  | Or cs ->
-      let n    = List.length cs in
-      let head = Sexp.Atom ("t_or" ^ string_of_int n) in
-      let rest = List.map ~f:sexp_of_counterexample cs in
-      List (head::rest)
-  | Nd cs ->
-      let n    = List.length cs in
-      let head = Sexp.Atom ("t_or_inserted" ^ string_of_int n) in
-      let rest = List.map ~f:sexp_of_counterexample cs in
-      List (head::rest)
-let rec counterexample_of_sexp : Sexp.t -> counterexample =
-  let error s = Sexp.Of_sexp_error((Failure "counterexample_of_sexp"), s) in
-  let open Sexp in
-  function
-  | Atom "t_false" -> False
-  | List (Atom a :: ss) when String.is_prefix ~prefix:"t_and_inserted" a ->
-      let s = List.find_exn ss ~f:(fun s -> s <> Atom "_") in
-      counterexample_of_sexp s
-  | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or_inserted" a ->
-      Nd(List.map ~f:counterexample_of_sexp ss)
-  | List (Atom a :: ss) when String.is_prefix ~prefix:"t_and" a ->
-      let n = List.length ss in
-      let s,i = List.find_with_index ss ~f:(fun s -> s <> Atom "_") in
-      And (n, i, counterexample_of_sexp s)
-  | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or" a ->
-      Or(List.map ~f:counterexample_of_sexp ss)
-  | s -> raise (error s)
-let rec simplify : counterexample -> counterexample = function
-  | False       -> False
-  | And (n,i,c) -> And (n,i,simplify c)
-  | Or cs       -> Or (List.map ~f:simplify cs)
-  | Nd cs       ->
-      let rec (<=) c1 c2 = match c1, c2 with
-        | False, _     -> true
-        | And (n1,i1,c1), And (n2,i2,c2)
-            when n1 = n2 && i1 = i2 -> c1 <= c2
-        | Or cs1, Or cs2 ->
-            begin match List.zip_exn cs1 cs2 with
-            | x -> List.for_all ~f:(Fn.uncurry (<=)) x
-            | exception _ -> false
-            end
-        | _ -> false
-      in
-      match Fn.maximals' (<=) @@ List.map ~f:simplify cs with
-      | [x] -> x
-      | xs -> Nd xs
+module Counterexample = struct
+  type t =
+    | False
+    | And of int * int * t (** (n,i,_) ith branch in n. 0-indexed *)
+    | Or  of t list
+    | Nd  of t list (* or_inserted *)
+    [@@deriving eq,ord,show,iter,map,fold]
+  let rec sexp_of_t : t -> Sexp.t =
+    function
+    | False -> Sexp.Atom "t_false"
+    | And (n,i,c) ->
+        let head = Sexp.Atom ("t_and" ^ string_of_int n) in
+        let rest = List.init n ~f:begin fun j ->
+            if i = j
+            then sexp_of_t c
+            else Sexp.Atom "_"
+          end
+        in List (head::rest)
+    | Or cs ->
+        let n    = List.length cs in
+        let head = Sexp.Atom ("t_or" ^ string_of_int n) in
+        let rest = List.map ~f:sexp_of_t cs in
+        List (head::rest)
+    | Nd cs ->
+        let n    = List.length cs in
+        let head = Sexp.Atom ("t_or_inserted" ^ string_of_int n) in
+        let rest = List.map ~f:sexp_of_t cs in
+        List (head::rest)
+  let rec t_of_sexp : Sexp.t -> t =
+    let error s = Sexp.Of_sexp_error((Failure "Counterexample.t_of_sexp"), s) in
+    function
+    | Atom "t_false" -> False
+    | List (Atom a :: ss) when String.is_prefix ~prefix:"t_and_inserted" a ->
+        let s = List.find_exn ss ~f:(fun s -> s <> Atom "_") in
+        t_of_sexp s
+    | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or_inserted" a ->
+        Nd(List.map ~f:t_of_sexp ss)
+    | List (Atom a :: ss) when String.is_prefix ~prefix:"t_and" a ->
+        let n = List.length ss in
+        let s,i = List.find_with_index ss ~f:(fun s -> s <> Sexp.Atom "_") in
+        And (n, i, t_of_sexp s)
+    | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or" a ->
+        Or(List.map ~f:t_of_sexp ss)
+    | s -> raise (error s)
+  let rec simplify : t -> t = function
+    | False       -> False
+    | And (n,i,c) -> And (n,i,simplify c)
+    | Or cs       -> Or (List.map ~f:simplify cs)
+    | Nd cs       ->
+        let rec (<=) c1 c2 = match c1, c2 with
+          | False, _     -> true
+          | And (n1,i1,c1), And (n2,i2,c2)
+              when n1 = n2 && i1 = i2 -> c1 <= c2
+          | Or cs1, Or cs2 ->
+              begin match List.zip_exn cs1 cs2 with
+              | x -> List.for_all ~f:(Fn.uncurry (<=)) x
+              | exception _ -> false
+              end
+          | _ -> false
+        in
+        match Fn.maximals' (<=) @@ List.map ~f:simplify cs with
+        | [x] -> x
+        | xs -> Nd xs
+
+  type normalized =
+    | False
+    | And of int * int * normalized (** (n,i,_) ith branch in n. 0-indexed *)
+    | Or  of normalized list
+    [@@deriving eq,ord,show,iter,map,fold,sexp]
+
+  let rec normalize : t -> normalized list = function
+    | False ->
+        [False]
+    | And (n,i,c) ->
+        List.map (normalize c) ~f:(fun c' -> And (n,i, c'))
+    | Or cs ->
+        List.map
+          (List.cartesian_products (List.map cs ~f:normalize))
+          ~f:(fun cs -> Or cs)
+    | Nd cs -> List.concat_map cs ~f:normalize
+end
+
 
 let print_hors : Hfl.hes Fmt.t =
   fun ppf hes' ->
@@ -178,10 +197,10 @@ let print_hors : Hfl.hes Fmt.t =
     automaton ppf ()
 
 module Parse = struct
-  let counterexample : string -> counterexample =
-    Fn.(counterexample_of_sexp <<< Sexp.of_string)
+  let counterexample : string -> Counterexample.t =
+    Fn.(Counterexample.t_of_sexp <<< Sexp.of_string)
 
-  let result : string -> (unit, counterexample) result =
+  let result : string -> (unit, Counterexample.t) result =
     fun result_file ->
       let content = String.split_on_chars ~on:['\n'] @@ Fn.read_file result_file in
       let result_lines = List.drop_while content
@@ -198,7 +217,7 @@ module Parse = struct
       | _ -> assert false
 end
 
-let run : Hfl.hes -> (unit, counterexample) result =
+let run : Hfl.hes -> (unit, Counterexample.t) result =
   fun hes ->
     let file = "/tmp/in" in
     let () as _write_file =

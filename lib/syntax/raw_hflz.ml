@@ -238,7 +238,7 @@ module Typing = struct
     method arg_id : unit arg Id.t -> simple_ty arg Id.t =
       fun x -> match IntMap.find ty_env x.id with
         | None -> failwith @@ Fmt.strf "%s" (Id.to_string x)
-        | Some ty -> { x with ty = self#arg_ty ty }
+        | Some tv -> { x with ty = self#arg_ty tv }
 
     method term : unit Hflz.t -> simple_ty Hflz.t = function
       | Var x ->

@@ -108,4 +108,3 @@ uvar:
 bool:
 | TRUE  { true  }
 | FALSE { false }
-

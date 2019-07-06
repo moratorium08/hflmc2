@@ -92,13 +92,13 @@ let term_setup_log () =
     Cmdliner.Term.(const setup $ Fmt_cli.style_renderer () $ Logs_cli.level ())
 (*}}}*)
 
-let parse () =
+let parse ?argv () : string option =
   let term () =
     let open Cmdliner.Term in
     const (fun _ file -> file)
       $ term_setup_log () (* NOTE order matters *)
       $ term_set_up_params ()
-  in match Cmdliner.Term.(eval (term (), info "hflmc2")) with
-  | `Ok x -> x
+  in match Cmdliner.Term.(eval ?argv (term (), info "hflmc2")) with
+  | `Ok file -> Some file
   | _     -> None
 
