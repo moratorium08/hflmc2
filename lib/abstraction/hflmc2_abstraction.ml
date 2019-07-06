@@ -246,9 +246,13 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
 and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
   fun env psi sigma ->
     let phi : Hfl.t = match psi, sigma with
+      | Abs({ty=TyInt;_} as x, psi), TyArrow({ty=TyInt;_} as x', sigma) ->
+          let sigma = Subst.Id'.abstraction_ty x' {x with ty=`Int} sigma in
+          abstract_check env psi sigma
       | Abs(x, psi), TyArrow({ty = TySigma sigma'; _}, sigma) ->
           let env' = IdMap.add env x sigma' in
-          abstract_check env' psi sigma
+          let x'   = Id.{ x with ty = Type.abstract sigma' } in
+          Abs(x', abstract_check env' psi sigma)
       | _ ->
           let sigma', phi = abstract_infer env psi in
           abstract_coerce env sigma' sigma phi
