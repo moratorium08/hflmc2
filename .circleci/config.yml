@@ -1,0 +1,126 @@
+version: 2.1
+
+aliases:
+  - &default_env
+    CACHE_KEY: 1
+    SUB_CACHE_KEY: 1
+  - &create_cache_key_file
+    run:
+      name: Create cache control key file
+      command: |
+        echo $CIRCLE_JOB
+        echo $CACHE_KEY     > cache_key
+        echo $SUB_CACHE_KEY > sub_cache_key
+  - &restore_build_results
+    restore_cache:
+      keys:
+        - cache-{{ checksum "cache_key" }}-{{ checksum "sub_cache_key" }}
+        - cache-{{ checksum "cache_key" }}
+  - &save_build_results
+      save_cache:
+        key:
+          cache-{{ checksum "cache_key" }}-{{ checksum "sub_cache_key" }}
+        paths:
+          - ~/depend/fpat
+          - ~/.opam
+        when:
+          always
+  - &install_z3
+      run:
+        name: Install Z3
+        command: |
+          mkdir -p $HOME/depend
+          git clone https://github.com/Z3Prover/z3 $HOME/depend/z3
+          cd $HOME/depend/z3
+          git checkout z3-4.7.1
+          python scripts/mk_make.py
+          cd build
+          make -j8
+          sudo make install
+  - &apt_dependencies
+      run:
+        name: Install dependencies by apt-get
+        command: |
+          sudo apt-get update
+          sudo apt-get install -y --assume-yes \
+                apt-utils \
+                pkg-config \
+                autoconf \
+                libmpfr-dev \
+                libgmp-dev \
+                subversion \
+                libglpk-dev \
+                m4 \
+                python \
+                ocaml
+  - &all
+      steps:
+        - checkout
+        # - *create_cache_key_file # cacheない方が早いな
+        # - *restore_build_results
+        - add_ssh_keys:
+            fingerprints:
+              - "ca:7c:6d:b5:3d:a8:c7:5c:d4:38:1e:3a:05:3f:59:0a"
+        - add_ssh_keys
+        - run:
+            name: Build fpat
+            command: |
+              eval $(opam env)
+              if [ -d $HOME/depend/mochi-for-fpat ]
+              then
+                echo "cached"
+              else
+                ssh-agent bash -c \
+                  'ssh-add $HOME/.ssh/id_rsa_ca7c6db53da8c75cd4381e3a053f590a; \
+                   git clone git@bitbucket.org:ryosu_sato/mochi $HOME/depend/mochi-for-fpat'
+              fi
+              cd $HOME/depend/mochi-for-fpat
+              git checkout b889e4e572d6792b0c9ddd0c5561bc8c4d90271e
+              cd $HOME/depend/mochi-for-fpat/csisat
+              make lib
+              cd $HOME/depend/mochi-for-fpat/fpat
+              ./configure
+              patch < $HOME/project/.circleci/fpat-for-4.0.6.patch
+              make install-lib
+              make
+              make install
+        - run:
+            name: Install direct dependencies
+            command: |
+              # TODO better practice
+              opam install oUnit
+        - run:
+            name: Install horsat2
+            command: |
+              # TODO better practice
+              sudo install $HOME/project/.circleci/horsat2 /bin
+        - run:
+            name: Build
+            command: |
+              eval $(opam env)
+              cd $HOME/project
+              dune build
+        - run:
+            name: Run test
+            command: |
+              eval $(opam env)
+              cd $HOME/project
+              echo "[dune runtest]"
+              dune runtest
+              echo "[dune exec tmp]"
+              dune exec tmp -- --color=never
+        # - *save_build_results
+
+jobs:
+  main:
+    environment:
+      - *default_env
+    docker:
+      - image: hogeyama/fpat-dependencies
+    <<: *all
+
+workflows:
+  version: 2
+  all:
+    jobs:
+      - main

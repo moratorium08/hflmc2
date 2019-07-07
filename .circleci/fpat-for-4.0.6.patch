@@ -1,0 +1,61 @@
+diff --git a/fpat/HCCS.ml b/fpat/HCCS.ml
+index 5aaf324..8edc43e 100644
+--- a/fpat/HCCS.ml
++++ b/fpat/HCCS.ml
+@@ -851,7 +851,7 @@ let save_graphviz = Logger.log_block2 "HCCS.save_graphviz" save_graphviz
+ let save_smtlib filename hcs =
+   let hcs = normalize hcs in
+   let oc = open_out filename in
+-  let ocf = Format.make_formatter (output oc) (fun () -> flush oc) in
++  let ocf = Format.make_formatter (output oc <<< Bytes.of_string) (fun () -> flush oc) in
+   let tenv = hcs |> tenv in
+   let vs = hcs |> fvs |> List.map Idnt.string_of in
+   Format.fprintf ocf "@[<v>";
+@@ -884,7 +884,7 @@ let save_smtlib = Logger.log_block2 "HCCS.save_smtlib" save_smtlib
+ 
+ let save_smtlib2 filename hcs =
+   let oc = open_out filename in
+-  let ocf = Format.make_formatter (output oc) (fun () -> flush oc) in
++  let ocf = Format.make_formatter (output oc <<< Bytes.of_string) (fun () -> flush oc) in
+   let is_real = ref false in
+   let string_of_ty = function
+     | ty when Type.is_int ty -> " Int"
+diff --git a/fpat/float.ml b/fpat/float.ml
+index 5a5871f..05bd24a 100644
+--- a/fpat/float.ml
++++ b/fpat/float.ml
+@@ -10,7 +10,7 @@ let num_of_positive_float f =
+   let sm = string_of_float m in
+   let s = String.make 16 '0' in
+   (** sm starts with "0." *)
+-  let _ = String.blit sm 2 s 0 (String.length sm - 2) in
++  let () = String.blit sm 2 (Bytes.of_string s) 0 (String.length sm - 2) in
+   let e' = Num.power_num (Num.Int 2) (Num.num_of_int e) in
+   Num.div_num
+     (Num.mult_num (Num.num_of_string s) e')
+diff --git a/fpat/graph_.ml b/fpat/graph_.ml
+index 8d3dedd..6ea2f84 100644
+--- a/fpat/graph_.ml
++++ b/fpat/graph_.ml
+@@ -25,7 +25,7 @@ path/cycle is Hamitonian if it contains every vertex of the graph
+ (** @todo there is a bug related to vertices? *)
+ let save_graphviz filename vertices edges =
+   let oc = open_out filename in 
+-  let ocf = Format.make_formatter (output oc) (fun () -> flush oc) in
++  let ocf = Format.make_formatter (output oc <<< Bytes.of_string) (fun () -> flush oc) in
+   Format.fprintf ocf "@[<v>digraph flow {@ ";
+ 
+   List.iter
+diff --git a/fpat/logger.ml b/fpat/logger.ml
+index 22ce018..bf04034 100644
+--- a/fpat/logger.ml
++++ b/fpat/logger.ml
+@@ -104,7 +104,7 @@ let initialize filename =
+     oc := Some(oc_);
+     ppf :=
+       if !Global.print_log then Format.std_formatter
+-      else Format.make_formatter (output oc_) (fun () -> flush oc_);
++      else Format.make_formatter (output oc_ <<< Bytes.of_string) (fun () -> flush oc_);
+     Format.fprintf !ppf "@[<v>";
+     log_begin "FPAT"
+   end
