@@ -1,0 +1,3 @@
+(test
+  (name acceptance)
+  (libraries core fmt hflmc2))
