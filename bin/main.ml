@@ -3,20 +3,12 @@ open Hflmc2
 open Util
 open Syntax
 
-module Log = (val Logs.src_log @@ Logs.Src.create __MODULE__)
+module Log = (val Logs.src_log @@ Logs.Src.create "Main")
 
-
-(* TODO move *)
-let merge_env : Hflmc2_abstraction.env -> Hflmc2_abstraction.env -> Hflmc2_abstraction.env =
-  fun gamma1 gamma2 -> IdMap.merge gamma1 gamma2 ~f:begin fun ~key:_ -> function
-    | `Left l -> Some l
-    | `Right r -> Some r
-    | `Both (l, r) -> Some (Type.merge (@) l r)
-    end
-
-let rec cegar_loop ?prev_cex psi gamma =
+let rec cegar_loop ?prev_cex loop_count psi gamma =
   let phi = Abstraction.abstract gamma psi in
-  begin Log.app @@ fun m -> m ~header:"Prog" "%a"
+  begin Log.app @@ fun m -> m ~header:"AbstractedProg" "@[<v>Loop %d@,%a@]"
+    loop_count
     Print.hfl_hes phi
   end;
   match Modelcheck.run phi with
@@ -41,8 +33,8 @@ let rec cegar_loop ?prev_cex psi gamma =
             abstraction_ty)
             (IdMap.to_alist gamma')
         end;
-        let new_gamma = merge_env gamma gamma' in
-        cegar_loop ~prev_cex:cex psi new_gamma
+        let new_gamma = Abstraction.merge_env gamma gamma' in
+        cegar_loop ~prev_cex:cex (loop_count+1) psi new_gamma
       end
 
 let main () =
@@ -64,6 +56,6 @@ let main () =
           var, Type.map_ty (fun () -> []) var.ty
         end
       in
-      cegar_loop psi gamma
+      cegar_loop 1 psi gamma
 
 let () = main ()

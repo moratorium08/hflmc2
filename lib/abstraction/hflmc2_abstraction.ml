@@ -6,10 +6,17 @@ module Options = Hflmc2_options
 module Log = (val Logs.src_log @@ Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
 
 type env = abstraction_ty IdMap.t
+let merge_env : env -> env -> env =
+  fun gamma1 gamma2 ->
+    IdMap.merge gamma1 gamma2
+      ~f:begin fun ~key:_ -> function
+      | `Left l -> Some l
+      | `Right r -> Some r
+      | `Both (l, r) -> Some (Type.merge (@) l r)
+      end
 
 (* options *)
 let exhaustive_search = ref false
-
 
 (* For Or and And: (λxs.u1, λxs.u2) -> λxs.f u1 u2 *)
 let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
