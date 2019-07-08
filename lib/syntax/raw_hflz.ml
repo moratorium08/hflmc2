@@ -221,7 +221,8 @@ module Typing = struct
     method arg_ty : tyvar -> simple_ty arg = function
       | TvInt  -> TyInt
       | TvBool -> TySigma (TyBool())
-      | TvRef {contents=None} -> assert false
+      (* | TvRef {contents=None} -> assert false *)
+      | TvRef {contents=None} -> TySigma (TyBool())
       | TvRef {contents=Some tv} -> self#arg_ty tv
       | TvArrow (tv1, tv2) ->
           let x = Id.gen ~name:"t" (self#arg_ty tv1) in

@@ -15,6 +15,10 @@ type 'annot ty
 type 'annot arg_ty = 'annot ty arg
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
+let unsafe_unlift : 'annot arg_ty -> 'annot ty = function
+  | TyInt -> invalid_arg "unsafe_unlift"
+  | TySigma ty -> ty
+
 let lift_arg x = Id.{ x with ty = TySigma x.ty }
 
 (* Simple Type *)

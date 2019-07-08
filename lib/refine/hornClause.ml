@@ -13,23 +13,24 @@ module Log = (val Logs.src_log @@ Logs.Src.create __MODULE__)
  * PredVar F = P2(x)
  * PredVar g = P1(x,y)
  * PredVar x = invalid
+ * （ここでageは省略してある）
  * *)
-type pred_var = PredVar of TraceVar.t
+type pred_var = PredVar of TraceVar.aged
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
-let args_of_pred_var (PredVar tv) =
-  let fvs = match tv with
+let args_of_pred_var (PredVar aged) =
+  let fvs = match aged.var with
     | Nt _ -> []
     | Local {fvs;_} -> fvs
   in
-    List.filter (fvs @ TraceVar.mk_locals tv)
+    List.filter (fvs @ TraceVar.mk_childlen aged)
        ~f:(fun child -> TraceVar.type_of child = TyInt)
 
 let pp_hum_pred_var : pred_var Print.t =
-  fun ppf (PredVar tv as pv) ->
+  fun ppf (PredVar aged as pv) ->
     let args = args_of_pred_var pv in
     Print.pf ppf "@[<h>P[%a](%a)@]"
-      TraceVar.pp_hum tv
+      TraceVar.pp_hum_aged aged
       Print.(list ~sep:comma TraceVar.pp_hum) args
 
 (******************************************************************************)
@@ -67,6 +68,13 @@ let pp_hum_formula_ : formula Print.t_with_prec =
 let pp_hum_formula : formula Print.t =
   pp_hum_formula_ Print.Prec.zero
 
+type head = pred_var option
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
+let pp_hum_head : head Print.t =
+  fun ppf -> function
+    | None   -> Print.string ppf "_|_"
+    | Some v -> pp_hum_pred_var ppf v
+
 type body =
   { pvs: pred_var list
   ; phi: formula
@@ -87,16 +95,13 @@ let pp_hum_body : body Print.t =
 (******************************************************************************)
 
 type t =
-  { head : pred_var option
+  { head : head
   ; body : body
   } [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 let pp_hum : t Print.t =
   fun ppf { head; body } ->
-    match head with
-    | Some pv -> Print.pf ppf "@[<v 2>%a@ => @[<h>%a@]@]"
-                   pp_hum_body body
-                   pp_hum_pred_var pv
-    | None    -> Print.pf ppf "@[<2>%a@ => _|_@]"
-                   pp_hum_body body
+    Print.pf ppf "@[<v 2>%a@ => @[<h>%a@]@]"
+      pp_hum_body body
+      pp_hum_head head
 

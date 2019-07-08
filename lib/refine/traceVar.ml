@@ -5,54 +5,86 @@ open Hflmc2_syntax.Type
 type t =
   | Nt of
       { orig : simple_ty Id.t
-      ; age  : int
       }
   | Local of
       (* parentのnth番目のargument. 0-indexed *)
-      { parent : t
+      { parent : aged
       ; name   : simple_ty arg Id.t
       ; fvs    : t list
       ; nth    : int
       }
-  [@@deriving eq,ord,show,iter,map,fold,sexp]
+and aged =
+  { var : t
+  ; age : int
+  } [@@deriving eq,ord,show,iter,map,fold,sexp]
+
 let rec pp_hum : t Print.t =
   fun ppf tvar -> match tvar with
-    | Nt { orig; age } ->
-        Print.string ppf (orig.name ^ "^" ^ string_of_int age)
+    | Nt { orig } ->
+        Print.string ppf orig.name
     | Local { parent; nth; _ } ->
-        Print.pf ppf "%a.%d" pp_hum parent nth
-        (* Print.pf ppf "%a.%s@%d" pp_hum parent (Id.to_string name) nth *)
-let to_string = Print.strf "%a" pp_hum
+        Print.pf ppf "%a.%d" pp_hum_aged parent nth
+and pp_hum_aged : aged Print.t =
+  fun ppf { var ; age } ->
+    Print.pf ppf "%a:%d" pp_hum var age
+
+let string_of      = Print.strf "%a" pp_hum
+let string_of_aged = Print.strf "%a" pp_hum_aged
 
 let type_of = function
   | Nt    { orig; _ } -> TySigma orig.ty
   | Local { name; _ } -> name.ty
+let type_of_aged aged = type_of aged.var
 
-let mk_nt : ?age:int -> simple_ty Id.t -> t =
-  fun ?(age=0) orig -> Nt { orig; age }
+module Key = struct
+  type nonrec t = t
+  let sexp_of_t = sexp_of_t
+  let t_of_sexp = t_of_sexp
+  let compare : t -> t -> int = compare
+  let hash : t -> int = String.hash <<< string_of
+end
 
-let counters : (unit Id.t, int) Hashtbl.t = Hashtbl.create (module Id.Key)
+module Map = struct
+  include Map.Make(Key)
+  let add_override : 'a t -> key:Key.t -> data:'a -> 'a t =
+    fun map ~key ~data ->
+      let map = remove map key in
+      add_exn map ~key ~data
+  let merge : 'a t -> 'a t -> 'a t =
+    fun m1 m2 ->
+      merge m1 m2
+        ~f:begin fun ~key -> let _ = key in function
+        | `Both _ -> assert false
+        | `Left x -> Some x
+        | `Right x -> Some x
+        end
+end
 
+let counters : (t, int) Hashtbl.t = Hashtbl.create (module Key)
 let reset_counters () = Hashtbl.clear counters
 
-let gen_nt : simple_ty Id.t -> t =
-  fun orig ->
-    let key = Id.remove_ty orig in
-    match Hashtbl.find counters key with
-    | None ->
-        Hashtbl.add_exn counters ~key ~data:1;
-        mk_nt ~age:0 orig
-    | Some n ->
-        Hashtbl.replace counters ~key ~data:(n+1);
-        mk_nt ~age:n orig
+let mk_aged ~age tv = { var = tv; age }
 
-let mk_locals : t -> t list =
-  fun parent -> match type_of parent with
+let gen_aged : t -> aged =
+  fun tv ->
+    match Hashtbl.find counters tv with
+    | None ->
+        Hashtbl.add_exn counters ~key:tv ~data:1;
+        { var = tv; age = 0 }
+    | Some n ->
+        Hashtbl.replace counters ~key:tv ~data:(n+1);
+        { var = tv; age = n }
+
+let mk_nt : simple_ty Id.t -> t =
+  fun orig -> Nt { orig }
+
+let mk_childlen : aged -> t list =
+  fun parent -> match type_of_aged parent with
     | TyInt -> []
     | TySigma ty ->
         let rec go acc nth ty = match ty with
-          | TyBool () -> List.rev acc
+          | TyBool() -> acc
           | TyArrow(x, ret_ty) ->
-              let x = Local { parent; name=x; fvs=List.rev acc; nth } in
-              go (x::acc) (nth+1) ret_ty
+              let x = Local { parent; name=x; fvs=acc; nth } in
+              go (acc@[x]) (nth+1) ret_ty
         in go [] 0 ty

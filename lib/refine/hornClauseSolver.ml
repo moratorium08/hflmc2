@@ -4,13 +4,24 @@ open Hflmc2_syntax.Type
 
 open HornClause
 
-module Log = (val Logs.src_log @@ Logs.Src.create "Refine")
+module Log = (val Logs.src_log @@ Logs.Src.create "HornClauseSolver")
 
 let () = Fpat.FPATConfig.set_default()
 
 (* TODO refactering *)
 
 module ToFpat = struct
+
+  let idnt_of_aged : TraceVar.aged -> Fpat.Idnt.t =
+    fun aged -> Fpat.Idnt.make (Print.strf "%a" TraceVar.pp_hum_aged aged)
+
+  let term_of_aged : TraceVar.aged -> Fpat.Term.t =
+    fun aged -> Fpat.Term.mk_var (idnt_of_aged aged)
+
+  let typed_term_of_aged : TraceVar.aged -> Fpat.TypTerm.t =
+    fun aged ->
+      assert (TraceVar.type_of_aged aged = TyInt);
+      Fpat.TypTerm.make (term_of_aged aged) Fpat.Type.mk_int
 
   let idnt_of_trace_var : TraceVar.t -> Fpat.Idnt.t =
     fun tv -> Fpat.Idnt.make (Print.strf "%a" TraceVar.pp_hum tv)
@@ -24,18 +35,18 @@ module ToFpat = struct
       Fpat.TypTerm.make (term_of_trace_var tv) Fpat.Type.mk_int
 
   let pva : pred_var -> Fpat.Pva.t =
-    fun (PredVar tv as pv) ->
+    fun (PredVar aged as pv) ->
       Fpat.Pva.make
-        (idnt_of_trace_var tv)
+        (idnt_of_aged aged)
         (List.map (args_of_pred_var pv) ~f:typed_term_of_trace_var)
 
   let pred_var : pred_var -> Fpat.PredVar.t =
-    fun (PredVar tv as pv) ->
+    fun (PredVar aged as pv) ->
       let typ_env =
         List.map (args_of_pred_var pv) ~f:begin fun tv ->
           idnt_of_trace_var tv, Fpat.Type.mk_int
         end
-      in Fpat.PredVar.make (idnt_of_trace_var tv) typ_env
+      in Fpat.PredVar.make (idnt_of_aged aged) typ_env
 
   let head : pred_var option -> Fpat.HornClause.head =
     fun head ->
@@ -97,8 +108,10 @@ module ToFpat = struct
   let hccs : t list -> Fpat.HCCS.t = List.map ~f:hornClause
 end
 
+(* TODO refacter
+ * 今のままだと一ヶ月もしたら確実に読めなくなる
+ * *)
 module OfFpat = struct
-
   let rec arith : 'var. (string -> 'var) -> Fpat.Term.t -> 'var Arith.gen_t =
     fun into_id a ->
         let open Fpat.Term in
@@ -131,85 +144,84 @@ module OfFpat = struct
 
   let abstracion_env : simple_ty Hflz.hes -> Fpat.PredSubst.t -> Hflmc2_abstraction.env =
     fun hes subst ->
-      let subst =
+      let subst : Fpat.Pred.t StrMap.t =
         StrMap.of_alist_exn @@ List.map subst ~f:begin function
           | Fpat.Idnt.V x, pred -> x, pred
           | _ -> assert false
         end
       in
-      let fuga : simple_ty Id.t -> abstraction_ty =
-        fun nt ->
-          let rec go (tv : TraceVar.t) (sty : simple_ty) : abstraction_ty =
-            let args, ()   = Type.decompose_arrow sty in
-            let tenv, pred = StrMap.find_exn subst (TraceVar.to_string tv) in
-            let pred : Formula.t =
-              let int_args =
-                List.map (args_of_pred_var (HornClause.PredVar tv)) ~f:begin function
-                | Local { name; _ } -> name
-                | _ -> assert false
-                end
-                (* List.filter args ~f:begin fun x -> *)
-                (*   x.ty = TyInt *)
-                (* end *)
-              in
-              let formula_args =
-                List.map tenv ~f:begin function
-                | Fpat.Idnt.V x, _ -> x
-                | _ -> assert false
-                end
-              in
-              (* Log.debug begin fun m -> m ~header:"fuga" "@[<v>%a@;%a@]" *)
-              (*   Print.(list_set id) int_args *)
-              (*   Print.(list_set string) formula_args *)
-              (* end; *)
-              let into_map =
-                let map = StrMap.of_alist_exn @@
-                  List.map2_exn formula_args int_args ~f:begin fun fx ix ->
-                    fx, { ix with ty = `Int }
-                  end
-                in
-                fun x -> StrMap.find_exn map x
-              in
-              formula into_map @@ pred
-            in
-            let tv_args = TraceVar.mk_locals tv in
-            let new_args' =
-              List.map2_exn args tv_args ~f:begin fun arg tv_arg ->
-                match arg.ty with
-                | TyInt -> { arg with ty = TyInt }
-                | TySigma sty -> { arg with ty = TySigma (go tv_arg sty) }
+      let lookup_pred : TraceVar.aged -> Fpat.Pred.t option =
+        StrMap.find subst <<< TraceVar.string_of_aged
+      in
+      let lookup_pred_exn : TraceVar.aged -> Fpat.Pred.t =
+        StrMap.find_exn subst <<< TraceVar.string_of_aged
+      in
+      let rec abstraction_ty_of_aged (aged : TraceVar.aged) : abstraction_ty =
+        let sty        = Type.unsafe_unlift @@ TraceVar.type_of_aged aged in
+        let args, ()   = Type.decompose_arrow sty in
+        let tenv, pred = lookup_pred_exn aged in
+        let new_args' =
+          let tv_args = TraceVar.mk_childlen aged in
+          List.map2_exn args tv_args ~f:begin fun arg tv_arg ->
+            match arg.ty with
+            | TyInt     -> { arg with ty = TyInt }
+            | TySigma _ -> { arg with ty = TySigma (abstraction_ty_of_trace_var tv_arg) }
+          end
+        in
+        let pred : Formula.t =
+          let int_args =
+            List.map (args_of_pred_var (HornClause.PredVar aged)) ~f:begin function
+            | Local { name; _ } -> name
+            | _ -> assert false
+            end
+          in
+          let formula_vars =
+            List.map tenv ~f:begin function
+            | Fpat.Idnt.V x, _ -> x
+            | _ -> assert false
+            end
+          in
+          (* Log.debug begin fun m -> m ~header:"type_of_" "@[<v>%a@;%a@]" *)
+          (*   Print.(list_set id) int_args *)
+          (*   Print.(list_set string) formula_args *)
+          (* end; *)
+          let into_map =
+            let map = StrMap.of_alist_exn @@
+              List.map2_exn formula_vars int_args ~f:begin fun fx ix ->
+                fx, { ix with ty = `Int }
               end
             in
-            Type.mk_arrows new_args' (TyBool[pred])
+            fun x -> StrMap.find_exn map x
           in
-
+          Formula.mk_not @@ formula into_map @@ pred
+        in
+        Type.mk_arrows new_args' (TyBool[pred])
+      and abstraction_ty_of_trace_var : TraceVar.t -> abstraction_ty =
+        fun tv ->
           let on_age age =
-            let tv = TraceVar.mk_nt ~age nt in
-            match StrMap.find subst (TraceVar.to_string tv) with
-            | Some _ -> Some (go tv nt.ty)
-            | None -> None
-          in
-          let rec go acc age =
-            match on_age age with
-            | Some ty -> go (ty::acc) (age+1)
-            | None    -> acc
+            let aged = TraceVar.(mk_aged ~age tv) in
+            match lookup_pred aged with
+            | Some _ -> Some (abstraction_ty_of_aged aged)
+            | None -> None (* 生成されたが呼び出されなかった場合 *)
           in
           let abstraction_ty =
-            let n = match Hashtbl.find TraceVar.counters (Id.remove_ty nt) with
+            let n = match Hashtbl.find TraceVar.counters tv with
               | None -> 0
               | Some n -> n
             in
-            match List.filter_map (List.init n ~f:on_age) ~f:Fn.id with
-            | [] -> Type.map_ty (Fn.const []) nt.ty
+            (* Log.debug begin fun m -> m ~header:"TV" "%a : %d" *)
+            (*   TraceVar.pp_hum tv n *)
+            (* end; *)
+            match List.filter_map (List.init (n+1) ~f:on_age) ~f:Fn.id with
+            | [] -> Type.map_ty (Fn.const []) @@
+                      Type.unsafe_unlift @@ TraceVar.type_of tv
             | tys -> Type.merges (@) tys
           in
-          (* Log.debug begin fun m -> m ~header:"MergeTypes" "%s: @[<v>%a@]" *)
-          (*   nt.name *)
-          (*   Print.(abstraction_ty) abstraction_ty *)
-          (* end; *)
           abstraction_ty
       in
-      IdMap.of_list @@ List.map hes ~f:(fun rule -> rule.var, fuga rule.var)
+      IdMap.of_list @@ List.map hes ~f:begin fun rule ->
+        rule.var, abstraction_ty_of_trace_var (TraceVar.mk_nt rule.var)
+      end
 end
 
 let interpolate : formula -> formula -> formula option =
@@ -231,7 +243,7 @@ let interpolate : formula -> formula -> formula option =
             end
           in
           let map = StrMap.of_alist_exn @@ List.map xs ~f:begin function
-            | `I x -> TraceVar.to_string x, `I x
+            | `I x -> TraceVar.string_of x, `I x
             | `E n -> Id.to_string n, `E n
             end
           in fun x -> StrMap.find_exn map x
@@ -244,6 +256,7 @@ let solve : simple_ty Hflz.hes -> t list -> Hflmc2_abstraction.env =
   fun hes hccs ->
     let hccs' = ToFpat.hccs hccs in
     let map = Fpat.HCCSSolver.solve_dyn hccs' in
-    (* Print.print Fpat.PredSubst.pr map; *)
+    Log.debug begin fun m -> m ~header:"FpatAnswer" "%a"
+      Fpat.PredSubst.pr map;
+    end;
     OfFpat.abstracion_env hes map
-

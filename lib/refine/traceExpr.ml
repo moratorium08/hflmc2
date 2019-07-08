@@ -4,7 +4,7 @@ open Hflmc2_syntax.Type
 
 type t =
   | External of unit Id.t  (* External variable *)
-  | Var      of TraceVar.t
+  | Var      of TraceVar.aged
   | Bool     of bool
   | Or       of t list
   | And      of t list
@@ -23,7 +23,7 @@ let pp_hum : t Print.t =
       | Bool true  -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
       | External x -> P.id ppf x
-      | Var x      -> TraceVar.pp_hum ppf x
+      | Var x      -> TraceVar.pp_hum_aged ppf x
       | Or phis  ->
           let sep ppf () = Fmt.pf ppf "@ || " in
           P.show_paren (prec > P.Prec.or_) ppf "@[<hv 0>%a@]"
@@ -98,12 +98,12 @@ let rec of_hflz : simple_ty Hflz.hes -> TraceVar.t IdMap.t -> simple_ty Hflz.t -
     | Var v ->
         begin match List.find hes ~f:(fun r -> Id.eq r.var v) with
         | Some _ ->
-            Var (TraceVar.gen_nt v)
+            Var TraceVar.(gen_aged @@ mk_nt v)
         | None ->
             begin match
               IdMap.lookup subst v
             with
-            | v           -> Var v
+            | v           -> Var (TraceVar.gen_aged v)
             | exception _ -> External (Id.remove_ty v)
             end
         end
@@ -117,10 +117,10 @@ let rec of_hflz : simple_ty Hflz.hes -> TraceVar.t IdMap.t -> simple_ty Hflz.t -
     | App (phi1, phi2) -> App (of_hflz hes subst phi1, of_hflz hes subst phi2)
     | Abs _            -> assert false
 
-let rec subst_arith : t TraceVarMap.t -> HornClause.arith -> HornClause.arith =
+let rec subst_arith : t TraceVar.Map.t -> HornClause.arith -> HornClause.arith =
   fun env a -> match a with
     | Var (`I v) ->
-        begin match TraceVarMap.find env v with
+        begin match TraceVar.Map.find env v with
         | Some (Arith a) -> a
         | Some _ -> assert false
         | None -> a
@@ -128,10 +128,10 @@ let rec subst_arith : t TraceVarMap.t -> HornClause.arith -> HornClause.arith =
     | Var (`E v)   -> Var (`E v)
     | Int n        -> Int n
     | Op (op, as') -> Op (op, List.map as' ~f:(subst_arith env))
-let rec subst : t TraceVarMap.t -> t -> t =
+let rec subst : t TraceVar.Map.t -> t -> t =
   fun env t -> match t with
     | Var v ->
-        begin match TraceVarMap.find env v with
+        begin match TraceVar.Map.find env v.var with
         | Some t -> t
         | None   -> t
         end
