@@ -252,6 +252,9 @@ let interpolate : formula -> formula -> formula option =
     | exception Fpat.InterpProver.NoInterpolant ->
         None
 
+let is_valid : formula -> bool =
+  fun f -> Fpat.SMTProver.is_valid_dyn (ToFpat.formula f)
+
 let solve : simple_ty Hflz.hes -> t list -> Hflmc2_abstraction.env =
   fun hes hccs ->
     let hccs' = ToFpat.hccs hccs in

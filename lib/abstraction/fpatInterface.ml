@@ -77,7 +77,7 @@ let to_bformula : Fpat.Formula.t -> bformula =
 (* Utility *)
 
 let ( ==> ) : Formula.t -> Formula.t -> bool =
-  fun f1 f2 -> Fpat.Z3Interface.z3#is_valid [] (Fpat.Formula.imply (of_formula f1) (of_formula f2))
+  fun f1 f2 -> Fpat.SMTProver.is_valid_dyn (Fpat.Formula.imply (of_formula f1) (of_formula f2))
 
 let ( <=> ) : Formula.t -> Formula.t -> bool =
   fun f1 f2 -> f1 ==> f2 && f2 ==> f1

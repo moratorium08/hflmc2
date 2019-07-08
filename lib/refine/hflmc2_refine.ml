@@ -55,6 +55,23 @@ let rec approximate
     | Exists _, _ | Forall _, _ -> Fn.todo()
     | _ -> assert false
 
+let is_feasible : simple_ty Hflz.hes -> Counterexample.normalized -> bool =
+  fun hes cex ->
+    TraceVar.reset_counters();
+    let main =
+      Hflz.main_symbol hes
+      |> TraceVar.mk_nt
+      |> TraceVar.gen_aged
+      |> TraceExpr.mk_var
+    in
+    let approx = Simplify.formula @@
+      approximate hes TraceVar.Map.empty main (Some cex)
+    in
+    Log.debug begin fun m -> m ~header:"Expansion" "%a"
+      HornClause.pp_hum_formula approx
+    end;
+    not @@ HornClauseSolver.is_valid approx
+
 (* NOTE HornClauseにするときにdualを取る
  *
  * HFL
@@ -78,7 +95,7 @@ let gen_HCCS
     -> Counterexample.normalized
     -> HornClause.t list =
   fun hes cex ->
-    let [@warning "-27-39"] rec go
+    let rec go
         :  HornClause.head
         -> reduce_env
         -> TraceExpr.t
@@ -150,7 +167,7 @@ let gen_HCCS
         | (App _| Var _), Some _ ->
             let expr_head, args = TraceExpr.decompose_app expr in
             begin match expr_head with
-            | Var ({ var = Nt { orig; _ } as tv; age } as aged) ->
+            | Var ({ var = Nt { orig; _ } as tv; _ } as aged) ->
                 (* assume args = [n; H n] *)
                 (* F x g = g (x + 1) *)
                 let rule = List.find_exn hes ~f:(fun r -> Id.eq r.var orig) in
@@ -210,15 +227,14 @@ let gen_HCCS
                     @@ TraceVar.Map.of_alist_exn bind
                 in
                 hc :: go (Some (PredVar aged)) new_reduce_env new_expr cex
-            | Var ({ var = Local _ as tv; age } as aged) ->
+            | Var ({ var = Local _ as tv; _ } as aged) ->
                 let vars = TraceVar.mk_childlen aged in
                 let bind = List.zip_exn vars args in
                 Log.debug begin fun m -> m ~header:"NewBind" "@[<v>%a@]"
                   Print.(list ~sep:cut @@
                     pair ~sep:(fun ppf _ -> string ppf " => ")
                       TraceVar.pp_hum
-                      (fun ppf -> pf ppf "@[<2>%a@]" @@
-                          TraceExpr.pp_hum))
+                      (fun ppf -> pf ppf "@[<2>%a@]" TraceExpr.pp_hum))
                     bind
                 end;
                 let hc =
@@ -260,7 +276,6 @@ let gen_HCCS
                 in
                 hc :: go (Some (PredVar aged)) new_reduce_env new_expr cex
             | _ ->
-
                 Print.print TraceExpr.pp expr_head;
                 assert false
             end
@@ -269,6 +284,7 @@ let gen_HCCS
         | Exists _, _ | Forall _, _ -> Fn.todo()
         | _ -> assert false
     in
+    TraceVar.reset_counters();
     let main =
       Hflz.main_symbol hes
       |> TraceVar.mk_nt
@@ -278,13 +294,22 @@ let gen_HCCS
     go None TraceVar.Map.empty main (Some cex)
 
 (* TODO hesはλ-liftingしておく *)
-(* TODO feasibility check *)
-let run : simple_ty Hflz.hes -> Counterexample.normalized -> Hflmc2_abstraction.env =
-  fun hes cex ->
-    TraceVar.reset_counters();
-    let hccs = gen_HCCS hes cex in
-    Log.debug begin fun m -> m ~header:"HCCS" "@[<v>%a@]"
-      (Print.list HornClause.pp_hum) hccs
-    end;
-    HornClauseSolver.solve hes hccs
+
+type result = [ `Feasible | `Refined of Hflmc2_abstraction.env ]
+
+let run
+     : simple_ty Hflz.hes
+    -> Counterexample.normalized
+    -> Hflmc2_abstraction.env
+    -> result =
+  fun hes cex old_gamma ->
+    if is_feasible hes cex then
+      `Feasible
+    else
+      let hccs = gen_HCCS hes cex in
+      Log.debug begin fun m -> m ~header:"HCCS" "@[<v>%a@]"
+        (Print.list HornClause.pp_hum) hccs
+      end;
+      let new_gamma = HornClauseSolver.solve hes hccs in
+      `Refined (Hflmc2_abstraction.merge_env old_gamma new_gamma)
 
