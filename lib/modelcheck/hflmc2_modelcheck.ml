@@ -228,5 +228,12 @@ let run : Hfl.hes -> (unit, Counterexample.t) result =
     let exit = Sys.command @@ "horsat2 " ^ file ^ " > /tmp/out 2> /tmp/err" in
     if exit = 0
     then Parse.result "/tmp/out"
-    else Fn.fatal "error occurred. `cat /tmp/out /tmp/err`"
+    else Fn.fatal @@
+      Print.strf
+        "@[<v>Error occurred during model checking. HorSat2 output@,[stdout]@,%s[stderr]@,%s@]"
+        (Fn.read_file "/tmp/out")
+        (Fn.read_file "/tmp/err")
+
+
+
 
