@@ -50,52 +50,106 @@ let mk_apps t ts = List.fold_left ts ~init:t ~f:mk_app
 let mk_abs x t = Abs(x, t)
 let mk_abss xs t = List.fold_right xs ~init:t ~f:mk_abs
 
+let rec decompose_app = function
+  | App(phi1, phi2) ->
+      let (a, args) = decompose_app phi1 in
+      a, args @ [phi2]
+  | phi -> phi, []
+let rec decompose_abs = function
+  | Abs(x, phi) ->
+      let (args, body) = decompose_abs phi in
+      x::args, body
+  | phi -> [], phi
+
 module Typing = struct
   open Type
   exception Error of string
   let error s = raise (Error s)
 
   type tyvar = (* simple_ty + simple_argty + type variable *)
-    | TvRef of tyvar option ref
+    | TvRef of int * tyvar option ref
     | TvInt
     | TvBool
     | TvArrow of tyvar * tyvar
     [@@deriving show { with_path = false }]
   type id = int
   let new_id    : unit -> id    = Id.gen_id
-  let new_tyvar : unit -> tyvar = fun () -> TvRef (ref None)
+  let new_tyvar : unit -> tyvar =
+    let counter = new Fn.counter in
+    fun () -> TvRef (counter#tick, ref None)
+
+  let rec pp_hum_tyvar : tyvar Print.t =
+    fun ppf tv -> match tv with
+      | TvInt -> Fmt.string ppf "int"
+      | TvBool -> Fmt.string ppf "o"
+      | TvRef(id,{contents=None }) ->
+          Fmt.pf ppf "tv%d" id
+      | TvRef(id,{contents=Some tv}) ->
+          Fmt.pf ppf "tv%d@%a" id pp_hum_tyvar tv
+      | TvArrow(tv1,tv2) ->
+          Fmt.pf ppf "(%a -> %a)"
+            pp_hum_tyvar tv1
+            pp_hum_tyvar tv2
 
   let rec occur : tyvar option ref -> tyvar -> bool =
     fun r tv -> match tv with
       | TvInt | TvBool -> false
       | TvArrow(tv1, tv2) -> occur r tv1 || occur r tv2
-      | TvRef({contents=None}) -> false
-      | TvRef({contents=Some tv}) -> occur r tv
+      | TvRef(_, {contents=None}) -> false
+      | TvRef(_, {contents=Some tv}) -> occur r tv
 
   let rec unify : tyvar -> tyvar -> unit =
-    fun tv1 tv2 -> match tv1, tv2 with
+    fun tv1 tv2 ->
+      (* Print.pr "UNIFY %a -- %a@." *)
+      (*   pp_hum_tyvar tv1 *)
+      (*   pp_hum_tyvar tv2; *)
+      match tv1, tv2 with
       | TvInt, TvInt -> ()
       | TvBool, TvBool -> ()
       | TvArrow(tv11,tv12),  TvArrow(tv21,tv22) ->
           unify tv11 tv21; unify tv12 tv22
-      | TvRef r1, TvRef r2 when r1 = r2 ->
-          ()
-      | TvRef ({contents = None} as r1), _ ->
+      | TvRef (_,r1), TvRef (_,r2) when r1 = r2 ->
+          (* Print.pr "EQUAL %a == %a@." *)
+          (*   pp_hum_tyvar tv1 *)
+          (*   pp_hum_tyvar tv2; *)
+          if !r1 = None && !r2 = None then begin
+            (* Print.pr "FAKE  %a := %a@." *)
+            (*   pp_hum_tyvar tv1 *)
+            (*   pp_hum_tyvar tv2; *)
+            r1 := Some tv2
+          end;
+      | TvRef (_, ({contents = None} as r1)), _ ->
           if occur r1 tv2 then Fn.fatal "occur check";
+          (* Print.pr "APPLY %a := %a@." *)
+          (*   pp_hum_tyvar tv1 *)
+          (*   pp_hum_tyvar tv2; *)
           r1 := Some tv2
-      | _, TvRef ({contents = None} as r2) ->
+      | _, TvRef (_, ({contents = None} as r2)) ->
           if occur r2 tv1 then Fn.fatal "occur check";
+          (* Print.pr "APPLY %a := %a@." *)
+          (*   pp_hum_tyvar tv2 *)
+          (*   pp_hum_tyvar tv1; *)
           r2 := Some tv1
-      | TvRef ({contents = Some tv1'} as r1), _ ->
-          r1 := Some tv2;
+      | TvRef (_, ({contents = Some tv1'} as r1)), _ ->
+          (* Print.pr "APPLY %a := %a@." *)
+          (*   pp_hum_tyvar tv1 *)
+          (*   pp_hum_tyvar tv2; *)
+          (* r1 := Some tv2; *)
           unify tv1' tv2
-      | _, TvRef ({contents = Some tv2'} as r2) ->
-          r2 := Some tv1;
+      | _, TvRef (_, ({contents = Some tv2'} as r2)) ->
+          (* Print.pr "APPLY %a := %a@." *)
+          (*   pp_hum_tyvar tv2 *)
+          (*   pp_hum_tyvar tv1; *)
+          (* r2 := Some tv1; *)
           unify tv1 tv2'
       | _, _ ->
           Fn.fatal @@ Fmt.strf "ill-typed"
 
   type id_env = int StrMap.t   (* name to id *)
+  let pp_id_env : id_env Print.t =
+    fun ppf env ->
+      let open Print in
+      list_comma (pair string int) ppf (StrMap.to_alist env)
   type ty_env = tyvar IntMap.t (* id to tyvar *)
 
   class add_annot = object (self)
@@ -105,7 +159,9 @@ module Typing = struct
     method get_ty_env : ty_env = ty_env
 
     method add_ty_env : 'a. 'a Id.t -> tyvar -> unit =
-      fun x tv -> match IntMap.find ty_env x.id with
+      fun x tv ->
+        (* Print.pr "TyENV %s : %a@." (Id.to_string x) pp_hum_tyvar tv; *)
+        match IntMap.find ty_env x.id with
         | None -> ty_env <- IntMap.add_exn ty_env ~key:x.id ~data:tv
         | Some tv' -> unify tv tv'
 
@@ -130,7 +186,11 @@ module Typing = struct
         | _ -> failwith "annot.arith"
 
     method term : id_env -> raw_hflz -> tyvar * unit Hflz.t =
-      fun id_env psi -> match psi with
+      fun id_env psi ->
+        (* Print.pr "term %a |- %a@." *)
+        (*   pp_id_env id_env *)
+        (*   pp_raw_hflz psi; *)
+        match psi with
         | Bool b -> TvBool, Bool b
         | Var name ->
             let id,ty =
@@ -145,6 +205,7 @@ module Typing = struct
                   let ty = TvInt in
                   id, ty
               | _, _ ->
+
                   let id = new_id() in
                   let ty = TvInt in
                   global_ints <- StrMap.add_exn global_ints ~key:name ~data:id;
@@ -176,27 +237,54 @@ module Typing = struct
         | Abs(name, psi) ->
             let id = new_id() in
             let tv = new_tyvar() in
-            let x = Id.{ name; id; ty = Type.TySigma() } in
-            let id_env = StrMap.add_override id_env ~key:x.name ~data:id in
+            let x = Id.{ name; id; ty = () } in
+            let id_env = StrMap.add_override id_env ~key:name ~data:id in
             let ret, psi = self#term id_env psi in
             self#add_ty_env x tv;
-            TvArrow(tv, ret), Abs(x, psi)
-        | App (psi1, psi2) -> (* tv_argがTvIntの場合困るな．derefでやるか *)
+            TvArrow(tv, ret), Abs(lift_arg x, psi)
+        | App (psi1, psi2) ->
             let tv_fun, psi1 = self#term id_env psi1 in
             let tv_arg, psi2 = self#term id_env psi2 in
             let tv_ret = new_tyvar() in
+            (* Print.pr "tv_ret %a@." pp_hum_tyvar tv_ret; *)
             unify (TvArrow(tv_arg, tv_ret)) tv_fun;
             tv_ret, App (psi1, psi2)
 
     method hes_rule : id_env -> hes_rule -> unit Hflz.hes_rule =
       fun id_env rule ->
-        let id  = StrMap.find_exn id_env rule.var in
-        let tv  = new_tyvar() in
-        let var = Id.{ name=rule.var; id=id; ty=() } in
-        self#add_ty_env var tv;
-        let tv', body = self#term id_env (mk_abss rule.args rule.body) in
-        unify tv tv';
-        { var; body; fix = rule.fix }
+        (* Print.pr "hes_rule.vars %a@." Print.string rule.var; *)
+        let id   = StrMap.find_exn id_env rule.var in
+        let tv_F = new_tyvar() in
+        let _F   = Id.{ name=rule.var; id=id; ty=() } in
+        self#add_ty_env _F tv_F;
+
+        (* Print.pr "hes_rule.vars %a@." Print.(list_comma string) rule.args; *)
+        let var_env =
+          List.map rule.args ~f:begin fun name ->
+            let id  = new_id() in
+            let tv  = new_tyvar() in
+            let var = Id.{ name; id; ty = TySigma() } in
+            self#add_ty_env var tv;
+            (var, id, tv)
+          end
+        in
+        let vars, _, tv_vars = List.unzip3 var_env in
+        let id_env =
+          List.fold_left var_env ~init:id_env ~f:begin fun env (var,id,tv) ->
+            StrMap.add_override env ~key:var.name ~data:id
+          end
+        in
+        (* Print.pr "ID_ENV: %a@." pp_id_env id_env; *)
+        let tv_body, body = self#term id_env rule.body in
+        unify tv_body TvBool;
+        (* Print.pr "LAST@."; *)
+        unify tv_F @@ List.fold_left (List.rev tv_vars) ~init:tv_body ~f:begin fun ret arg ->
+          TvArrow (arg, ret)
+        end;
+        (* Print.pr "@."; *)
+        { var  = _F
+        ; body = Hflz.mk_abss vars body
+        ; fix  = rule.fix }
 
     method hes : hes -> unit Hflz.hes =
       fun hes ->
@@ -218,28 +306,30 @@ module Typing = struct
   class deref ty_env = object (self)
     val ty_env : ty_env = ty_env
 
-    method arg_ty : tyvar -> simple_ty arg = function
+    method arg_ty : string -> tyvar -> simple_ty arg = fun info -> function
       | TvInt  -> TyInt
       | TvBool -> TySigma (TyBool())
-      (* | TvRef {contents=None} -> assert false *)
-      | TvRef {contents=None} -> TySigma (TyBool())
-      | TvRef {contents=Some tv} -> self#arg_ty tv
+      | TvRef (_, {contents=None}) as tv ->
+          (* Print.pr "DEFAULT %s : %a@." info pp_hum_tyvar tv; *)
+          TySigma (TyBool())
+          (* assert false *)
+      | TvRef (_, {contents=Some tv}) -> self#arg_ty info tv
       | TvArrow (tv1, tv2) ->
-          let x = Id.gen ~name:"t" (self#arg_ty tv1) in
-          TySigma (TyArrow (x, self#ty tv2))
-    method ty : tyvar -> simple_ty =
-      fun tv -> match self#arg_ty tv with
+          let x = Id.gen ~name:"t" (self#arg_ty (info^".arg") tv1) in
+          TySigma (TyArrow (x, self#ty (info^".ret") tv2))
+    method ty : string -> tyvar -> simple_ty =
+      fun info tv -> match self#arg_ty info tv with
       | TyInt -> raise IntType
       | TySigma ty -> ty
 
     method id : unit Id.t -> simple_ty Id.t =
       fun x -> match IntMap.find ty_env x.id with
         | None -> failwith @@ Fmt.strf "%s" (Id.to_string x)
-        | Some ty -> { x with ty = self#ty ty }
+        | Some ty -> { x with ty = self#ty (Id.to_string x) ty }
     method arg_id : unit arg Id.t -> simple_ty arg Id.t =
       fun x -> match IntMap.find ty_env x.id with
         | None -> failwith @@ Fmt.strf "%s" (Id.to_string x)
-        | Some tv -> { x with ty = self#arg_ty tv }
+        | Some tv -> { x with ty = self#arg_ty (Id.to_string x) tv }
 
     method term : unit Hflz.t -> simple_ty Hflz.t = function
       | Var x ->
