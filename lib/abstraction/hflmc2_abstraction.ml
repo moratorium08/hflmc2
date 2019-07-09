@@ -159,10 +159,9 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
           abstract_coerce env sigma sigma' phi
       | TyArrow({ty = TySigma sigma1 ; _}, sigma2 )
       , TyArrow({ty = TySigma sigma1'; _}, sigma2') ->
-          let f = Id.gen ~name:"ac_f" (Type.abstract sigma) in
-          let x = Id.gen ~name:"ac_x" (Type.abstract sigma1') in
+          let x = Id.gen ~name:"q" (Type.abstract sigma1') in
           let phi1x = abstract_coerce env sigma1' sigma1 (Var x) in
-          abstract_coerce env sigma2 sigma2' @@ App(Var f, phi1x)
+          Hfl.Abs(x, abstract_coerce env sigma2 sigma2' @@ App(phi, phi1x))
       | _ -> assert false
     in
     Log.debug begin fun m -> m ~header:"Term:Coerce" "@[<hv 0>%a@;<1 1>: %a ≺  %a@;<1 0>⇢  %a@]"
