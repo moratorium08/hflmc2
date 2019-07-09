@@ -3,7 +3,6 @@ open Hflmc2_syntax
 open Hflmc2_syntax.Type
 
 type t =
-  | External of unit Id.t  (* External variable *)
   | Var      of TraceVar.aged
   | Bool     of bool
   | Or       of t list
@@ -22,7 +21,6 @@ let pp_hum : t Print.t =
     fun prec ppf phi -> match phi with
       | Bool true  -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
-      | External x -> P.id ppf x
       | Var x      -> TraceVar.pp_hum_aged ppf x
       | Or phis  ->
           let sep ppf () = Fmt.pf ppf "@ || " in
@@ -53,7 +51,10 @@ let pp_hum : t Print.t =
 
 let mk_bool b = Bool b
 
-let mk_var x = Var x
+let mk_var x =
+  match TraceVar.type_of_aged x with
+  | TyInt -> Arith (Var (`I x.var))
+  | _     -> Var x
 
 let mk_ands = function
   | [] -> Bool true
@@ -81,47 +82,51 @@ let rec decompose_app = function
       a, args @ [phi2]
   | phi -> phi, []
 
+module Make = struct
+  type env = TraceVar.t IdMap.t
+  let rec arith : env -> Arith.t -> HornClause.arith_var Arith.gen_t =
+    fun subst a -> match a with
+      | Var v ->
+          begin match IdMap.lookup subst v with
+          | v           -> Var (`I v)
+          | exception _ -> Var (`E (Id.remove_ty v))
+          end
+      | Int n -> Int n
+      | Op (op, as') -> Op (op, List.map as' ~f:(arith subst))
 
-let rec of_arith : TraceVar.t IdMap.t -> Arith.t -> [ `I of TraceVar.t | `E of unit Id.t ] Arith.gen_t =
-  fun subst a -> match a with
-    | Var v ->
-        begin match IdMap.lookup subst v with
-        | v           -> Var (`I v)
-        | exception _ -> Var (`E (Id.remove_ty v))
-        end
-    | Int n -> Int n
-    | Op (op, as') -> Op (op, List.map as' ~f:(of_arith subst))
+  let rec hflz : simple_ty Hflz.hes -> env -> simple_ty Hflz.t -> t =
+    fun hes subst phi -> match phi with
+      | Var v ->
+          begin match List.find hes ~f:(fun r -> Id.eq r.var v) with
+          | Some _ ->
+              Var TraceVar.(gen_aged @@ mk_nt v)
+          | None ->
+              begin match IdMap.lookup subst v with
+              | tv when TraceVar.type_of tv <> TyInt ->
+                  Var (TraceVar.gen_aged tv)
+              | tv ->
+                  Arith Arith.(Var (`I tv))
+              | exception _ ->
+                  Arith Arith.(Var (`E (Id.remove_ty v)))
+              end
+          end
+      | Bool b           -> Bool b
+      | Or phis          -> Or (List.map phis ~f:(hflz hes subst))
+      | And phis         -> And (List.map phis ~f:(hflz hes subst))
+      | Exists (l, phi)  -> Exists (l, hflz hes subst phi)
+      | Forall (l, phi)  -> Forall (l, hflz hes subst phi)
+      | Arith a          -> Arith (arith subst a)
+      | Pred (op, as')   -> Pred (op, List.map as' ~f:(arith subst))
+      | App (phi1, phi2) -> App (hflz hes subst phi1, hflz hes subst phi2)
+      | Abs _            -> assert false
+end
 
-(* *)
-let rec of_hflz : simple_ty Hflz.hes -> TraceVar.t IdMap.t -> simple_ty Hflz.t -> t =
-  fun hes subst phi -> match phi with
-    | Var v ->
-        begin match List.find hes ~f:(fun r -> Id.eq r.var v) with
-        | Some _ ->
-            Var TraceVar.(gen_aged @@ mk_nt v)
-        | None ->
-            begin match
-              IdMap.lookup subst v
-            with
-            | v           -> Var (TraceVar.gen_aged v)
-            | exception _ -> External (Id.remove_ty v)
-            end
-        end
-    | Bool b           -> Bool b
-    | Or phis          -> Or (List.map phis ~f:(of_hflz hes subst))
-    | And phis         -> And (List.map phis ~f:(of_hflz hes subst))
-    | Exists (l, phi)  -> Exists (l, of_hflz hes subst phi)
-    | Forall (l, phi)  -> Forall (l, of_hflz hes subst phi)
-    | Arith a          -> Arith (of_arith subst a)
-    | Pred (op, as')   -> Pred (op, List.map as' ~f:(of_arith subst))
-    | App (phi1, phi2) -> App (of_hflz hes subst phi1, of_hflz hes subst phi2)
-    | Abs _            -> assert false
 
 let rec subst_arith : t TraceVar.Map.t -> HornClause.arith -> HornClause.arith =
   fun env a -> match a with
     | Var (`I v) ->
         begin match TraceVar.Map.find env v with
-        | Some (Arith a) -> a
+        | Some (Arith a') -> a'
         | Some _ -> assert false
         | None -> a
         end
@@ -135,7 +140,6 @@ let rec subst : t TraceVar.Map.t -> t -> t =
         | Some t -> t
         | None   -> t
         end
-    | External v       -> External v
     | Bool b           -> Bool b
     | Or phis          -> Or (List.map phis ~f:(subst env))
     | And phis         -> And (List.map phis ~f:(subst env))

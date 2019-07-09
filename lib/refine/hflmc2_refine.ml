@@ -40,7 +40,7 @@ let rec approximate
             let orig_vars, orig_body = Hflz.decompose_abs rule.body in
             let vars   = TraceVar.mk_childlen aged in
             let rename = IdMap.of_list @@ List.zip_exn orig_vars vars in
-            let body   = TraceExpr.of_hflz hes rename orig_body in
+            let body   = TraceExpr.Make.hflz hes rename orig_body in
             let bind   = TraceVar.Map.of_alist_exn @@ List.zip_exn vars args in
             let expr   = TraceExpr.subst bind body in
             approximate hes reduce_env expr (Some c)
@@ -178,7 +178,7 @@ let gen_HCCS
                 (* x -> F.x; g -> F.g *)
                 let rename = IdMap.of_list @@ List.zip_exn orig_vars vars in
                 (* F.g (F.x + 1) *)
-                let new_expr = TraceExpr.of_hflz hes rename orig_body in
+                let new_expr = TraceExpr.Make.hflz hes rename orig_body in
                 (* F.x -> n; F.g -> H n *)
                 let bind   = List.zip_exn vars args in
                 Log.debug begin fun m -> m ~header:"NewBind" "@[<v>%a@]"
@@ -205,11 +205,6 @@ let gen_HCCS
                         | TyInt, Arith a ->
                             let f : HornClause.formula =
                               Formula.mk_pred Eq [ Arith.mk_var' (`I tv); a ]
-                            in Some f
-                        | TyInt, Var a ->
-                            let f : HornClause.formula =
-                              Formula.mk_pred Eq [ Arith.mk_var' (`I tv)
-                                                 ; Arith.mk_var' (`I a.var) ]
                             in Some f
                         | _ -> None
                       end
