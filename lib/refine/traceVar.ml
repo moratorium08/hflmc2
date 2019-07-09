@@ -42,7 +42,9 @@ module Key = struct
   type nonrec t = t
   let sexp_of_t = sexp_of_t
   let t_of_sexp = t_of_sexp
-  let compare : t -> t -> int = compare
+  let compare : t -> t -> int =
+    (* Important TODO OCamlのHashtblの仕様読む *)
+    fun x y -> String.compare (string_of x) (string_of y)
   let hash : t -> int = String.hash <<< string_of
 end
 
