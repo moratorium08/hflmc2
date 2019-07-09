@@ -51,13 +51,15 @@ let psi =
   ; { var  = _X ; body = abs ; fix = Greatest }
   ]
 
+(*============================================================================*)
+
 let () =
-    begin Log.app @@ fun m -> m ~header:"Predicate" "@[<v>%a@]@."
-      Print.(list @@ fun ppf -> pf ppf "@[<2>%a@]" @@ pair ~sep:(fun ppf () -> pf ppf " :@ ")
-        id
-        abstraction_ty)
-        (IdMap.to_alist gamma)
-    end
+  begin Log.app @@ fun m -> m ~header:"Predicate" "@[<v>%a@]@."
+    Print.(list @@ fun ppf -> pf ppf "@[<2>%a@]" @@ pair ~sep:(fun ppf () -> pf ppf " :@ ")
+      id
+      abstraction_ty)
+      (IdMap.to_alist gamma)
+  end
 
 let phi = Hflmc2.Abstraction.abstract gamma psi
 
@@ -69,7 +71,7 @@ let () =
 let () =
   match Hflmc2.Modelcheck.run phi with
   | Ok() ->
-      Fmt.pr "Sat@."
+      Fmt.pr "Valid@."
   | Error cex ->
       let open Hflmc2.Modelcheck in
       Print.pr "@[<v 2>Counterexample:@ = %a@ → %a@]@."
@@ -77,3 +79,4 @@ let () =
           Counterexample.(sexp_of_t cex)
         (Print.list Sexp.pp_hum)
           Counterexample.(List.map ~f:sexp_of_normalized (normalize (simplify cex)))
+

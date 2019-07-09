@@ -50,6 +50,14 @@ module IntMap   = struct
     fun map ~key ~data ->
       let map = remove map key in
       add_exn map ~key ~data
+  let merge : 'a t -> 'a t -> 'a t =
+    fun m1 m2 ->
+      merge m1 m2
+        ~f:begin fun ~key -> let _ = key in function
+        | `Both _ -> assert false
+        | `Left x -> Some x
+        | `Right x -> Some x
+        end
 end
 module StrMap   = struct
   include Map.Make(String)
@@ -57,6 +65,14 @@ module StrMap   = struct
     fun map ~key ~data ->
       let map = remove map key in
       add_exn map ~key ~data
+  let merge : 'a t -> 'a t -> 'a t =
+    fun m1 m2 ->
+      merge m1 m2
+        ~f:begin fun ~key -> let _ = key in function
+        | `Both _ -> assert false
+        | `Left x -> Some x
+        | `Right x -> Some x
+        end
 end
 
 module Set      = Set
