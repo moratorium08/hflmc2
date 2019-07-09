@@ -35,16 +35,17 @@ let rec approximate
     | (App _| Var _), Some c ->
         let head, args = TraceExpr.decompose_app expr in
         begin match head with
-        | Var ({ var = Nt { orig; _ } as tv; _ } as aged) ->
+        | Var (Nt { orig; _ } as tv) ->
             let rule = List.find_exn hes ~f:(fun r -> Id.eq r.var orig) in
             let orig_vars, orig_body = Hflz.decompose_abs rule.body in
+            let aged   = TraceVar.gen_aged tv in
             let vars   = TraceVar.mk_childlen aged in
             let rename = IdMap.of_list @@ List.zip_exn orig_vars vars in
             let body   = TraceExpr.Make.hflz hes rename orig_body in
             let bind   = TraceVar.Map.of_alist_exn @@ List.zip_exn vars args in
             let expr   = TraceExpr.subst bind body in
             approximate hes reduce_env expr (Some c)
-        | Var ({ var = Local _ as tv; _ } as aged) ->
+        | Var (Local _ as tv) ->
             let head = TraceVar.Map.find_exn reduce_env tv in
             let expr = TraceExpr.mk_apps head args in
             approximate hes reduce_env expr (Some c)
@@ -61,7 +62,6 @@ let is_feasible : simple_ty Hflz.hes -> Counterexample.normalized -> bool =
     let main =
       Hflz.main_symbol hes
       |> TraceVar.mk_nt
-      |> TraceVar.gen_aged
       |> TraceExpr.mk_var
     in
     let approx = Simplify.formula @@
@@ -167,7 +167,8 @@ let gen_HCCS
         | (App _| Var _), Some _ ->
             let expr_head, args = TraceExpr.decompose_app expr in
             begin match expr_head with
-            | Var ({ var = Nt { orig; _ } as tv; _ } as aged) ->
+            | Var (Nt { orig; _ } as tv) ->
+                let aged = TraceVar.gen_aged tv in
                 (* assume args = [n; H n] *)
                 (* F x g = g (x + 1) *)
                 let rule = List.find_exn hes ~f:(fun r -> Id.eq r.var orig) in
@@ -222,7 +223,8 @@ let gen_HCCS
                     @@ TraceVar.Map.of_alist_exn bind
                 in
                 hc :: go (Some (PredVar aged)) new_reduce_env new_expr cex
-            | Var ({ var = Local _ as tv; _ } as aged) ->
+            | Var (Local _ as tv) ->
+                let aged = TraceVar.gen_aged tv in
                 let vars = TraceVar.mk_childlen aged in
                 let bind = List.zip_exn vars args in
                 Log.debug begin fun m -> m ~header:"NewBind" "@[<v>%a@]"
@@ -263,7 +265,7 @@ let gen_HCCS
                 let new_expr =
                   TraceExpr.mk_apps
                     (TraceVar.Map.find_exn reduce_env tv)
-                    (List.map vars ~f:(TraceExpr.mk_var <<< TraceVar.gen_aged))
+                    (List.map vars ~f:(TraceExpr.mk_var))
                 in
                 let new_reduce_env =
                   TraceVar.Map.merge reduce_env
@@ -283,15 +285,14 @@ let gen_HCCS
     let main =
       Hflz.main_symbol hes
       |> TraceVar.mk_nt
-      |> TraceVar.gen_aged
       |> TraceExpr.mk_var
     in
     go None TraceVar.Map.empty main (Some cex)
 
-(* TODO hesはλ-liftingしておく *)
 
 type result = [ `Feasible | `Refined of Hflmc2_abstraction.env ]
 
+(* TODO hesはλ-liftingしておく *)
 let run
      : simple_ty Hflz.hes
     -> Counterexample.normalized

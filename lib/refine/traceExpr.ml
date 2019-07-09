@@ -3,7 +3,7 @@ open Hflmc2_syntax
 open Hflmc2_syntax.Type
 
 type t =
-  | Var      of TraceVar.aged
+  | Var      of TraceVar.t
   | Bool     of bool
   | Or       of t list
   | And      of t list
@@ -21,7 +21,7 @@ let pp_hum : t Print.t =
     fun prec ppf phi -> match phi with
       | Bool true  -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
-      | Var x      -> TraceVar.pp_hum_aged ppf x
+      | Var x      -> TraceVar.pp_hum ppf x
       | Or phis  ->
           let sep ppf () = Fmt.pf ppf "@ || " in
           P.show_paren (prec > P.Prec.or_) ppf "@[<hv 0>%a@]"
@@ -52,8 +52,8 @@ let pp_hum : t Print.t =
 let mk_bool b = Bool b
 
 let mk_var x =
-  match TraceVar.type_of_aged x with
-  | TyInt -> Arith (Var (`I x.var))
+  match TraceVar.type_of x with
+  | TyInt -> Arith (Var (`I x))
   | _     -> Var x
 
 let mk_ands = function
@@ -99,11 +99,11 @@ module Make = struct
       | Var v ->
           begin match List.find hes ~f:(fun r -> Id.eq r.var v) with
           | Some _ ->
-              Var TraceVar.(gen_aged @@ mk_nt v)
+              Var (TraceVar.mk_nt v)
           | None ->
               begin match IdMap.lookup subst v with
               | tv when TraceVar.type_of tv <> TyInt ->
-                  Var (TraceVar.gen_aged tv)
+                  Var tv
               | tv ->
                   Arith Arith.(Var (`I tv))
               | exception _ ->
@@ -136,7 +136,7 @@ let rec subst_arith : t TraceVar.Map.t -> HornClause.arith -> HornClause.arith =
 let rec subst : t TraceVar.Map.t -> t -> t =
   fun env t -> match t with
     | Var v ->
-        begin match TraceVar.Map.find env v.var with
+        begin match TraceVar.Map.find env v with
         | Some t -> t
         | None   -> t
         end
