@@ -212,7 +212,7 @@ module OfFpat = struct
             (* Log.debug begin fun m -> m ~header:"TV" "%a : %d" *)
             (*   TraceVar.pp_hum tv n *)
             (* end; *)
-            match List.filter_map (List.init (n+1) ~f:on_age) ~f:Fn.id with
+            match List.filter_map (List.init n ~f:on_age) ~f:Fn.id with
             | [] -> Type.map_ty (Fn.const []) @@
                       Type.unsafe_unlift @@ TraceVar.type_of tv
             | tys -> Type.merges (@) tys
@@ -223,34 +223,6 @@ module OfFpat = struct
         rule.var, abstraction_ty_of_trace_var (TraceVar.mk_nt rule.var)
       end
 end
-
-let interpolate : formula -> formula -> formula option =
-  fun f1 f2 ->
-    let f1' = ToFpat.formula f1 in
-    let f2' = ToFpat.formula f2 in
-    let preserve_name = Fn.const true in
-    match Fpat.InterpProver.interpolate_dyn preserve_name f1' f2' with
-    | ip ->
-        let rev_map =
-          let _, xs1 = Formula.fvs f1 in
-          let _, xs2 = Formula.fvs f2 in
-          let xs =
-            List.remove_consecutive_duplicates (xs1@xs2) ~equal:begin fun x1 x2 ->
-              match x1, x2 with
-              | `I x1, `I x2 -> TraceVar.equal x1 x2
-              | `E x1, `E x2 -> Id.eq x1 x2
-              | _ -> false
-            end
-          in
-          let map = StrMap.of_alist_exn @@ List.map xs ~f:begin function
-            | `I x -> TraceVar.string_of x, `I x
-            | `E n -> Id.to_string n, `E n
-            end
-          in fun x -> StrMap.find_exn map x
-        in
-        Some (OfFpat.formula rev_map ip)
-    | exception Fpat.InterpProver.NoInterpolant ->
-        None
 
 let is_valid : formula -> bool =
   fun f -> Fpat.SMTProver.is_valid_dyn (ToFpat.formula f)

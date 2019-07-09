@@ -16,6 +16,10 @@ let check_valid_inputs() =
     | `NoProgress ->
         count := !count + 1;
         Fmt.pf Fmt.stdout "input/ok/valid/%s failed with NoProgress@." file
+    | exception e ->
+        count := !count + 1;
+        Fmt.pf Fmt.stdout "input/ok/valid/%s failed with error@." file;
+        Fmt.pf Fmt.stdout "%s" @@ Exn.to_string e
   end;
   Fmt.pf Fmt.stdout "[valid  ] %d of %d inputs failed@." !count (List.length files);
   !count <> 0
@@ -33,6 +37,10 @@ let check_invalid_inputs() =
     | `NoProgress ->
         count := !count + 1;
         Fmt.pf Fmt.stdout "input/ok/valid/%s failed with NoProgress@." file
+    | exception e ->
+        count := !count + 1;
+        Fmt.pf Fmt.stdout "input/ok/valid/%s failed with error@." file;
+        Fmt.pf Fmt.stdout "%s" @@ Exn.to_string e
   end;
   Fmt.pf Fmt.stdout "[invalid] %d of %d inputs failed@." !count (List.length files);
   !count <> 0

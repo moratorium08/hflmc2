@@ -86,7 +86,7 @@ let pp_hum_body : body Print.t =
     then
       pp_hum_formula ppf body.phi
     else
-      Print.pf ppf "@[<h>%a@],@ %a"
+      Print.pf ppf "@[@[<h>%a@],@ @[<h>%a@]@]"
         Print.(list ~sep:comma pp_hum_pred_var) body.pvs
         pp_hum_formula body.phi
 

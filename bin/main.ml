@@ -6,6 +6,9 @@ let () =
         | `Valid      -> "Valid"
         | `Invalid    -> "Invalid"
         | `NoProgress -> "NoProgress"
-        | exception (Hflmc2.Util.Fn.Fatal e) -> print_endline e; "Fail"
+        | exception
+            ( Hflmc2.Util.Fn.Fatal e
+            | Hflmc2.Syntax.ParseError e
+            ) -> print_endline e; "Fail"
         end
   | None -> ()

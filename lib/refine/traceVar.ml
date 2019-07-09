@@ -2,6 +2,8 @@ open Hflmc2_util
 open Hflmc2_syntax
 open Hflmc2_syntax.Type
 
+module Log = (val Logs.src_log @@ Logs.Src.create "TraceVar")
+
 type t =
   | Nt of
       { orig : simple_ty Id.t
@@ -54,7 +56,11 @@ module Map = struct
     fun m1 m2 ->
       merge m1 m2
         ~f:begin fun ~key -> let _ = key in function
-        | `Both _ -> assert false
+        | `Both _ ->
+            Log.err begin fun m -> m ~header:"Merge" "%a"
+              pp_hum key
+            end;
+            assert false
         | `Left x -> Some x
         | `Right x -> Some x
         end
