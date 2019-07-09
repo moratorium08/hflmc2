@@ -101,7 +101,7 @@ type t =
 
 let pp_hum : t Print.t =
   fun ppf { head; body } ->
-    Print.pf ppf "@[<v 2>%a@ => @[<h>%a@]@]"
-      pp_hum_body body
+    Print.pf ppf "@[<v 2>%a@ <= @[<h>%a@]@]"
       pp_hum_head head
+      pp_hum_body body
 
