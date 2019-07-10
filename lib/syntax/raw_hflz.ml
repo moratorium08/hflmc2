@@ -364,34 +364,54 @@ module Typing = struct
     deref#hes annotated
 end
 
-let rec rename : ?env:[`Int] Id.t IdMap.t
-              -> Type.simple_ty
-              -> Type.abstraction_ty
-              -> Type.abstraction_ty =
+let rename_simple_ty_rule
+      : Type.simple_ty Hflz.hes_rule
+     -> Type.simple_ty Hflz.hes_rule =
+  fun rule ->
+    let sty        = rule.var.ty in
+    let vars, _    = Hflz.decompose_abs rule.body in
+    let ty_vars, _ = Type.decompose_arrow sty in
+    let ty_vars' =
+      List.map2_exn vars ty_vars ~f:begin fun var ty_var ->
+        { ty_var with name = var.name }
+      end
+    in
+    let sty' = Type.mk_arrows ty_vars' (TyBool()) in
+    { rule with var = { rule.var with ty = sty' } }
+
+let rec rename_abstraction_ty
+      : ?env:[`Int] Id.t IdMap.t
+     -> Type.simple_ty
+     -> Type.abstraction_ty
+     -> Type.abstraction_ty =
   fun ?(env=IdMap.empty) orig aty -> match orig, aty with
     | TyBool(), TyBool fs -> TyBool(List.map ~f:(Subst.Id'.formula env) fs)
     | TyArrow({ty=TyInt;_} as x , ret_sty),
       TyArrow({ty=TyInt;_} as x', ret_aty) ->
         let env = IdMap.replace env x' {x with ty=`Int} in
-        TyArrow({x with ty=TyInt}, rename ~env ret_sty ret_aty)
+        TyArrow({x with ty=TyInt}, rename_abstraction_ty ~env ret_sty ret_aty)
     | TyArrow({ty=TySigma arg_sty;_} as x , ret_sty),
       TyArrow({ty=TySigma arg_aty;_} as x', ret_aty) ->
-        TyArrow({x with ty = TySigma(rename ~env arg_sty arg_aty)},
-                rename ~env ret_sty ret_aty)
+        TyArrow({x with ty = TySigma(rename_abstraction_ty ~env arg_sty arg_aty)},
+                rename_abstraction_ty ~env ret_sty ret_aty)
     | _ ->
-        invalid_arg "Raw_hflz.rename: Simple type mismatch"
+        invalid_arg "Raw_hflz.rename_abstraction_ty: Simple type mismatch"
 
 let to_typed (x, env) =
-  let typed_hes = Typing.to_typed x in
+  let hes =
+    x
+    |> Typing.to_typed
+    |> List.map ~f:rename_simple_ty_rule
+  in
   let gamma = IdMap.of_list @@
-    List.map typed_hes ~f:begin fun rule ->
+    List.map hes ~f:begin fun rule ->
       let v = rule.var in
       let aty =
         match List.Assoc.find ~equal:String.equal env v.name with
-        | Some aty -> rename v.ty aty
+        | Some aty -> rename_abstraction_ty v.ty aty
         | None -> Type.map_ty (fun () -> []) v.ty
       in rule.var, aty
     end
   in
-  typed_hes, gamma
+  hes, gamma
 
