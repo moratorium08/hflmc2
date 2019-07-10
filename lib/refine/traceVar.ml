@@ -38,6 +38,11 @@ let type_of = function
   | Local { name; _ } -> name.ty
 let type_of_aged aged = type_of aged.var
 
+let fvs_of = function
+  | Nt    _ -> []
+  | Local { fvs; _ } -> fvs
+let fvs_of_aged aged = fvs_of aged.var
+
 module Key = struct
   type nonrec t = t
   let sexp_of_t = sexp_of_t
@@ -48,25 +53,7 @@ module Key = struct
   let hash : t -> int = String.hash <<< string_of
 end
 
-module Map = struct
-  include Map.Make(Key)
-  let add_override : 'a t -> key:Key.t -> data:'a -> 'a t =
-    fun map ~key ~data ->
-      let map = remove map key in
-      add_exn map ~key ~data
-  let merge : 'a t -> 'a t -> 'a t =
-    fun m1 m2 ->
-      merge m1 m2
-        ~f:begin fun ~key -> let _ = key in function
-        | `Both _ ->
-            Log.err begin fun m -> m ~header:"Merge" "%a"
-              pp_hum key
-            end;
-            assert false
-        | `Left x -> Some x
-        | `Right x -> Some x
-        end
-end
+module Map = Map.Make'(Key)
 
 let counters : (t, int) Hashtbl.t = Hashtbl.create (module Key)
 let reset_counters () = Hashtbl.clear counters
@@ -93,6 +80,6 @@ let mk_childlen : aged -> t list =
         let rec go acc nth ty = match ty with
           | TyBool() -> acc
           | TyArrow(x, ret_ty) ->
-              let x = Local { parent; name=x; fvs=acc; nth } in
+              let x = Local { parent; name=x; fvs=fvs_of_aged parent @ acc; nth } in
               go (acc@[x]) (nth+1) ret_ty
         in go [] 0 ty

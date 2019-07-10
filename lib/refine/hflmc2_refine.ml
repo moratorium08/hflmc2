@@ -108,7 +108,8 @@ let gen_HCCS
             TraceExpr.pp_hum expr
         end;
         match expr, cex with
-        | (Bool true | And []), _ ->
+        | (Bool true | And []), _
+        | (App _ | Var _)     , None ->
             let pvs  = [] in
             let phi  = Formula.Bool false in
             let body = HornClause.{ pvs; phi } in
@@ -146,9 +147,9 @@ let gen_HCCS
               | _ -> assert false
             in
             let hc_s, hcs_s =
-              List.unzip @@ List.map hccss ~f:begin function
-              | [] -> assert false
-              | hc::hcs -> (hc, hcs)
+              List.unzip @@ List.filter_map hccss ~f:begin function
+              | [] -> None
+              | hc::hcs -> Some (hc, hcs)
               end
             in
             let hc = (* merge bodies *)
@@ -276,7 +277,6 @@ let gen_HCCS
                 Print.print TraceExpr.pp expr_head;
                 assert false
             end
-        | (App _| Var _), None -> []
         | Arith _, _ -> assert false
         | Exists _, _ | Forall _, _ -> Fn.todo()
         | _ -> assert false

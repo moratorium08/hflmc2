@@ -43,37 +43,26 @@ end
 
 module String   = String
 
-module Map      = Map
-module IntMap   = struct
-  include Map.Make(Int)
-  let add_override : 'a t -> key:int -> data:'a -> 'a t =
-    fun map ~key ~data ->
-      let map = remove map key in
-      add_exn map ~key ~data
-  let merge : 'a t -> 'a t -> 'a t =
-    fun m1 m2 ->
-      merge m1 m2
-        ~f:begin fun ~key -> let _ = key in function
-        | `Both _ -> assert false
-        | `Left x -> Some x
-        | `Right x -> Some x
-        end
+module Map = struct
+  include Map
+  module Make'(Key : Key) = struct
+    include Make(Key)
+    let replace : 'a t -> key:Key.t -> data:'a -> 'a t =
+      fun map ~key ~data ->
+        let map = remove map key in
+        add_exn map ~key ~data
+    let merge : 'a t -> 'a t -> 'a t =
+      fun m1 m2 ->
+        merge m1 m2
+          ~f:begin fun ~key:_ -> function
+          | `Both _ -> invalid_arg "merge"
+          | `Left x -> Some x
+          | `Right x -> Some x
+          end
+  end
 end
-module StrMap   = struct
-  include Map.Make(String)
-  let add_override : 'a t -> key:string -> data:'a -> 'a t =
-    fun map ~key ~data ->
-      let map = remove map key in
-      add_exn map ~key ~data
-  let merge : 'a t -> 'a t -> 'a t =
-    fun m1 m2 ->
-      merge m1 m2
-        ~f:begin fun ~key -> let _ = key in function
-        | `Both _ -> assert false
-        | `Left x -> Some x
-        | `Right x -> Some x
-        end
-end
+module IntMap   = Map.Make'(Int)
+module StrMap   = Map.Make'(String)
 
 module Set      = Set
 module IntSet   = Set.Make(Int)

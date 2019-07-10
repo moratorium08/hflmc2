@@ -238,7 +238,7 @@ module Typing = struct
             let id = new_id() in
             let tv = new_tyvar() in
             let x = Id.{ name; id; ty = () } in
-            let id_env = StrMap.add_override id_env ~key:name ~data:id in
+            let id_env = StrMap.replace id_env ~key:name ~data:id in
             let ret, psi = self#term id_env psi in
             self#add_ty_env x tv;
             TvArrow(tv, ret), Abs(lift_arg x, psi)
@@ -271,7 +271,7 @@ module Typing = struct
         let vars, _, tv_vars = List.unzip3 var_env in
         let id_env =
           List.fold_left var_env ~init:id_env ~f:begin fun env (var,id,tv) ->
-            StrMap.add_override env ~key:var.name ~data:id
+            StrMap.replace env ~key:var.name ~data:id
           end
         in
         (* Print.pr "ID_ENV: %a@." pp_id_env id_env; *)
