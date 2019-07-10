@@ -5,14 +5,15 @@ let input_dir = "../../../../input/ok/"
 
 let check_valid_inputs() =
   let dir   = input_dir ^ "valid/" in
-  let files = Sys.ls_dir dir in
+  let files = List.sort ~compare @@ Sys.ls_dir dir in
   let count = ref 0 in
   List.iter files ~f:begin fun file ->
     match Hflmc2.main (dir ^ file) with
-    | `Valid -> ()
+    | `Valid ->
+        ()
     | `Invalid ->
         count := !count + 1;
-        Fmt.pf Fmt.stderr "input/ok/valid/%s judeged as Invalid@." file
+        Fmt.pf Fmt.stdout "input/ok/valid/%s judeged as Invalid@." file
     | `NoProgress ->
         count := !count + 1;
         Fmt.pf Fmt.stdout "input/ok/valid/%s failed with NoProgress@." file
@@ -21,7 +22,7 @@ let check_valid_inputs() =
         Fmt.pf Fmt.stdout "input/ok/valid/%s failed with error@." file;
         Fmt.pf Fmt.stdout "%s" @@ Exn.to_string e
   end;
-  Fmt.pf Fmt.stdout "[valid  ] %d of %d inputs failed@." !count (List.length files);
+  Fmt.pf Fmt.stdout "[  valid] %d of %d inputs failed@." !count (List.length files);
   !count <> 0
 
 let check_invalid_inputs() =
