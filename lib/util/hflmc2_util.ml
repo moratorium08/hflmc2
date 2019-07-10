@@ -39,6 +39,12 @@ module List = struct
             | [] -> []
             | z::zs -> go (y::xs) z zs
         in go [] x xs
+  let remove_duplicates : 'a list -> equal:('a -> 'a -> bool) -> 'a list =
+    fun xs ~equal ->
+      let cons_if_uniq x xs = if mem ~equal xs x then xs else x :: xs in
+      List.fold_left xs ~init:[] ~f:begin fun xs x ->
+        cons_if_uniq x xs
+      end
 end
 
 module String   = String

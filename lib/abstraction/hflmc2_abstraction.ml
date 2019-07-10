@@ -2,17 +2,30 @@ open Hflmc2_util
 open Hflmc2_syntax
 open Type
 module Options = Hflmc2_options
+module FpatInterface = FpatInterface
 
 module Log = (val Logs.src_log @@ Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
 
 type env = abstraction_ty IdMap.t
+let pp_env : env Print.t =
+  fun ppf env ->
+  let compare_id (x,_) (y,_) = compare x.Id.id y.Id.id in
+  let item ppf (f,aty) = Print.pf ppf "@[<h>%a : %a@]" Print.id f Print.abstraction_ty aty in
+  Print.pf ppf "@[<v>%a@]"
+    (Print.list item)
+    (List.sort ~compare:compare_id @@ IdMap.to_alist env)
+
+
 let merge_env : env -> env -> env =
   fun gamma1 gamma2 ->
     IdMap.merge gamma1 gamma2
       ~f:begin fun ~key:_ -> function
       | `Left l -> Some l
       | `Right r -> Some r
-      | `Both (l, r) -> Some (Type.merge (@) l r)
+      | `Both (l, r) ->
+          let append_preds ps qs =
+            List.remove_duplicates ~equal:FpatInterface.(<=>) @@ (ps@qs)
+          in Some (Type.merge append_preds l r)
       end
 
 (* options *)
@@ -221,7 +234,7 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
           in
           let sigma_phis = List.map psis ~f:(abstract_infer env) in
           let preds' =
-            List.remove_consecutive_duplicates ~equal:FpatInterface.(<=>) @@
+            List.remove_duplicates ~equal:FpatInterface.(<=>) @@
               List.concat @@ List.map sigma_phis ~f:begin function
                 | TyBool pred, _ -> pred
                 | _ -> assert false
@@ -252,7 +265,7 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
   fun env psi sigma ->
     let phi : Hfl.t = match psi, sigma with
       | Abs({ty=TyInt;_} as x, psi), TyArrow({ty=TyInt;_} as x', sigma) ->
-          let sigma = Subst.Id'.abstraction_ty x' {x with ty=`Int} sigma in
+          let sigma = Subst.Id'.abstraction_ty (IdMap.singleton x' {x with ty=`Int}) sigma in
           abstract_check env psi sigma
       | Abs(x, psi), TyArrow({ty = TySigma sigma'; _}, sigma) ->
           let env' = IdMap.add env x sigma' in

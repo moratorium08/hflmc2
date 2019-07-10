@@ -6,37 +6,33 @@ open Type
 type 'x t = 'x IdMap.t
 
 module Id' = struct
-  let rec arith : [`Int] Id.t -> [`Int ] Id.t -> Arith.t -> Arith.t =
-    fun x x' a ->
+  let rec arith : [`Int ] Id.t IdMap.t -> Arith.t -> Arith.t =
+    fun env a ->
       match a with
       | Int _ -> a
-      | Var v -> if Id.equal (=) v x then Var x' else Var v
-      | Op(op, as') -> Op(op, List.map ~f:(arith x x') as')
-  let arith : 'a. 'a Id.t -> [`Int ] Id.t -> Arith.t -> Arith.t =
-    fun x x' a' -> arith {x with ty=`Int} x' a'
+      | Var v -> 
+          begin match IdMap.find env v with
+          | None -> a
+          | Some v' -> Var v'
+          end
+      | Op(op, as') -> Op(op, List.map ~f:(arith env) as')
 
-  let rec formula : unit Id.t -> [`Int] Id.t -> Formula.t -> Formula.t =
-    fun x a p ->
+  let rec formula : [`Int ] Id.t IdMap.t -> Formula.t -> Formula.t =
+    fun env p ->
       match p with
-      | Pred(prim, as') -> Pred(prim, List.map as' ~f:(arith x a))
-      | And ps -> And(List.map ~f:(formula x a) ps)
-      | Or  ps -> Or (List.map ~f:(formula x a) ps)
+      | Pred(prim, as') -> Pred(prim, List.map as' ~f:(arith env))
+      | And ps -> And(List.map ~f:(formula env) ps)
+      | Or  ps -> Or (List.map ~f:(formula env) ps)
       | _ -> p
-  let formula : 'a. 'a Id.t -> [`Int] Id.t -> Formula.t -> Formula.t =
-    fun x a p -> formula (Id.remove_ty x) a p
 
-  let rec abstraction_ty : unit Id.t -> [`Int] Id.t -> abstraction_ty -> abstraction_ty =
-    fun x x' ty -> match ty with
-      | TyBool fs -> TyBool (List.map fs ~f:(formula x x'))
-      | TyArrow({ty=TyInt;_} as y, _) when Id.eq x y ->
-          assert false
-      | TyArrow({ty=TyInt;_} as y, ty) ->
-          TyArrow(y, abstraction_ty x x' ty)
+  let rec abstraction_ty : [`Int ] Id.t IdMap.t -> abstraction_ty -> abstraction_ty =
+    fun env ty -> match ty with
+      | TyBool fs -> TyBool (List.map fs ~f:(formula env))
+      | TyArrow({ty=TyInt;_} as x, ty) ->
+          TyArrow(x, abstraction_ty (IdMap.remove env x) ty)
       | TyArrow({ty=TySigma ty_arg;_} as y, ret_ty) ->
-          TyArrow( { y with ty = TySigma (abstraction_ty x x' ty_arg)}
-                 , abstraction_ty x x' ret_ty)
-  let abstraction_ty : 'a. 'a Id.t -> [`Int] Id.t -> abstraction_ty -> abstraction_ty =
-    fun x a a' -> abstraction_ty (Id.remove_ty x) a a'
+          TyArrow({y with ty = TySigma (abstraction_ty env ty_arg)},
+                  abstraction_ty env ret_ty)
 end
 
 (* TODO IdMapを使う *)
