@@ -12,6 +12,12 @@ module Log = (val Logs.src_log @@ Logs.Src.create "Main")
 
 type result = [ `Valid | `Invalid | `NoProgress ]
 
+let show_result = function
+  | `Valid      -> "Valid"
+  | `Invalid    -> "Invalid"
+  | `NoProgress -> "NoProgress"
+
+
 let rec cegar_loop ?prev_cex loop_count psi gamma =
   Log.app begin fun m -> m ~header:"TopOfLoop" "Loop count: %d"
       loop_count

@@ -108,6 +108,7 @@ module Fn = struct
   let todo ?(info="") () = raise (TODO info)
 
   let neg i = -i
+  let const x _ = x
 
   let print ?(tag="") pp x =
     if tag = ""
