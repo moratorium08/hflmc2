@@ -220,7 +220,7 @@ let gen_HCCS
                   HornClause.pp_hum hc
                 end;
                 let new_reduce_env =
-                  TraceVar.Map.merge reduce_env
+                  TraceVar.Map.merge' reduce_env
                     @@ TraceVar.Map.of_alist_exn bind
                 in
                 hc :: go (Some (PredVar aged)) new_reduce_env new_expr cex
@@ -269,7 +269,7 @@ let gen_HCCS
                     (List.map vars ~f:(TraceExpr.mk_var))
                 in
                 let new_reduce_env =
-                  TraceVar.Map.merge reduce_env
+                  TraceVar.Map.merge' reduce_env
                     @@ TraceVar.Map.of_alist_exn bind
                 in
                 hc :: go (Some (PredVar aged)) new_reduce_env new_expr cex

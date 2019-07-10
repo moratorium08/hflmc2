@@ -57,7 +57,7 @@ module Map = struct
       fun map ~key ~data ->
         let map = remove map key in
         add_exn map ~key ~data
-    let merge : 'a t -> 'a t -> 'a t =
+    let merge' : 'a t -> 'a t -> 'a t =
       fun m1 m2 ->
         merge m1 m2
           ~f:begin fun ~key:_ -> function
