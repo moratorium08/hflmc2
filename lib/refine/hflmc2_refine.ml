@@ -307,5 +307,8 @@ let run
         (Print.list HornClause.pp_hum) hccs
       end;
       let new_gamma = HornClauseSolver.solve hes hccs in
+      Log.app begin fun m -> m ~header:"NewGamma" "@[<v>%a@]"
+        Hflmc2_abstraction.pp_env new_gamma
+      end;
       `Refined (Hflmc2_abstraction.merge_env old_gamma new_gamma)
 

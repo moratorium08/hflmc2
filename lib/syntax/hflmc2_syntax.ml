@@ -15,7 +15,7 @@ module IdSet    = IdSet
 
 exception ParseError of string
 module Parser : sig
-  val main : Lexing.lexbuf -> Raw_hflz.hes
+  val main : Lexing.lexbuf -> Raw_hflz.hes * (string * Type.abstraction_ty) list
 end = struct
   module P = Parser
   module I = P.MenhirInterpreter
@@ -60,9 +60,15 @@ end = struct
             | I.T_EQ        -> "EQ"
             | I.T_EOF       -> "EOF"
             | I.T_DOT       -> "DOT"
+            | I.T_COLON     -> "COLON"
             | I.T_DEF_L     -> "DEF_L"
             | I.T_DEF_G     -> "DEF_G"
             | I.T_AND       -> "AND"
+            | I.T_TINT      -> "TINT"
+            | I.T_TBOOL     -> "TBOOL"
+            | I.T_TARROW    -> "TARROW"
+            | I.T_START_ENV -> "START_ENV"
+            | I.T_SEMICOLON -> "SEMICOLON"
             end
         | I.X (I.N x) -> print @@ begin match x with
             | I.N_uvar                     -> "uvar"
@@ -85,6 +91,22 @@ end = struct
             | I.N_app_expr                 -> "app_expr"
             | I.N_and_or_expr              -> "and_or_expr"
             | I.N_abs_expr                 -> "abs_expr"
+            | I.N_main                     -> "main"
+            | I.N_env                      -> "env"
+            | I.N_assignment               -> "assignment"
+            | I.N_abstraction_ty           -> "abstraction_ty"
+            | I.N_list_assignment_         -> "list_assignment_"
+            | I.N_arith                    -> "arith"
+            | I.N_and_or_predicate         -> "and_or_predicate"
+            | I.N_abstraction_argty        -> "abstraction_argty"
+            | I.N_a_predicate              -> "a_predicate"
+            | I.N_predicate                -> "predicate"
+            | I.N_atom_predicate           -> "atom_predicate"
+            | I.N_atom_arith               -> "atom_arith"
+            | I.N_loption_separated_nonempty_list_SEMICOLON_predicate__
+                                           -> "loption_separated_nonempty_list_SEMICOLON_predicate__"
+            | I.N_separated_nonempty_list_SEMICOLON_predicate_
+                                           -> "separated_nonempty_list_SEMICOLON_predicate_"
             end
       let print_element = None
     end in (module User : PRINTER_DEF)
@@ -123,7 +145,13 @@ end = struct
     let supplier = I.lexer_lexbuf_to_supplier Lexer.token lexbuf in
     I.loop_handle succeed fail supplier checkpoint
 
-  let main lexbuf = loop lexbuf (P.Incremental.hes lexbuf.lex_curr_p)
+  let main lexbuf =
+    let hes, env = loop lexbuf (P.Incremental.main lexbuf.lex_curr_p) in
+    let env      = match env with None -> [] | Some env -> env in
+    let item ppf (x,ty) = Print.pf ppf "@[<h>%s : %a@]" x Print.abstraction_ty ty in
+    if false then Print.pr "@[<v>%a@]@."
+      Print.(list item) env ;
+    hes, env
 end
 
 let parse_string str =

@@ -1,0 +1,8 @@
+%HES
+S =v F n (H n).
+F x g =v g (x + x) \/ g (-(x + x)).
+H y z =v z >= y.
+
+%ENV
+F : x:int -> (w:int -> bool[w>=x]) -> bool.
+H : y:int -> z:int -> bool[z>=y].

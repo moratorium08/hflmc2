@@ -5,6 +5,8 @@ include Format
 
 let print = Fn.print
 
+let semicolon : unit Fmt.t = fun ppf () -> string ppf ";"
+
 let list_comma : 'a Fmt.t -> 'a list Fmt.t =
   fun format_x ppf xs ->
     let sep ppf () = Fmt.pf ppf ",@," in
@@ -187,10 +189,10 @@ let simple_argty : Type.simple_ty Type.arg Fmt.t = simple_argty_ Prec.zero
 let abstraction_ty : Type.abstraction_ty Fmt.t =
   let annot ppf fs =
     Fmt.pf ppf "[%a]"
-      (Fmt.list ~sep:Fmt.comma formula) fs
+      (Fmt.list ~sep:semicolon formula) fs
   in ty annot
 let abstraction_argty  : Type.abstraction_argty Fmt.t =
-  argty @@ ty (Fmt.list ~sep:Fmt.comma formula)
+  argty abstraction_ty
 
 
 let rec abstracted_ty_ : Prec.t -> Type.abstracted_ty Fmt.t =

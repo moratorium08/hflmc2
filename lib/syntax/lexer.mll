@@ -23,6 +23,7 @@ rule token = parse
 | "/*"                     { comment lexbuf; token lexbuf }
 | eof                      { EOF }
 | "%HES"                   { START_HES }
+| "%ENV"                   { START_ENV }
 | "("                      { LPAREN    }
 | ")"                      { RPAREN    }
 | "["                      { LSQUARE   }
@@ -33,6 +34,11 @@ rule token = parse
 | ("=v"|"=ν")              { DEF_G     }
 | ("=m"|"=μ")              { DEF_L     }
 | "."                      { DOT       }
+| ":"                      { COLON     }
+| ";"                      { SEMICOLON }
+| "int"                    { TINT      }
+| "bool"                   { TBOOL     }
+| "->"                     { TARROW    }
 | digit digit*             { INT (int_of_string (Lexing.lexeme lexbuf)) }
 | upper alphanum*          { UIDENT (Lexing.lexeme lexbuf) }
 | lower alphanum*          { LIDENT (Lexing.lexeme lexbuf) }

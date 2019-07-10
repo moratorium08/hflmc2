@@ -1,0 +1,16 @@
+%HES
+S            =v Twice Neg n Pos || n <= 0.
+Neg x k      =v k (-x).
+Pos y        =v y > 0.
+Twice f z k_ =v f z (Flip f k_).
+Flip g k__ w =v g w k__.
+
+%ENV
+Neg : x:int -> (y:int -> bool[y>0; y<0]) -> bool[x>0; x<0].
+Pos : x:int -> bool[x>0].
+Twice : (x:int -> (y:int -> bool[y>0; y<0]) -> bool[x>0; x<0]) ->
+        z:int -> (w:int -> bool[w>0]) -> bool[z>0].
+Flip : (x:int -> (y:int -> bool[y>0; y<0]) -> bool[x>0; x<0]) ->
+       (x:int -> bool[x > 0]) ->
+       n:int ->
+       bool[0 > n].

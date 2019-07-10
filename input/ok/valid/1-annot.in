@@ -1,0 +1,5 @@
+%HES
+S   =v X n || n < 0.
+X y =v y = 0 || y >= 1 && X (y-1).
+%ENV
+X : y:int -> bool[y>=0].

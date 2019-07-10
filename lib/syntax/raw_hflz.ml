@@ -364,5 +364,34 @@ module Typing = struct
     deref#hes annotated
 end
 
-let to_typed = Typing.to_typed
+let rec rename : ?env:[`Int] Id.t IdMap.t
+              -> Type.simple_ty
+              -> Type.abstraction_ty
+              -> Type.abstraction_ty =
+  fun ?(env=IdMap.empty) orig aty -> match orig, aty with
+    | TyBool(), TyBool fs -> TyBool(List.map ~f:(Subst.Id'.formula env) fs)
+    | TyArrow({ty=TyInt;_} as x , ret_sty),
+      TyArrow({ty=TyInt;_} as x', ret_aty) ->
+        let env = IdMap.replace env x' {x with ty=`Int} in
+        TyArrow({x with ty=TyInt}, rename ~env ret_sty ret_aty)
+    | TyArrow({ty=TySigma arg_sty;_} as x , ret_sty),
+      TyArrow({ty=TySigma arg_aty;_} as x', ret_aty) ->
+        TyArrow({x with ty = TySigma(rename ~env arg_sty arg_aty)},
+                rename ~env ret_sty ret_aty)
+    | _ ->
+        invalid_arg "Raw_hflz.rename: Simple type mismatch"
+
+let to_typed (x, env) =
+  let typed_hes = Typing.to_typed x in
+  let gamma = IdMap.of_list @@
+    List.map typed_hes ~f:begin fun rule ->
+      let v = rule.var in
+      let aty =
+        match List.Assoc.find ~equal:String.equal env v.name with
+        | Some aty -> rename v.ty aty
+        | None -> Type.map_ty (fun () -> []) v.ty
+      in rule.var, aty
+    end
+  in
+  typed_hes, gamma
 
