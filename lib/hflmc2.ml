@@ -31,7 +31,7 @@ let rec cegar_loop ?prev_cex loop_count psi gamma =
   | Error cex ->
       let module C = Modelcheck.Counterexample in
       let cex = C.simplify cex in
-      Log.app begin fun m -> m ~header:"Counterexample" "@[<2>%a@]"
+      Log.app begin fun m -> m ~header:"Counterexample" "@[<2>%a@]@."
         Sexp.pp_hum (C.sexp_of_t cex)
       end;
       if Option.equal C.equal prev_cex (Some cex) then
