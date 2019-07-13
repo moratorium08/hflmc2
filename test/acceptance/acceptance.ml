@@ -1,7 +1,9 @@
 open Core
 open Hflmc2_util
 
-(* TODO duneのrootを手に入れる方法はないものか *)
+(* TODO duneのrootを手に入れる方法はないものか．
+ * Sys.getenv_exn "OWD" がそれっぽいけどドキュメントにはなってなさそう
+ * *)
 let input_base_dir = "../../../../input/ok/"
 
 let measure_time f =
