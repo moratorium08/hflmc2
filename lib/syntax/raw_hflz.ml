@@ -95,8 +95,10 @@ module Typing = struct
     fun r tv -> match tv with
       | TvInt | TvBool -> false
       | TvArrow(tv1, tv2) -> occur r tv1 || occur r tv2
-      | TvRef(_, {contents=None}) -> false
-      | TvRef(_, {contents=Some tv}) -> occur r tv
+      | TvRef(_, ({contents=None} as r')) -> r == r'
+      | TvRef(_, ({contents=Some tv} as r')) -> r == r' || occur r tv
+  let occur_check r tv =
+    if occur r tv then Fn.fatal "Recursive type is unsupported"
 
   let rec unify : tyvar -> tyvar -> unit =
     fun tv1 tv2 ->
@@ -113,34 +115,37 @@ module Typing = struct
           (*   pp_hum_tyvar tv1 *)
           (*   pp_hum_tyvar tv2; *)
           if !r1 = None && !r2 = None then begin
-            (* Print.pr "FAKE  %a := %a@." *)
+            occur_check r1 tv2;
+            (* Print.pr "APPLY  %a := %a@." *)
             (*   pp_hum_tyvar tv1 *)
             (*   pp_hum_tyvar tv2; *)
             r1 := Some tv2
           end;
       | TvRef (_, ({contents = None} as r1)), _ ->
-          if occur r1 tv2 then Fn.fatal "occur check";
+          occur_check r1 tv2;
           (* Print.pr "APPLY %a := %a@." *)
           (*   pp_hum_tyvar tv1 *)
           (*   pp_hum_tyvar tv2; *)
           r1 := Some tv2
       | _, TvRef (_, ({contents = None} as r2)) ->
-          if occur r2 tv1 then Fn.fatal "occur check";
+          occur_check r2 tv1;
           (* Print.pr "APPLY %a := %a@." *)
           (*   pp_hum_tyvar tv2 *)
           (*   pp_hum_tyvar tv1; *)
           r2 := Some tv1
       | TvRef (_, ({contents = Some tv1'} as r1)), _ ->
+          occur_check r1 tv2;
           (* Print.pr "APPLY %a := %a@." *)
           (*   pp_hum_tyvar tv1 *)
           (*   pp_hum_tyvar tv2; *)
-          (* r1 := Some tv2; *)
+          r1 := Some tv2;
           unify tv1' tv2
       | _, TvRef (_, ({contents = Some tv2'} as r2)) ->
+          occur_check r2 tv1;
           (* Print.pr "APPLY %a := %a@." *)
           (*   pp_hum_tyvar tv2 *)
           (*   pp_hum_tyvar tv1; *)
-          (* r2 := Some tv1; *)
+          r2 := Some tv1;
           unify tv1 tv2'
       | _, _ ->
           Fn.fatal @@ Fmt.strf "ill-typed"
