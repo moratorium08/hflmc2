@@ -8,10 +8,9 @@ module Hflz     = Hflz
 module Id       = Id
 module Type     = Type
 module Raw_hflz = Raw_hflz
-module Simplify = Simplify
-module Subst    = Subst
 module IdMap    = IdMap
 module IdSet    = IdSet
+module Trans    = Trans
 
 exception LexingError of string
 exception ParseError of string

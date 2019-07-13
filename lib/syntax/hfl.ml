@@ -71,4 +71,25 @@ let decompose_app =
   in
   fun phi -> go phi []
 
+(* free variables *)
+let rec fvs = function
+  | Var x          -> IdSet.singleton x
+  | Bool _         -> IdSet.empty
+  | Or (phis,_)    -> IdSet.union_list (List.map phis ~f:fvs)
+  | And(phis,_)    -> IdSet.union_list (List.map phis ~f:fvs)
+  | Exists(_,phi)  -> fvs phi
+  | Forall(_,phi)  -> fvs phi
+  | App(phi1,phi2) -> IdSet.union (fvs phi1) (fvs phi2)
+  | Abs(x,phi)     -> IdSet.remove (fvs phi) x
+
+(* type *)
+let rec type_of = function
+  | Var x -> x.ty
+  | App (phi, _) ->
+      begin match type_of phi with
+      | ATyArrow(_, ret_ty) -> ret_ty
+      | _ -> assert false
+      end
+  | Abs (x, phi) -> ATyArrow(x.ty, type_of phi)
+  | _ -> ATyBool
 

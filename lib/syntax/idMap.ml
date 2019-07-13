@@ -1,3 +1,4 @@
+(* NOTE Information of type will be lost! *)
 open Hflmc2_util
 include Map.Make'(Id.Key)
 

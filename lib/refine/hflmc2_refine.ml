@@ -64,7 +64,7 @@ let is_feasible : simple_ty Hflz.hes -> Counterexample.normalized -> bool =
       |> TraceVar.mk_nt
       |> TraceExpr.mk_var
     in
-    let approx = Simplify.formula @@
+    let approx = Trans.Simplify.formula @@
       approximate hes TraceVar.Map.empty main (Some cex)
     in
     Log.debug begin fun m -> m ~header:"Expansion" "%a"
@@ -159,7 +159,8 @@ let gen_HCCS
                   assert (HornClause.equal_head head hc.head);
                   HornClause.
                     { pvs = body.pvs @ hc.body.pvs
-                    ; phi = Simplify.formula @@ Formula.mk_and body.phi hc.body.phi
+                    ; phi = Trans.Simplify.formula @@
+                              Formula.mk_and body.phi hc.body.phi
                     }
                 end
               in HornClause.{ head; body }
@@ -212,7 +213,8 @@ let gen_HCCS
                       end
                     in
                     HornClause.{ pvs = [PredVar aged]
-                               ; phi = Simplify.formula @@ Formula.mk_ands int_bind }
+                               ; phi = Trans.Simplify.formula @@
+                                          Formula.mk_ands int_bind }
                   in
                     HornClause.{ head; body }
                 in
@@ -255,7 +257,8 @@ let gen_HCCS
                       end
                     in
                     HornClause.{ pvs = [PredVar aged]
-                               ; phi = Simplify.formula @@ Formula.mk_ands int_bind }
+                               ; phi = Trans.Simplify.formula @@
+                                          Formula.mk_ands int_bind }
                   in
                     HornClause.{ head; body }
                 in

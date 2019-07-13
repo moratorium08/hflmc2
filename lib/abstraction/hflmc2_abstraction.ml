@@ -52,7 +52,7 @@ let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
               (List.map ~f:Id.remove_ty orig_vars)
               (List.map ~f:Hfl.mk_var new_vars)
         with _ -> assert false
-      in Subst.Hfl.hfl map phi
+      in Trans.Subst.Hfl'.hfl map phi
     in
     let phis' = List.map phis ~f:Fn.(uncurry rename <<< gather_vars len) in
     Hfl.mk_abss new_vars (merge phis')
@@ -168,7 +168,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
             Hfl.mk_abss xs @@ Hfl.mk_ors ~kind:`Inserted phi's
           end
       | TyArrow({ty = TyInt; _} as x, sigma), TyArrow({ty = TyInt; _} as y, sigma') ->
-          let sigma = Subst.Arith.abstraction_ty x (Arith.mk_var y) sigma in
+          let sigma = Trans.Subst.Arith'.abstraction_ty x (Arith.mk_var y) sigma in
           abstract_coerce env sigma sigma' phi
       | TyArrow({ty = TySigma sigma1 ; _}, sigma2 )
       , TyArrow({ty = TySigma sigma1'; _}, sigma2') ->
@@ -214,7 +214,7 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
       | App(psi, Arith a) ->
           begin match abstract_infer env psi with
           | TyArrow({ty = TyInt; _} as x, sigma), phi ->
-              (Subst.Arith.abstraction_ty x a sigma, phi)
+              (Trans.Subst.Arith'.abstraction_ty x a sigma, phi)
           | _ -> assert false
           end
       | App(psi1, psi2) ->
@@ -253,7 +253,7 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
           assert false (* impossible *)
           (* NOTE Absはpsiがβ-reduxを持たないという仮定の元でimpossible *)
     in
-      let phi = Simplify.hfl phi in
+      let phi = Trans.Simplify.hfl phi in
       Log.debug begin fun m -> m ~header:"Term:Infer" "@[<hv 0>%a@ ==> %a@;<1 1>⇢  %a@]"
         Print.(hflz simple_ty_) psi
         Print.abstraction_ty sigma
@@ -265,7 +265,10 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
   fun env psi sigma ->
     let phi : Hfl.t = match psi, sigma with
       | Abs({ty=TyInt;_} as x, psi), TyArrow({ty=TyInt;_} as x', sigma) ->
-          let sigma = Subst.Id'.abstraction_ty (IdMap.singleton x' {x with ty=`Int}) sigma in
+          let sigma =
+            Trans.Subst.Id'.abstraction_ty
+              (IdMap.singleton x' {x with ty=`Int}) sigma
+          in
           abstract_check env psi sigma
       | Abs(x, psi), TyArrow({ty = TySigma sigma'; _}, sigma) ->
           let env' = IdMap.add env x sigma' in
@@ -275,7 +278,7 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
           let sigma', phi = abstract_infer env psi in
           abstract_coerce env sigma' sigma phi
     in
-      let phi = Simplify.hfl ~force:false phi in
+      let phi = Trans.Simplify.hfl ~force:false phi in
       Log.debug begin fun m -> m ~header:"Term:Check" "@[<hv 0>%a@ <== %a@;<1 1>⇢  %a@]"
         Print.(hflz simple_ty_) psi
         Print.abstraction_ty sigma
@@ -293,13 +296,13 @@ let abstract_main : env -> simple_ty Hflz.t -> Hfl.t =
         then
           phi
           |> abstract_coerce env (TyBool ps) (TyBool [])
-          |> Simplify.hfl
+          |> Trans.Simplify.hfl
         else
           let ps' = complement::ps in
           phi
           |> abstract_coerce env (TyBool ps ) (TyBool ps')
           |> abstract_coerce env (TyBool ps') (TyBool [])
-          |> Simplify.hfl
+          |> Trans.Simplify.hfl
     | _ -> assert false
 
 let abstract_rule : env -> simple_ty Hflz.hes_rule -> Hfl.hes_rule =

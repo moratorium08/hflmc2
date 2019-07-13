@@ -31,28 +31,6 @@ type simple_argty = simple_ty arg
 let to_simple : 'a ty -> simple_ty = 
   fun x -> map_ty (fun _ -> ()) x
 
-(* Abstraction Type *)
-
-type abstraction_ty = Formula.t list ty
-  [@@deriving eq,ord,show,iter,map,fold,sexp]
-type abstraction_argty = abstraction_ty arg
-  [@@deriving eq,ord,show,iter,map,fold,sexp]
-
-type abstracted_ty =
-  | ATyBool
-  | ATyArrow of abstracted_argty * abstracted_ty
-and abstracted_argty = abstracted_ty
-  [@@deriving eq,ord,show,iter,map,fold,sexp]
-
-let rec abstract : abstraction_ty -> abstracted_ty = function
-  | TyBool preds ->
-      (* bool -> ... -> bool -> o *)
-      Fn.apply_n_times ~n:(List.length preds) (fun ret -> ATyArrow(ATyBool, ret)) ATyBool
-  | TyArrow({ Id.ty = TyInt; _ }, ret) ->
-      abstract ret
-  | TyArrow({ Id.ty = TySigma arg; _}, ret) ->
-      ATyArrow(abstract arg, abstract ret)
-
 let mk_arrows : 'annot ty arg Id.t list -> 'annot ty -> 'annot ty =
   fun args ret_ty ->
     List.fold_right args ~init:ret_ty ~f:begin fun arg ret_ty ->
@@ -82,4 +60,30 @@ let merges : ('annot -> 'annot -> 'annot) -> 'annot ty list -> 'annot ty =
   fun append tys -> match tys with
     | [] -> invalid_arg "Type.merges"
     | ty::tys -> List.fold_right ~init:ty tys ~f:(merge append)
+
+(* Abstraction Type *)
+
+type abstraction_ty = Formula.t list ty
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
+type abstraction_argty = abstraction_ty arg
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
+
+type abstracted_ty =
+  | ATyBool
+  | ATyArrow of abstracted_argty * abstracted_ty
+and abstracted_argty = abstracted_ty
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
+
+let rec abstract : abstraction_ty -> abstracted_ty = function
+  | TyBool preds ->
+      (* bool -> ... -> bool -> o *)
+      Fn.apply_n_times ~n:(List.length preds) (fun ret -> ATyArrow(ATyBool, ret)) ATyBool
+  | TyArrow({ Id.ty = TyInt; _ }, ret) ->
+      abstract ret
+  | TyArrow({ Id.ty = TySigma arg; _}, ret) ->
+      ATyArrow(abstract arg, abstract ret)
+
+let rec arity_of_abstracted_ty : abstracted_ty -> int = function
+  | ATyBool -> 0
+  | ATyArrow(_, aty) -> 1 + arity_of_abstracted_ty aty
 
