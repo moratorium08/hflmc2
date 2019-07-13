@@ -17,7 +17,6 @@ let show_result = function
   | `Invalid    -> "Invalid"
   | `NoProgress -> "NoProgress"
 
-
 let rec cegar_loop ?prev_cex loop_count psi gamma =
   Log.app begin fun m -> m ~header:"TopOfLoop" "Loop count: %d"
       loop_count
@@ -46,7 +45,9 @@ let rec cegar_loop ?prev_cex loop_count psi gamma =
         (* Refine *)
         match Refine.run psi (List.hd_exn (C.normalize cex)) gamma with
         | `Refined new_gamma ->
-            cegar_loop ~prev_cex:cex (loop_count+1) psi new_gamma
+            if !Options.oneshot
+            then failwith "oneshot"
+            else cegar_loop ~prev_cex:cex (loop_count+1) psi new_gamma
         | `Feasible ->
             `Invalid
 

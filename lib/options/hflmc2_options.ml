@@ -5,6 +5,8 @@ open Hflmc2_util
 (* Options                                                                    *)
 (******************************************************************************)
 
+let oneshot = ref false
+
 module Abstraction = struct
   let max_ors = ref 5
 end
@@ -36,6 +38,10 @@ type params =
   ; debug : string list [@default []] [@docv "MODULE,..."]
     (** Enable debug log of modules *)
 
+  (* Whole procedure *)
+  ; oneshot : bool [@default false]
+    (** Do not loop *)
+
   (* Abstraction *)
   ; abst_max_ors : int option
     (** Maximum number of disjunction in predicate abstraction *)
@@ -45,6 +51,7 @@ type params =
 let set_up_params params =
   set_debug_modules params.debug;
   set_ref_opt Abstraction.max_ors params.abst_max_ors;
+  set_ref     oneshot             params.oneshot;
   params.input
 
 (******************************************************************************)
