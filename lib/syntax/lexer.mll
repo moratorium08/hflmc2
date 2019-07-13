@@ -1,6 +1,5 @@
 {
 open Parser
-exception Error of string
 let line_no = ref 1
 let end_of_previousline = ref 0
 }
@@ -11,7 +10,7 @@ let digit = ['0'-'9']
 let lower = ['a'-'z' '_']
 let upper = ['A'-'Z']
 let alphanum = ['0'-'9' 'a'-'z' 'A'-'Z' '_']
-let ope_symbols = [ '=' '<' '>' '+' '-' '*' '&' '|' '\\' '/' ]
+let ope_symbols = [ '=' '<' '>' '+' '-' '*' '&' '|' '\\' '/' '!' ]
 
 rule token = parse
 | "\n"                     { Lexing.new_line lexbuf; token lexbuf }
@@ -21,7 +20,7 @@ rule token = parse
                            ; token lexbuf
                            }
 | "/*"                     { comment lexbuf; token lexbuf }
-| eof                      { EOF }
+| eof                      { EOF       }
 | "%HES"                   { START_HES }
 | "%ENV"                   { START_ENV }
 | "("                      { LPAREN    }
@@ -32,7 +31,7 @@ rule token = parse
 | "false"                  { FALSE     }
 | ("\\"|"λ")               { LAMBDA    }
 | ("=v"|"=ν")              { DEF_G     }
-| ("=m"|"=μ")              { DEF_L     }
+| "=μ"                     { DEF_L     }
 | "."                      { DOT       }
 | ":"                      { COLON     }
 | ";"                      { SEMICOLON }
@@ -47,6 +46,7 @@ rule token = parse
                            | "-"           -> MINUS
                            | "*"           -> STAR
                            | "="           -> EQ
+                           | "!="          -> NEQ
                            | "<>"          -> NEQ
                            | "<="          -> LE
                            | ">="          -> GE
@@ -54,7 +54,7 @@ rule token = parse
                            | ">"           -> RANGRE
                            | ("&&"|"/\\")  -> AND
                            | ("||"|"\\/")  -> OR
-                           | s -> raise (Error ("unknown operater: " ^ s))
+                           | s -> failwith ("unknown operater " ^ s)
                            }
 
 and comment = parse
@@ -64,7 +64,7 @@ and comment = parse
     { comment lexbuf;
       comment lexbuf }
 | eof
-    { raise (Error "unterminated comment") }
+    { failwith "unterminated comment" }
 | _
     { comment lexbuf }
 

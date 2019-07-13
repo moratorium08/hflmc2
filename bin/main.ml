@@ -9,6 +9,7 @@ let () =
         | exception
             ( Hflmc2.Util.Fn.Fatal e
             | Hflmc2.Syntax.ParseError e
+            | Hflmc2.Syntax.LexingError e
             ) -> print_endline e; "Fail"
         end
   | None -> ()

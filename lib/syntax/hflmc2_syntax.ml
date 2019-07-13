@@ -13,12 +13,20 @@ module Subst    = Subst
 module IdMap    = IdMap
 module IdSet    = IdSet
 
+exception LexingError of string
 exception ParseError of string
 module Parser : sig
   val main : Lexing.lexbuf -> Raw_hflz.hes * (string * Type.abstraction_ty) list
 end = struct
   module P = Parser
   module I = P.MenhirInterpreter
+
+  let show_curr_pos lexbuf =
+    let pos = Lexing.(lexbuf.lex_curr_p) in
+    Fmt.strf "%s%d:%d"
+      (if pos.pos_fname="" then "" else pos.pos_fname^":")
+      pos.pos_lnum
+      (pos.pos_cnum - pos.pos_bol)
 
   (*********************)
   (* Print error state *)
@@ -131,23 +139,27 @@ end = struct
     let fail checkpoint =
       match checkpoint with
       | I.HandlingError env ->
-          let open Lexing in
-          let pos = lexbuf.lex_curr_p in
-          let str =
-            Fmt.strf "@[<v>Parse Error at %s%d:%d:@;Cousumed input:@;%a@]@."
-              (if pos.pos_fname="" then "" else pos.pos_fname^":")
-              pos.pos_lnum
-              (pos.pos_cnum - pos.pos_bol)
+          raise @@ ParseError begin
+            Fmt.strf "@[<v>Parse Error at %s:@;Cousumed input:@;%a@]@."
+              (show_curr_pos lexbuf)
               pp_env env
-          in raise (ParseError str)
+          end
       | _ -> assert false
     in
     let supplier = I.lexer_lexbuf_to_supplier Lexer.token lexbuf in
     I.loop_handle succeed fail supplier checkpoint
 
   let main lexbuf =
-    let hes, env = loop lexbuf (P.Incremental.main lexbuf.lex_curr_p) in
-    let env      = match env with None -> [] | Some env -> env in
+    let hes, menv =
+      try
+        loop lexbuf (P.Incremental.main lexbuf.lex_curr_p)
+      with Failure s ->
+        raise @@ LexingError begin
+          Print.strf "@[<v>Lexing Error at %s:@;%s@]@."
+            (show_curr_pos lexbuf) s
+        end
+    in
+    let env = match menv with None -> [] | Some env -> env in
     let item ppf (x,ty) = Print.pf ppf "@[<h>%s : %a@]" x Print.abstraction_ty ty in
     if false then Print.pr "@[<v>%a@]@."
       Print.(list item) env ;
