@@ -57,17 +57,17 @@ let mk_identity : abstracted_ty -> t =
 
 (* Deconstruct *)
 
-let decompose_lambda =
+let decompose_abs =
   let rec go acc phi = match phi with
     | Abs(x,phi) -> go (x::acc) phi
-    | _ -> (acc, phi)
+    | _ -> (List.rev acc, phi)
   in
   go []
 
 let decompose_app =
   let rec go phi acc = match phi with
     | App(phi,x) -> go phi (x::acc)
-    | _ -> (phi, List.rev acc)
+    | _ -> (phi, acc)
   in
   fun phi -> go phi []
 

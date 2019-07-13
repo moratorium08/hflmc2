@@ -60,16 +60,18 @@ let mk_abs x t = Abs(x, t)
 let mk_abss xs t = List.fold_right xs ~init:t ~f:mk_abs
 
 (* Decomposition *)
-let rec decompose_app = function
-  | App(phi1, phi2) ->
-      let (a, args) = decompose_app phi1 in
-      a, args @ [phi2]
-  | phi -> phi, []
-let rec decompose_abs = function
-  | Abs(x, phi) ->
-      let (args, body) = decompose_abs phi in
-      x::args, body
-  | phi -> [], phi
+let decompose_abs =
+  let rec go acc phi = match phi with
+    | Abs(x,phi) -> go (x::acc) phi
+    | _ -> (List.rev acc, phi)
+  in fun phi -> go [] phi
+
+let decompose_app =
+  let rec go phi acc = match phi with
+    | App(phi,x) -> go phi (x::acc)
+    | _ -> (phi, acc)
+  in
+  fun phi -> go phi []
 
 (* let mk_app t1 t2 = App(t1,t2) *)
 (* let mk_apps t ts = List.fold_left ts ~init:t ~f:mk_app *)

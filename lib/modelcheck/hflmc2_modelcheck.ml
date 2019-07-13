@@ -123,7 +123,7 @@ let print_hors : Hfl.hes Fmt.t =
             n
             Fmt.(list ~sep:sp term) phis
       | Abs _ ->
-          let args, phi = Hfl.decompose_lambda phi in
+          let args, phi = Hfl.decompose_abs phi in
           Fmt.pf ppf "(_fun %a -> %a)"
             Fmt.(list ~sep:sp string) (List.map ~f:Id.to_string args)
             term phi
@@ -134,11 +134,15 @@ let print_hors : Hfl.hes Fmt.t =
     in
     let hes_rule : Hfl.hes_rule Fmt.t =
       fun ppf { var; body; fix=_fix } ->
-        let args, body = Hfl.decompose_lambda body in
-        Fmt.pf ppf "%s %a -> %a.@."
+        let args, body = Hfl.decompose_abs body in
+        let arity = Type.arity_of_abstracted_ty (Hfl.type_of body) in
+        let eta_vars = List.init arity ~f:(Print.strf "eta%d") in
+        Fmt.pf ppf "@[%s %a -> %a %a.@]@."
           (Id.to_string var)
-          Fmt.(list ~sep:sp string) (List.map ~f:Id.to_string args)
+          Fmt.(list ~sep:sp string)
+            (List.map ~f:Id.to_string args @ eta_vars)
           term body
+          Fmt.(list ~sep:sp string) eta_vars
     in
     let hes : Hfl.hes Fmt.t =
       fun ppf hes ->
