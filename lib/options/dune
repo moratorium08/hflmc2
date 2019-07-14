@@ -1,6 +1,5 @@
 (library
  (public_name hflmc2_options)
- (modes native)
  (libraries
    fmt
    fmt.cli

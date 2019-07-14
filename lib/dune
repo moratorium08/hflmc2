@@ -2,11 +2,6 @@
  (public_name hflmc2)
  (libraries
     fpat
-    glpk
-    apron.apron
-    atp
-    z3
-
     hflmc2_util
     hflmc2_syntax
     hflmc2_abstraction

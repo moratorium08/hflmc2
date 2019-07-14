@@ -1,6 +1,5 @@
 (library
  (public_name hflmc2_modelcheck)
- (modes native)
  (libraries
    lwt
    lwt.unix

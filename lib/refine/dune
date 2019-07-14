@@ -1,6 +1,5 @@
 (library
  (public_name hflmc2_refine)
- (modes native)
  (libraries
    hflmc2_util
    hflmc2_syntax
