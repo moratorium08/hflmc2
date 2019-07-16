@@ -17,7 +17,10 @@ let show_result = function
   | `Invalid    -> "Invalid"
   | `NoProgress -> "NoProgress"
 
-let rec cegar_loop ?prev_cex loop_count psi gamma =
+
+module CexSet = Set.Make(Modelcheck.Counterexample)
+
+let rec cegar_loop prev_cex loop_count psi gamma =
   Log.app begin fun m -> m ~header:"TopOfLoop" "Loop count: %d"
       loop_count
   end;
@@ -39,7 +42,7 @@ let rec cegar_loop ?prev_cex loop_count psi gamma =
       Log.app begin fun m -> m ~header:"Counterexample" "@[<2>%a@]@."
         Sexp.pp_hum (C.sexp_of_t cex)
       end;
-      if Option.equal C.equal prev_cex (Some cex) then
+      if CexSet.mem prev_cex cex then
         `NoProgress
       else
         (* Refine *)
@@ -47,7 +50,7 @@ let rec cegar_loop ?prev_cex loop_count psi gamma =
         | `Refined new_gamma ->
             if !Options.oneshot
             then failwith "oneshot"
-            else cegar_loop ~prev_cex:cex (loop_count+1) psi new_gamma
+            else cegar_loop (CexSet.add prev_cex cex) (loop_count+1) psi new_gamma
         | `Feasible ->
             `Invalid
 
@@ -56,5 +59,5 @@ let main file =
   Log.app begin fun m -> m ~header:"Input" "%a@."
     Print.(hflz_hes simple_ty_) psi
   end;
-  cegar_loop 1 psi gamma
+  cegar_loop CexSet.empty 1 psi gamma
 
