@@ -194,8 +194,9 @@ module OfFpat = struct
             fun x -> StrMap.find_exn map x
           in
           Formula.mk_not @@ formula into_map @@ pred
-        in
-        Type.mk_arrows new_args' (TyBool[pred])
+        in match pred with
+        | Bool _ -> Type.mk_arrows new_args' (TyBool[]) (* useless predicate *)
+        | _      -> Type.mk_arrows new_args' (TyBool[pred])
       and abstraction_ty_of_trace_var : TraceVar.t -> abstraction_ty =
         fun tv ->
           let on_age age =
