@@ -4,7 +4,6 @@
    fmt
    logs
    logs.fmt
-   dolog
    core))
 
 (env
