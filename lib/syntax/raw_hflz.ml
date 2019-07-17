@@ -23,7 +23,6 @@ type hes_rule =
 type hes = hes_rule list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
-
 let mk_int n     = Int(n)
 let mk_bool b    = Bool b
 let mk_var x     = Var x
@@ -98,7 +97,20 @@ module Typing = struct
       | TvRef(_, ({contents=None} as r')) -> r == r'
       | TvRef(_, ({contents=Some tv} as r')) -> r == r' || occur r tv
   let occur_check r tv =
-    if occur r tv then Fn.fatal "Recursive type is unsupported"
+    if occur r tv then begin
+      (* Print.pr "r=%a; tv=%a" pp_hum_tyvar (TvRef (-1, r)) pp_hum_tyvar tv; *)
+      Fn.fatal "Recursive type is unsupported"
+    end
+
+  let rec write : tyvar option ref -> tyvar -> unit =
+    fun r tv -> match tv with
+      | TvInt | TvBool | TvArrow _ -> r := Some tv
+      | TvRef (_, r') ->
+          begin match !r' with
+          | None -> r := Some tv
+          | Some tv' -> write r tv'; write r tv'
+          end
+
 
   let rec unify : tyvar -> tyvar -> unit =
     fun tv1 tv2 ->
@@ -119,33 +131,33 @@ module Typing = struct
             (* Print.pr "APPLY  %a := %a@." *)
             (*   pp_hum_tyvar tv1 *)
             (*   pp_hum_tyvar tv2; *)
-            r1 := Some tv2
+            write r1 tv2
           end;
       | TvRef (_, ({contents = None} as r1)), _ ->
           occur_check r1 tv2;
           (* Print.pr "APPLY %a := %a@." *)
           (*   pp_hum_tyvar tv1 *)
           (*   pp_hum_tyvar tv2; *)
-          r1 := Some tv2
+          write r1 tv2
       | _, TvRef (_, ({contents = None} as r2)) ->
           occur_check r2 tv1;
           (* Print.pr "APPLY %a := %a@." *)
           (*   pp_hum_tyvar tv2 *)
           (*   pp_hum_tyvar tv1; *)
-          r2 := Some tv1
+          write r2 tv1;
       | TvRef (_, ({contents = Some tv1'} as r1)), _ ->
           occur_check r1 tv2;
           (* Print.pr "APPLY %a := %a@." *)
           (*   pp_hum_tyvar tv1 *)
           (*   pp_hum_tyvar tv2; *)
-          r1 := Some tv2;
+          write r1 tv2;
           unify tv1' tv2
       | _, TvRef (_, ({contents = Some tv2'} as r2)) ->
           occur_check r2 tv1;
           (* Print.pr "APPLY %a := %a@." *)
           (*   pp_hum_tyvar tv2 *)
           (*   pp_hum_tyvar tv1; *)
-          r2 := Some tv1;
+          write r2 tv1;
           unify tv1 tv2'
       | _, _ ->
           Fn.fatal @@ Fmt.strf "ill-typed"
