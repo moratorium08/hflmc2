@@ -35,7 +35,7 @@ let rec approximate
     | (App _| Var _), Some c ->
         let head, args = TraceExpr.decompose_app expr in
         begin match head with
-        | Var (Nt { orig; _ } as tv) ->
+        | Var (`I (Nt { orig; _ } as tv)) ->
             let rule = List.find_exn hes ~f:(fun r -> Id.eq r.var orig) in
             let orig_vars, orig_body = Hflz.decompose_abs rule.body in
             let aged   = TraceVar.gen_aged tv in
@@ -45,9 +45,14 @@ let rec approximate
             let bind   = TraceVar.Map.of_alist_exn @@ List.zip_exn vars args in
             let expr   = TraceExpr.subst bind body in
             approximate hes reduce_env expr (Some c)
-        | Var (Local _ as tv) ->
+        | Var (`I (Local _ as tv)) ->
             let head = TraceVar.Map.find_exn reduce_env tv in
             let expr = TraceExpr.mk_apps head args in
+            approximate hes reduce_env expr (Some c)
+        | Abs(x, phi) ->
+            let [@warning "-8"] e::es = args in
+            let phi' = TraceExpr.beta_head x e phi in
+            let expr = TraceExpr.mk_apps phi' es in
             approximate hes reduce_env expr (Some c)
         | _ -> assert false
         end
@@ -169,7 +174,7 @@ let gen_HCCS
         | (App _| Var _), Some _ ->
             let expr_head, args = TraceExpr.decompose_app expr in
             begin match expr_head with
-            | Var (Nt { orig; _ } as tv) ->
+            | Var (`I (Nt { orig; _ } as tv)) ->
                 let aged = TraceVar.gen_aged tv in
                 (* assume args = [n; H n] *)
                 (* F x g = g (x + 1) *)
@@ -186,7 +191,7 @@ let gen_HCCS
                 let bind   = List.zip_exn vars args in
                 Log.debug begin fun m -> m ~header:"NewBind" "@[<v>%a@]"
                   Print.(list ~sep:cut @@
-                    pair ~sep:(fun ppf _ -> string ppf " => ")
+                    pair ~sep:(fun ppf _ -> string ppf " --> ")
                       TraceVar.pp_hum
                       (fun ppf -> pf ppf "@[<2>%a@]" @@
                           TraceExpr.pp_hum))
@@ -202,7 +207,7 @@ let gen_HCCS
                           end
                       | _ -> []
                     in
-                    let int_bind =
+                    let all_int_bind =
                       List.filter_map (bind@head_bind) ~f:begin fun (tv, e) ->
                         match TraceVar.type_of tv, e with
                         | TyInt, Arith a ->
@@ -214,7 +219,7 @@ let gen_HCCS
                     in
                     HornClause.{ pvs = [PredVar aged]
                                ; phi = Trans.Simplify.formula @@
-                                          Formula.mk_ands int_bind }
+                                          Formula.mk_ands all_int_bind }
                   in
                     HornClause.{ head; body }
                 in
@@ -226,13 +231,13 @@ let gen_HCCS
                     @@ TraceVar.Map.of_alist_exn bind
                 in
                 hc :: go (Some (PredVar aged)) new_reduce_env new_expr cex
-            | Var (Local _ as tv) ->
+            | Var (`I (Local { fvs ; _ } as tv)) ->
                 let aged = TraceVar.gen_aged tv in
                 let vars = TraceVar.mk_childlen aged in
                 let bind = List.zip_exn vars args in
                 Log.debug begin fun m -> m ~header:"NewBind" "@[<v>%a@]"
                   Print.(list ~sep:cut @@
-                    pair ~sep:(fun ppf _ -> string ppf " => ")
+                    pair ~sep:(fun ppf _ -> string ppf " --> ")
                       TraceVar.pp_hum
                       (fun ppf -> pf ppf "@[<2>%a@]" TraceExpr.pp_hum))
                     bind
@@ -240,14 +245,24 @@ let gen_HCCS
                 let hc =
                   let body =
                     let head_bind = match head with
-                      | Some (PredVar { var = Local{ fvs; _ }; _}) ->
+                      (* | Some pv -> *)
+                      (*     let hoge = HornClause.args_of_pred_var pv in *)
+                      (*     List.map hoge ~f:begin fun fv -> *)
+                      (*       fv, TraceVar.Map.find_exn reduce_env fv *)
+                      (*     end *)
+                      | Some (PredVar { var = Local{ fvs; _ }; _} as pv) ->
                           List.map fvs ~f:begin fun fv ->
                             fv, TraceVar.Map.find_exn reduce_env fv
                           end
                       | _ -> []
                     in
-                    let int_bind =
-                      List.filter_map (bind@head_bind) ~f:begin fun (tv, e) ->
+                    let fvs_bind =
+                      List.map fvs ~f:begin fun fv ->
+                        fv, TraceVar.Map.find_exn reduce_env fv
+                      end
+                    in
+                    let all_int_bind =
+                      List.filter_map (head_bind@fvs_bind@bind) ~f:begin fun (tv, e) ->
                         match TraceVar.type_of tv, e with
                         | TyInt, Arith a ->
                             let f : HornClause.formula =
@@ -258,7 +273,7 @@ let gen_HCCS
                     in
                     HornClause.{ pvs = [PredVar aged]
                                ; phi = Trans.Simplify.formula @@
-                                          Formula.mk_ands int_bind }
+                                          Formula.mk_ands all_int_bind }
                   in
                     HornClause.{ head; body }
                 in
@@ -276,8 +291,13 @@ let gen_HCCS
                     @@ TraceVar.Map.of_alist_exn bind
                 in
                 hc :: go (Some (PredVar aged)) new_reduce_env new_expr cex
+            | Abs(x, phi) ->
+                let [@warning "-8"] e::es = args in
+                let phi' = TraceExpr.beta_head x e phi in
+                let expr = TraceExpr.mk_apps phi' es in
+                go head reduce_env expr cex
             | _ ->
-                Print.print TraceExpr.pp expr_head;
+                Print.print TraceExpr.pp_hum expr_head;
                 assert false
             end
         | Arith _, _ -> assert false
