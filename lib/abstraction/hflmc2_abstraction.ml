@@ -1,7 +1,7 @@
 open Hflmc2_util
 open Hflmc2_syntax
 open Type
-module Options = Hflmc2_options
+module Options = Hflmc2_options.Abstraction
 module FpatInterface = FpatInterface
 
 module Log = (val Logs.src_log @@ Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
@@ -27,9 +27,6 @@ let merge_env : env -> env -> env =
             List.remove_duplicates ~equal:FpatInterface.(<=>) @@ (ps@qs)
           in Some (Type.merge append_preds l r)
       end
-
-(* options *)
-let exhaustive_search = ref false
 
 (* For Or and And: (λxs.u1, λxs.u2) -> λxs.f u1 u2 *)
 let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
@@ -87,7 +84,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
              * *)
             let l = List.length qs in
             let k = List.length ps in
-            let max_ors = !Options.Abstraction.max_ors in
+            let max_ors = !Options.max_ors in
             let one_to_l = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 l) in
             let one_to_k = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 k) in
             let _Is = List.powerset one_to_l in
@@ -114,7 +111,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                     [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
                   else if
                     (* See [FpatInterface.strongest_post_cond'] *)
-                    FpatInterface.(Formula.Bool true ==> _Q) || !exhaustive_search
+                    FpatInterface.(Formula.Bool true ==> _Q) || !Options.exhaustive_search
                   then
                     let candidates : (int list list * Formula.t) list =
                       List.filter_map _Jss ~f:begin fun _Js ->

@@ -9,6 +9,7 @@ let oneshot = ref false
 
 module Abstraction = struct
   let max_ors = ref 5
+  let exhaustive_search = ref false
 end
 
 (******************************************************************************)
@@ -43,15 +44,18 @@ type params =
     (** Do not loop *)
 
   (* Abstraction *)
-  ; abst_max_ors : int option
+  ; abst_max_ors : int [@default 5]
+    (** Maximum number of disjunction in predicate abstraction *)
+  ; abst_exhaustive_search : bool [@default false]
     (** Maximum number of disjunction in predicate abstraction *)
   }
   [@@deriving cmdliner,show]
 
 let set_up_params params =
   set_debug_modules params.debug;
-  set_ref_opt Abstraction.max_ors params.abst_max_ors;
-  set_ref     oneshot             params.oneshot;
+  set_ref Abstraction.max_ors           params.abst_max_ors;
+  set_ref Abstraction.exhaustive_search params.abst_exhaustive_search;
+  set_ref oneshot                       params.oneshot;
   params.input
 
 (******************************************************************************)
