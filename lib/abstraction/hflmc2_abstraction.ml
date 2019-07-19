@@ -94,7 +94,7 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
             let _Js =
               List.filter (List.powerset one_to_k) ~f:begin fun _J ->
                 let ps' = List.(map ~f:(nth_exn ps) _J) in
-                FpatInterface.is_consistent_set ps' && not (List.is_empty _J)
+                FpatInterface.is_consistent_set ps'
               end
             in
             let _Jss =
