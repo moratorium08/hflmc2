@@ -17,7 +17,6 @@ let show_result = function
   | `Invalid    -> "Invalid"
   | `NoProgress -> "NoProgress"
 
-
 module CexSet = Set.Make(Modelcheck.Counterexample)
 
 let rec cegar_loop prev_cex loop_count psi gamma =

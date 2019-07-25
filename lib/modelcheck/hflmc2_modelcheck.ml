@@ -72,6 +72,13 @@ module Counterexample = struct
     | And of int * int * normalized (** (n,i,_) ith branch in n. 0-indexed *)
     | Or  of normalized list
     [@@deriving eq,ord,show,iter,map,fold,sexp]
+  let pp_hum_normalized ppf x =
+    let rec to_t : normalized -> t = function
+      | False -> False
+      | Or xs -> Or (List.map ~f:to_t xs)
+      | And (n,i,x) -> And (n,i,to_t x)
+    in
+    Sexp.pp_hum ppf (sexp_of_t @@ to_t x)
 
   let rec normalize : t -> normalized list = function
     | False ->
