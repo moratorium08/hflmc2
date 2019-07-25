@@ -289,10 +289,10 @@ let solve
   fun hes hccs preconds_tbl ->
     let hccs' = ToFpat.hccs hccs in
     let solver =
-      (* Fpat.BwIPHCCSSolver.solve *)
+      Fpat.BwIPHCCSSolver.solve
       (* Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate false)) *)
       (* Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate true)) *)
-      Fpat.FwHCCSSolver.solve_simp
+      (* Fpat.FwHCCSSolver.solve_simp *)
       (* Fpat.HCCSSolver.solve_pdr *)
       (* Fpat.HCCSSolver.solve_duality *)
     in

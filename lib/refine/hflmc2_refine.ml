@@ -241,12 +241,12 @@ let gen_HCCS
              * dualを取るからorになる．
              * body1 \/ body2 => head は
              * body1 => head; body2 => head と同値 *)
-            List.concat_map _psis ~f:(go head reduce_env preconds -$- None)
+            (* List.concat_map _psis ~f:(go head reduce_env preconds -$- None) *)
             (* No! Fpat can solve only linear CHC! *)
-            (* let pvs  = [] in *)
-            (* let phi  = [Formula.Bool false] in *)
-            (* let body = HornClause.{ pvs; phi } in *)
-            (* [{ head; body }] *)
+            let pvs  = [] in
+            let phi  = [Formula.Bool false] in
+            let body = HornClause.{ pvs; phi } in
+            [{ head; body }]
         | Or psis, _ ->
             (* XXX dirty hack *)
             let hccss =
