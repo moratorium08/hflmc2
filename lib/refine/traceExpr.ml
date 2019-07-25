@@ -149,7 +149,10 @@ let rec beta_head : simple_argty Id.t -> t -> t -> t =
     | Arith a          -> Arith (beta_head_arith x e a)
     | Pred (op, as')   -> Pred (op, List.map as' ~f:(beta_head_arith x e))
     | App (phi1, phi2) -> App (beta_head x e phi1, beta_head x e phi2)
-    | Abs (x', phi)    -> assert (not (Id.eq x x')); Abs (x', beta_head x e phi)
+    | Abs (x', phi)    ->
+        if (Id.eq x x')
+        then Abs (x', phi)
+        else Abs (x', beta_head x e phi)
 
 let rec subst_arith : t TraceVar.Map.t -> HornClause.arith -> HornClause.arith =
   fun env a -> match a with
