@@ -130,10 +130,6 @@ module ToFpat = struct
   let hccs : t list -> Fpat.HCCS.t = List.map ~f:hornClause
 end
 
-(* TODO refacter
- * 今のままだと一ヶ月もしたら確実に読めなくなる
- * 草
- * *)
 module OfFpat = struct
   let rec arith : 'var. (string -> 'var) -> Fpat.Term.t -> 'var Arith.gen_t =
     fun into_id a ->
@@ -289,10 +285,10 @@ let solve
   fun hes hccs preconds_tbl ->
     let hccs' = ToFpat.hccs hccs in
     let solver =
-      Fpat.BwIPHCCSSolver.solve
+      (* Fpat.BwIPHCCSSolver.solve *)
       (* Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate false)) *)
       (* Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate true)) *)
-      (* Fpat.FwHCCSSolver.solve_simp *)
+      Fpat.FwHCCSSolver.solve_simp
       (* Fpat.HCCSSolver.solve_pdr *)
       (* Fpat.HCCSSolver.solve_duality *)
     in
@@ -301,3 +297,4 @@ let solve
       Fpat.PredSubst.pr map;
     end;
     OfFpat.abstracion_env hes map preconds_tbl
+
