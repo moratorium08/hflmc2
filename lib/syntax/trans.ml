@@ -183,22 +183,18 @@ module Simplify = struct
       | And(phis, k) when k = `Inserted || force ->
           let phis = List.map ~f:hfl phis in
           let phis = List.filter ~f:Fn.(not <<< is_true) phis in
-          begin if List.exists ~f:is_false phis then
-            Bool false
-          else match phis with
-            | []    -> Bool true
-            | [phi] -> phi
-            | _     -> And(phis, k)
+          begin match phis with
+          | []    -> Bool true
+          | [phi] -> phi
+          | _     -> And(phis, k)
           end
       | Or(phis, k) when k = `Inserted || force ->
           let phis = List.map ~f:hfl phis in
           let phis = List.filter ~f:Fn.(not <<< is_false) phis in
-          begin if List.exists ~f:is_true phis then
-            Bool true
-          else match phis with
-            | []    -> Bool false
-            | [phi] -> phi
-            | _     -> Or(phis, k)
+          begin match phis with
+          | []    -> Bool false
+          | [phi] -> phi
+          | _     -> Or(phis, k)
           end
       | And(phis, k) -> And(List.map ~f:hfl phis, k) (* preserve the structure *)
       | Or (phis, k) -> Or (List.map ~f:hfl phis, k) (* preserve the structure *)
