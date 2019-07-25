@@ -2,29 +2,6 @@ version: 2.1
 
 aliases:
   - &default_env
-    CACHE_KEY: 1
-    SUB_CACHE_KEY: 1
-  - &create_cache_key_file
-    run:
-      name: Create cache control key file
-      command: |
-        echo $CIRCLE_JOB
-        echo $CACHE_KEY     > cache_key
-        echo $SUB_CACHE_KEY > sub_cache_key
-  - &restore_build_results
-    restore_cache:
-      keys:
-        - cache-{{ checksum "cache_key" }}-{{ checksum "sub_cache_key" }}
-        - cache-{{ checksum "cache_key" }}
-  - &save_build_results
-      save_cache:
-        key:
-          cache-{{ checksum "cache_key" }}-{{ checksum "sub_cache_key" }}
-        paths:
-          - ~/depend/fpat
-          - ~/.opam
-        when:
-          always
   - &install_z3
       run:
         name: Install Z3
@@ -56,8 +33,6 @@ aliases:
   - &all
       steps:
         - checkout
-        # - *create_cache_key_file # cacheない方が早いな
-        # - *restore_build_results
         - add_ssh_keys:
             fingerprints:
               - "ca:7c:6d:b5:3d:a8:c7:5c:d4:38:1e:3a:05:3f:59:0a"
@@ -106,7 +81,6 @@ aliases:
               eval $(opam env)
               cd $HOME/project
               dune runtest
-        # - *save_build_results
 
 jobs:
   main:
