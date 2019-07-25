@@ -1,6 +1,13 @@
 
 open Core
 
+module Pair = struct
+  (* Bifunctor method *)
+  let bimap  f (x, y) = (f x, f y)
+  let first  f (x, y) = (f x, y)
+  let second f (x, y) = (x, f y)
+end
+
 module List = struct
   include List
   let enumurate xs = List.zip_exn xs (List.init (List.length xs) ~f:(fun x -> x))

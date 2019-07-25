@@ -35,24 +35,24 @@ module Subst = struct
 
   (* TODO IdMapを使う *)
   module Arith' = struct
-    let rec arith : [`Int] Id.t -> Arith.t -> Arith.t -> Arith.t =
-      fun x a a' ->
+    let rec arith_ : 'var. ('var -> 'var -> bool) -> 'var -> 'var Arith.gen_t -> 'var Arith.gen_t -> 'var Arith.gen_t =
+      fun equal x a a' ->
         match a' with
         | Int _ -> a'
-        | Var x' -> if Id.equal (=) x x' then a else a'
-        | Op(op, as') -> Op(op, List.map ~f:(arith x a) as')
+        | Var x' -> if equal x x' then a else a'
+        | Op(op, as') -> Op(op, List.map ~f:(arith_ equal x a) as')
     let arith : 'a. 'a Id.t -> Arith.t -> Arith.t -> Arith.t =
-      fun x a a' -> arith {x with ty=`Int} a a'
+      fun x a a' -> arith_ Id.eq {x with ty=`Int} a a'
 
-    let rec formula : unit Id.t -> Arith.t -> Formula.t -> Formula.t =
-      fun x a p ->
+    let rec formula_ : ('var -> 'var -> bool) -> 'var -> 'var Arith.gen_t -> ('bvar,'var) Formula.gen_t -> ('bvar,'var) Formula.gen_t =
+      fun equal x a p ->
         match p with
-        | Pred(prim, as') -> Pred(prim, List.map as' ~f:(arith x a))
-        | And ps -> And(List.map ~f:(formula x a) ps)
-        | Or  ps -> Or (List.map ~f:(formula x a) ps)
+        | Pred(prim, as') -> Pred(prim, List.map as' ~f:(arith_ equal x a))
+        | And ps -> And(List.map ~f:(formula_ equal x a) ps)
+        | Or  ps -> Or (List.map ~f:(formula_ equal x a) ps)
         | _ -> p
     let formula : 'a. 'a Id.t -> Arith.t -> Formula.t -> Formula.t =
-      fun x a p -> formula (Id.remove_ty x) a p
+      fun x a p -> formula_ Id.eq {x with ty = `Int} a p
 
     let rec abstraction_ty : unit Id.t -> Arith.t -> abstraction_ty -> abstraction_ty =
       fun x a sigma ->

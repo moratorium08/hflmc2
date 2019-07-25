@@ -39,7 +39,7 @@ let rec cegar_loop prev_cex loop_count psi gamma =
   | Error cex ->
       let module C = Modelcheck.Counterexample in
       let cex = C.simplify cex in
-      Log.app begin fun m -> m ~header:"Counterexample" "@[<2>%a@]@."
+      Log.app begin fun m -> m ~header:"Counterexample" "@[<2>%a@]"
         Sexp.pp_hum (C.sexp_of_t cex)
       end;
       if CexSet.mem prev_cex cex then
@@ -56,7 +56,7 @@ let rec cegar_loop prev_cex loop_count psi gamma =
 
 let main file =
   let psi, gamma = Syntax.parse_file file in
-  Log.app begin fun m -> m ~header:"Input" "%a@."
+  Log.app begin fun m -> m ~header:"Input" "%a"
     Print.(hflz_hes simple_ty_) psi
   end;
   cegar_loop CexSet.empty 1 psi gamma
