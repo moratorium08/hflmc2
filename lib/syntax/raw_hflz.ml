@@ -380,26 +380,28 @@ module Typing = struct
     deref#hes annotated
 end
 
+open Type
+
 let rename_simple_ty_rule
-      : Type.simple_ty Hflz.hes_rule
-     -> Type.simple_ty Hflz.hes_rule =
+      : simple_ty Hflz.hes_rule
+     -> simple_ty Hflz.hes_rule =
   fun rule ->
     let sty        = rule.var.ty in
     let vars, _    = Hflz.decompose_abs rule.body in
-    let ty_vars, _ = Type.decompose_arrow sty in
+    let ty_vars, _ = decompose_arrow sty in
     let ty_vars' =
       List.map2_exn vars ty_vars ~f:begin fun var ty_var ->
         { ty_var with name = var.name }
       end
     in
-    let sty' = Type.mk_arrows ty_vars' (TyBool()) in
+    let sty' = mk_arrows ty_vars' (TyBool()) in
     { rule with var = { rule.var with ty = sty' } }
 
 let rec rename_abstraction_ty
       : ?env:[`Int] Id.t IdMap.t
-     -> Type.simple_ty
-     -> Type.abstraction_ty
-     -> Type.abstraction_ty =
+     -> simple_ty
+     -> abstraction_ty
+     -> abstraction_ty =
   fun ?(env=IdMap.empty) orig aty -> match orig, aty with
     | TyBool(), TyBool fs -> TyBool(List.map ~f:(Trans.Subst.Id'.formula env) fs)
     | TyArrow({ty=TyInt;_} as x , ret_sty),
@@ -413,6 +415,35 @@ let rec rename_abstraction_ty
     | _ ->
         invalid_arg "Raw_hflz.rename_abstraction_ty: Simple type mismatch"
 
+let rec rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
+  fun hes ->
+    let rec term : simple_ty IdMap.t -> simple_ty Hflz.t -> simple_ty Hflz.t =
+      fun env psi -> match psi with
+        | Bool b -> Bool b
+        | Var x -> Var { x with ty = IdMap.lookup env x }
+        | Or  psis -> Or  (List.map psis ~f:(term env))
+        | And psis -> And (List.map psis ~f:(term env))
+        | Exists (l, psi) -> Exists (l, term env psi)
+        | Forall (l, psi) -> Forall (l, term env psi)
+        | Abs ({ty=TySigma ty;_} as x, psi) -> Abs(x, term (IdMap.add env x ty) psi)
+        | Abs ({ty=TyInt;_} as x, psi) -> Abs(x, term env psi)
+        | App (psi1, psi2) -> App (term env psi1, term env psi2)
+        | Arith a -> Arith a
+        | Pred (pred, as') -> Pred (pred, as')
+    in
+    let rule : simple_ty IdMap.t -> simple_ty Hflz.hes_rule -> simple_ty Hflz.hes_rule =
+      fun env rule ->
+        { rule with body = term env rule.body }
+    in
+    let env =
+      IdMap.of_list @@
+        List.map hes ~f:begin fun rule ->
+          rule.var, rule.var.ty
+        end
+    in
+    List.map hes ~f:(rule env)
+
+
 let to_typed (x, env) =
   let hes =
     x
@@ -425,9 +456,9 @@ let to_typed (x, env) =
       let aty =
         match List.Assoc.find ~equal:String.equal env v.name with
         | Some aty -> rename_abstraction_ty v.ty aty
-        | None -> Type.map_ty (fun () -> []) v.ty
+        | None -> map_ty (fun () -> []) v.ty
       in rule.var, aty
     end
   in
-  hes, gamma
+  rename_ty_body hes, gamma
 
