@@ -261,13 +261,15 @@ module OfFpat = struct
               | None -> 0
               | Some n -> n
             in
-            match List.filter_map (List.init n ~f:on_age) ~f:Fn.id with
-            | [] -> Type.map_ty (Fn.const []) @@
-                      Type.unsafe_unlift @@ TraceVar.type_of tv
-            (* NOTE
-             * Duplication is removed when merged with old environmet.
-             * See [Hflmc2_abstraction.merge_env] *)
-            | tys -> Type.merges (@) tys
+            if n = 0
+            then
+              Type.map_ty (Fn.const []) @@
+                Type.unsafe_unlift @@ TraceVar.type_of tv
+            else
+              (* NOTE
+               * Duplication is removed when merged with old environmet.
+               * See [Hflmc2_abstraction.merge_env] *)
+              Type.merges (@) (List.init n ~f:on_age)
           in
           abstraction_ty
       in

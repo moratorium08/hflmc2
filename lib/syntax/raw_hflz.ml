@@ -415,7 +415,7 @@ let rec rename_abstraction_ty
     | _ ->
         invalid_arg "Raw_hflz.rename_abstraction_ty: Simple type mismatch"
 
-let rec rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
+let rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
   fun hes ->
     let rec term : simple_ty IdMap.t -> simple_ty Hflz.t -> simple_ty Hflz.t =
       fun env psi -> match psi with

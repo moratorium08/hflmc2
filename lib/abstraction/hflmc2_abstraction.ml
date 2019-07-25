@@ -275,7 +275,7 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
           let sigma', phi = abstract_infer env psi in
           abstract_coerce env sigma' sigma phi
     in
-      let phi = Trans.Simplify.hfl ~force:false phi in
+      let phi = Trans.Simplify.hfl phi in
       Log.debug begin fun m -> m ~header:"Term:Check" "@[<hv 0>%a@ <== %a@;<1 1>⇢  %a@]"
         Print.(hflz simple_ty_) psi
         Print.abstraction_ty sigma
