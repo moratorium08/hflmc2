@@ -1,5 +1,5 @@
 %HES
-S =v F n (H n).
+S n   =v F n (H n).
 F x g =v g (x + x) \/ g (-(x + x)).
 H y z =v z >= y.
 

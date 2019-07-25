@@ -314,7 +314,6 @@ module Typing = struct
           end
         in
         let annotated = List.map hes ~f:(self#hes_rule id_env) in
-        self#add_ty_env (List.hd_exn annotated).var TvBool;
         annotated
   end
 

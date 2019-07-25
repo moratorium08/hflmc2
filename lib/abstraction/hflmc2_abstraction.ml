@@ -286,21 +286,20 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
 let abstract_main : env -> simple_ty Hflz.t -> Hfl.t =
   fun env psi ->
     let sigma, phi = abstract_infer env psi in
-    match sigma with
-    | TyBool ps ->
-        let complement = Formula.(mk_not (mk_ors ps)) in
-        if FpatInterface.(complement ==> Formula.Bool false)
-        then
-          phi
-          |> abstract_coerce env (TyBool ps) (TyBool [])
-          |> Trans.Simplify.hfl
-        else
-          let ps' = complement::ps in
-          phi
-          |> abstract_coerce env (TyBool ps ) (TyBool ps')
-          |> abstract_coerce env (TyBool ps') (TyBool [])
-          |> Trans.Simplify.hfl
-    | _ -> assert false
+    let targs, ps  = decompose_arrow sigma in
+    let mk_ty qs   = mk_arrows targs (TyBool qs) in
+    let complement = Formula.(mk_not (mk_ors ps)) in
+    if FpatInterface.(complement ==> Formula.Bool false)
+    then
+      phi
+      |> abstract_coerce env (mk_ty ps) (mk_ty [])
+      |> Trans.Simplify.hfl
+    else
+      let ps' = complement::ps in
+      phi
+      |> abstract_coerce env (mk_ty ps ) (mk_ty ps')
+      |> abstract_coerce env (mk_ty ps') (mk_ty [])
+      |> Trans.Simplify.hfl
 
 let abstract_rule : env -> simple_ty Hflz.hes_rule -> Hfl.hes_rule =
   fun env { var; body; fix } ->
