@@ -95,6 +95,9 @@ module Make = struct
           begin match IdMap.lookup subst v with
           | v           -> Var (`I v)
           | exception _ -> Var (`E (Id.remove_ty v))
+          (* | exception Not_found -> *)
+          (*     print_endline @@ Print.strf "%s" (Id.to_string v); *)
+          (*     assert false *)
           end
       | Int n -> Int n
       | Op (op, as') -> Op (op, List.map as' ~f:(arith subst))
@@ -150,6 +153,7 @@ let rec beta_head : simple_argty Id.t -> t -> t -> t =
 
 let rec subst_arith : t TraceVar.Map.t -> HornClause.arith -> HornClause.arith =
   fun env a -> match a with
+    (* | Var v -> *)
     | Var (`I v) ->
         begin match TraceVar.Map.find env v with
         | Some (Arith a') -> a'

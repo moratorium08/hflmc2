@@ -43,6 +43,10 @@ let fvs_of = function
   | Local { fvs; _ } -> fvs
 let fvs_of_aged aged = fvs_of aged.var
 
+let to_orig = function
+  | Nt    {orig;_} -> { orig with ty = TySigma orig.ty }
+  | Local {name;_} -> name
+
 module Key = struct
   type nonrec t = t
   let sexp_of_t = sexp_of_t
@@ -54,6 +58,7 @@ module Key = struct
 end
 
 module Map = Map.Make'(Key)
+module Set = Set.Make(Key)
 
 let counters : (t, int) Hashtbl.t = Hashtbl.create (module Key)
 let reset_counters () = Hashtbl.clear counters
@@ -67,7 +72,7 @@ let gen_aged : t -> aged =
         Hashtbl.add_exn counters ~key:tv ~data:1;
         { var = tv; age = 0 }
     | Some n ->
-        Hashtbl.replace counters ~key:tv ~data:(n+1);
+        Hashtbl.set counters ~key:tv ~data:(n+1);
         { var = tv; age = n }
 
 let mk_nt : simple_ty Id.t -> t =

@@ -303,7 +303,7 @@ let abstract_main : env -> simple_ty Hflz.t -> Hfl.t =
 
 let abstract_rule : env -> simple_ty Hflz.hes_rule -> Hfl.hes_rule =
   fun env { var; body; fix } ->
-    let aty = try IdMap.lookup env var with _ -> assert false in
+    let aty = IdMap.lookup env var in
     let rule' =
       Hfl.{ var  = Id.{ var with ty = Type.abstract aty }
           ; body = abstract_check env body aty

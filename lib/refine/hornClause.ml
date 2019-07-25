@@ -9,29 +9,57 @@ module Log = (val Logs.src_log @@ Logs.Src.create __MODULE__)
 (* Predicate Variable                                                         *)
 (******************************************************************************)
 
-(* F : x:int -> g:(y:int -> o{P1(x,y)}) -> o{P2(x)} のとき
- * PredVar F = P2(x)
- * PredVar g = P1(x,y)
- * PredVar x = invalid
- * （ここでageは省略してある）
+(* F : x:int -> g:(y:int -> o) -> o
+ * x:Q_x(_) -> g:(y:Q_y(x,_) -> P_g(x,y)) -> P_F(x) : template
+ * PredVar F = P_F(x)
+ * PredVar g = P_g(x,y)
+ * PreCond x = Q_x(x)
+ * PreCond y = Q_y(x,y)
+ * (age of F and g is omitted here)
  * *)
-type pred_var = PredVar of TraceVar.aged
+type pred_var =
+  | PredVar of TraceVar.aged  (* underapproximation of predicate  *)
+  | PreCond of TraceVar.t     (* precondition of integer variable *)
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
-let args_of_pred_var (PredVar aged) =
-  let fvs = match aged.var with
-    | Nt _ -> []
-    | Local {fvs;_} -> fvs
-  in
-    List.filter (fvs @ TraceVar.mk_childlen aged)
-       ~f:(fun child -> TraceVar.type_of child = TyInt)
+let mk_pred_var aged = match TraceVar.type_of_aged aged with
+  | TyInt -> invalid_arg "mk_pred_var"
+  | _     -> PredVar(aged)
+
+let mk_precond tv = match TraceVar.type_of tv with
+  | TyInt -> PreCond(tv)
+  | _     -> invalid_arg "mk_precond"
+
+let args_of_pred_var pv =
+
+  let all_args =
+    match pv with
+    | PredVar aged ->
+        let fvs = match aged.var with
+          | Nt _ -> []
+          | Local {fvs;_} -> fvs
+        in fvs @ TraceVar.mk_childlen aged
+    | PreCond tv ->
+        let fvs = match tv with
+          | Nt _ -> invalid_arg "args_of_pred_var"
+          | Local {fvs;_} -> fvs
+        in fvs @ [tv]
+  in List.filter all_args
+      ~f:(fun child -> TraceVar.type_of child = TyInt)
+
 
 let pp_hum_pred_var : pred_var Print.t =
-  fun ppf (PredVar aged as pv) ->
+  fun ppf pv ->
     let args = args_of_pred_var pv in
-    Print.pf ppf "@[<h>P[%a](%a)@]"
-      TraceVar.pp_hum_aged aged
-      Print.(list ~sep:comma TraceVar.pp_hum) args
+    match pv with
+    | PredVar aged ->
+        Print.pf ppf "@[<h>P[%a](%a)@]"
+          TraceVar.pp_hum_aged aged
+          Print.(list ~sep:comma TraceVar.pp_hum) args
+    | PreCond tv ->
+        Print.pf ppf "@[<h>Q[%a](%a)@]"
+          TraceVar.pp_hum tv
+          Print.(list ~sep:comma TraceVar.pp_hum) args
 
 (******************************************************************************)
 (* Arithmetic Expression                                                      *)
@@ -39,10 +67,12 @@ let pp_hum_pred_var : pred_var Print.t =
 
 (* `E means external variable *)
 type arith_var = [ `I of TraceVar.t | `E of unit Id.t ]
+(* type arith_var = TraceVar.t *)
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 let pp_hum_arith_var : arith_var Print.t =
   fun ppf -> function
+    (* | tv -> TraceVar.pp_hum ppf tv *)
     | `I tv -> TraceVar.pp_hum ppf tv
     | `E ev -> Print.id ppf ev
 let pp_hum_arith_var_ : arith_var Print.t_with_prec =
@@ -56,6 +86,12 @@ let pp_hum_arith_ : arith Print.t_with_prec =
 let pp_hum_arith : arith Print.t =
   pp_hum_arith_ Print.Prec.zero
 
+let rec arith_to_orig : arith -> Arith.t = function
+  | Var (`I x) -> Var { (TraceVar.to_orig x) with ty = `Int }
+  | Var (`E x) -> Var { x with ty = `Int }
+  | Int n -> Int n
+  | Op(op,as') -> Op(op, List.map ~f:arith_to_orig as')
+
 (******************************************************************************)
 (* Formula                                                                    *)
 (******************************************************************************)
@@ -68,6 +104,17 @@ let pp_hum_formula_ : formula Print.t_with_prec =
 let pp_hum_formula : formula Print.t =
   pp_hum_formula_ Print.Prec.zero
 
+let rec formula_to_orig : formula -> Formula.t = function
+  | Bool b           -> Bool b
+  | Var x            -> Var x
+  | Or fs            -> Or (List.map ~f:formula_to_orig fs)
+  | And fs           -> And (List.map ~f:formula_to_orig fs)
+  | Pred (pred, as') -> Pred (pred, List.map ~f:arith_to_orig as')
+
+(******************************************************************************)
+(* Head and Body                                                              *)
+(******************************************************************************)
+
 type head = pred_var option
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 let pp_hum_head : head Print.t =
@@ -77,18 +124,18 @@ let pp_hum_head : head Print.t =
 
 type body =
   { pvs: pred_var list
-  ; phi: formula
+  ; phi: formula list
   } [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 let pp_hum_body : body Print.t =
   fun ppf body ->
     if List.is_empty body.pvs
     then
-      pp_hum_formula ppf body.phi
+      Print.(list ~sep:comma pp_hum_formula) ppf body.phi
     else
       Print.pf ppf "@[@[<h>%a@],@ @[<h>%a@]@]"
         Print.(list ~sep:comma pp_hum_pred_var) body.pvs
-        pp_hum_formula body.phi
+        Print.(list ~sep:comma pp_hum_formula) body.phi
 
 (******************************************************************************)
 (* Clause                                                                     *)
