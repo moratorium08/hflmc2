@@ -284,15 +284,35 @@ let solve
      -> Hflmc2_abstraction.env =
   fun hes hccs preconds_tbl ->
     let hccs' = ToFpat.hccs hccs in
-    let solver =
-      (* Fpat.BwIPHCCSSolver.solve *)
-      (* Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate false)) *)
-      (* Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate true)) *)
-      Fpat.FwHCCSSolver.solve_simp
-      (* Fpat.HCCSSolver.solve_pdr *)
-      (* Fpat.HCCSSolver.solve_duality *)
+    let solvers =
+      [ "BwIPHCCSSolver"
+          , Fpat.BwIPHCCSSolver.solve
+      ; "GenHCCSSolver"
+          , Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate false))
+      ; "GenHCCSSolver+Interp"
+          , Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate true))
+      ; "FwHCCSSolver"
+          , Fpat.FwHCCSSolver.solve_simp
+      ]
     in
-    let map = solver hccs' in
+    let map =
+      match
+        List.find_map solvers ~f:begin fun (name, solver) ->
+          match solver hccs' with
+          | ans -> Some ans
+          | exception e ->
+              Log.warn begin fun m -> m ~header:"Fpat"
+                "`%s` failed to solve the HCCS: %s"
+                name (Printexc.to_string e)
+              end;
+              None
+        end
+      with
+      | Some map -> map
+      | None ->
+          Log.err (fun m -> m ~header:"Fpat" "Could not solve HCCS");
+          exit 1
+    in
     Log.debug begin fun m -> m ~header:"FpatAnswer" "%a"
       Fpat.PredSubst.pr map;
     end;
