@@ -8,10 +8,11 @@ open Hflmc2_util
 let oneshot = ref false
 
 module Abstraction = struct
+  (* NOTE Actual value is set by Cmdliner *)
   let max_ors           = ref 0
   let max_ands          = ref 0
   let cartesian         = ref true
-  let exhaustive_search = ref false
+  let exhaustive_search = ref true
 end
 
 (******************************************************************************)
@@ -48,12 +49,16 @@ type params =
   (* Abstraction *)
   ; abst_max_ors : int [@default 10]
     (** Maximum number of disjunction in predicate abstraction *)
+
   ; abst_max_ands : int [@default 1]
-    (** Maximum number of disjunction in predicate abstraction *)
+    (** Maximum number of conjunction in predicate abstraction *)
+
   ; abst_exhaustive_search : bool [@default false]
-    (** Maximum number of disjunction in predicate abstraction *)
+    (** Do exhaustive search in predicate abstraction *)
+
   ; abst_no_cartesian : bool [@default false]
-    (** Maximum number of disjunction in predicate abstraction *)
+    (** Do cartesian search in predicate abstraction
+        `--abst-exhaustive-search` is preferred when both are present *)
   }
   [@@deriving cmdliner,show]
 

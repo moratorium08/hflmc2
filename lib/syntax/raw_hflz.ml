@@ -443,15 +443,24 @@ let rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
     in
     List.map hes ~f:(rule env)
 
-
-let to_typed (x, env) =
-  let hes =
-    x
+let to_typed (raw_hes, env) =
+  let typed_hes =
+    raw_hes
     |> Typing.to_typed
     |> List.map ~f:rename_simple_ty_rule
   in
+  let () = (* check env *)
+    let unknown_nt =
+      List.find env ~f:begin fun (f,_) ->
+        List.for_all typed_hes ~f:(fun r -> r.var.name <> f)
+      end
+    in
+    match unknown_nt with
+    | None -> ()
+    | Some (f,_) -> Fn.fatal @@ "ENV: There is no NT named " ^ f
+  in
   let gamma = IdMap.of_list @@
-    List.map hes ~f:begin fun rule ->
+    List.map typed_hes ~f:begin fun rule ->
       let v = rule.var in
       let aty =
         match List.Assoc.find ~equal:String.equal env v.name with
@@ -460,5 +469,5 @@ let to_typed (x, env) =
       in rule.var, aty
     end
   in
-  rename_ty_body hes, gamma
+  rename_ty_body typed_hes, gamma
 

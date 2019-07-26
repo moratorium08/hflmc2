@@ -219,7 +219,7 @@ module Parse = struct
       in
       match result_lines with
       | "The property is NOT satisfied."::_::cex::_ ->
-          if true then begin Log.debug @@ fun m ->
+          Log.debug begin fun m ->
             m "@[<2>raw counterexample:@ %a@]" Sexp.pp_hum @@ Sexp.of_string cex
           end;
           Error (counterexample cex);
