@@ -8,8 +8,6 @@ module Log = (val Logs.src_log @@ Logs.Src.create "HornClauseSolver")
 
 let () = Fpat.FPATConfig.set_default()
 
-(* TODO refactering *)
-
 module ToFpat = struct
 
   let idnt_of_tv : TraceVar.t -> Fpat.Idnt.t =

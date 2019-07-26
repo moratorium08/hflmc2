@@ -245,6 +245,3 @@ let run : Hfl.hes -> (unit, Counterexample.t) result =
         (Fn.read_file "/tmp/out")
         (Fn.read_file "/tmp/err")
 
-
-
-
