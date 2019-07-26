@@ -31,7 +31,6 @@ let mk_precond tv = match TraceVar.type_of tv with
   | _     -> invalid_arg "mk_precond"
 
 let args_of_pred_var pv =
-
   let all_args =
     match pv with
     | PredVar aged ->
@@ -45,7 +44,7 @@ let args_of_pred_var pv =
           | Local {fvs;_} -> fvs
         in fvs @ [tv]
   in List.filter all_args
-      ~f:(fun child -> TraceVar.type_of child = TyInt)
+      ~f:(fun x -> TraceVar.type_of x = TyInt)
 
 
 let pp_hum_pred_var : pred_var Print.t =

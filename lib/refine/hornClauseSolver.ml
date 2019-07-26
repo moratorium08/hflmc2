@@ -56,7 +56,6 @@ module ToFpat = struct
           (idnt_of_tv tv)
           (List.map (args_of_pred_var pv) ~f:typed_term_of_trace_var)
 
-
   let pred_var : pred_var -> Fpat.PredVar.t =
     fun pv ->
       let typ_env =
@@ -127,7 +126,7 @@ module ToFpat = struct
   let hornClause : t -> Fpat.HornClause.t =
     fun chc -> Fpat.HornClause.make (head chc.head) (body chc.body)
 
-  let hccs : t list -> Fpat.HCCS.t = List.map ~f:hornClause
+  let hccs : t list -> Fpat.HCCS.t = List.map ~f:(hornClause) >>> Fpat.HCCS.normalize2
 end
 
 module OfFpat = struct

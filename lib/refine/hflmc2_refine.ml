@@ -133,18 +133,10 @@ let solve_for (x: TraceVar.t) (e: HornClause.formula) : HornClause.arith =
       end
   | _ -> assert false
 
-(* _E = list of e where
- * e ::= a=a | e/\e
- * *)
-let solve_precond : HornClause.formula list -> TraceVar.t -> HornClause.formula =
-  fun _E tv ->
-    Log.debug begin fun m -> m ~header:"SP" "%a => %a"
-      Print.(list_comma HornClause.pp_hum_formula) _E
-      HornClause.pp_hum_pred_var (PreCond tv)
-    end;
-    let vars = TraceVar.Set.of_list @@
-      HornClause.(args_of_pred_var (mk_precond tv))
-    in
+(* TODO 2x=n; 2x+1=m から n+1=m を引き出す *)
+(** @require every predicate in phi must be "=" *)
+let elim_variables : HornClause.formula -> keep:TraceVar.Set.t -> HornClause.formula =
+  fun phi ~keep:vars ->
     let rec go : HornClause.formula list -> HornClause.formula list = function
       | [] -> []
       | phi::phis ->
@@ -158,7 +150,7 @@ let solve_precond : HornClause.formula list -> TraceVar.t -> HornClause.formula 
           else if TraceVar.Set.(is_empty (diff fvs vars)) then
             phi :: go phis
           else
-            let x = TraceVar.Set.min_elt_exn fvs in
+            let x = TraceVar.Set.(min_elt_exn (diff fvs vars)) in
             let e = solve_for x phi in (* phi <=> x = e *)
             let equal a b = match a, b with
               | `I a, `I b -> TraceVar.equal a b
@@ -169,10 +161,10 @@ let solve_precond : HornClause.formula list -> TraceVar.t -> HornClause.formula 
               ~f:(Trans.Subst.Arith'.formula_ equal (`I x) e)
               phis
     in
-    (* [e1;(e2/\e3);e4] -> [e1;e2;e3;e4] *)
-    let [@warning "-8"] [_E] = Formula.(to_DNF (mk_ands _E)) in
-    let _E = List.filter _E ~f:(not <<< HornClauseSolver.is_valid) in
-    Formula.mk_ands (go _E)
+    Formula.mk_ors @@
+      List.map Formula.(to_DNF phi) ~f:begin fun e ->
+        Formula.mk_ands (go e)
+      end
 
 (* NOTE HornClauseにするときにdualを取る
  *
@@ -333,36 +325,37 @@ let gen_HCCS
 
                 (* Qn(n), m=n |= ¬PS(n) <= ¬PTwice(m) *)
                 let hcc =
+                  let vars =
+                    TraceVar.Set.of_list @@
+                      HornClause.args_of_pred_var (HornClause.mk_pred_var aged) @
+                      (Option.value_map head ~default:[] ~f:HornClause.args_of_pred_var)
+                  in
                   let body =
                     HornClause.
                       { phi = current_guard
                       ; pvs = [HornClause.mk_pred_var aged]
                       }
-                  in HornClause.{ body; head }
+                    in
+                      HornClause.{ body; head }
                 in
                 Log.debug begin fun m -> m ~header:"CHC" "%a"
                   HornClause.pp_hum hcc
                 end;
 
-                let bind_with_guard
-                  : (TraceVar.t * (TraceExpr.t * guard)) list
-                  =
-                  let initial_guard = preconds in
-                  snd @@
-                    List.fold_left bind ~init:(initial_guard, []) ~f:
-                      begin fun (guard, rev_acc) (x,e) ->
-                        let b = x, (e, guard) in
-                        let guard =
-                          let phi =
-                            match TraceVar.type_of x, e with
-                            | TyInt, Arith a ->
-                                Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ]
-                            | _ ->
-                                Formula.Bool true
-                          in List.filter ~f:(not <<< HornClauseSolver.is_valid) (phi :: guard)
-                        in
-                        (guard, b::rev_acc)
-                      end
+                let _, bind_with_guard =
+                  List.fold_left bind ~init:(preconds, []) ~f:
+                    begin fun (guard, rev_acc) (x,e) ->
+                      let b = x, (e, guard) in
+                      let guard =
+                        let phi =
+                          match TraceVar.type_of x, e with
+                          | TyInt, Arith a ->
+                              [Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ]]
+                          | _ -> []
+                        in phi@guard
+                      in
+                      (guard, b::rev_acc)
+                    end
                 in
                 Log.debug begin fun m -> m ~header:"NewBind" "@[<v>%a@]"
                   Print.(list ~sep:cut @@
@@ -382,13 +375,10 @@ let gen_HCCS
                 in
 
                 let next_preconds =
-                  (* Qn(n), m=n |= Qm(m) のQm(m)を計算する
-                   * Qn(n)は既に計算されていて，展開した状態でcurrent_guardに入っている *)
                   (* TODO
                    * intの引数が複数ある場合を考えると
                    * fold_leftでaccumulateする必要がある？ *)
                   let arg_preconds =
-                    (* Qm(m) *)
                     let int_vars =
                       List.filter_map vars ~f:begin fun x ->
                         match TraceVar.type_of x with
@@ -397,7 +387,10 @@ let gen_HCCS
                       end
                     in
                     List.map int_vars ~f:begin fun x ->
-                      let phi = solve_precond current_guard x in
+                      let phi =
+                        let vars = TraceVar.Set.of_list @@
+                          HornClause.(args_of_pred_var (mk_precond x))
+                        in elim_variables (Formula.mk_ands current_guard) ~keep:vars in
                       Hashtbl.set preconds_tbl ~key:x ~data:phi;
                       Log.debug begin fun m -> m ~header:"SolvePrecond" "@[<v>%a = %a@]"
                         HornClause.pp_hum_pred_var (PreCond x)
@@ -436,7 +429,6 @@ let gen_HCCS
 
 type result = [ `Feasible | `Refined of Hflmc2_abstraction.env ]
 
-(* TODO hesはλ-liftingしておく *)
 let run
      : simple_ty Hflz.hes
     -> Counterexample.normalized
