@@ -33,6 +33,7 @@ module Prec = struct
   let eq    = 4
   let add   = 6
   let mult  = 7
+  let neg   = 9
   let app   = 10
 
   let of_op = function
@@ -91,6 +92,9 @@ let rec gen_arith_ : 'avar t_with_prec -> 'avar Arith.gen_t t_with_prec =
   fun avar_ prec ppf a -> match a with
     | Int n -> Fmt.int ppf n
     | Var x -> avar_ prec ppf x
+    | Op (Sub,[Int 0;a]) ->
+        show_paren (prec > Prec.neg) ppf "-%a"
+          (gen_arith_ avar_ Prec.(succ neg)) a
     | Op (op',[a1;a2]) ->
         let op_prec = Prec.of_op op' in
         let prec_l = Prec.(succ_if (not @@ op_is_leftassoc op') op_prec) in
