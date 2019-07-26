@@ -84,19 +84,22 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
              * *)
             let l = List.length qs in
             let k = List.length ps in
-            let max_ors = !Options.max_ors in
-            let one_to_l = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 l) in
-            let one_to_k = List.(range ?start:(Some `inclusive) ?stop:(Some `exclusive) 0 k) in
-            let _Is = List.powerset one_to_l in
-            let _Js =
-              List.filter (List.powerset one_to_k) ~f:begin fun _J ->
-                let ps' = List.(map ~f:(nth_exn ps) _J) in
-                FpatInterface.is_consistent_set ps'
-              end
-            in
-            let _Jss =
+            let max_ands = !Options.max_ands in
+            let max_ors  = !Options.max_ors in
+            let one_to_l = List.(range 0 l) in (* to be honest, 0 to l-1 *)
+            let one_to_k = List.(range 0 k) in
+            let _Is =
+              let limit = if !Options.cartesian then Some 1 else None in
+              List.powerset ?limit one_to_l in
+            let search_space =
+              let _Js =
+                List.filter (List.powerset ~limit:max_ands one_to_k) ~f:begin fun _J ->
+                  let ps' = List.(map ~f:(nth_exn ps) _J) in
+                  FpatInterface.is_consistent_set ps'
+                end
+              in
               List.filter (List.powerset ~limit:max_ors _Js)
-                ~f:(fun l -> not (List.is_empty l))
+                  ~f:(fun l -> not (List.is_empty l))
             in
             let phi's =
               List.map _Is ~f:begin fun _I ->
@@ -111,24 +114,24 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                     [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
                   else if
                     (* See [FpatInterface.strongest_post_cond'] *)
-                    FpatInterface.(Formula.Bool true ==> _Q) || !Options.exhaustive_search
+                    FpatInterface.is_valid _Q || !Options.exhaustive_search
                   then
                     let candidates : (int list list * Formula.t) list =
-                      List.filter_map _Jss ~f:begin fun _Js ->
-                        let pss =
-                              List.map _Js ~f:begin fun _J ->
-                                List.map _J ~f:begin fun j ->
-                                  List.nth_exn ps j end end
-                        in
-                        let body =
-                              Formula.mk_ors @@ List.map ~f:Formula.mk_ands pss
-                        in
-                        if FpatInterface.(_Q ==> body)
-                        then Some (_Js, body)
-                        else None
+                      List.filter_map search_space ~f:begin
+                        fun _Js ->
+                          let pss =
+                            List.map _Js ~f:begin fun _J ->
+                              List.map _J ~f:begin fun j ->
+                                List.nth_exn ps j end end
+                          in
+                          let body =
+                            Formula.mk_ors @@ List.map ~f:Formula.mk_ands pss
+                          in
+                          if FpatInterface.(_Q ==> body)
+                          then Some (_Js, body)
+                          else None
                       end
                     in
-                    (* XXX 本当にこれで弱くなってない？ *)
                     let (<=) (_,p1) (_,p2) = FpatInterface.(p2 ==> p1) in
                     List.map ~f:fst @@ Fn.maximals' (<=) candidates
                   else
@@ -137,28 +140,28 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                 let nodes =
                   List.map ans ~f:begin fun _Js ->
                     let mk_atom _J =
-                          Hfl.mk_apps phi @@
-                            List.map one_to_k ~f:begin fun j ->
-                              Hfl.Bool (List.mem ~equal:(=) _J j)
-                            end
+                      Hfl.mk_apps phi @@
+                        List.map one_to_k ~f:begin fun j ->
+                          Hfl.Bool (List.mem ~equal:(=) _J j)
+                        end
                     in
                     Hfl.mk_ands ~kind:`Inserted
-                        @@ Hfl.mk_ands ~kind:`Inserted (List.map xs' ~f:Hfl.mk_var)
-                        :: List.map _Js ~f:mk_atom
+                      @@ Hfl.mk_ands ~kind:`Inserted (List.map xs' ~f:Hfl.mk_var)
+                      :: List.map _Js ~f:mk_atom
                   end
                 in
                 (* log *)
-                List.iter ans ~f:begin fun _Js ->
-                  let pss =
-                        List.map _Js ~f:begin fun _J ->
-                          List.map _J ~f:begin fun j ->
-                            List.nth_exn ps j end end
-                  in
-                  Log.debug begin fun m -> m ~header:"Coerce" "I = %a,@ J = %a"
-                    Print.(list_set formula) qs'
-                    Print.(list_set (list_set formula)) pss
-                  end;
-                end;
+                (* List.iter ans ~f:begin fun _Js -> *)
+                (*   let pss = *)
+                (*     List.map _Js ~f:begin fun _J -> *)
+                (*       List.map _J ~f:begin fun j -> *)
+                (*         List.nth_exn ps j end end *)
+                (*   in *)
+                (*   Log.debug begin fun m -> m ~header:"Coerce" "I = %a,@ J = %a" *)
+                (*     Print.(list_set formula) qs' *)
+                (*     Print.(list_set (list_set formula)) pss *)
+                (*   end; *)
+                (* end; *)
                 Hfl.mk_ors ~kind:`Inserted nodes
               end
             in

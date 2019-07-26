@@ -1,6 +1,8 @@
 open Core
 open Hflmc2_util
 
+let _ = Hflmc2.Options.parse ~argv:(Array.append [|"dummy_file"; "--quiet"|] Sys.argv) ()
+
 (* TODO duneのrootを手に入れる方法はないものか．
  * Sys.getenv_exn "OWD" がそれっぽいけどドキュメントにはなってなさそう
  * *)
