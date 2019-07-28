@@ -13,7 +13,11 @@ let eq x y = String.equal x.name y.name && x.id = y.id
 let counter = new Fn.counter
 let gen_id () = counter#tick
 
-let to_string id = id.name ^ string_of_int id.id
+let to_string id =
+  let c = String.get id.name 0 in
+  if c = Char.uppercase c
+  then id.name
+  else id.name ^ string_of_int id.id
 
 let gen : ?name:string -> 'annot -> 'anno t =
   fun ?(name="x") ann ->
