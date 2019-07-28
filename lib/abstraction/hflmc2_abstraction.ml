@@ -151,17 +151,17 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                   end
                 in
                 (* log *)
-                (* List.iter ans ~f:begin fun _Js -> *)
-                (*   let pss = *)
-                (*     List.map _Js ~f:begin fun _J -> *)
-                (*       List.map _J ~f:begin fun j -> *)
-                (*         List.nth_exn ps j end end *)
-                (*   in *)
-                (*   Log.debug begin fun m -> m ~header:"Coerce" "I = %a,@ J = %a" *)
-                (*     Print.(list_set formula) qs' *)
-                (*     Print.(list_set (list_set formula)) pss *)
-                (*   end; *)
-                (* end; *)
+                List.iter ans ~f:begin fun _Js ->
+                  let pss =
+                    List.map _Js ~f:begin fun _J ->
+                      List.map _J ~f:begin fun j ->
+                        List.nth_exn ps j end end
+                  in
+                  Log.debug begin fun m -> m ~header:"Coerce" "I = %a,@ J = %a"
+                    Print.(list_set formula) qs'
+                    Print.(list_set (list_set formula)) pss
+                  end;
+                end;
                 Hfl.mk_ors ~kind:`Inserted nodes
               end
             in

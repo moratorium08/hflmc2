@@ -31,9 +31,7 @@ module Counterexample = struct
         let head = Sexp.Atom ("t_or_inserted" ^ string_of_int n) in
         let rest = List.map ~f:sexp_of_t cs in
         List (head::rest)
-  let rec t_of_sexp : Sexp.t -> t =
-    let error s = Sexp.Of_sexp_error((Failure "Counterexample.t_of_sexp"), s) in
-    function
+  let rec t_of_sexp : Sexp.t -> t = function
     | Atom "t_false" -> False
     | List (Atom a :: ss) when String.is_prefix ~prefix:"t_and_inserted" a ->
         let s = List.find_exn ss ~f:(fun s -> s <> Atom "_") in
@@ -46,7 +44,7 @@ module Counterexample = struct
         And (n, i, t_of_sexp s)
     | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or" a ->
         Or(List.map ~f:t_of_sexp ss)
-    | s -> raise (error s)
+    | s -> raise @@ Sexp.Of_sexp_error((Failure "Counterexample.t_of_sexp"), s)
   let rec simplify : t -> t = function
     | False       -> False
     | And (n,i,c) -> And (n,i,simplify c)
@@ -72,6 +70,7 @@ module Counterexample = struct
     | And of int * int * normalized (** (n,i,_) ith branch in n. 0-indexed *)
     | Or  of normalized list
     [@@deriving eq,ord,show,iter,map,fold,sexp]
+
   let pp_hum_normalized ppf x =
     let rec to_t : normalized -> t = function
       | False -> False
