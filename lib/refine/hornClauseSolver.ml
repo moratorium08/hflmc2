@@ -161,69 +161,71 @@ module OfFpat = struct
   let abstracion_env
         : simple_ty Hflz.hes
        -> Fpat.PredSubst.t
-       -> (TraceVar.t, HornClause.formula) Hashtbl.t
        -> Hflmc2_abstraction.env =
-    fun hes subst preconds_tbl ->
-      let subst : Fpat.Pred.t StrMap.t =
+    fun hes subst ->
+      let pred_map : Fpat.Pred.t StrMap.t =
         StrMap.of_alist_exn @@ List.map subst ~f:begin function
           | Fpat.Idnt.V x, pred -> x, pred
           | _ -> assert false
         end
       in
-      let lookup_pred : TraceVar.aged -> Fpat.Pred.t option =
-        StrMap.find subst <<< TraceVar.string_of_aged
-      in
-      let lookup_pred_exn : TraceVar.aged -> Fpat.Pred.t =
-        StrMap.find_exn subst <<< TraceVar.string_of_aged
+      let lookup_pred : HornClause.pred_var -> Formula.t =
+        fun pv ->
+          let pv_name = match pv with
+            | PredVar aged -> TraceVar.string_of_aged aged
+            | PreCond tv   -> TraceVar.string_of      tv
+          in
+          let fpat_args, fpat_pred =
+            StrMap.find_exn pred_map pv_name
+            |> Pair.first begin List.map ~f:begin function
+                 | Fpat.Idnt.V x, _ -> x
+                 | _ -> assert false
+                 end
+               end
+          in
+          let pv_args =
+            List.map (args_of_pred_var pv) ~f:begin function
+              | Local { name; _ } -> name
+              | _ -> assert false
+              end
+          in
+          let rename_map = StrMap.of_alist_exn @@
+            List.map2_exn fpat_args pv_args ~f:begin fun fx x ->
+              fx, { x with ty = `Int }
+            end
+          in
+          formula (StrMap.find_exn rename_map) fpat_pred
       in
       let rec abstraction_ty_of_aged (aged : TraceVar.aged) : abstraction_ty =
-        Log.debug begin fun m -> m ~header:"abstraction_ty_of_aged" "@[<v>%a@]"
-          TraceVar.pp_hum_aged aged
-        end;
         let sty        = Type.unsafe_unlift @@ TraceVar.type_of_aged aged in
         let args, ()   = Type.decompose_arrow sty in
         let tv_args    = TraceVar.mk_childlen aged in
-        let fpat_args, fpat_pred = lookup_pred_exn aged in
 
         (* main part *)
         let preds : Formula.t list =
           let underapproximation =
-            let formula_vars =
-              List.map fpat_args ~f:begin function
-              | Fpat.Idnt.V x, _ -> x
-              | _ -> assert false
-              end
-            in
-            let int_args =
-              List.map (args_of_pred_var (HornClause.PredVar aged)) ~f:begin
-                function
-                | Local { name; _ } -> name
-                | _ -> assert false
-                end
-            in
-            let rename : string -> [`Int] Id.t =
-              let map = StrMap.of_alist_exn @@
-                List.map2_exn formula_vars int_args ~f:begin fun fx ix ->
-                  fx, { ix with ty = `Int }
-                end
-              in StrMap.find_exn map
-            in
-            Formula.mk_not @@ formula rename @@ fpat_pred
+            Formula.mk_not @@ lookup_pred (HornClause.mk_pred_var aged)
           in
           let preconditions =
             List.filter_map tv_args ~f:begin fun tv ->
               match TraceVar.type_of tv with
-              | TyInt ->
-                  let phi = Hashtbl.find_exn preconds_tbl tv in
-                  let renamed = HornClause.formula_to_orig phi in
-                  Some renamed
-              | TySigma _ -> None
+              | TyInt -> Some (lookup_pred (HornClause.mk_precond tv))
+              | _ -> None
             end
           in
           Log.debug begin fun m -> m ~header:"Preconditions" "%a : %a"
             TraceVar.pp_hum_aged aged
             Print.(list_set formula) preconditions
           end;
+          Log.debug begin fun m -> m ~header:"Underapproximation" "%a : %a"
+            TraceVar.pp_hum_aged aged
+            Print.formula underapproximation
+          end;
+          (* List.filter_map (underapproximation::preconditions) ~f: *)
+          (*   begin fun phi -> match Trans.Simplify.formula phi with *)
+          (*   | Bool _ -> None *)
+          (*   | phi -> Some phi *)
+          (*   end *)
           let phi =
             Trans.Simplify.formula @@ Formula.mk_ands @@
               (underapproximation::preconditions)
@@ -274,20 +276,16 @@ end
 let is_valid : formula -> bool =
   fun f -> Fpat.SMTProver.is_valid_dyn (ToFpat.formula f)
 
-let solve
-      : simple_ty Hflz.hes
-     -> t list
-     -> (TraceVar.t, HornClause.formula) Hashtbl.t
-     -> Hflmc2_abstraction.env =
-  fun hes hccs preconds_tbl ->
+let solve : simple_ty Hflz.hes -> t list -> Hflmc2_abstraction.env =
+  fun hes hccs ->
     let hccs' = ToFpat.hccs hccs in
     let solvers =
-      [ "BwIPHCCSSolver"
-          , Fpat.BwIPHCCSSolver.solve
-      ; "GenHCCSSolver"
+      [ "GenHCCSSolver"
           , Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate false))
       ; "GenHCCSSolver+Interp"
           , Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate true))
+      ; "BwIPHCCSSolver"
+          , Fpat.BwIPHCCSSolver.solve
       ; "FwHCCSSolver"
           , Fpat.FwHCCSSolver.solve_simp
       ]
@@ -308,10 +306,10 @@ let solve
       | Some map -> map
       | None ->
           Log.err (fun m -> m ~header:"Fpat" "Could not solve HCCS");
-          exit 1
+          Fn.fatal "Failed to solve HCCS"
     in
     Log.debug begin fun m -> m ~header:"FpatAnswer" "%a"
       Fpat.PredSubst.pr map;
     end;
-    OfFpat.abstracion_env hes map preconds_tbl
+    OfFpat.abstracion_env hes map
 
