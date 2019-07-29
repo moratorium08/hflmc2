@@ -19,7 +19,7 @@ let show_result = function
 
 module CexSet = Set.Make(Modelcheck.Counterexample)
 
-let rec cegar_loop prev_cex loop_count psi gamma =
+let rec cegar_loop prev_cexs loop_count psi gamma =
   Log.app begin fun m -> m ~header:"TopOfLoop" "Loop count: %d"
       loop_count
   end;
@@ -41,17 +41,23 @@ let rec cegar_loop prev_cex loop_count psi gamma =
       Log.app begin fun m -> m ~header:"Counterexample" "@[<2>%a@]"
         Sexp.pp_hum (C.sexp_of_t cex)
       end;
-      if CexSet.mem prev_cex cex then
+      if CexSet.mem prev_cexs cex then
         `NoProgress
       else
         (* Refine *)
-        match Refine.run psi (List.hd_exn (C.normalize cex)) gamma with
-        | `Refined new_gamma ->
-            if !Options.oneshot
-            then failwith "oneshot"
-            else cegar_loop (CexSet.add prev_cex cex) (loop_count+1) psi new_gamma
-        | `Feasible ->
-            `Invalid
+        let ncexs = C.normalize cex in
+        let rec loop gamma ncexs =
+          match ncexs with
+          | [] ->
+              if !Options.oneshot then failwith "oneshot";
+              cegar_loop (CexSet.add prev_cexs cex) (loop_count+1) psi gamma
+          | ncex::ncexs ->
+              begin match Refine.run psi ncex gamma with
+              | `Refined new_gamma -> loop new_gamma ncexs;
+              | `Feasible -> `Invalid
+              end
+        in
+        loop gamma ncexs
 
 let main file =
   let psi, gamma = Syntax.parse_file file in
