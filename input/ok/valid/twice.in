@@ -1,6 +1,6 @@
+/* This example requires intersectoin type inference */
 %HES
-S n          =v Twice Neg n Pos || n <= 0.
-Neg x k      =v k (-x).
-Pos y        =v y > 0.
-Twice f z k_ =v f z (Flip f k_).
-Flip g k__ w =v g w k__.
+S n         =v Twice Neg Pos n || n <= 0.
+Twice f k z =v f (f k) z.
+Neg k x     =v k (-x).
+Pos y       =v y > 0.
