@@ -49,10 +49,6 @@ module ToFpat = struct
         Fpat.Pva.make
           (idnt_of_aged aged)
           (List.map (args_of_pred_var pv) ~f:typed_term_of_trace_var)
-    | PreCond tv as pv ->
-        Fpat.Pva.make
-          (idnt_of_tv tv)
-          (List.map (args_of_pred_var pv) ~f:typed_term_of_trace_var)
 
   let pred_var : pred_var -> Fpat.PredVar.t =
     fun pv ->
@@ -63,7 +59,6 @@ module ToFpat = struct
       in
       let idnt = match pv with
         | PredVar aged -> idnt_of_aged aged
-        | PreCond tv   -> idnt_of_tv tv
       in
       Fpat.PredVar.make idnt typ_env
 
@@ -173,7 +168,6 @@ module OfFpat = struct
         fun pv ->
           let pv_name = match pv with
             | PredVar aged -> TraceVar.string_of_aged aged
-            | PreCond tv   -> TraceVar.string_of      tv
           in
           let fpat_args, fpat_pred =
             StrMap.find_exn pred_map pv_name
@@ -203,32 +197,13 @@ module OfFpat = struct
 
         (* main part *)
         let preds : Formula.t list =
-          let underapproximation =
-            Formula.mk_not @@ lookup_pred (HornClause.mk_pred_var aged)
-          in
-          let preconditions =
-            List.filter_map tv_args ~f:begin fun tv ->
-              match TraceVar.type_of tv with
-              | TyInt -> Some (lookup_pred (HornClause.mk_precond tv))
-              | _ -> None
-            end
-          in
-          Log.debug begin fun m -> m ~header:"Preconditions" "%a : %a"
-            TraceVar.pp_hum_aged aged
-            Print.(list_set formula) preconditions
-          end;
+          let underapproximation = lookup_pred (HornClause.mk_pred_var aged) in
           Log.debug begin fun m -> m ~header:"Underapproximation" "%a : %a"
             TraceVar.pp_hum_aged aged
             Print.formula underapproximation
           end;
-          (* List.filter_map (underapproximation::preconditions) ~f: *)
-          (*   begin fun phi -> match Trans.Simplify.formula phi with *)
-          (*   | Bool _ -> None *)
-          (*   | phi -> Some phi *)
-          (*   end *)
           let phi =
-            Trans.Simplify.formula @@ Formula.mk_ands @@
-              (underapproximation::preconditions)
+            Trans.Simplify.formula @@ underapproximation
           in
           match phi with
           | Bool _ -> []
@@ -272,6 +247,35 @@ module OfFpat = struct
         rule.var, abstraction_ty_of_trace_var (TraceVar.mk_nt rule.var)
       end
 end
+
+let interpolate : formula -> formula -> formula option =
+  fun f1 f2 ->
+    let f1' = ToFpat.formula f1 in
+    let f2' = ToFpat.formula f2 in
+    let preserve_name = Fn.const true in
+    match Fpat.InterpProver.interpolate_dyn preserve_name f1' f2' with
+    | ip ->
+        let rev_map =
+          let _, xs1 = Formula.fvs f1 in
+          let _, xs2 = Formula.fvs f2 in
+          let xs =
+            List.remove_duplicates (xs1@xs2) ~equal:begin fun x1 x2 ->
+              match x1, x2 with
+              | `I x1, `I x2 -> TraceVar.equal x1 x2
+              | `E x1, `E x2 -> Id.eq x1 x2
+              | _ -> false
+            end
+          in
+          let map = StrMap.of_alist_exn @@ List.map xs ~f:begin function
+            | `I x -> TraceVar.string_of x, `I x
+            | `E n -> Id.to_string n, `E n
+            end
+          in fun x -> StrMap.find_exn map x
+        in
+        Some (OfFpat.formula rev_map ip)
+    | exception Fpat.InterpProver.NoInterpolant ->
+        None
+
 
 let is_valid : formula -> bool =
   fun f -> Fpat.SMTProver.is_valid_dyn (ToFpat.formula f)

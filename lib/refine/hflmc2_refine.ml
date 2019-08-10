@@ -95,112 +95,56 @@ let is_feasible : simple_ty Hflz.hes -> Counterexample.normalized -> bool =
     not @@ HornClauseSolver.is_valid approx
 (* }}} *)
 
-(* NOTE HornClauseにするときにdualを取る
- *
- * HFL
- * S n =v F n (H n)
- * F x g =v g (x + x) \/ x < 0.
- * H y z =v z >= y
- *
- * HoCHC
- * ¬S n    =μ ¬F n (¬H n)
- * ¬F x ¬g =μ ¬g (n + n) /\ x >= 0.
- * ¬H y z  =μ z < y
- *
- * CHC
- * ¬S n   =μ ¬F n
- * ¬F x   =μ ¬g x (x + x) /\ x >= 0.
- * ¬g n w =μ ¬H n w
- * ¬H y z =μ z >= y
- * *)
 let gen_HCCS
     :  simple_ty Hflz.hes
     -> Counterexample.normalized
-    -> HornClause.t list * HornClause.t list =
+    -> HornClause.t list =
   fun hes cex ->
     let rec go
-        :  HornClause.head
-        -> reduce_env
+        :  reduce_env
         -> guard
+        -> HornClause.pred_var option
         -> TraceExpr.t
         -> Counterexample.normalized option
-        -> HornClause.t list * HornClause.t list =
-      fun head reduce_env preconds expr cex ->
+        -> HornClause.t list =
+      fun reduce_env guard pv expr cex ->
         Log.debug begin fun m -> m ~header:"gen_HCCS"
-          "@[<v>@[<h 2>head : %a@]@,@[<2>expr : %a@]@,@[<2>guard: %a@]@,@[<2>cex  : %a@]@]"
-            HornClause.pp_hum_head head
+          "@[<v>@[<2>expr : %a@]@,@[<2>guard: %a@]@,@[<2>pv   : %a@]@,@[<2>cex  : %a@]@]"
             TraceExpr.pp_hum expr
-            HornClause.pp_hum_body preconds
+            HornClause.pp_hum_body guard
+            Print.(option HornClause.pp_hum_pred_var) pv
             Print.(option ~none:(fun ppf () -> string ppf "None")
               Counterexample.pp_hum_normalized) cex
         end;
         match expr, cex with
         | (Bool true | And []), _
-        | (App _ | Var _)     , None ->
-            let pvs  = [] in
-            let phi  = [Formula.Bool false] in
-            let body = HornClause.{ pvs; phi } in
-            [], [{ head; body }]
+        | (App _ | Var _)     , None
+        | (And _ | Or _)      , (None | Some False) ->
+            []
         | (Bool false | Or []), _ ->
-            let body = preconds in
-            [], [{ head; body }]
+            [{ head=None; body=guard }]
         | Pred (pred, as'), _ ->
-            let pvs  = preconds.pvs in
-            let phi  = Formula.(mk_not @@ mk_pred pred as') :: preconds.phi in
-            let body = HornClause.{ pvs; phi } in
-            [], [{ head; body }]
+            let body = guard
+              |> HornClause.append_phi Formula.[mk_not @@ mk_pred pred as']
+              |> HornClause.append_pvs Option.(to_list pv)
+            in
+            [{ head=None; body }]
         | And psis, Some (And (_,i,c)) ->
-            go head reduce_env preconds (List.nth_exn psis i) (Some c)
-        | And _psis, (None | Some False) ->
-            (* NOTE
-             * dualを取るからorになる．
-             * body1 \/ body2 => head は
-             * body1 => head; body2 => head と同値 *)
-            (* List.concat_map _psis ~f:(go head reduce_env preconds -$- None) *)
-            (* No! Fpat can solve only linear CHC! *)
-            let pvs  = [] in
-            let phi  = [Formula.Bool false] in
-            let body = HornClause.{ pvs; phi } in
-            [], [{ head; body }]
-        | Or psis, _ ->
-            (* XXX dirty hack *)
-            let precond_hccs, hccss = List.unzip @@
-              match cex with
-              | Some (Or cs) ->
-                  List.map2_exn psis cs ~f:begin fun psi c ->
-                    go head reduce_env preconds psi (Some c)
-                  end
-              | Some False | None ->
-                  List.map psis ~f:begin fun psi ->
-                    go head reduce_env preconds psi None
-                  end
-              | _ -> assert false
-            in
-            let hc_s, hcs_s =
-              List.unzip @@ List.filter_map hccss ~f:begin function
-              | [] -> None
-              | hc::hcs -> Some (hc, hcs)
-              end
-            in
-            let hc = (* merge bodies *)
-              let body =
-                let init = HornClause.{ pvs = []; phi = [] } in
-                List.fold_left hc_s ~init ~f:begin fun body hc ->
-                  assert (HornClause.equal_head head hc.head);
-                  HornClause.
-                    { pvs = List.remove_consecutive_duplicates ~equal:HornClause.equal_pred_var @@
-                            List.sort ~compare:HornClause.compare_pred_var (body.pvs @ hc.body.pvs)
-                    ; phi = List.filter ~f:(not <<< HornClauseSolver.is_valid)
-                                @@ body.phi @ hc.body.phi
-                    }
-                end
-              in HornClause.{ head; body }
-            in
-            Log.debug begin fun m -> m ~header:"Or:MergeCHC" "@[<v>%a@,⇓@,%a@]"
-              (Print.list HornClause.pp_hum) hc_s
-              HornClause.pp_hum hc
-            end;
-            List.concat precond_hccs, hc :: List.concat hcs_s
+            go reduce_env guard pv (List.nth_exn psis i) (Some c)
+        | Or [psi1;psi2], Some (Or [c1;c2]) ->
+            let _ = psi1, psi2, c1, c2 in
+            (* guard => P_psi1 \/ P_psi2 *)
+            (* let [@warning "-8"] hcc1::hccs1  = go reduce_env guard psi1 (Some c1) in *)
+            (* let [@warning "-8"] hcc2::hccs2  = go reduce_env guard psi2 (Some c2) in *)
+            (* let p1 = List.hd_exn hcc1.body.pvs in *)
+            (* let p2 = List.hd_exn hcc1.body.pvs in *)
+            (* Log.err begin fun m -> m "@[<v>%a@,%a@]" *)
+            (*   HornClause.pp_hum_pred_var p1 *)
+            (*   HornClause.pp_hum_pred_var p2 *)
+            (* end; *)
+            Fn.todo ~info:"Or" ()
+        | Or _, _ ->
+            Fn.todo ~info:"impossible? 3 or more disjunctions" ()
         | (App _| Var _), Some _ ->
             let expr_head, args = TraceExpr.decompose_app expr in
             begin match expr_head with
@@ -220,10 +164,13 @@ let gen_HCCS
                       let orig_vars, orig_body = Hflz.decompose_abs rule.body in
                       let rename = IdMap.of_list @@ List.zip_exn orig_vars vars in
                       let next_expr = TraceExpr.Make.hflz hes rename orig_body in
-                      next_expr, empty_guard
+                      next_expr, guard
                 in
+                Log.debug begin fun m -> m ~header:"Guard" "@[<v>%a@]"
+                  HornClause.pp_hum_body guard
+                end;
 
-                (* m=n *)
+
                 let bind_constr =
                   List.filter_map bind ~f:begin fun (x, e) ->
                     match TraceVar.type_of x, e with
@@ -238,44 +185,44 @@ let gen_HCCS
                   (Print.list HornClause.pp_hum_formula) bind_constr
                 end;
 
-                (* Qn(n), m=n *)
-                let current_guard =
-                  HornClause.
-                    { preconds with
-                        phi =
-                          List.filter ~f:(not <<< HornClauseSolver.is_valid) bind_constr
-                            @ preconds.phi
-                    }
+                let current_guard = guard
+                  |> HornClause.append_phi
+                      (List.filter ~f:(not <<< HornClauseSolver.is_valid) bind_constr)
+                  |> HornClause.append_pvs
+                      (Option.to_list pv)
                 in
                 Log.debug begin fun m -> m ~header:"CurrentGuard" "@[<v>%a@]"
                   HornClause.pp_hum_body current_guard
                 end;
 
-                (* Qn(n), m=n |= ¬PS(n) <= ¬PTwice(m) *)
                 let hcc =
-                  let pvs = HornClause.mk_pred_var aged :: current_guard.pvs in
-                  let body = { current_guard with pvs } in
-                  HornClause.{ body; head }
+                  let head = Some (HornClause.mk_pred_var aged) in
+                  HornClause.{ body=current_guard; head }
                 in
                 Log.debug begin fun m -> m ~header:"CHC" "%a"
                   HornClause.pp_hum hcc
                 end;
 
                 let _, bind_with_guard =
-                  List.fold_left bind ~init:(preconds, []) ~f:
-                    begin fun (guard, rev_acc) (x,e) ->
-                      let b = x, (e, guard) in
-                      let guard =
+                  let init_guard =
+                    HornClause.(append_pvs [mk_pred_var aged] guard)
+                  in
+                  List.fold_left bind ~init:(init_guard, []) ~f:
+                    begin fun (g, rev_acc) (x,e) ->
+                      let b, g' =
                         match TraceVar.type_of x, e with
                         | TyInt, Arith a ->
-                            HornClause.
-                            { pvs = mk_precond x :: guard.pvs
-                            ; phi = Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ] :: guard.phi
-                            }
+                            let b  = (x, (e, empty_guard)) in
+                            let g' =
+                              HornClause.
+                              { pvs = g.pvs
+                              ; phi = Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ] :: g.phi
+                              }
+                            in b, g'
                         | _ ->
-                            guard
+                            (x, (e, g)), g
                       in
-                      (guard, b::rev_acc)
+                      (g', b::rev_acc)
                     end
                 in
                 Log.debug begin fun m -> m ~header:"NewBind" "@[<v>%a@]"
@@ -294,36 +241,14 @@ let gen_HCCS
                     reduce_env
                     (TraceVar.Map.of_alist_exn bind_with_guard)
                 in
+                let next_pv = Some (HornClause.mk_pred_var aged) in
 
-                let int_vars =
-                  List.filter_map vars ~f:begin fun x ->
-                    match TraceVar.type_of x with
-                    | TyInt -> Some x
-                    | _     -> None
-                  end
-                in
-
-                let preconds : HornClause.pred_var list =
-                  List.map int_vars ~f:HornClause.mk_precond
-                in
-                let phccs : HornClause.t list =
-                  List.map int_vars ~f:begin fun x ->
-                    HornClause.
-                      { head = Some (mk_precond x)
-                      ; body = current_guard
-                      }
-                  end
-                in
-                let next_preconds =
-                  { next_guard with pvs = preconds @ next_guard.pvs }
-                in
-                let phccs', hccs = go (Some (PredVar aged)) next_reduce_env next_preconds next_expr cex in
-                phccs@phccs', hcc::hccs
+                hcc :: go next_reduce_env next_guard next_pv next_expr cex
             | Abs(x, phi) ->
                 let [@warning "-8"] e::es = args in
                 let phi' = TraceExpr.beta_head x e phi in
                 let expr = TraceExpr.mk_apps phi' es in
-                go head reduce_env preconds expr cex
+                go reduce_env guard pv expr cex
             | _ ->
                 Print.print TraceExpr.pp_hum expr_head;
                 assert false
@@ -341,7 +266,7 @@ let gen_HCCS
       let args = TraceVar.mk_childlen TraceVar.{ var = head; age = 0 } in
       TraceExpr.(mk_apps (mk_var head) (List.map args ~f:mk_var)), args
     in
-    go None TraceVar.Map.empty empty_guard main (Some cex)
+    go TraceVar.Map.empty empty_guard None main (Some cex)
 
 
 type result = [ `Feasible | `Refined of Hflmc2_abstraction.env ]
@@ -355,13 +280,10 @@ let run
     if is_feasible hes cex then
       `Feasible
     else
-      let phccs, hccs = gen_HCCS hes cex in
-      Log.debug begin fun m -> m ~header:"PHCCS" "@[<v>%a@]"
-        (Print.list HornClause.pp_hum) phccs
-      end;
+      let hccs = gen_HCCS hes cex in
       Log.debug begin fun m -> m ~header:"HCCS" "@[<v>%a@]"
         (Print.list HornClause.pp_hum) hccs
       end;
-      let new_gamma = HornClauseSolver.solve hes (phccs@hccs) in
+      let new_gamma = HornClauseSolver.solve hes hccs in
       `Refined (Hflmc2_abstraction.merge_env old_gamma new_gamma)
 
