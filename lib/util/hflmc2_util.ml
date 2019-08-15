@@ -67,10 +67,11 @@ module Map = struct
     let merge' : 'a t -> 'a t -> 'a t =
       fun m1 m2 ->
         merge m1 m2
-          ~f:begin fun ~key:_ -> function
-          | `Both _ -> invalid_arg "merge"
+          ~f:begin fun ~key -> function
           | `Left x -> Some x
           | `Right x -> Some x
+          | `Both _ ->
+              invalid_arg @@ "merge: " ^ string_of_sexp (Key.sexp_of_t key)
           end
   end
 end
