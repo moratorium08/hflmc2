@@ -119,7 +119,8 @@ module ToFpat = struct
   let hornClause : t -> Fpat.HornClause.t =
     fun chc -> Fpat.HornClause.make (head chc.head) (body chc.body)
 
-  let hccs : t list -> Fpat.HCCS.t = List.map ~f:(hornClause) >>> Fpat.HCCS.normalize2
+  let hccs : t list -> Fpat.HCCS.t =
+    List.map ~f:(hornClause) >>> Fpat.HCCS.normalize2
 end
 
 module OfFpat = struct
@@ -129,12 +130,19 @@ module OfFpat = struct
         match a with
         | Var (V s) -> Var (into_id s)
         | Const (Int n) -> Int n
-        | App (App (Const (Add _), a1), a2) -> Arith.mk_op Add  [arith into_id a1; arith into_id a2]
-        | App (App (Const (Sub _), a1), a2) -> Arith.mk_op Sub  [arith into_id a1; arith into_id a2]
-        | App (App (Const (Mul _), a1), a2) -> Arith.mk_op Mult [arith into_id a1; arith into_id a2]
+        | App (App (Const (Add _), a1), a2) ->
+            Arith.mk_op Add  [arith into_id a1; arith into_id a2]
+        | App (App (Const (Sub _), a1), a2) ->
+            Arith.mk_op Sub  [arith into_id a1; arith into_id a2]
+        | App (App (Const (Mul _), a1), a2) ->
+            Arith.mk_op Mult [arith into_id a1; arith into_id a2]
         | _ -> assert false
 
-  let formula : 'avar. (string -> 'avar) -> Fpat.Formula.t -> (Void.t, 'avar) Formula.gen_t =
+  let formula
+        : 'avar
+        . (string -> 'avar)
+       -> Fpat.Formula.t
+       -> (Void.t, 'avar) Formula.gen_t =
     fun into_id ->
       let rec of_term =
         let open Fpat.Term in
@@ -142,14 +150,22 @@ module OfFpat = struct
         | Const True  -> Formula.Bool true
         | Const False -> Formula.Bool false
         | App (Const Not, f) -> Formula.mk_not' Void.absurd (of_term f)
-        | App ((App (Const And, f1)), f2) -> Formula.mk_and (of_term f1) (of_term f2)
-        | App ((App (Const Or , f1)), f2) -> Formula.mk_or  (of_term f1) (of_term f2)
-        | App ((App (Const (Eq  _) , f1)), f2) -> Formula.mk_pred Eq  [arith into_id f1; arith into_id f2]
-        | App ((App (Const (Neq _) , f1)), f2) -> Formula.mk_pred Neq [arith into_id f1; arith into_id f2]
-        | App ((App (Const (Leq _) , f1)), f2) -> Formula.mk_pred Le  [arith into_id f1; arith into_id f2]
-        | App ((App (Const (Geq _) , f1)), f2) -> Formula.mk_pred Ge  [arith into_id f1; arith into_id f2]
-        | App ((App (Const (Lt  _) , f1)), f2) -> Formula.mk_pred Lt  [arith into_id f1; arith into_id f2]
-        | App ((App (Const (Gt  _) , f1)), f2) -> Formula.mk_pred Gt  [arith into_id f1; arith into_id f2]
+        | App ((App (Const And, f1)), f2) ->
+            Formula.mk_and (of_term f1) (of_term f2)
+        | App ((App (Const Or , f1)), f2) ->
+            Formula.mk_or  (of_term f1) (of_term f2)
+        | App ((App (Const (Eq  _) , f1)), f2) ->
+            Formula.mk_pred Eq  [arith into_id f1; arith into_id f2]
+        | App ((App (Const (Neq _) , f1)), f2) ->
+            Formula.mk_pred Neq [arith into_id f1; arith into_id f2]
+        | App ((App (Const (Leq _) , f1)), f2) ->
+            Formula.mk_pred Le  [arith into_id f1; arith into_id f2]
+        | App ((App (Const (Geq _) , f1)), f2) ->
+            Formula.mk_pred Ge  [arith into_id f1; arith into_id f2]
+        | App ((App (Const (Lt  _) , f1)), f2) ->
+            Formula.mk_pred Lt  [arith into_id f1; arith into_id f2]
+        | App ((App (Const (Gt  _) , f1)), f2) ->
+            Formula.mk_pred Gt  [arith into_id f1; arith into_id f2]
         | _ -> assert false
       in fun x -> of_term (Fpat.Formula.term_of x)
 
@@ -214,8 +230,10 @@ module OfFpat = struct
         let new_args' =
           List.map2_exn args tv_args ~f:begin fun arg tv_arg ->
             match arg.ty with
-            | TyInt     -> { arg with ty = TyInt }
-            | TySigma _ -> { arg with ty = TySigma (abstraction_ty_of_trace_var tv_arg) }
+            | TyInt     ->
+                { arg with ty = TyInt }
+            | TySigma _ ->
+                { arg with ty = TySigma (abstraction_ty_of_trace_var tv_arg) }
           end
         in
         (* merge *)

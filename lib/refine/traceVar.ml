@@ -85,6 +85,11 @@ let mk_childlen : aged -> t list =
         let rec go acc nth ty = match ty with
           | TyBool() -> acc
           | TyArrow(x, ret_ty) ->
-              let x = Local { parent; name=x; fvs=fvs_of_aged parent @ acc; nth } in
+              let x = Local
+                { parent
+                ; name=x
+                ; fvs=fvs_of_aged parent @ acc
+                ; nth }
+              in
               go (acc@[x]) (nth+1) ret_ty
         in go [] 0 ty

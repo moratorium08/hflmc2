@@ -295,9 +295,9 @@ module Typing = struct
         let tv_body, body = self#term id_env rule.body in
         unify tv_body TvBool;
         (* Print.pr "LAST@."; *)
-        unify tv_F @@ List.fold_left (List.rev tv_vars) ~init:tv_body ~f:begin fun ret arg ->
-          TvArrow (arg, ret)
-        end;
+        unify tv_F @@
+          List.fold_left (List.rev tv_vars)
+            ~init:tv_body ~f:(fun ret arg -> TvArrow (arg, ret));
         (* Print.pr "@."; *)
         { var  = _F
         ; body = Hflz.mk_abss vars body
@@ -403,15 +403,16 @@ let rec rename_abstraction_ty
      -> abstraction_ty
      -> abstraction_ty =
   fun ?(env=IdMap.empty) orig aty -> match orig, aty with
-    | TyBool(), TyBool fs -> TyBool(List.map ~f:(Trans.Subst.Id'.formula env) fs)
+    | TyBool(), TyBool fs ->
+        TyBool(List.map ~f:(Trans.Subst.Id'.formula env) fs)
     | TyArrow({ty=TyInt;_} as x , ret_sty),
       TyArrow({ty=TyInt;_} as x', ret_aty) ->
         let env = IdMap.replace env x' {x with ty=`Int} in
         TyArrow({x with ty=TyInt}, rename_abstraction_ty ~env ret_sty ret_aty)
     | TyArrow({ty=TySigma arg_sty;_} as x , ret_sty),
       TyArrow({ty=TySigma arg_aty;_} as x', ret_aty) ->
-        TyArrow({x with ty = TySigma(rename_abstraction_ty ~env arg_sty arg_aty)},
-                rename_abstraction_ty ~env ret_sty ret_aty)
+        let ty = TySigma(rename_abstraction_ty ~env arg_sty arg_aty) in
+        TyArrow({x with ty}, rename_abstraction_ty ~env ret_sty ret_aty)
     | _ ->
         invalid_arg "Raw_hflz.rename_abstraction_ty: Simple type mismatch"
 
@@ -425,13 +426,16 @@ let rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
         | And psis -> And (List.map psis ~f:(term env))
         | Exists (l, psi) -> Exists (l, term env psi)
         | Forall (l, psi) -> Forall (l, term env psi)
-        | Abs ({ty=TySigma ty;_} as x, psi) -> Abs(x, term (IdMap.add env x ty) psi)
+        | Abs ({ty=TySigma ty;_} as x, psi) ->
+            Abs(x, term (IdMap.add env x ty) psi)
         | Abs ({ty=TyInt;_} as x, psi) -> Abs(x, term env psi)
         | App (psi1, psi2) -> App (term env psi1, term env psi2)
         | Arith a -> Arith a
         | Pred (pred, as') -> Pred (pred, as')
     in
-    let rule : simple_ty IdMap.t -> simple_ty Hflz.hes_rule -> simple_ty Hflz.hes_rule =
+    let rule : simple_ty IdMap.t
+            -> simple_ty Hflz.hes_rule
+            -> simple_ty Hflz.hes_rule =
       fun env rule ->
         { rule with body = term env rule.body }
     in

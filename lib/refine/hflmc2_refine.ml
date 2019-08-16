@@ -23,10 +23,11 @@ let rec approximate
     -> HornClause.formula =
 (* {{{ *)
   fun hes reduce_env expr cex ->
-    (* Log.debug begin fun m -> m ~header:"Approximate" *)
-    (*   "@[<2>%a@]" *)
-    (*     TraceExpr.pp_hum expr *)
-    (* end; *)
+    Log.debug begin fun m -> m ~header:"Approximate"
+      "@[<v>@[<2>%a@]@,%a@]"
+        TraceExpr.pp_hum expr
+        Counterexample.pp_hum_normalized cex
+    end;
     match expr, cex with
     | (Bool true | And []), _ -> Bool true
     | (Bool false | Or []), _ -> Bool false
@@ -75,7 +76,10 @@ let rec approximate
     | _ -> assert false
 (* }}} *)
 
-let is_feasible : simple_ty Hflz.hes -> Counterexample.normalized -> bool * HornClause.formula =
+let is_feasible
+      : simple_ty Hflz.hes
+     -> Counterexample.normalized
+     -> bool * HornClause.formula =
 (* {{{ *)
   fun hes cex ->
     TraceVar.reset_counters();
@@ -134,15 +138,20 @@ let solve_for (x: TraceVar.t) (e: HornClause.formula) : HornClause.arith =
 
 (* TODO 2x=n; 2x+1=m から n+1=m を引き出す *)
 (** @require every predicate in phi must be "=" *)
-let elim_variables : HornClause.formula -> keep:TraceVar.Set.t -> HornClause.formula =
+let elim_variables
+      : HornClause.formula
+     -> keep:TraceVar.Set.t
+     -> HornClause.formula =
   fun phi ~keep:vars ->
     let rec go : HornClause.formula list -> HornClause.formula list = function
       | [] -> []
       | phi::phis ->
-          let fvs = TraceVar.Set.of_list @@ List.filter_map (snd @@ Formula.fvs phi) ~f:begin function
-            | `I x -> Some x
-            | _ -> None
-            end
+          let fvs =
+            TraceVar.Set.of_list @@ List.filter_map (snd @@ Formula.fvs phi) ~f:
+              begin function
+              | `I x -> Some x
+              | _ -> None
+              end
           in
           if HornClauseSolver.is_valid phi then
             go phis
@@ -171,7 +180,9 @@ let elim_variables'
      -> HornClause.formula
      -> HornClause.formula =
   fun ~using:eqs ~keep target ->
-    let rec go : HornClause.formula list -> HornClause.formula -> HornClause.formula =
+    let rec go : HornClause.formula list
+              -> HornClause.formula
+              -> HornClause.formula =
       fun eqs target -> match eqs with
       | [] -> target
       | phi::phis ->
@@ -210,7 +221,8 @@ let elim_variables'
 
 type trace =
   | Leaf of (HornClause.formula [@printer HornClause.pp_hum_formula])
-  | Or   of (HornClause.formula [@printer HornClause.pp_hum_formula]) * trace list
+  | Or   of (HornClause.formula [@printer HornClause.pp_hum_formula])
+          * trace list
   | And  of int * int * trace (** (n,i,_) ith branch in n. 0-indexed *)
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
@@ -219,7 +231,10 @@ let rec peek : trace -> HornClause.formula = function
   | Or (f,_) -> f
   | And (_,_,t) -> peek t
 
-let tree_interpolant : Counterexample.normalized -> HornClause.formula -> trace =
+let tree_interpolant
+      : Counterexample.normalized
+     -> HornClause.formula
+     -> trace =
   let rec go
          : HornClause.formula list
         -> HornClause.formula
@@ -239,10 +254,11 @@ let tree_interpolant : Counterexample.normalized -> HornClause.formula -> trace 
               (Formula.mk_not f1')
               (Formula.mk_not f2')
           in
-          Log.debug begin fun m -> m ~header:"tree_interpolant" "@[<v>%a@,%a@,%a@]"
-            HornClause.pp_hum_formula f1'
-            HornClause.pp_hum_formula f2'
-            HornClause.pp_hum_formula ip
+          Log.debug begin fun m -> m ~header:"tree_interpolant"
+            "@[<v>%a@,%a@,%a@]"
+              HornClause.pp_hum_formula f1'
+              HornClause.pp_hum_formula f2'
+              HornClause.pp_hum_formula ip
           end;
           let t1 = go (p::guard) (Formula.mk_not ip) c1 f1 in
           let t2 = go (p::guard) ip c2 f2 in
@@ -267,15 +283,15 @@ let gen_HCCS
         -> HornClause.t list =
       fun reduce_env guard pv expr cex ->
         Log.debug begin fun m -> m ~header:"gen_HCCS"
-          "@[<v>@[<2>expr : %a@]@,@[<2>guard: %a@]@,@[<2>pv   : %a@]@,@[<2>cex  : %a@]@]"
+          ("@[<v>"^^
+           "@[<2>expr : %a@]@,"^^
+           "@[<2>guard: %a@]@,"^^
+           "@[<2>pv   : %a@]@,"^^
+           "@[<2>cex  : %a@]@]")
             TraceExpr.pp_hum expr
             HornClause.pp_hum_body guard
             Print.(option HornClause.pp_hum_pred_var) pv
             pp_trace cex
-            (* Print.(pair ~sep:comma *)
-            (*     Counterexample.pp_hum_normalized *)
-            (*     HornClause.pp_hum_formula *)
-            (*   ) cex *)
         end;
         match expr, cex with
         | (Bool true | And []), _
@@ -299,7 +315,8 @@ let gen_HCCS
               HornClause.pp_hum_formula f2
             end;
             let fvs = TraceVar.Set.of_list @@
-              List.concat_map ~f:HornClause.args_of_pred_var (Option.to_list pv @ guard.pvs) @
+              List.concat_map (Option.to_list pv @ guard.pvs)
+                ~f:HornClause.args_of_pred_var @
               List.concat_map (guard.phi) ~f:begin fun x ->
                 match Formula.fvs x with
                 | (_, vs) ->
@@ -368,18 +385,17 @@ let gen_HCCS
                 let vars = TraceVar.mk_childlen aged in
                 let bind = List.zip_exn vars args in
                 let next_pv = HornClause.mk_pred_var aged in
-                let next_expr, next_guard =
-                  match tv with
+                let next_expr, next_guard = match tv with
                   | Local _ ->
                       Pair.first
                         (TraceExpr.mk_apps -$-
                           (List.map vars ~f:(TraceExpr.mk_var)))
                         (TraceVar.Map.find_exn reduce_env tv)
                   | Nt { orig; _} ->
-                      let rule = List.find_exn hes ~f:(fun r -> Id.eq r.var orig) in
-                      let orig_vars, orig_body = Hflz.decompose_abs rule.body in
-                      let rename = IdMap.of_list @@ List.zip_exn orig_vars vars in
-                      let next_expr = TraceExpr.Make.hflz hes rename orig_body in
+                      let rule = Hflz.lookup_rule orig hes in
+                      let ovars, obody = Hflz.decompose_abs rule.body in
+                      let rename = IdMap.of_list @@ List.zip_exn ovars vars in
+                      let next_expr = TraceExpr.Make.hflz hes rename obody in
                       next_expr, guard
                 in
                 Log.debug begin fun m -> m ~header:"Guard" "@[<v>%a@]"
@@ -402,7 +418,8 @@ let gen_HCCS
 
                 let current_guard = guard
                   |> HornClause.append_phi
-                      (List.filter ~f:(not <<< HornClauseSolver.is_valid) bind_constr)
+                      (List.filter bind_constr
+                         ~f:(not <<< HornClauseSolver.is_valid))
                   |> HornClause.append_pvs
                       (Option.to_list pv)
                 in
@@ -430,7 +447,8 @@ let gen_HCCS
                             let g' =
                               HornClause.
                               { pvs = g.pvs
-                              ; phi = Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ] :: g.phi
+                              ; phi = Formula.mk_pred Eq
+                                        [ Arith.mk_var' (`I x); a ] :: g.phi
                               }
                             in b, g'
                         | _ ->
@@ -455,8 +473,8 @@ let gen_HCCS
                     reduce_env
                     (TraceVar.Map.of_alist_exn bind_with_guard)
                 in
-
-                hcc :: go next_reduce_env next_guard (Some next_pv) next_expr cex
+                hcc ::
+                  go next_reduce_env next_guard (Some next_pv) next_expr cex
             | Abs(x, phi) ->
                 let [@warning "-8"] e::es = args in
                 let phi' = TraceExpr.beta_head x e phi in

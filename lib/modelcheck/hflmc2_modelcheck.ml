@@ -169,7 +169,9 @@ let print_hors : Hfl.hes Fmt.t =
         in
         let rank : unit Fmt.t =
           fun ppf () ->
-            let pp_rank ope kind n = Fmt.pf ppf "%s -> %d.@." (mk_name ope kind n) n in
+            let pp_rank ope kind n =
+              Fmt.pf ppf "%s -> %d.@." (mk_name ope kind n) n
+            in
             Fmt.pf ppf "%s@." "%BEGINR";
             Fmt.pf ppf "%s@." "t_true -> 0.";
             Fmt.pf ppf "%s@." "t_false -> 0.";
@@ -183,7 +185,9 @@ let print_hors : Hfl.hes Fmt.t =
           fun ppf () ->
             let pp_trans ope kind n =
               let sep ppf () =
-                Fmt.string ppf @@ match ope with `And -> " /\\ " | `Or  -> " \\/ "
+                Fmt.string ppf @@ match ope with
+                  | `And -> " /\\ "
+                  | `Or  -> " \\/ "
               in
               let pp_arg ppf k =
                 Fmt.pf ppf "(%d, q0)" k
@@ -212,14 +216,17 @@ module Parse = struct
 
   let result : string -> (unit, Counterexample.t) result =
     fun result_file ->
-      let content = String.split_on_chars ~on:['\n'] @@ Fn.read_file result_file in
-      let result_lines = List.drop_while content
+      let content =
+        String.split_on_chars ~on:['\n'] @@ Fn.read_file result_file
+      in
+      let result_lines =
+        List.drop_while content
           ~f:Fn.(not <<< String.is_prefix ~prefix:"The property is")
       in
       match result_lines with
       | "The property is NOT satisfied."::_::cex::_ ->
-          Log.debug begin fun m ->
-            m "@[<2>raw counterexample:@ %a@]" Sexp.pp_hum @@ Sexp.of_string cex
+          Log.debug begin fun m -> m "@[<2>raw counterexample:@ %a@]"
+            Sexp.pp_hum @@ Sexp.of_string cex
           end;
           Error (counterexample cex);
       | "The property is satisfied."::_ ->
@@ -240,7 +247,8 @@ let run : Hfl.hes -> (unit, Counterexample.t) result =
     then Parse.result "/tmp/out"
     else Fn.fatal @@
       Print.strf
-        "@[<v>Error occurred during model checking. HorSat2 output@,[stdout]@,%s[stderr]@,%s@]"
+        ("@[<v>Error occurred during model checking." ^^
+         "HorSat2 output@,[stdout]@,%s[stderr]@,%s@]")
         (Fn.read_file "/tmp/out")
         (Fn.read_file "/tmp/err")
 

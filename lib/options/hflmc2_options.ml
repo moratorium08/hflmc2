@@ -107,7 +107,8 @@ let term_setup_log () =
           let k _ = over (); k () in
           msgf @@ fun ?header ?tags:_ fmt ->
             let ppf = Fmt.stdout in
-            Format.kfprintf k ppf ("%a@[" ^^ fmt ^^ "@]@.") pp_header (src, level, header)
+            Format.kfprintf k ppf ("%a@[" ^^ fmt ^^ "@]@.")
+              pp_header (src, level, header)
       }
     in
     Logs.set_reporter reporter;

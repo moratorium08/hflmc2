@@ -8,7 +8,7 @@ module Subst = struct
       fun env a ->
         match a with
         | Int _ -> a
-        | Var v -> 
+        | Var v ->
             begin match IdMap.find env v with
             | None -> a
             | Some v' -> Var v'
@@ -23,7 +23,10 @@ module Subst = struct
         | Or  ps -> Or (List.map ~f:(formula env) ps)
         | _ -> p
 
-    let rec abstraction_ty : [`Int ] Id.t env -> abstraction_ty -> abstraction_ty =
+    let rec abstraction_ty
+              : [`Int ] Id.t env
+             -> abstraction_ty
+             -> abstraction_ty =
       fun env ty -> match ty with
         | TyBool fs -> TyBool (List.map fs ~f:(formula env))
         | TyArrow({ty=TyInt;_} as x, ty) ->
@@ -35,7 +38,12 @@ module Subst = struct
 
   (* TODO IdMapを使う *)
   module Arith' = struct
-    let rec arith_ : 'var. ('var -> 'var -> bool) -> 'var -> 'var Arith.gen_t -> 'var Arith.gen_t -> 'var Arith.gen_t =
+    let rec arith_
+              : ('var -> 'var -> bool)
+             -> 'var
+             -> 'var Arith.gen_t
+             -> 'var Arith.gen_t
+             -> 'var Arith.gen_t =
       fun equal x a a' ->
         match a' with
         | Int _ -> a'
@@ -44,7 +52,12 @@ module Subst = struct
     let arith : 'a. 'a Id.t -> Arith.t -> Arith.t -> Arith.t =
       fun x a a' -> arith_ Id.eq {x with ty=`Int} a a'
 
-    let rec formula_ : ('var -> 'var -> bool) -> 'var -> 'var Arith.gen_t -> ('bvar,'var) Formula.gen_t -> ('bvar,'var) Formula.gen_t =
+    let rec formula_
+              : ('var -> 'var -> bool)
+             -> 'var
+             -> 'var Arith.gen_t
+             -> ('bvar,'var) Formula.gen_t
+             -> ('bvar,'var) Formula.gen_t =
       fun equal x a p ->
         match p with
         | Pred(prim, as') -> Pred(prim, List.map as' ~f:(arith_ equal x a))
@@ -54,23 +67,40 @@ module Subst = struct
     let formula : 'a. 'a Id.t -> Arith.t -> Formula.t -> Formula.t =
       fun x a p -> formula_ Id.eq {x with ty = `Int} a p
 
-    let rec abstraction_ty : unit Id.t -> Arith.t -> abstraction_ty -> abstraction_ty =
+    let rec abstraction_ty
+              : unit Id.t
+             -> Arith.t
+             -> abstraction_ty
+             -> abstraction_ty =
       fun x a sigma ->
         let x = Id.remove_ty x in
         match sigma with
         | TyBool preds ->
             TyBool (List.map ~f:(formula x a) preds)
         | TyArrow (arg,ret) ->
-            TyArrow({ arg with ty = abstraction_argty x a arg.ty }, abstraction_ty x a ret)
-    and abstraction_argty : unit Id.t -> Arith.t -> abstraction_ty arg -> abstraction_ty arg =
+            TyArrow( { arg with ty = abstraction_argty x a arg.ty }
+                   , abstraction_ty x a ret)
+    and abstraction_argty
+          : unit Id.t
+         -> Arith.t
+         -> abstraction_ty arg
+         -> abstraction_ty arg =
       fun x a arg ->
         let x = Id.remove_ty x in
         match arg with
         | TyInt -> TyInt
         | TySigma(sigma) -> TySigma(abstraction_ty x a sigma)
-    let abstraction_ty : 'a Id.t -> Arith.t -> abstraction_ty -> abstraction_ty =
+    let abstraction_ty
+          : 'a Id.t
+         -> Arith.t
+         -> abstraction_ty
+         -> abstraction_ty =
       fun x a sigma -> abstraction_ty (Id.remove_ty x) a sigma
-    let abstraction_argty : 'a Id.t -> Arith.t -> abstraction_ty arg -> abstraction_ty arg =
+    let abstraction_argty
+          : 'a Id.t
+         -> Arith.t
+         -> abstraction_ty arg
+         -> abstraction_ty arg =
       fun x a arg -> abstraction_argty (Id.remove_ty x) a arg
   end
 
@@ -105,8 +135,12 @@ module Subst = struct
           let vars, body =
             match Hflz.decompose_abs head with
             | vars0, Var x ->
-                let x_rule = List.find_exn hes ~f:(fun rule -> Id.eq x rule.var) in
-                (* TODO このbodyがTyBool型を持っていることは隠れinvariant．parserで保証されている？ *)
+                let x_rule =
+                  List.find_exn hes ~f:(fun rule -> Id.eq x rule.var)
+                in
+                (* TODO
+                 * このbodyがTyBool型を持っていることは隠れinvariant．
+                 * parserで保証されている？ *)
                 let vars1, body = Hflz.decompose_abs x_rule.body in
                 (vars0@vars1), body
             | vars, body -> vars, body
@@ -180,31 +214,34 @@ module Simplify = struct
     in
     fun ?(force=false) phi ->
       match Reduce.Hfl'.beta_eta phi with
-      | And(phis, k) when k = `Inserted || force ->
-          let phis = List.map ~f:hfl phis in
-          let phis = List.filter ~f:Fn.(not <<< is_true) phis in
-          begin match phis with
-          | []    -> Bool true
-          | [phi] -> phi
-          | _     -> And(phis, k)
-          end
-      | Or(phis, k) when k = `Inserted || force ->
-          let phis = List.map ~f:hfl phis in
-          let phis = List.filter ~f:Fn.(not <<< is_false) phis in
-          begin match phis with
-          | []    -> Bool false
-          | [phi] -> phi
-          | _     -> Or(phis, k)
-          end
-      | And(phis, k) -> And(List.map ~f:hfl phis, k) (* preserve the structure *)
-      | Or (phis, k) -> Or (List.map ~f:hfl phis, k) (* preserve the structure *)
+      (* | And(phis, k) when k = `Inserted || force -> *)
+      (*     let phis = List.map ~f:hfl phis in *)
+      (*     let phis = List.filter ~f:Fn.(not <<< is_true) phis in *)
+      (*     begin match phis with *)
+      (*     | []    -> Bool true *)
+      (*     | [phi] -> phi *)
+      (*     | _     -> And(phis, k) *)
+      (*     end *)
+      (* | Or(phis, k) when k = `Inserted || force -> *)
+      (*     let phis = List.map ~f:hfl phis in *)
+      (*     let phis = List.filter ~f:Fn.(not <<< is_false) phis in *)
+      (*     begin match phis with *)
+      (*     | []    -> Bool false *)
+      (*     | [phi] -> phi *)
+      (*     | _     -> Or(phis, k) *)
+      (*     end *)
+      | And(phis, k) -> And(List.map ~f:hfl phis, k)(* preserve the structure *)
+      | Or (phis, k) -> Or (List.map ~f:hfl phis, k)(* preserve the structure *)
       | Exists(l,phi)  -> Exists(l, hfl ~force phi)
       | Forall(l,phi)  -> Forall(l, hfl ~force phi)
       | Abs(x,phi)     -> Abs(x, hfl ~force phi)
       | App(phi1,phi2) -> App(hfl ~force phi1, hfl ~force phi2)
       | phi -> phi
 
-  let rec formula : 'bvar 'avar. ('bvar, 'avar) Formula.gen_t -> ('bvar, 'avar) Formula.gen_t =
+  let rec formula
+            : 'bvar 'avar
+            . ('bvar, 'avar) Formula.gen_t
+           -> ('bvar, 'avar) Formula.gen_t =
     let rec is_true =
       fun phi -> match phi with
       | Formula.Bool b -> b
