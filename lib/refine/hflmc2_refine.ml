@@ -34,8 +34,8 @@ let rec approximate
     | And exprs, And (_,i,c) ->
         approximate hes reduce_env (List.nth_exn exprs i) c
     | And _, False ->
-        Log.warn (fun m -> m ~header:"approximate:And" "impossible?");
-        Formula.Bool true
+        Log.err (fun m -> m ~header:"approximate:And" "impossible?");
+        assert false
     | Or exprs, Or cs ->
         Formula.mk_ors
           (List.map2_exn exprs cs
@@ -329,29 +329,35 @@ let gen_HCCS
               HornClause.pp_hum_formula f1'
               HornClause.pp_hum_formula f2'
             end;
-            (* let guard1 = (HornClause.append_phi [f1'] guard) in *)
-            (* let guard2 = (HornClause.append_phi [f2'] guard) in *)
-            let [@warning "-8"] hcc1::hccs1 = go reduce_env guard pv psi1 c1 in
-            let [@warning "-8"] hcc2::hccs2 = go reduce_env guard pv psi2 c2 in
-            (* TODO これでいいのか *)
-            let hcc1' = { hcc1 with body = HornClause.append_phi [f1'] hcc1.body } in
-            let hcc2' = { hcc2 with body = HornClause.append_phi [f2'] hcc2.body } in
-            Log.debug begin fun m -> m ~header:"CHC1" "@[<v>%a@,%a@]"
-              HornClause.pp_hum hcc1
-              HornClause.pp_hum hcc1'
-            end;
-            Log.debug begin fun m -> m ~header:"CHC2" "@[<v>%a@,%a@]"
-              HornClause.pp_hum hcc2
-              HornClause.pp_hum hcc2'
-            end;
-            (hcc1'::hccs1) @ (hcc2'::hccs2)
-            (* (* let p1 = List.hd_exn hcc1.body.pvs in *) *)
-            (* (* let p2 = List.hd_exn hcc1.body.pvs in *) *)
-            (* (* Log.err begin fun m -> m "@[<v>%a@,%a@]" *) *)
-            (* (*   HornClause.pp_hum_pred_var p1 *) *)
-            (* (*   HornClause.pp_hum_pred_var p2 *) *)
-            (* (* end; *) *)
-            (* Fn.todo ~info:"Or" () *)
+            let hccs1 = go reduce_env guard pv psi1 c1 in
+            let hccs2 = go reduce_env guard pv psi2 c2 in
+
+            let hccs1' = match hccs1 with
+              | [] -> []
+              | hcc1::hccs1 ->
+                  let hcc1' =
+                    { hcc1 with body = HornClause.append_phi [f1'] hcc1.body }
+                  in
+                  Log.debug begin fun m -> m ~header:"CHC1" "@[<v>%a@,⇓@,%a@]"
+                    HornClause.pp_hum hcc1
+                    HornClause.pp_hum hcc1'
+                  end;
+                  hcc1'::hccs1
+            in
+            let hccs2' = match hccs2 with
+              | [] -> []
+              | hcc2::hccs2 ->
+                  (* TODO 先頭だけで良い？orが続くとダメでは *)
+                  let hcc2' =
+                    { hcc2 with body = HornClause.append_phi [f2'] hcc2.body }
+                  in
+                  Log.debug begin fun m -> m ~header:"CHC2" "@[<v>%a@,⇓@,%a@]"
+                    HornClause.pp_hum hcc2
+                    HornClause.pp_hum hcc2'
+                  end;
+                  hcc2'::hccs2
+            in
+            hccs1' @ hccs2'
         | Or _, _ ->
             Fn.todo ~info:"impossible? 3 or more disjunctions" ()
         | (App _| Var _), _ ->
@@ -498,7 +504,4 @@ let run
       end;
       let new_gamma = HornClauseSolver.solve hes hccs in
       `Refined (Hflmc2_abstraction.merge_env old_gamma new_gamma)
-
-(* TODO 2.inで試す *)
-(* interpolantなしで小林先生の方法でもできるじゃん *)
 
