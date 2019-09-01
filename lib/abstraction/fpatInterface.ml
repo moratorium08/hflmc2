@@ -68,8 +68,10 @@ let to_bformula : Fpat.Formula.t -> bformula =
     | Const True  -> Bool true
     | Const False -> Bool false
     | App (Const Not, f) -> Formula.mk_not' negate_var (to_formula f)
-    | App ((App (Const And, f1)), f2) -> Formula.mk_and (to_formula f1) (to_formula f2)
-    | App ((App (Const Or , f1)), f2) -> Formula.mk_or  (to_formula f1) (to_formula f2)
+    | App ((App (Const And, f1)), f2) ->
+        Formula.mk_and (to_formula f1) (to_formula f2)
+    | App ((App (Const Or , f1)), f2) ->
+        Formula.mk_or  (to_formula f1) (to_formula f2)
     | Var (V x) -> Formula.Var (x, `Pos)
     | _ -> assert false
   in to_formula <<< Fpat.Formula.term_of
@@ -77,7 +79,9 @@ let to_bformula : Fpat.Formula.t -> bformula =
 (* Utility *)
 
 let ( ==> ) : Formula.t -> Formula.t -> bool =
-  fun f1 f2 -> Fpat.SMTProver.is_valid_dyn (Fpat.Formula.imply (of_formula f1) (of_formula f2))
+  fun f1 f2 ->
+    Fpat.SMTProver.is_valid_dyn
+      (Fpat.Formula.imply (of_formula f1) (of_formula f2))
 
 let ( <=> ) : Formula.t -> Formula.t -> bool =
   fun f1 f2 -> f1 ==> f2 && f2 ==> f1

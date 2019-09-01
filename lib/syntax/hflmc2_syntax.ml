@@ -37,7 +37,10 @@ end = struct
   end
 
   let make_printer ppf =
-  (* {{{ 自動化する方法はあるにはあるけどmenhirレポジトリをcloneしてmenhir-generate-printersというのをbuildする必要があって大変なのでやりたくない．悲しい *)
+  (* {{{
+   * 自動化する方法はあるにはあるけどmenhirレポジトリをcloneして
+   * menhir-generate-printersというのをbuildする必要があって大変なので
+   * やりたくない．悲しい *)
     let module User = struct
       let print s = Fmt.pf ppf "%s" s
       let print_symbol = function
@@ -159,7 +162,9 @@ end = struct
         end
     in
     let env = match menv with None -> [] | Some env -> env in
-    let item ppf (x,ty) = Print.pf ppf "@[<h>%s : %a@]" x Print.abstraction_ty ty in
+    let item ppf (x,ty) =
+      Print.pf ppf "@[<h>%s : %a@]" x Print.abstraction_ty ty
+    in
     if false then Print.pr "@[<v>%a@]@."
       Print.(list item) env ;
     hes, env

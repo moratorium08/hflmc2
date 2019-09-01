@@ -4,13 +4,17 @@ open Type
 module Options = Hflmc2_options.Abstraction
 module FpatInterface = FpatInterface
 
-module Log = (val Logs.src_log @@ Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
+module Log =
+  (val Logs.src_log @@
+    Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
 
 type env = abstraction_ty IdMap.t
 let pp_env : env Print.t =
   fun ppf env ->
   let compare_id (x,_) (y,_) = compare x.Id.id y.Id.id in
-  let item ppf (f,aty) = Print.pf ppf "@[<h>%a : %a@]" Print.id f Print.abstraction_ty aty in
+  let item ppf (f,aty) =
+    Print.pf ppf "@[<h>%a : %a@]" Print.id f Print.abstraction_ty aty
+  in
   Print.pf ppf "@[<v>%a@]"
     (Print.list item)
     (List.sort ~compare:compare_id @@ IdMap.to_alist env)
@@ -55,7 +59,12 @@ let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
     Hfl.mk_abss new_vars (merge phis')
 
 (* Γ |- σ <= σ ↪ φ' で得たφ'にφを適用 *)
-let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hfl.t =
+let rec abstract_coerce
+          : env
+         -> abstraction_ty
+         -> abstraction_ty
+         -> Hfl.t
+         -> Hfl.t =
   fun env sigma sigma' phi ->
     let phi' =
       match sigma, sigma' with
@@ -68,18 +77,21 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
             let qxs = List.zip_exn qs xs in
             (* gather x[j_i] *)
             let pxs =
-              List.map ps ~f:begin fun p ->
-                snd @@ List.find_exn qxs ~f:(fun (q,_) -> FpatInterface.(p <=> q))
+              List.map ps ~f:begin fun p -> snd @@
+                List.find_exn qxs ~f:(fun (q,_) -> FpatInterface.(p <=> q))
               end
             in
             (* assemble *)
             Hfl.mk_abss xs @@ Hfl.mk_apps phi (List.map ~f:Hfl.mk_var pxs)
           with Not_found ->
             (* Let ps be P1,...,Pk and qs be Q1,...,Ql.
-             * To compute φ, find I ⊆ {1,...,l} and J1,...,Jm ⊆ {1,...,k} such that
+             * To compute φ, find I ⊆ {1,...,l} and J1,...,Jm ⊆ {1,...,k}
+             * such that
              *    ∧ _{i \in I}Qi => ∨ _{h \in 1,...,m}∧ _{j \in Jh} Pj
              * Let
-             *    φ'_{I,J1,...,Jm} = ∧ _{i \in I}b_i ∧ _{h \in 1,...,m} φ (1 \in Jh) ... (l \in Jh)
+             *    φ'_{I,J1,...,Jm} =
+             *      ∧ _{i \in I}b_i ∧
+             *      ∧ _{h \in 1,...,m} φ (1 \in Jh) ... (l \in Jh)
              * then φ' is the union of all φ'_{I,J1,...,Jm}.
              * *)
             let l = List.length qs in
@@ -93,10 +105,11 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
               List.powerset ?limit one_to_l in
             let search_space =
               let _Js =
-                List.filter (List.powerset ~limit:max_ands one_to_k) ~f:begin fun _J ->
-                  let ps' = List.(map ~f:(nth_exn ps) _J) in
-                  FpatInterface.is_consistent_set ps'
-                end
+                List.filter (List.powerset ~limit:max_ands one_to_k) ~f:
+                  begin fun _J ->
+                    let ps' = List.(map ~f:(nth_exn ps) _J) in
+                    FpatInterface.is_consistent_set ps'
+                  end
               in
               List.filter (List.powerset ~limit:max_ors _Js)
                   ~f:(fun l -> not (List.is_empty l))
@@ -146,8 +159,8 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
                         end
                     in
                     Hfl.mk_ands ~kind:`Inserted
-                      @@ Hfl.mk_ands ~kind:`Inserted (List.map xs' ~f:Hfl.mk_var)
-                      :: List.map _Js ~f:mk_atom
+                     @@ Hfl.mk_ands ~kind:`Inserted (List.map xs' ~f:Hfl.mk_var)
+                     :: List.map _Js ~f:mk_atom
                   end
                 in
                 (* log *)
@@ -167,8 +180,11 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
             in
             Hfl.mk_abss xs @@ Hfl.mk_ors ~kind:`Inserted phi's
           end
-      | TyArrow({ty = TyInt; _} as x, sigma), TyArrow({ty = TyInt; _} as y, sigma') ->
-          let sigma = Trans.Subst.Arith'.abstraction_ty x (Arith.mk_var y) sigma in
+      | TyArrow({ty = TyInt; _} as x, sigma)
+      , TyArrow({ty = TyInt; _} as y, sigma') ->
+          let sigma =
+            Trans.Subst.Arith'.abstraction_ty x (Arith.mk_var y) sigma
+          in
           abstract_coerce env sigma sigma' phi
       | TyArrow({ty = TySigma sigma1 ; _}, sigma2 )
       , TyArrow({ty = TySigma sigma1'; _}, sigma2') ->
@@ -177,15 +193,19 @@ let rec abstract_coerce : env -> abstraction_ty -> abstraction_ty -> Hfl.t -> Hf
           Hfl.Abs(x, abstract_coerce env sigma2 sigma2' @@ App(phi, phi1x))
       | _ -> assert false
     in
-    Log.debug begin fun m -> m ~header:"Term:Coerce" "@[<hv 0>%a@;<1 1>: %a ≺  %a@;<1 0>⇢  %a@]"
-      Print.hfl phi
-      Print.abstraction_ty sigma
-      Print.abstraction_ty sigma'
-      Print.hfl phi'
+    Log.debug begin fun m -> m ~header:"Term:Coerce"
+      "@[<hv 0>%a@;<1 1>: %a ≺  %a@;<1 0>⇢  %a@]"
+        Print.hfl phi
+        Print.abstraction_ty sigma
+        Print.abstraction_ty sigma'
+        Print.hfl phi'
     end;
     phi'
 
-let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t =
+let rec abstract_infer
+          : env
+         -> simple_ty Hflz.t
+         -> Type.abstraction_ty * Hfl.t =
   fun env psi ->
     let (sigma, phi) : Type.abstraction_ty * Hfl.t = match psi with
       (* Var *)
@@ -193,8 +213,8 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
           let sigma =
             try
               IdMap.lookup env v
-            with _ ->
-              Fn.fatal @@ Fmt.strf "Variable %s not found in environment" (Id.to_string v)
+            with _ -> Fn.fatal @@
+              Fmt.strf "Variable %s not found in environment" (Id.to_string v)
             in
           (sigma , Var { v with ty = Type.abstract sigma })
       (* Bool *)
@@ -254,10 +274,11 @@ let rec abstract_infer : env -> simple_ty Hflz.t -> Type.abstraction_ty * Hfl.t 
           (* NOTE Absはpsiがβ-reduxを持たないという仮定の元でimpossible *)
     in
       let phi = Trans.Simplify.hfl phi in
-      Log.debug begin fun m -> m ~header:"Term:Infer" "@[<hv 0>%a@ ==> %a@;<1 1>⇢  %a@]"
-        Print.(hflz simple_ty_) psi
-        Print.abstraction_ty sigma
-        Print.hfl phi
+      Log.debug begin fun m -> m ~header:"Term:Infer"
+        "@[<hv 0>%a@ ==> %a@;<1 1>⇢  %a@]"
+          Print.(hflz simple_ty_) psi
+          Print.abstraction_ty sigma
+          Print.hfl phi
       end;
       sigma, phi
 
@@ -279,10 +300,11 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
           abstract_coerce env sigma' sigma phi
     in
       let phi = Trans.Simplify.hfl phi in
-      Log.debug begin fun m -> m ~header:"Term:Check" "@[<hv 0>%a@ <== %a@;<1 1>⇢  %a@]"
-        Print.(hflz simple_ty_) psi
-        Print.abstraction_ty sigma
-        Print.hfl phi
+      Log.debug begin fun m -> m ~header:"Term:Check"
+        "@[<hv 0>%a@ <== %a@;<1 1>⇢  %a@]"
+          Print.(hflz simple_ty_) psi
+          Print.abstraction_ty sigma
+          Print.hfl phi
       end;
       phi
 

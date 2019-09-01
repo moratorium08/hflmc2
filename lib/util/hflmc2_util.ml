@@ -10,7 +10,8 @@ end
 
 module List = struct
   include List
-  let enumurate xs = List.zip_exn xs (List.init (List.length xs) ~f:(fun x -> x))
+  let enumurate xs =
+    List.zip_exn xs (List.init (List.length xs) ~f:(fun x -> x))
   let find_with_index ~f:(p : 'a -> bool) (xs : 'a list) =
     List.find_exn (enumurate xs) ~f:(fun (x,_) -> p x)
   let rec powerset = function
@@ -67,10 +68,11 @@ module Map = struct
     let merge' : 'a t -> 'a t -> 'a t =
       fun m1 m2 ->
         merge m1 m2
-          ~f:begin fun ~key:_ -> function
-          | `Both _ -> invalid_arg "merge"
+          ~f:begin fun ~key -> function
           | `Left x -> Some x
           | `Right x -> Some x
+          | `Both _ ->
+              invalid_arg @@ "merge: " ^ string_of_sexp (Key.sexp_of_t key)
           end
   end
 end
@@ -178,7 +180,8 @@ module Fn = struct
 
   let read_file file = In_channel.(with_file file ~f:input_all)
 
-  let assert_no_exn f = try f () with e -> print_endline (Exn.to_string e); assert false
+  let assert_no_exn f =
+    try f () with e -> print_endline (Exn.to_string e); assert false
 
   class counter = object
     val mutable cnt = 0

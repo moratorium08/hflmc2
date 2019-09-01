@@ -43,7 +43,11 @@ let decompose_arrow : 'annot ty -> 'annot ty arg Id.t list * 'annot =
     | TyArrow (x, ty) -> go (x::acc) ty
   in fun x -> go [] x
 
-let rec merge : ('annot -> 'annot -> 'annot) -> 'annot ty -> 'annot ty -> 'annot ty =
+let rec merge
+          : ('annot -> 'annot -> 'annot)
+         -> 'annot ty
+         -> 'annot ty
+         -> 'annot ty =
   fun append ty1 ty2 -> match ty1, ty2 with
     | TyBool a1, TyBool a2 -> TyBool (append a1 a2)
     | TyArrow ({ty=TyInt;_} as x1, rty1)
@@ -77,7 +81,8 @@ and abstracted_argty = abstracted_ty
 let rec abstract : abstraction_ty -> abstracted_ty = function
   | TyBool preds ->
       (* bool -> ... -> bool -> o *)
-      Fn.apply_n_times ~n:(List.length preds) (fun ret -> ATyArrow(ATyBool, ret)) ATyBool
+      Fn.apply_n_times ~n:(List.length preds)
+        (fun ret -> ATyArrow(ATyBool, ret)) ATyBool
   | TyArrow({ Id.ty = TyInt; _ }, ret) ->
       abstract ret
   | TyArrow({ Id.ty = TySigma arg; _}, ret) ->

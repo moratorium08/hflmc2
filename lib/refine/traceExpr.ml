@@ -125,7 +125,11 @@ module Make = struct
       | Abs (x, phi)     -> Abs (x, hflz hes subst phi)
 end
 
-let rec beta_head_arith : simple_argty Id.t -> t -> HornClause.arith -> HornClause.arith =
+let rec beta_head_arith
+          : simple_argty Id.t
+         -> t
+         -> HornClause.arith
+         -> HornClause.arith =
   fun x e a -> match a with
     | Var (`E v) ->
         begin match Id.eq x v, e with
