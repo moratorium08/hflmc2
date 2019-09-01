@@ -10,17 +10,25 @@ module Log = (val Logs.src_log @@ Logs.Src.create __MODULE__)
 (******************************************************************************)
 
 (* F : x:int -> g:(y:int -> o) -> o
- * x:int -> g:(y:int -> P_g(x,y)) -> P_F(x) : template
+ * x:Q_x(_) -> g:(y:Q_y(x,_) -> P_g(x,y)) -> P_F(x) : template
  * PredVar F = P_F(x)
  * PredVar g = P_g(x,y)
+ * PreCond x = Q_x(x)
+ * PreCond y = Q_y(x,y)
  * (age of F and g is omitted here)
  * *)
-type pred_var = PredVar of TraceVar.aged  (* underapproximation of predicate  *)
+type pred_var =
+  | PredVar of TraceVar.aged  (* underapproximation of predicate  *)
+  | PreCond of TraceVar.t     (* precondition of integer variable *)
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 let mk_pred_var aged = match TraceVar.type_of_aged aged with
   | TyInt -> invalid_arg "mk_pred_var"
   | _     -> PredVar(aged)
+
+let mk_precond tv = match TraceVar.type_of tv with
+  | TyInt -> PreCond(tv)
+  | _     -> invalid_arg "mk_precond"
 
 let args_of_pred_var pv =
   let all_args =
@@ -30,6 +38,11 @@ let args_of_pred_var pv =
           | Nt _ -> []
           | Local {fvs;_} -> fvs
         in fvs @ TraceVar.mk_childlen aged
+    | PreCond tv ->
+        let fvs = match tv with
+          | Nt _ -> invalid_arg "args_of_pred_var"
+          | Local {fvs;_} -> fvs
+        in fvs @ [tv]
   in List.filter all_args
       ~f:(fun x -> TraceVar.type_of x = TyInt)
 
@@ -41,6 +54,10 @@ let pp_hum_pred_var : pred_var Print.t =
     | PredVar aged ->
         Print.pf ppf "@[<h>P[%a](%a)@]"
           TraceVar.pp_hum_aged aged
+          Print.(list ~sep:comma TraceVar.pp_hum) args
+    | PreCond tv ->
+        Print.pf ppf "@[<h>Q[%a](%a)@]"
+          TraceVar.pp_hum tv
           Print.(list ~sep:comma TraceVar.pp_hum) args
 
 (******************************************************************************)
@@ -54,6 +71,7 @@ type arith_var = [ `I of TraceVar.t | `E of unit Id.t ]
 
 let pp_hum_arith_var : arith_var Print.t =
   fun ppf -> function
+    (* | tv -> TraceVar.pp_hum ppf tv *)
     | `I tv -> TraceVar.pp_hum ppf tv
     | `E ev -> Print.id ppf ev
 let pp_hum_arith_var_ : arith_var Print.t_with_prec =
