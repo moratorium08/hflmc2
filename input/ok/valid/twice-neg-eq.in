@@ -1,0 +1,5 @@
+%HES
+S n         =v Twice n Neg (\r. r = n).
+Twice m f k =v f m (\l. f l k).
+Neg a h     =v h (-a).
+Eq c d      =v c = d.

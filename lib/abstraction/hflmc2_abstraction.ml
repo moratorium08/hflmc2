@@ -9,27 +9,57 @@ module Log =
     Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
 
 type env = abstraction_ty IdMap.t
+
+module FormulaMap = Map.Make'(Formula)
+type preds_map =  (abstracted_ty Id.t) FormulaMap.t
+
+type gamma =
+  { env   : env
+  ; preds : preds_map
+  ; guard : Formula.t (* for optimization only. always [true] for now *)
+  }
+
 let pp_env : env Print.t =
   fun ppf env ->
-  let compare_id (x,_) (y,_) = compare x.Id.id y.Id.id in
-  let item ppf (f,aty) =
-    Print.pf ppf "@[<h>%a : %a@]" Print.id f Print.abstraction_ty aty
-  in
-  Print.pf ppf "@[<v>%a@]"
-    (Print.list item)
-    (List.sort ~compare:compare_id @@ IdMap.to_alist env)
+    let compare_id (x,_) (y,_) = compare x.Id.id y.Id.id in
+    let item ppf (f,aty) =
+      Print.pf ppf "@[<h>%a : %a@]" Print.id f Print.abstraction_ty aty
+    in
+    Print.pf ppf "@[<v>%a@]"
+      (Print.list item)
+      (List.sort ~compare:compare_id @@ IdMap.to_alist env)
+let pp_preds_map =
+  fun ppf preds ->
+    let compare_id (_,x) (_,y) = compare x.Id.id y.Id.id in
+    let item ppf (f,b) =
+      Print.pf ppf "@[<h>%a[%a]@]"
+        Print.id b
+        Print.formula f
+    in
+    Print.pf ppf "@[<h>%a@]"
+      Print.(list ~sep:comma item)
+      (List.sort ~compare:compare_id @@ FormulaMap.to_alist preds)
 
+
+let pp_gamma : gamma Print.t =
+  fun ppf gamma ->
+    pp_preds_map ppf gamma.preds
+
+let return_preds (aty : abstraction_ty) : Formula.t list =
+  snd @@ decompose_arrow aty
+
+let merge_types tys =
+  let append_preds ps qs =
+    List.remove_duplicates ~equal:FpatInterface.(<=>) @@ (ps@qs)
+  in Type.merges append_preds tys
 
 let merge_env : env -> env -> env =
-  fun gamma1 gamma2 ->
-    IdMap.merge gamma1 gamma2
+  fun env1 env2 ->
+    IdMap.merge env1 env2
       ~f:begin fun ~key:_ -> function
       | `Left l -> Some l
       | `Right r -> Some r
-      | `Both (l, r) ->
-          let append_preds ps qs =
-            List.remove_duplicates ~equal:FpatInterface.(<=>) @@ (ps@qs)
-          in Some (Type.merge append_preds l r)
+      | `Both (l, r) -> Some (merge_types [l;r])
       end
 
 (* For Or and And: (λxs.u1, λxs.u2) -> λxs.f u1 u2 *)
@@ -58,23 +88,69 @@ let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
     let phis' = List.map phis ~f:Fn.(uncurry rename <<< gather_vars len) in
     Hfl.mk_abss new_vars (merge phis')
 
+(******************************************************************************)
+
+(* 最初はとりあえず効率を考えないでbacktrackで実装しよう *)
+let rec infer_type : env -> simple_ty Hflz.t -> abstraction_ty =
+  fun env psi -> match psi with
+    | Bool b -> TyBool [Bool b] (* TODO これでいいんか？ *)
+    | Var x -> IdMap.lookup env x
+    | Pred(p,as') -> TyBool [Pred(p,as')]
+    | App(psi1, Arith a) ->
+        begin match infer_type env psi1 with
+        | TyArrow(x, ret_ty) ->
+            Trans.Subst.Arith'.abstraction_ty x a ret_ty
+        | _ -> assert false
+        end
+    | App(psi1,_) ->
+        begin match infer_type env psi1 with
+        | TyArrow(_,ret_ty) -> ret_ty
+        | _ -> assert false
+        end
+    | Abs({ty=TyInt;_} as x,psi) -> TyArrow(x,infer_type env psi)
+    | Or(psis) | And(psis) ->
+        let tys = List.map ~f:(infer_type env) psis in
+        merge_types tys
+    | Exists _ | Forall _ -> Fn.fatal "future work"
+    | Arith _ -> Fn.fatal "impossible"
+    (* TODO たぶん考えなくて良い *)
+    | Abs({ty=TySigma _ty;_} as _x,_psi) -> Fn.todo()
+
 (* Γ |- σ <= σ ↪ φ' で得たφ'にφを適用 *)
 let rec abstract_coerce
-          : env
+          : gamma
          -> abstraction_ty
          -> abstraction_ty
          -> Hfl.t
          -> Hfl.t =
-  fun env sigma sigma' phi ->
+  fun gamma sigma sigma' phi ->
     let phi' =
-      match sigma, sigma' with
+      match sigma, sigma' with (* {{{ *)
       | TyBool ps, TyBool qs ->
-          (* x[j] is a variable for q[j] *)
-          let xs = List.init (List.length qs) ~f:(fun _ -> Id.gen ATyBool) in
-          begin
-          try
+          (* filter out predicates already introduced by gamma *)
+          let qs0 =
+            List.filter qs ~f:begin fun q ->
+              not @@ FormulaMap.mem gamma.preds q
+            end
+          in
+          (* xs0 is introduced in phi': phi' = λxs0. ... *)
+          let xs0 =
+            List.init (List.length qs0) ~f:(fun _ -> Id.gen ~name:"b" ATyBool)
+          in
+          Log.debug begin fun m ->
+            let item ppf (x,q) = Print.(pf ppf "%a[%a]" id x formula q) in
+            m ~header:"xs0" "%a"
+              Print.(list_set item) (List.zip_exn xs0 qs0)
+          end;
+
+          let qxs =
+            List.zip_exn qs0 xs0 @ FormulaMap.to_alist gamma.preds
+          in
+          let qs,xs = List.unzip qxs in
+          (* let qs = qs0 @ FormulaMap.to_alist gamma.preds in *)
+          (* let xs = xs0 in *)
+          begin try
             (* Simple case: forall p[i], there exists j_i s.t. p[i] = q[j_i] *)
-            let qxs = List.zip_exn qs xs in
             (* gather x[j_i] *)
             let pxs =
               List.map ps ~f:begin fun p -> snd @@
@@ -82,7 +158,7 @@ let rec abstract_coerce
               end
             in
             (* assemble *)
-            Hfl.mk_abss xs @@ Hfl.mk_apps phi (List.map ~f:Hfl.mk_var pxs)
+            Hfl.mk_abss xs0 @@ Hfl.mk_apps phi (List.map ~f:Hfl.mk_var pxs)
           with Not_found ->
             (* Let ps be P1,...,Pk and qs be Q1,...,Ql.
              * To compute φ, find I ⊆ {1,...,l} and J1,...,Jm ⊆ {1,...,k}
@@ -178,23 +254,25 @@ let rec abstract_coerce
                 Hfl.mk_ors ~kind:`Inserted nodes
               end
             in
-            Hfl.mk_abss xs @@ Hfl.mk_ors ~kind:`Inserted phi's
+            Hfl.mk_abss xs0 @@ Hfl.mk_ors ~kind:`Inserted phi's
           end
       | TyArrow({ty = TyInt; _} as x, sigma)
       , TyArrow({ty = TyInt; _} as y, sigma') ->
           let sigma =
             Trans.Subst.Arith'.abstraction_ty x (Arith.mk_var y) sigma
           in
-          abstract_coerce env sigma sigma' phi
+          abstract_coerce gamma sigma sigma' phi
       | TyArrow({ty = TySigma sigma1 ; _}, sigma2 )
       , TyArrow({ty = TySigma sigma1'; _}, sigma2') ->
           let x = Id.gen ~name:"q" (Type.abstract sigma1') in
-          let phi1x = abstract_coerce env sigma1' sigma1 (Var x) in
-          Hfl.Abs(x, abstract_coerce env sigma2 sigma2' @@ App(phi, phi1x))
+          let phi1x = abstract_coerce gamma sigma1' sigma1 (Var x) in
+          Hfl.Abs(x, abstract_coerce gamma sigma2 sigma2' @@ App(phi, phi1x))
       | _ -> assert false
+      (*}}}*)
     in
     Log.debug begin fun m -> m ~header:"Term:Coerce"
-      "@[<hv 0>%a@;<1 1>: %a ≺  %a@;<1 0>⇢  %a@]"
+      "@[<hv 0>%a⊢@;%a@;<1 1>: %a ≺  %a@;<1 0>⇢  %a@]"
+        pp_gamma gamma
         Print.hfl phi
         Print.abstraction_ty sigma
         Print.abstraction_ty sigma'
@@ -203,16 +281,16 @@ let rec abstract_coerce
     phi'
 
 let rec abstract_infer
-          : env
+          : gamma
          -> simple_ty Hflz.t
          -> Type.abstraction_ty * Hfl.t =
-  fun env psi ->
+  fun gamma psi ->
     let (sigma, phi) : Type.abstraction_ty * Hfl.t = match psi with
       (* Var *)
       | Var v ->
           let sigma =
             try
-              IdMap.lookup env v
+              IdMap.lookup gamma.env v
             with _ -> Fn.fatal @@
               Fmt.strf "Variable %s not found in environment" (Id.to_string v)
             in
@@ -228,20 +306,38 @@ let rec abstract_infer
 
       (* Abs-Int *)
       | Abs({ty = TyInt; _} as v, psi) ->
-          let (sigma, phi) = abstract_infer env psi in
+          let (sigma, phi) = abstract_infer gamma psi in
           (TyArrow(v, sigma), phi)
 
       | App(psi, Arith a) ->
-          begin match abstract_infer env psi with
+          begin match abstract_infer gamma psi with
           | TyArrow({ty = TyInt; _} as x, sigma), phi ->
               (Trans.Subst.Arith'.abstraction_ty x a sigma, phi)
           | _ -> assert false
           end
       | App(psi1, psi2) ->
-          begin match abstract_infer env psi1 with
+          begin match abstract_infer gamma psi1 with
           | TyArrow({ty = TySigma sigma'; _}, sigma), phi1 ->
-              let phi2 = abstract_check env psi2 sigma' in
-              (sigma, App(phi1, phi2))
+              let preds =
+                List.filter (return_preds sigma)
+                  ~f:(not <<< FormulaMap.mem gamma.preds)
+              in
+              let vars  =
+                List.map preds ~f:(fun _ -> Id.gen ~name:"b" ATyBool)
+              in
+              let preds_map =
+                FormulaMap.merge'
+                  gamma.preds
+                  (FormulaMap.of_alist_exn (List.zip_exn preds vars))
+              in
+              let gamma = { gamma with preds = preds_map } in
+              let phi2 = abstract_check gamma psi2 sigma' in
+              let phi =
+                Hfl.(mk_abss vars @@
+                      mk_apps (App(phi1,phi2))
+                        (List.map vars ~f:mk_var))
+              in
+              (sigma, phi)
           | _ -> assert false
           end
 
@@ -252,20 +348,26 @@ let rec abstract_infer
             | Or _  -> Hfl.mk_ors  ~kind:`Original
             | _ -> assert false
           in
-          let sigma_phis = List.map psis ~f:(abstract_infer env) in
-          let preds' =
-            List.remove_duplicates ~equal:FpatInterface.(<=>) @@
-              List.concat @@ List.map sigma_phis ~f:begin function
-                | TyBool pred, _ -> pred
-                | _ -> assert false
-                end
+          let [@warning "-8"] TyBool preds =
+            infer_type gamma.env psi
           in
-          let sigma' = TyBool preds' in
-          let phis' = List.map sigma_phis ~f:begin fun (sigma, phi) ->
-                abstract_coerce env sigma sigma' phi
+          (* infer_typeでunique up to (<=>) になっているのでexnでよい *)
+          let vars =
+            List.map preds ~f:(fun _ -> Id.gen ~name:"b" ATyBool)
+          in
+          let preds_map = FormulaMap.of_alist_exn @@
+            List.zip_exn preds vars
+          in
+          let gamma = { gamma with preds = preds_map } in
+          let sigma' = TyBool preds in
+          let phis' =
+            List.map psis ~f:begin fun psi ->
+              abstract_check gamma psi sigma'
+              (* psiの自然な型sigmaはsigma'に含まれている *)
             end
           in
-          let phi' = merge_lambda (List.length preds') make_ope phis' in
+          (* TODO merge_lambdaは上手く行く？OKな気がするけど *)
+          let phi' = Hfl.mk_abss vars @@ make_ope phis' in
           (sigma', phi')
       | Exists _ | Forall _ -> Fn.todo()
       | Abs _ | Arith _ ->
@@ -275,33 +377,35 @@ let rec abstract_infer
     in
       let phi = Trans.Simplify.hfl phi in
       Log.debug begin fun m -> m ~header:"Term:Infer"
-        "@[<hv 0>%a@ ==> %a@;<1 1>⇢  %a@]"
+        "@[<hv 0>%a⊢@;%a@ ==> %a@;<1 1>⇢  %a@]"
+          pp_gamma gamma
           Print.(hflz simple_ty_) psi
           Print.abstraction_ty sigma
           Print.hfl phi
       end;
       sigma, phi
 
-and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
-  fun env psi sigma ->
+and abstract_check : gamma -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
+  fun gamma psi sigma ->
     let phi : Hfl.t = match psi, sigma with
       | Abs({ty=TyInt;_} as x, psi), TyArrow({ty=TyInt;_} as x', sigma) ->
           let sigma =
             Trans.Subst.Id'.abstraction_ty
               (IdMap.singleton x' {x with ty=`Int}) sigma
           in
-          abstract_check env psi sigma
+          abstract_check gamma psi sigma
       | Abs(x, psi), TyArrow({ty = TySigma sigma'; _}, sigma) ->
-          let env' = IdMap.add env x sigma' in
-          let x'   = Id.{ x with ty = Type.abstract sigma' } in
-          Abs(x', abstract_check env' psi sigma)
+          let env = IdMap.add gamma.env x sigma' in
+          let x'  = Id.{ x with ty = Type.abstract sigma' } in
+          Abs(x', abstract_check {gamma with env} psi sigma)
       | _ ->
-          let sigma', phi = abstract_infer env psi in
-          abstract_coerce env sigma' sigma phi
+          let sigma', phi = abstract_infer gamma psi in
+          abstract_coerce gamma sigma' sigma phi
     in
       let phi = Trans.Simplify.hfl phi in
       Log.debug begin fun m -> m ~header:"Term:Check"
-        "@[<hv 0>%a@ <== %a@;<1 1>⇢  %a@]"
+        "@[<hv 0>%a⊢@;%a@ <== %a@;<1 1>⇢  %a@]"
+          pp_gamma gamma
           Print.(hflz simple_ty_) psi
           Print.abstraction_ty sigma
           Print.hfl phi
@@ -310,28 +414,30 @@ and abstract_check : env -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
 
 let abstract_main : env -> simple_ty Hflz.t -> Hfl.t =
   fun env psi ->
-    let sigma, phi = abstract_infer env psi in
+    let gamma = { env; preds=FormulaMap.empty; guard=Bool true} in
+    let sigma, phi = abstract_infer gamma psi in
     let targs, ps  = decompose_arrow sigma in
     let mk_ty qs   = mk_arrows targs (TyBool qs) in
     let complement = Formula.(mk_not (mk_ors ps)) in
     if FpatInterface.(complement ==> Formula.Bool false)
     then
       phi
-      |> abstract_coerce env (mk_ty ps) (mk_ty [])
+      |> abstract_coerce gamma (mk_ty ps) (mk_ty [])
       |> Trans.Simplify.hfl
     else
       let ps' = complement::ps in
       phi
-      |> abstract_coerce env (mk_ty ps ) (mk_ty ps')
-      |> abstract_coerce env (mk_ty ps') (mk_ty [])
+      |> abstract_coerce gamma (mk_ty ps ) (mk_ty ps')
+      |> abstract_coerce gamma (mk_ty ps') (mk_ty [])
       |> Trans.Simplify.hfl
 
 let abstract_rule : env -> simple_ty Hflz.hes_rule -> Hfl.hes_rule =
   fun env { var; body; fix } ->
+    let gamma = { env; preds=FormulaMap.empty; guard=Bool true} in
     let aty = IdMap.lookup env var in
     let rule' =
       Hfl.{ var  = Id.{ var with ty = Type.abstract aty }
-          ; body = abstract_check env body aty
+          ; body = abstract_check gamma body aty
           ; fix  = fix
           }
     in
