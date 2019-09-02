@@ -1,0 +1,17 @@
+%HES
+S n         =v Twice n Neg (\r. r = n).
+Twice m f k =v f m (\l. f l k).
+Neg a h     =v h (-a).
+Eq c d      =v c = d.
+
+%ENV
+Twice :
+  m:int ->
+  f:(x:int -> g:(y:int -> bool[x+y=0]) -> bool[x+m=0]) ->
+  k:(z:int -> bool[m=z]) ->
+  bool[].
+Neg :
+  a:int ->
+  h:(b:int -> bool[a+b=0]) ->
+  bool[].
+Eq : c:int -> d:int -> bool[c=d].

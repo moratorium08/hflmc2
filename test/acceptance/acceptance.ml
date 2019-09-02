@@ -4,6 +4,7 @@ open Hflmc2_util
 let args = [| "dummy_file"
             ; "--quiet"
             ; "--abst-max-ands=2"
+            ; "--abst-no-cartesian"
             |]
 let _ = Hflmc2.Options.parse ~argv:(Array.append args Sys.argv) ()
 
