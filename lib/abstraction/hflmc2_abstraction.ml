@@ -319,8 +319,9 @@ let rec abstract_infer
           begin match abstract_infer gamma psi1 with
           | TyArrow({ty = TySigma sigma'; _}, sigma), phi1 ->
               let preds =
-                List.filter (return_preds sigma)
-                  ~f:(not <<< FormulaMap.mem gamma.preds)
+                List.remove_duplicates ~equal:Formula.equal @@
+                  List.filter (return_preds sigma)
+                    ~f:(not <<< FormulaMap.mem gamma.preds)
               in
               let vars  =
                 List.map preds ~f:(fun _ -> Id.gen ~name:"b" ATyBool)
