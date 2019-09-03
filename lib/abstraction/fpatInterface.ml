@@ -94,6 +94,20 @@ let is_valid : Formula.t -> bool =
 let is_consistent_set : Formula.t list -> bool =
   fun fs -> not (Formula.mk_ands fs ==> Formula.Bool false)
 
+let min_unsat_cores' : Formula.t list -> bformula =
+  fun preds ->
+    let pbs =
+      List.mapi preds ~f:begin fun i pred ->
+        let p = of_formula pred in
+        let x = Fpat.(Formula.of_term
+                      @@ Term.mk_var (Idnt.make ("x"^string_of_int i))) in
+                      (* NOTE: ith predicate is named "xi" *)
+        (p, x)
+      end
+    in
+    Fpat.PredAbst.min_unsat_cores [] pbs
+    |> to_bformula
+
 (* phiをpredsのみで（否定を使わずに）近似．弱い方に倒す *)
 let weakest_pre_cond' : Formula.t -> Formula.t list -> bformula =
   fun phi preds ->
@@ -113,7 +127,6 @@ let weakest_pre_cond' : Formula.t -> Formula.t list -> bformula =
     |> fst
     |> to_bformula
 
-
 (* phiをpredsのみで（否定を使わずに）近似．強い方に倒す *)
 (* TODO:
  *  phi=true; preds={n<0; n>=0}のとき，trueが返ってくるが，
@@ -126,6 +139,12 @@ let strongest_post_cond' : Formula.t -> Formula.t list -> bformula =
       @@ weakest_pre_cond'
           (Formula.mk_not phi)
           (List.map preds ~f:Formula.mk_not)
+
+let min_valid_cores' : Formula.t list -> bformula =
+  fun preds ->
+    Formula.mk_not' negate_var
+      @@ min_unsat_cores'
+      @@ List.map preds ~f:Formula.mk_not
 
 let aux_in_DNF : bformula -> int list list =
   fun phi ->
@@ -140,4 +159,8 @@ let weakest_pre_cond : Formula.t -> Formula.t list -> int list list =
   fun phi preds -> aux_in_DNF @@ weakest_pre_cond' phi preds
 let strongest_post_cond : Formula.t -> Formula.t list -> int list list =
   fun phi preds -> aux_in_DNF @@ strongest_post_cond' phi preds
+let min_unsat_cores : Formula.t list -> int list list =
+  fun preds -> aux_in_DNF @@ min_unsat_cores' preds
+let min_valid_cores : Formula.t list -> int list list =
+  fun preds -> aux_in_DNF @@ min_valid_cores' preds
 

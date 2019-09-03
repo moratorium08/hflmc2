@@ -201,10 +201,7 @@ let rec abstract_coerce
                   if FpatInterface.(_Q ==> Formula.Bool false)
                   then
                     [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
-                  else if
-                    (* See [FpatInterface.strongest_post_cond'] *)
-                    FpatInterface.is_valid _Q || !Options.exhaustive_search
-                  then
+                  else if !Options.exhaustive_search then
                     let candidates : (int list list * Formula.t) list =
                       List.filter_map search_space ~f:begin
                         fun _Js ->
@@ -223,6 +220,8 @@ let rec abstract_coerce
                     in
                     let (<=) (_,p1) (_,p2) = FpatInterface.(p2 ==> p1) in
                     List.map ~f:fst @@ Fn.maximals' (<=) candidates
+                  else if FpatInterface.is_valid _Q then
+                    [FpatInterface.min_valid_cores ps]
                   else
                     [FpatInterface.strongest_post_cond _Q ps]
                 in
