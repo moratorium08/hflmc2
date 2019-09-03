@@ -320,12 +320,15 @@ let gen_HCCS
               List.concat_map (guard.phi) ~f:begin fun x ->
                 match Formula.fvs x with
                 | (_, vs) ->
-                    List.filter_map vs ~f:begin function
-                    | `I x -> Some x
-                    | `E _ -> None
+                    List.map vs ~f:begin function
+                    | `I x -> x
+                    | `E _ -> assert false
                     end
               end;
             in
+            Log.debug begin fun m -> m ~header:"fvs" "@[<v>%a@]"
+              Print.(list_comma TraceVar.pp_hum) (TraceVar.Set.to_list fvs)
+            end;
             let bind = List.filter_map (TraceVar.Map.to_alist reduce_env) ~f:
                 begin fun (x, (e, _)) ->
                   match TraceVar.type_of x, e with
@@ -336,9 +339,6 @@ let gen_HCCS
             in
             let f1' = elim_variables' ~using:bind ~keep:fvs f1 in
             let f2' = elim_variables' ~using:bind ~keep:fvs f2 in
-            Log.debug begin fun m -> m ~header:"fvs" "@[<v>%a@]"
-              Print.(list_comma TraceVar.pp_hum) (TraceVar.Set.to_list fvs)
-            end;
             Log.debug begin fun m -> m ~header:"bind" "@[<v>%a@]"
               Print.(list_comma HornClause.pp_hum_formula) bind
             end;
@@ -346,6 +346,20 @@ let gen_HCCS
               HornClause.pp_hum_formula f1'
               HornClause.pp_hum_formula f2'
             end;
+            List.iter [f1';f2'] ~f:begin fun f' ->
+              assert (
+                List.for_all (snd @@ Formula.fvs f') ~f:begin function
+                | `I x -> TraceVar.Set.mem fvs x
+                | `E _ -> assert false
+                end
+              );
+            end;
+            assert (
+              List.for_all (snd @@ Formula.fvs f2') ~f:begin function
+              | `I x -> TraceVar.Set.mem fvs x
+              | `E _ -> true
+              end
+            );
             let hccs1 = go reduce_env guard pv psi1 c1 in
             let hccs2 = go reduce_env guard pv psi2 c2 in
 

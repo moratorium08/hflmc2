@@ -170,9 +170,11 @@ module Typing = struct
   type ty_env = tyvar IntMap.t (* id to tyvar *)
 
   class add_annot = object (self)
-    val mutable global_ints : id_env = StrMap.empty
+    (* for compatibility with Suzuki's implementation *)
+    val mutable unbound_ints : id_env = StrMap.empty
     val mutable ty_env : ty_env = IntMap.empty
 
+    method get_unbound_ints : id_env = unbound_ints
     method get_ty_env : ty_env = ty_env
 
     method add_ty_env : 'a. 'a Id.t -> tyvar -> unit =
@@ -189,11 +191,11 @@ module Typing = struct
             let x =
               match
                 StrMap.find id_env name,
-                StrMap.find global_ints name
+                StrMap.find unbound_ints name
               with
               | None, None ->
                   let id = Id.gen_id() in
-                  global_ints <- StrMap.add_exn global_ints ~key:name ~data:id;
+                  unbound_ints <- StrMap.add_exn unbound_ints ~key:name ~data:id;
                   Id.{ name; id; ty=`Int }
               | Some id, _ | _, Some id  -> (* the order of match matters! *)
                   Id.{ name; id; ty=`Int }
@@ -213,7 +215,7 @@ module Typing = struct
             let id,ty =
               match
                 StrMap.find id_env name,
-                StrMap.find global_ints name
+                StrMap.find unbound_ints name
               with
               | Some id, _ ->
                   let ty = new_tyvar() in
@@ -222,10 +224,10 @@ module Typing = struct
                   let ty = TvInt in
                   id, ty
               | _, _ ->
-
                   let id = new_id() in
                   let ty = TvInt in
-                  global_ints <- StrMap.add_exn global_ints ~key:name ~data:id;
+                  unbound_ints <-
+                    StrMap.add_exn unbound_ints ~key:name ~data:id;
                   id, ty
             in
             let x = Id.{ name; id; ty=() } in
@@ -313,8 +315,7 @@ module Typing = struct
               error @@ Fmt.strf "%s is defined twice" rule.var
           end
         in
-        let annotated = List.map hes ~f:(self#hes_rule id_env) in
-        annotated
+        List.map hes ~f:(self#hes_rule id_env)
   end
 
   exception IntType
@@ -376,8 +377,26 @@ module Typing = struct
   let to_typed rhes =
     let add_annot = new add_annot in
     let annotated = add_annot#hes rhes in
-    let deref     = new deref add_annot#get_ty_env in
-    deref#hes annotated
+    let ty_env, unbound_ints =
+      add_annot#get_ty_env, add_annot#get_unbound_ints
+    in
+    let deref     = new deref ty_env in
+    let hes       = deref#hes annotated in
+    match hes with
+    | main::rest ->
+        (* dirty hack for compatibility with Suzuki's impl*)
+        let ub_ints =
+          List.map (StrMap.to_alist unbound_ints) ~f:begin
+            fun (name,id) -> Id.{name;id;ty=TyInt}
+          end
+        in
+        let main =
+          let var  = { main.var with ty = mk_arrows ub_ints main.var.ty } in
+          let body = Hflz.mk_abss ub_ints main.body in
+          { main with var; body }
+        in
+        main :: rest
+    | _ -> assert false
 end
 
 open Type
