@@ -7,6 +7,8 @@ module Log = (val Logs.src_log @@ Logs.Src.create "FpatInterface")
 (* Initialize *)
 
 let () =
+  let _ = Fpat.Z3Interface.z3 in
+  let _ = Fpat.CSIsatInterface.interpolate in
   Fpat.FPATConfig.set_default();
   Fpat.PredAbst.incomplete_opt := false
 
