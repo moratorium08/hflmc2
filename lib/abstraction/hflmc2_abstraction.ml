@@ -176,9 +176,7 @@ let rec abstract_coerce
             let max_ors  = !Options.max_ors in
             let one_to_l = List.(range 0 l) in (* to be honest, 0 to l-1 *)
             let one_to_k = List.(range 0 k) in
-            let _Is =
-              let limit = if !Options.cartesian then Some 1 else None in
-              List.powerset ?limit one_to_l in
+            let _Is = List.powerset one_to_l in
             let search_space =
               let _Js =
                 List.filter (List.powerset ~limit:max_ands one_to_k) ~f:

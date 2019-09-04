@@ -11,7 +11,6 @@ module Abstraction = struct
   (* NOTE Actual value is set by Cmdliner *)
   let max_ors           = ref 0
   let max_ands          = ref 0
-  let cartesian         = ref true
   let exhaustive_search = ref true
 end
 
@@ -56,9 +55,6 @@ type params =
   ; abst_exhaustive_search : bool [@default false]
     (** Do exhaustive search in predicate abstraction *)
 
-  ; abst_no_cartesian : bool [@default false]
-    (** Do cartesian search in predicate abstraction
-        `--abst-exhaustive-search` is preferred when both are present *)
   }
   [@@deriving cmdliner,show]
 
@@ -67,7 +63,6 @@ let set_up_params params =
   set_ref Abstraction.max_ors           params.abst_max_ors;
   set_ref Abstraction.max_ands          params.abst_max_ands;
   set_ref Abstraction.exhaustive_search params.abst_exhaustive_search;
-  set_ref Abstraction.cartesian         (not params.abst_no_cartesian);
   set_ref oneshot                       params.oneshot;
   params.input
 
