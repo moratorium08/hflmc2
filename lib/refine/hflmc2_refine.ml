@@ -347,22 +347,13 @@ let gen_HCCS
               HornClause.pp_hum_formula f2'
             end;
             List.iter [f1';f2'] ~f:begin fun f' ->
-              assert (
-                List.for_all (snd @@ Formula.fvs f') ~f:begin function
-                | `I x -> TraceVar.Set.mem fvs x
-                | `E _ -> assert false
-                end
-              );
-            end;
-            assert (
-              List.for_all (snd @@ Formula.fvs f2') ~f:begin function
-              | `I x -> TraceVar.Set.mem fvs x
-              | `E _ -> true
+              List.iter (snd @@ Formula.fvs f') ~f:begin function
+              | `I x -> assert(TraceVar.Set.mem fvs x)
+              | `E _ -> assert false
               end
-            );
+            end;
             let hccs1 = go reduce_env guard pv psi1 c1 in
             let hccs2 = go reduce_env guard pv psi2 c2 in
-
             let hccs1' = match hccs1 with
               | [] -> []
               | hcc1::hccs1 ->
