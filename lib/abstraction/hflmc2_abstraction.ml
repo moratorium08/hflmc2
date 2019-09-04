@@ -4,9 +4,8 @@ open Type
 module Options = Hflmc2_options.Abstraction
 module FpatInterface = FpatInterface
 
-module Log =
-  (val Logs.src_log @@
-    Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction")
+let log_src = Logs.Src.create ~doc:"Predicate Abstraction" "Abstraction"
+module Log = (val Logs.src_log log_src)
 
 type env = abstraction_ty IdMap.t
 
@@ -133,126 +132,126 @@ let rec abstract_coerce
               not @@ FormulaMap.mem gamma.preds q
             end
           in
-          (* xs0 is introduced in phi': phi' = λxs0. ... *)
-          let xs0 =
-            List.init (List.length qs0) ~f:(fun _ -> Id.gen ~name:"b" ATyBool)
-          in
-          Log.debug begin fun m ->
-            let item ppf (x,q) = Print.(pf ppf "%a[%a]" id x formula q) in
-            m ~header:"xs0" "%a"
-              Print.(list_set item) (List.zip_exn xs0 qs0)
-          end;
-
-          let qxs =
-            List.zip_exn qs0 xs0 @ FormulaMap.to_alist gamma.preds
-          in
+          (* xs0 is new vars introduced in phi': phi' is a form of λxs0. ... *)
+          let xs0 = List.map qs0 ~f:(fun _ -> Id.gen ~name:"b" ATyBool) in
+          let qxs = List.zip_exn qs0 xs0 @ FormulaMap.to_alist gamma.preds in
           let qs,xs = List.unzip qxs in
-          (* let qs = qs0 @ FormulaMap.to_alist gamma.preds in *)
-          (* let xs = xs0 in *)
-          begin try
-            (* Simple case: forall p[i], there exists j_i s.t. p[i] = q[j_i] *)
-            (* gather x[j_i] *)
-            let pxs =
-              List.map ps ~f:begin fun p -> snd @@
-                List.find_exn qxs ~f:(fun (q,_) -> FpatInterface.(p <=> q))
-              end
-            in
-            (* assemble *)
-            Hfl.mk_abss xs0 @@ Hfl.mk_apps phi (List.map ~f:Hfl.mk_var pxs)
-          with Not_found ->
-            (* Let ps be P1,...,Pk and qs be Q1,...,Ql.
-             * To compute φ, find I ⊆ {1,...,l} and J1,...,Jm ⊆ {1,...,k}
-             * such that
-             *    ∧ _{i \in I}Qi => ∨ _{h \in 1,...,m}∧ _{j \in Jh} Pj
-             * Let
-             *    φ'_{I,J1,...,Jm} =
-             *      ∧ _{i \in I}b_i ∧
-             *      ∧ _{h \in 1,...,m} φ (1 \in Jh) ... (l \in Jh)
-             * then φ' is the union of all φ'_{I,J1,...,Jm}.
-             * *)
-            let l = List.length qs in
-            let k = List.length ps in
-            let max_ands = !Options.max_ands in
-            let max_ors  = !Options.max_ors in
-            let one_to_l = List.(range 0 l) in (* to be honest, 0 to l-1 *)
-            let one_to_k = List.(range 0 k) in
-            let _Is = List.powerset one_to_l in
-            let search_space =
-              let _Js =
-                List.filter (List.powerset ~limit:max_ands one_to_k) ~f:
-                  begin fun _J ->
-                    let ps' = List.(map ~f:(nth_exn ps) _J) in
-                    FpatInterface.is_consistent_set ps'
-                  end
+          let body =
+            begin try
+              (* Simple case: forall p[i] there exists j_i s.t. p[i] = q[j_i] *)
+              let pxs =
+                List.map ps ~f:begin fun p -> snd @@
+                  List.find_exn qxs ~f:(fun (q,_) -> FpatInterface.(p <=> q))
+                end
               in
-              List.filter (List.powerset ~limit:max_ors _Js)
-                  ~f:(fun l -> not (List.is_empty l))
-            in
-            let phi's =
-              List.map _Is ~f:begin fun _I ->
-                let xs' = List.(map ~f:(nth_exn xs) _I) in
-                let qs' = List.(map ~f:(nth_exn qs) _I) in
-                let _Q  = Formula.mk_ands qs' in
-
-                (* /\Q => \/i(/\Ji) を満たす極大の J1,...,Jh の集合を得る *)
-                let ans =
-                  if FpatInterface.(_Q ==> Formula.Bool false)
-                  then
-                    [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
-                  else if !Options.exhaustive_search then
-                    let candidates : (int list list * Formula.t) list =
-                      List.filter_map search_space ~f:begin
-                        fun _Js ->
-                          let pss =
-                            List.map _Js ~f:begin fun _J ->
-                              List.map _J ~f:begin fun j ->
-                                List.nth_exn ps j end end
-                          in
-                          let body =
-                            Formula.mk_ors @@ List.map ~f:Formula.mk_ands pss
-                          in
-                          if FpatInterface.(_Q ==> body)
-                          then Some (_Js, body)
-                          else None
+              Hfl.mk_apps phi (List.map ~f:Hfl.mk_var pxs)
+            with Not_found ->
+              (* Let ps be P1,...,Pk and qs be Q1,...,Ql.
+               * To compute φ, find I ⊆ {1,...,l} and J1,...,Jm ⊆ {1,...,k}
+               * such that
+               *    ∧ _{i \in I}Qi => ∨ _{h \in 1,...,m}∧ _{j \in Jh} Pj
+               * Let
+               *    φ'_{I,J1,...,Jm} =
+               *      ∧ _{i \in I}b_i ∧
+               *      ∧ _{h \in 1,...,m} φ (1 \in Jh) ... (l \in Jh)
+               * then φ' is the union of all φ'_{I,J1,...,Jm}.
+               * *)
+              let l = List.length qs in
+              let k = List.length ps in
+              let max_ands = !Options.max_ands in
+              let max_ors  = !Options.max_ors in
+              let one_to_l = List.(range 0 l) in (* to be honest, 0 to l-1 *)
+              let one_to_k = List.(range 0 k) in
+              let _Is = List.powerset one_to_l in
+              let search_space =
+                if !Options.exhaustive_search then
+                  let _Js =
+                    List.filter (List.powerset ~limit:max_ands one_to_k) ~f:
+                      begin fun _J ->
+                        let ps' = List.(map ~f:(nth_exn ps) _J) in
+                        FpatInterface.is_consistent_set ps'
                       end
+                  in
+                  List.filter (List.powerset ~limit:max_ors _Js)
+                      ~f:(fun l -> not (List.is_empty l))
+                else [] (* unused (for optimization) *)
+              in
+              let phi's =
+                let _IJs =
+                  List.map _Is ~f:begin fun _I ->
+                    let qs' = List.(map ~f:(nth_exn qs) _I) in
+                    let _Q  = Formula.mk_ands qs' in
+                    (* Q => \/i(/\Ji) を満たす極大の J1,...,Jh の集合を得る *)
+                    let _Jss =
+                      if FpatInterface.(_Q ==> Formula.Bool false) then
+                        [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
+                      else if !Options.exhaustive_search then
+                        let candidates : (int list list * Formula.t) list =
+                          List.filter_map search_space ~f:begin fun _Js ->
+                            let pss =
+                              List.map _Js ~f:begin fun _J ->
+                                List.map _J ~f:begin fun j ->
+                                  List.nth_exn ps j end end
+                            in
+                            let body =
+                              Formula.mk_ors @@ List.map ~f:Formula.mk_ands pss
+                            in
+                            if FpatInterface.(_Q ==> body)
+                            then Some (_Js, body)
+                            else None
+                          end
+                        in
+                        let (<=) (_,p1) (_,p2) = FpatInterface.(p2 ==> p1) in
+                        List.map ~f:fst @@ Fn.maximals' (<=) candidates
+                      else if FpatInterface.is_valid _Q then
+                        [FpatInterface.min_valid_cores ps]
+                      else
+                        [FpatInterface.strongest_post_cond _Q ps]
                     in
-                    let (<=) (_,p1) (_,p2) = FpatInterface.(p2 ==> p1) in
-                    List.map ~f:fst @@ Fn.maximals' (<=) candidates
-                  else if FpatInterface.is_valid _Q then
-                    [FpatInterface.min_valid_cores ps]
-                  else
-                    [FpatInterface.strongest_post_cond _Q ps]
-                in
-                let nodes =
-                  List.map ans ~f:begin fun _Js ->
-                    let mk_atom _J =
-                      Hfl.mk_apps phi @@
-                        List.map one_to_k ~f:begin fun j ->
-                          Hfl.Bool (List.mem ~equal:(=) _J j)
-                        end
-                    in
-                    Hfl.mk_ands ~kind:`Inserted
-                     @@ Hfl.mk_ands ~kind:`Inserted (List.map xs' ~f:Hfl.mk_var)
-                     :: List.map _Js ~f:mk_atom
+                    (_I, _Jss)
                   end
                 in
-                (* log *)
-                List.iter ans ~f:begin fun _Js ->
-                  let pss =
-                    List.map _Js ~f:begin fun _J ->
-                      List.map _J ~f:begin fun j ->
-                        List.nth_exn ps j end end
+                (* If Jss1=Jss2 and I1⊆ I2, then (I2,Jss2) is redundant *)
+                let _IJs = _IJs
+                  (* Group by equality of Jss *)
+                  |> List.sort ~compare:Fn.(on snd compare)
+                  |> List.group ~break:Fn.(on snd (<>))
+                  (* Remove I which has its subset in the same group *)
+                  |> List.concat_map ~f:Fn.(maximals' (on fst (flip List.subset)))
+                in
+                List.map _IJs ~f:begin fun (_I,_Jss) ->
+                  let conjunctions =
+                    List.map _Jss ~f:begin fun _Js ->
+                      let mk_var i = Hfl.mk_var (List.nth_exn xs i) in
+                      let mk_atom _J =
+                        Hfl.mk_apps phi @@
+                          List.map one_to_k ~f:begin fun j ->
+                            Hfl.Bool (List.mem ~equal:(=) _J j)
+                          end
+                      in
+                      Hfl.mk_ands ~kind:`Inserted
+                       @@ List.map _I ~f:mk_var
+                        @ List.map _Js ~f:mk_atom
+                    end
                   in
-                  Log.debug begin fun m -> m ~header:"Coerce" "I = %a,@ J = %a"
-                    Print.(list_set formula) qs'
-                    Print.(list_set (list_set formula)) pss
-                  end;
-                end;
-                Hfl.mk_ors ~kind:`Inserted nodes
-              end
-            in
-            Hfl.mk_abss xs0 @@ Hfl.mk_ors ~kind:`Inserted phi's
-          end
+                  if Logs.Src.level log_src = Some Logs.Debug then begin (* {{{ *)
+                    List.iter _Jss ~f:begin fun _Js ->
+                      let pss =
+                        List.map _Js ~f:begin fun _J ->
+                          List.map _J ~f:begin fun j ->
+                            List.nth_exn ps j end end
+                      in
+                      Log.debug begin fun m -> m ~header:"Coerce" "I = %a,@ J = %a"
+                        Print.(list_set formula) List.(map ~f:(nth_exn qs) _I)
+                        Print.(list_set (list_set formula)) pss
+                      end
+                    end
+                  end; (* }}} *)
+                  Hfl.mk_ors ~kind:`Inserted conjunctions
+                end
+              in Hfl.mk_ors ~kind:`Inserted phi's
+            end
+          in Hfl.mk_abss xs0 body
       | TyArrow({ty = TyInt; _} as x, sigma)
       , TyArrow({ty = TyInt; _} as y, sigma') ->
           let sigma =

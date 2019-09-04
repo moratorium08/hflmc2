@@ -53,6 +53,10 @@ module List = struct
       List.fold_left xs ~init:[] ~f:begin fun xs x ->
         cons_if_uniq x xs
       end
+  let subset xs ys =
+    for_all xs ~f:begin fun x ->
+      exists ys ~f:begin fun y ->
+        x = y end end
 end
 
 module String   = String
@@ -123,6 +127,8 @@ module Fn = struct
     if tag = ""
     then Format.printf "@[%a@]@." pp x
     else Format.printf "%s: @[%a@]@." tag pp x
+
+  let on injection g x y = g (injection x) (injection y)
 
   let curry f x y = f (x, y)
   let uncurry f (x,y) = f x y
