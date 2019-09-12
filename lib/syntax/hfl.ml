@@ -4,16 +4,14 @@ open Id
 open Type
 
 type t =
-  | Bool   of bool
-  | Var    of abstracted_ty Id.t
+  | Bool of bool
+  | Var  of abstracted_ty Id.t
   (* If `Original, t list must have just 2 elements
    * TODO It may be better to devide constructors *)
-  | Or     of t list * [ `Original | `Inserted ]
-  | And    of t list * [ `Original | `Inserted ]
-  | Exists of string * t
-  | Forall of string * t
-  | Abs    of abstracted_argty Id.t * t
-  | App    of t * t
+  | Or   of t list * [ `Original | `Inserted ]
+  | And  of t list * [ `Original | `Inserted ]
+  | Abs  of abstracted_argty Id.t * t
+  | App  of t * t
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 type hes_rule =
@@ -78,8 +76,6 @@ let rec fvs = function
   | Bool _         -> IdSet.empty
   | Or (phis,_)    -> IdSet.union_list (List.map phis ~f:fvs)
   | And(phis,_)    -> IdSet.union_list (List.map phis ~f:fvs)
-  | Exists(_,phi)  -> fvs phi
-  | Forall(_,phi)  -> fvs phi
   | App(phi1,phi2) -> IdSet.union (fvs phi1) (fvs phi2)
   | Abs(x,phi)     -> IdSet.remove (fvs phi) x
 

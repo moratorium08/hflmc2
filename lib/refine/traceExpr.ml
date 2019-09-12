@@ -7,8 +7,6 @@ type t =
   | Bool     of bool
   | Or       of t * t
   | And      of t * t
-  | Exists   of string * t
-  | Forall   of string * t
   | Abs      of simple_argty Id.t * t
   | App      of t * t
   | Arith    of HornClause.arith
@@ -31,14 +29,6 @@ let pp_hum : t Print.t =
           let sep ppf () = Fmt.pf ppf "@ && " in
           P.show_paren (prec > P.Prec.or_) ppf "@[<hv 0>%a@]"
             (P.list ~sep (hflz_ P.Prec.and_)) [phi1;phi2]
-      | Exists (l, psi) ->
-          P.show_paren (prec > P.Prec.app) ppf "@[<1><%s>%a@]"
-            l
-            (hflz_ P.Prec.(succ app)) psi
-      | Forall (l, psi) ->
-          P.show_paren (prec > P.Prec.app) ppf "@[<1>[%s]%a@]"
-            l
-            (hflz_ P.Prec.(succ app)) psi
       | App (psi1, psi2) ->
           P.show_paren (prec > P.Prec.app) ppf "@[<1>%a@ %a@]"
             (hflz_ P.Prec.app) psi1
@@ -70,9 +60,6 @@ let mk_ors = function
   | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> Or(a,b))
 
 let mk_pred pred a1 a2 = Pred(pred, [a1;a2])
-
-let mk_forall l t = Forall(l,t)
-let mk_exists l t = Exists(l,t)
 
 let mk_arith a = Arith a
 
@@ -115,8 +102,6 @@ module Make = struct
       | Bool b           -> Bool b
       | Or  (phi1, phi2) -> Or  (hflz hes subst phi1, hflz hes subst phi2)
       | And (phi1, phi2) -> And (hflz hes subst phi1, hflz hes subst phi2)
-      | Exists (l, phi)  -> Exists (l, hflz hes subst phi)
-      | Forall (l, phi)  -> Forall (l, hflz hes subst phi)
       | Arith a          -> Arith (arith subst a)
       | Pred (op, as')   -> Pred (op, List.map as' ~f:(arith subst))
       | App (phi1, phi2) -> App (hflz hes subst phi1, hflz hes subst phi2)
@@ -146,8 +131,6 @@ let rec beta_head : simple_argty Id.t -> t -> t -> t =
     | Bool _           -> phi
     | Or  (phi1, phi2) -> Or  (beta_head x e phi1, beta_head x e phi2)
     | And (phi1, phi2) -> And (beta_head x e phi1, beta_head x e phi2)
-    | Exists (l, phi)  -> Exists (l, beta_head x e phi)
-    | Forall (l, phi)  -> Forall (l, beta_head x e phi)
     | Arith a          -> Arith (beta_head_arith x e a)
     | Pred (op, as')   -> Pred (op, List.map as' ~f:(beta_head_arith x e))
     | App (phi1, phi2) -> App (beta_head x e phi1, beta_head x e phi2)
@@ -179,8 +162,6 @@ let rec subst : t TraceVar.Map.t -> t -> t =
     | Bool b           -> Bool b
     | Or  (phi1, phi2) -> Or  (subst env phi1, subst env phi2)
     | And (phi1, phi2) -> And (subst env phi1, subst env phi2)
-    | Exists (l, phi)  -> Exists (l, subst env phi)
-    | Forall (l, phi)  -> Forall (l, subst env phi)
     | Arith a          -> Arith (subst_arith env a)
     | Pred (op, as')   -> Pred (op, List.map as' ~f:(subst_arith env))
     | App (phi1, phi2) -> App (subst env phi1, subst env phi2)

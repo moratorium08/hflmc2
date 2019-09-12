@@ -243,14 +243,6 @@ let rec hfl_ prec ppf (phi : Hfl.t) = match phi with
       let sep ppf () = Fmt.pf ppf "@ && " in
       show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@]"
         (list ~sep (hfl_ Prec.and_)) phis
-  | Exists (l, phi) ->
-      show_paren (prec > Prec.app) ppf "@[<1><%s>%a@]"
-        l
-        (hfl_ Prec.(succ app)) phi
-  | Forall (l, psi) ->
-      show_paren (prec > Prec.app) ppf "@[<1>[%s]%a@]"
-        l
-        (hfl_ Prec.(succ app)) psi
   | Abs (x, psi) ->
       show_paren (prec > Prec.abs) ppf "@[<1>λ%a:%a.@,%a@]"
         id x
@@ -290,14 +282,6 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
         show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ && %a@]"
           (hflz_ format_ty_ Prec.and_) phi1
           (hflz_ format_ty_ Prec.and_) phi2
-    | Exists (l, psi) ->
-        show_paren (prec > Prec.app) ppf "@[<1><%s>%a@]"
-          l
-          (hflz_ format_ty_ Prec.(succ app)) psi
-    | Forall (l, psi) ->
-        show_paren (prec > Prec.app) ppf "@[<1>[%s]%a@]"
-          l
-          (hflz_ format_ty_ Prec.(succ app)) psi
     | Abs (x, psi) ->
         show_paren (prec > Prec.abs) ppf "@[<1>λ%a:%a.@,%a@]"
           id x

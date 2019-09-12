@@ -7,8 +7,6 @@ type 'ty t =
   | Var    of 'ty Id.t
   | Or     of 'ty t * 'ty t
   | And    of 'ty t * 'ty t
-  | Exists of string * 'ty t
-  | Forall of string * 'ty t
   | Abs    of 'ty arg Id.t * 'ty t
   | App    of 'ty t * 'ty t
   (* constructers only for hflz *)
@@ -48,9 +46,6 @@ let mk_ors = function
   | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> Or(a,b))
 
 let mk_pred pred a1 a2 = Pred(pred, [a1;a2])
-
-let mk_forall l t = Forall(l,t)
-let mk_exists l t = Exists(l,t)
 
 let mk_arith a = Arith a
 

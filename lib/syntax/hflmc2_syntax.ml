@@ -85,7 +85,6 @@ end = struct
             | I.N_pred_expr                -> "pred_expr"
             | I.N_pred                     -> "pred"
             | I.N_nonempty_list_hflz_rule_ -> "nonempty_list_hflz_rule_"
-            | I.N_modal_expr               -> "modal_expr"
             | I.N_lvar                     -> "lvar"
             | I.N_list_lvar_               -> "list_lvar_"
             | I.N_list_lambda_             -> "list_lambda_"

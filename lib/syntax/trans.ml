@@ -112,12 +112,10 @@ module Subst = struct
             | t -> t
             | exception Not_found -> Var x
             end
-        | Or(phi1,phi2)   -> Or(hflz env phi1, hflz env phi2)
-        | And(phi1,phi2)  -> And(hflz env phi1, hflz env phi2)
-        | App(phi1,phi2)  -> App(hflz env phi1, hflz env phi2)
-        | Exists(label,t) -> Exists(label, hflz env t)
-        | Forall(label,t) -> Forall(label, hflz env t)
-        | Abs(x, t)       -> Abs(x, hflz (IdMap.remove env x) t)
+        | Or(phi1,phi2)  -> Or(hflz env phi1, hflz env phi2)
+        | And(phi1,phi2) -> And(hflz env phi1, hflz env phi2)
+        | App(phi1,phi2) -> App(hflz env phi1, hflz env phi2)
+        | Abs(x, t)      -> Abs(x, hflz (IdMap.remove env x) t)
         | Bool _
         | Pred _
         | Arith _  -> phi
@@ -158,13 +156,11 @@ module Subst = struct
             | t -> t
             | exception Not_found -> Var x
             end
-        | Bool _ -> phi
-        | Or(phis,k)      -> Or(List.map ~f:(hfl env) phis, k)
-        | And(phis,k)     -> And(List.map ~f:(hfl env) phis, k)
-        | App(phi1,phi2)  -> App(hfl env phi1, hfl env phi2)
-        | Exists(label,t) -> Exists(label, hfl env t)
-        | Forall(label,t) -> Forall(label, hfl env t)
-        | Abs(x, t)       -> Abs(x, hfl (IdMap.remove env x) t)
+        | Bool _         -> phi
+        | Or(phis,k)     -> Or(List.map ~f:(hfl env) phis, k)
+        | And(phis,k)    -> And(List.map ~f:(hfl env) phis, k)
+        | App(phi1,phi2) -> App(hfl env phi1, hfl env phi2)
+        | Abs(x, t)      -> Abs(x, hfl (IdMap.remove env x) t)
   end
 end
 
@@ -178,8 +174,6 @@ module Reduce = struct
           | Abs(x, phi1), phi2 -> Subst.Hfl'.hfl (IdMap.of_list [x,phi2]) phi1
           | phi1, phi2 -> App(phi1, phi2)
           end
-      | Exists(label, t) -> Exists(label, beta t)
-      | Forall(label, t) -> Forall(label, beta t)
       | Abs(x, phi) -> Abs(x, beta phi)
       | phi -> phi
     let rec eta : Hfl.t -> Hfl.t = function
@@ -189,8 +183,6 @@ module Reduce = struct
       | Or (phis, k)     -> Or (List.map ~f:eta phis, k)
       | And(phis, k)     -> And(List.map ~f:eta phis, k)
       | App(phi1, phi2)  -> App(eta phi1, eta phi2)
-      | Exists(label, t) -> Exists(label, eta t)
-      | Forall(label, t) -> Forall(label, eta t)
       | phi              -> phi
     let beta_eta = eta <<< beta
   end
@@ -232,8 +224,6 @@ module Simplify = struct
       (*     end *)
       | And(phis, k) -> And(List.map ~f:hfl phis, k)(* preserve the structure *)
       | Or (phis, k) -> Or (List.map ~f:hfl phis, k)(* preserve the structure *)
-      | Exists(l,phi)  -> Exists(l, hfl ~force phi)
-      | Forall(l,phi)  -> Forall(l, hfl ~force phi)
       | Abs(x,phi)     -> Abs(x, hfl ~force phi)
       | App(phi1,phi2) -> App(hfl ~force phi1, hfl ~force phi2)
       | phi -> phi

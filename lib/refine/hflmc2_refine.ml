@@ -76,7 +76,6 @@ let rec approximate
             assert false
         end
     | Arith _, _ -> assert false
-    | Exists _, _ | Forall _, _ -> Fn.todo()
     | _ -> assert false
 (* }}} *)
 
@@ -498,17 +497,16 @@ let gen_HCCS
                 assert false
             end
         | Arith _, _ -> assert false
-        | Exists _, _ | Forall _, _ -> Fn.todo()
         | _ -> assert false
     in
     TraceVar.reset_counters();
-    let main, _main_args =
+    let main =
       let head =
         Hflz.main_symbol hes
         |> TraceVar.mk_nt
       in
       let args = TraceVar.mk_childlen TraceVar.{ var = head; age = 0 } in
-      TraceExpr.(mk_apps (mk_var head) (List.map args ~f:mk_var)), args
+      TraceExpr.(mk_apps (mk_var head) (List.map args ~f:mk_var))
     in
     go TraceVar.Map.empty empty_guard None main cex
 

@@ -67,12 +67,7 @@ abs_expr:
 and_or_expr:
 | and_or_expr "&&" and_or_expr { mk_ands [$1;$3] }
 | and_or_expr "||" and_or_expr { mk_ors  [$1;$3] }
-| modal_expr                   { $1 }
-
-modal_expr:
-| "[" LIDENT "]" pred_expr { mk_forall $2 $4 }
-| "<" LIDENT ">" pred_expr { mk_exists $2 $4 }
-| pred_expr                { $1 }
+| pred_expr                    { $1 }
 
 pred_expr:
 | arith_expr                 { $1               }

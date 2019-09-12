@@ -111,9 +111,7 @@ let rec infer_type : env -> simple_ty Hflz.t -> abstraction_ty =
         let ty1 = infer_type env psi1 in
         let ty2 = infer_type env psi2 in
         merge_types [ty1;ty2]
-    | Exists _ | Forall _ -> Fn.fatal "future work"
     | Arith _ -> Fn.fatal "impossible"
-    (* TODO たぶん考えなくて良い *)
     | Abs({ty=TySigma _ty;_} as _x,_psi) -> Fn.todo()
 
 (* Γ |- σ <= σ ↪ φ' で得たφ'にφを適用 *)
@@ -365,7 +363,6 @@ let rec abstract_infer
           in
           let phi' = Hfl.mk_abss vars @@ make_ope phis' in
           (sigma', phi')
-      | Exists _ | Forall _ -> Fn.todo()
       | Abs _ | Arith _ ->
           Print.(print (hflz simple_ty_) psi);
           assert false (* impossible *)
