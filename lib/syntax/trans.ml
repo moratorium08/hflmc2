@@ -112,8 +112,8 @@ module Subst = struct
             | t -> t
             | exception Not_found -> Var x
             end
-        | Or(phis)      -> Or(List.map ~f:(hflz env) phis)
-        | And(phis)     -> And(List.map ~f:(hflz env) phis)
+        | Or(phi1,phi2)   -> Or(hflz env phi1, hflz env phi2)
+        | And(phi1,phi2)  -> And(hflz env phi1, hflz env phi2)
         | App(phi1,phi2)  -> App(hflz env phi1, hflz env phi2)
         | Exists(label,t) -> Exists(label, hflz env t)
         | Forall(label,t) -> Forall(label, hflz env t)

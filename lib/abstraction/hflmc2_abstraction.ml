@@ -107,9 +107,10 @@ let rec infer_type : env -> simple_ty Hflz.t -> abstraction_ty =
         | _ -> assert false
         end
     | Abs({ty=TyInt;_} as x,psi) -> TyArrow(x,infer_type env psi)
-    | Or(psis) | And(psis) ->
-        let tys = List.map ~f:(infer_type env) psis in
-        merge_types tys
+    | Or(psi1,psi2) | And(psi1,psi2) ->
+        let ty1 = infer_type env psi1 in
+        let ty2 = infer_type env psi2 in
+        merge_types [ty1;ty2]
     | Exists _ | Forall _ -> Fn.fatal "future work"
     | Arith _ -> Fn.fatal "impossible"
     (* TODO たぶん考えなくて良い *)
@@ -339,7 +340,7 @@ let rec abstract_infer
           end
 
       (* And, Or *)
-      | And psis | Or psis ->
+      | And (psi1,psi2) | Or (psi1,psi2) ->
           let make_ope = match psi with
             | And _ -> Hfl.mk_ands ~kind:`Original
             | Or _  -> Hfl.mk_ors  ~kind:`Original
@@ -348,22 +349,20 @@ let rec abstract_infer
           let [@warning "-8"] TyBool preds =
             infer_type gamma.env psi
           in
-          (* infer_typeでunique up to (<=>) になっているのでexnでよい *)
           let vars =
             List.map preds ~f:(fun _ -> Id.gen ~name:"b" ATyBool)
           in
+          (* infer_typeでunique up to (<=>) になっているのでexnでよい *)
           let preds_map = FormulaMap.of_alist_exn @@
             List.zip_exn preds vars
           in
           let gamma = { gamma with preds = preds_map } in
           let sigma' = TyBool preds in
           let phis' =
-            List.map psis ~f:begin fun psi ->
+            List.map [psi1;psi2] ~f:begin fun psi ->
               abstract_check gamma psi sigma'
-              (* psiの自然な型sigmaはsigma'に含まれている *)
             end
           in
-          (* TODO merge_lambdaは上手く行く？OKな気がするけど *)
           let phi' = Hfl.mk_abss vars @@ make_ope phis' in
           (sigma', phi')
       | Exists _ | Forall _ -> Fn.todo()

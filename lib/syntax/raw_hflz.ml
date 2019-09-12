@@ -2,8 +2,8 @@ open Hflmc2_util
 type raw_hflz =
   | Bool   of bool
   | Var    of string
-  | Or     of raw_hflz list
-  | And    of raw_hflz list
+  | Or     of raw_hflz * raw_hflz
+  | And    of raw_hflz * raw_hflz
   | Exists of string * raw_hflz
   | Forall of string * raw_hflz
   | Abs    of string * raw_hflz
@@ -30,13 +30,11 @@ let mk_op op as' = Op(op,as')
 
 let mk_ands = function
   | [] -> Bool true
-  | [x] -> x
-  | xs -> And xs
+  | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> And(a,b))
 
 let mk_ors = function
   | [] -> Bool false
-  | [x] -> x
-  | xs -> Or xs
+  | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> Or(a,b))
 
 let mk_pred pred a1 a2 = Pred(pred, [a1;a2])
 
@@ -233,14 +231,18 @@ module Typing = struct
             let x = Id.{ name; id; ty=() } in
             self#add_ty_env x ty;
             ty, Hflz.mk_var x
-        | Or psis ->
-            let tvs, psis = List.unzip @@ List.map psis ~f:(self#term id_env) in
-            List.iter tvs ~f:(fun tv -> unify tv TvBool);
-            TvBool, Or psis
-        | And psis ->
-            let tvs, psis = List.unzip @@ List.map psis ~f:(self#term id_env) in
-            List.iter tvs ~f:(fun tv -> unify tv TvBool);
-            TvBool, And psis
+        | Or (psi1,psi2) ->
+            let tv1, psi1 = self#term id_env psi1 in
+            let tv2, psi2 = self#term id_env psi2 in
+            unify tv1 TvBool;
+            unify tv2 TvBool;
+            TvBool, Or (psi1,psi2)
+        | And (psi1,psi2) ->
+            let tv1, psi1 = self#term id_env psi1 in
+            let tv2, psi2 = self#term id_env psi2 in
+            unify tv1 TvBool;
+            unify tv2 TvBool;
+            TvBool, And (psi1,psi2)
         | Exists (l, psi) ->
             let tv, psi = self#term id_env psi in
             unify tv TvBool;
@@ -355,8 +357,8 @@ module Typing = struct
           | exception IntType -> Arith (Arith.mk_var x)
           end
       | Bool b           -> Bool b
-      | Or  psis         -> Or  (List.map ~f:self#term psis)
-      | And psis         -> And (List.map ~f:self#term psis)
+      | Or  (psi1,psi2)  -> Or  (self#term psi1, self#term psi2)
+      | And (psi1,psi2)  -> And (self#term psi1, self#term psi2)
       | Exists (l, psi)  -> Exists (l, self#term psi)
       | Forall (l, psi)  -> Forall (l, self#term psi)
       | App (psi1, psi2) -> App (self#term psi1, self#term psi2)
@@ -439,18 +441,18 @@ let rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
   fun hes ->
     let rec term : simple_ty IdMap.t -> simple_ty Hflz.t -> simple_ty Hflz.t =
       fun env psi -> match psi with
-        | Bool b -> Bool b
-        | Var x -> Var { x with ty = IdMap.lookup env x }
-        | Or  psis -> Or  (List.map psis ~f:(term env))
-        | And psis -> And (List.map psis ~f:(term env))
-        | Exists (l, psi) -> Exists (l, term env psi)
-        | Forall (l, psi) -> Forall (l, term env psi)
+        | Bool b           -> Bool b
+        | Var x            -> Var { x with ty = IdMap.lookup env x }
+        | Or  (psi1, psi2) -> Or  (term env psi1, term env psi2)
+        | And (psi1, psi2) -> And (term env psi1, term env psi2)
+        | Exists (l, psi)  -> Exists (l, term env psi)
+        | Forall (l, psi)  -> Forall (l, term env psi)
+        | App (psi1, psi2) -> App (term env psi1, term env psi2)
+        | Arith a          -> Arith a
+        | Pred (pred, as') -> Pred (pred, as')
         | Abs ({ty=TySigma ty;_} as x, psi) ->
             Abs(x, term (IdMap.add env x ty) psi)
         | Abs ({ty=TyInt;_} as x, psi) -> Abs(x, term env psi)
-        | App (psi1, psi2) -> App (term env psi1, term env psi2)
-        | Arith a -> Arith a
-        | Pred (pred, as') -> Pred (pred, as')
     in
     let rule : simple_ty IdMap.t
             -> simple_ty Hflz.hes_rule

@@ -6,11 +6,12 @@ open Type
 type t =
   | Bool   of bool
   | Var    of abstracted_ty Id.t
+  (* If `Original, t list must have just 2 elements
+   * TODO It may be better to devide constructors *)
   | Or     of t list * [ `Original | `Inserted ]
   | And    of t list * [ `Original | `Inserted ]
   | Exists of string * t
   | Forall of string * t
-  (* | Fix    of abstracted_ty Id.t * t * Fixpoint.t *)
   | Abs    of abstracted_argty Id.t * t
   | App    of t * t
   [@@deriving eq,ord,show,iter,map,fold,sexp]

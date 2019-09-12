@@ -6,26 +6,20 @@ module Log = (val Logs.src_log @@ Logs.Src.create "Modelcheck")
 module Counterexample = struct
   type t =
     | False
-    | And of int * int * t (** (n,i,_) ith branch in n. 0-indexed *)
-    | Or  of t list
+    | AndL of t
+    | AndR of t
+    | Or  of t * t
     | Nd  of t list (* or_inserted *)
     [@@deriving eq,ord,show,iter,map,fold]
   let rec sexp_of_t : t -> Sexp.t =
     function
     | False -> Sexp.Atom "t_false"
-    | And (n,i,c) ->
-        let head = Sexp.Atom ("t_and" ^ string_of_int n) in
-        let rest = List.init n ~f:begin fun j ->
-            if i = j
-            then sexp_of_t c
-            else Sexp.Atom "_"
-          end
-        in List (head::rest)
-    | Or cs ->
-        let n    = List.length cs in
-        let head = Sexp.Atom ("t_or" ^ string_of_int n) in
-        let rest = List.map ~f:sexp_of_t cs in
-        List (head::rest)
+    | AndL c ->
+        List [Atom "t_and"; sexp_of_t c; Atom "_"]
+    | AndR c ->
+        List [Atom "t_and"; Atom "_"; sexp_of_t c]
+    | Or (c1,c2) ->
+        List [Atom "t_or" ; sexp_of_t c1; sexp_of_t c2]
     | Nd cs ->
         let n    = List.length cs in
         let head = Sexp.Atom ("t_or_inserted" ^ string_of_int n) in
@@ -38,27 +32,22 @@ module Counterexample = struct
         t_of_sexp s
     | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or_inserted" a ->
         Nd(List.map ~f:t_of_sexp ss)
-    | List (Atom a :: ss) when String.is_prefix ~prefix:"t_and" a ->
-        let n = List.length ss in
-        let s,i = List.find_with_index ss ~f:(fun s -> s <> Sexp.Atom "_") in
-        And (n, i, t_of_sexp s)
-    | List (Atom a :: ss) when String.is_prefix ~prefix:"t_or" a ->
-        Or(List.map ~f:t_of_sexp ss)
+    | List [Atom "t_and"; s1; Atom "_"] -> AndL (t_of_sexp s1)
+    | List [Atom "t_and"; Atom "_"; s2] -> AndR (t_of_sexp s2)
+    | List [Atom "t_or"; s1; s2] -> Or (t_of_sexp s1, t_of_sexp s2)
     | s -> raise @@ Sexp.Of_sexp_error((Failure "Counterexample.t_of_sexp"), s)
   let rec simplify : t -> t = function
     | False       -> False
-    | And (n,i,c) -> And (n,i,simplify c)
-    | Or cs       -> Or (List.map ~f:simplify cs)
+    | AndL c      -> AndL (simplify c)
+    | AndR c      -> AndR (simplify c)
+    | Or (c1,c2)  -> Or (simplify c1, simplify c2)
     | Nd cs       ->
         let rec (<=) c1 c2 = match c1, c2 with
           | False, _     -> true
-          | And (n1,i1,c1), And (n2,i2,c2)
-              when n1 = n2 && i1 = i2 -> c1 <= c2
-          | Or cs1, Or cs2 ->
-              begin match List.zip_exn cs1 cs2 with
-              | x -> List.for_all ~f:(Fn.uncurry (<=)) x
-              | exception _ -> false
-              end
+          | AndL c1, AndL c2 -> c1 <= c2
+          | AndR c1, AndR c2 -> c1 <= c2
+          | Or (c11,c12)
+          , Or (c21,c22) -> c11<=c21 && c12<=c22
           | _ -> false
         in
         match Fn.maximals' (<=) @@ List.map ~f:simplify cs with
@@ -67,35 +56,34 @@ module Counterexample = struct
 
   type normalized =
     | False
-    | And of int * int * normalized (** (n,i,_) ith branch in n. 0-indexed *)
-    | Or  of normalized list
+    | AndL of normalized
+    | AndR of normalized
+    | Or   of normalized * normalized
     [@@deriving eq,ord,show,iter,map,fold,sexp]
 
   let pp_hum_normalized ppf x =
     let rec to_t : normalized -> t = function
       | False -> False
-      | Or xs -> Or (List.map ~f:to_t xs)
-      | And (n,i,x) -> And (n,i,to_t x)
+      | Or (c1,c2) -> Or (to_t c1, to_t c2)
+      | AndL c -> AndL (to_t c)
+      | AndR c -> AndR (to_t c)
     in
     Sexp.pp_hum ppf (sexp_of_t @@ to_t x)
 
   let rec normalize : t -> normalized list = function
-    | False ->
-        [False]
-    | And (n,i,c) ->
-        List.map (normalize c) ~f:(fun c' -> And (n,i, c'))
-    | Or cs ->
+    | False  -> [False]
+    | AndL c -> List.map (normalize c) ~f:(fun c' -> AndL c')
+    | AndR c -> List.map (normalize c) ~f:(fun c' -> AndR c')
+    | Or (c1,c2) ->
         List.map
-          (List.cartesian_products (List.map cs ~f:normalize))
-          ~f:(fun cs -> Or cs)
+          (List.cartesian_product (normalize c1) (normalize c2))
+          ~f:(fun (c1,c2) -> Or (c1,c2))
     | Nd cs -> List.concat_map cs ~f:normalize
 end
 
 
 let print_hors : Hfl.hes Fmt.t =
   fun ppf hes' ->
-    let or_set           = ref IntSet.empty in
-    let and_set          = ref IntSet.empty in
     let or_inserted_set  = ref IntSet.empty in
     let and_inserted_set = ref IntSet.empty in
     let rec term : Hfl.t Fmt.t =
@@ -116,18 +104,10 @@ let print_hors : Hfl.hes Fmt.t =
           Fmt.pf ppf "(t_and_inserted%d %a)"
             n
             Fmt.(list ~sep:sp term) phis
-      | Or (phis, `Original) ->
-          let n = List.length phis in
-          or_set := IntSet.add !or_set n;
-          Fmt.pf ppf "(t_or%d %a)"
-            n
-            Fmt.(list ~sep:sp term) phis
-      | And (phis, `Original) ->
-          let n = List.length phis in
-          and_set := IntSet.add !and_set n;
-          Fmt.pf ppf "(t_and%d %a)"
-            n
-            Fmt.(list ~sep:sp term) phis
+      | Or ([phi1;phi2], `Original) ->
+          Fmt.pf ppf "(t_or %a %a)" term phi1 term phi2
+      | And ([phi1;phi2], `Original) ->
+          Fmt.pf ppf "(t_and %a %a)" term phi1 term phi2
       | Abs _ ->
           let args, phi = Hfl.decompose_abs phi in
           Fmt.pf ppf "(_fun %a -> %a)"
@@ -158,32 +138,28 @@ let print_hors : Hfl.hes Fmt.t =
     in
     let automaton : unit Fmt.t =
       fun ppf () ->
-        let mk_name : [`And | `Or] -> [`Original | `Inserted] -> int -> string =
-          fun ope kind n ->
-            begin match ope, kind with
-            | `And, `Original -> "t_and"
-            | `Or , `Original -> "t_or"
-            | `And, `Inserted -> "t_and_inserted"
-            | `Or , `Inserted -> "t_or_inserted"
-            end ^ string_of_int n
-        in
+        let mk_name : [`And | `Or] -> int -> string =
+          fun ope n -> match ope with
+            | `And -> "t_and_inserted" ^ string_of_int n
+            | `Or  -> "t_or_inserted" ^ string_of_int n
+          in
         let rank : unit Fmt.t =
           fun ppf () ->
-            let pp_rank ope kind n =
-              Fmt.pf ppf "%s -> %d.@." (mk_name ope kind n) n
+            let pp_rank ope n =
+              Fmt.pf ppf "%s -> %d.@." (mk_name ope n) n
             in
             Fmt.pf ppf "%s@." "%BEGINR";
-            Fmt.pf ppf "%s@." "t_true -> 0.";
-            Fmt.pf ppf "%s@." "t_false -> 0.";
-            IntSet.iter !or_set           ~f:(pp_rank `Or  `Original);
-            IntSet.iter !and_set          ~f:(pp_rank `And `Original);
-            IntSet.iter !or_inserted_set  ~f:(pp_rank `Or  `Inserted);
-            IntSet.iter !and_inserted_set ~f:(pp_rank `And `Inserted);
+            Fmt.pf ppf "t_true  -> 0.@.";
+            Fmt.pf ppf "t_false -> 0.@.";
+            Fmt.pf ppf "t_and   -> 2.@.";
+            Fmt.pf ppf "t_or    -> 2.@.";
+            IntSet.iter !or_inserted_set  ~f:(pp_rank `Or);
+            IntSet.iter !and_inserted_set ~f:(pp_rank `And);
             Fmt.pf ppf "%s@." "%ENDR"
         in
-        let transition : unit Fmt.t = 
+        let transition : unit Fmt.t =
           fun ppf () ->
-            let pp_trans ope kind n =
+            let pp_trans ope n =
               let sep ppf () =
                 Fmt.string ppf @@ match ope with
                   | `And -> " /\\ "
@@ -192,16 +168,16 @@ let print_hors : Hfl.hes Fmt.t =
               let pp_arg ppf k =
                 Fmt.pf ppf "(%d, q0)" k
               in
-              Fmt.pf ppf "q0 %s -> %a.@." (mk_name ope kind n)
+              Fmt.pf ppf "q0 %s -> %a.@." (mk_name ope n)
                 Fmt.(list ~sep pp_arg) (List.init n ~f:(fun i -> i + 1))
             in
             Fmt.pf ppf "%s@." "%BEGINATA";
-            Fmt.pf ppf "%s@." "q0 t_true -> true.";
-            Fmt.pf ppf "%s@." "q0 t_false -> false.";
-            IntSet.iter !or_set           ~f:(pp_trans `Or  `Original);
-            IntSet.iter !and_set          ~f:(pp_trans `And `Original);
-            IntSet.iter !or_inserted_set  ~f:(pp_trans `Or  `Inserted);
-            IntSet.iter !and_inserted_set ~f:(pp_trans `And `Inserted);
+            Fmt.pf ppf "q0 t_true  -> true.@.";
+            Fmt.pf ppf "q0 t_false -> false.@.";
+            Fmt.pf ppf "q0 t_and   -> (1,q0) /\\ (2,q0).@.";
+            Fmt.pf ppf "q0 t_or    -> (1,q0) \\/ (2,q0).@.";
+            IntSet.iter !or_inserted_set  ~f:(pp_trans `Or);
+            IntSet.iter !and_inserted_set ~f:(pp_trans `And);
             Fmt.pf ppf "%s@." "%ENDATA"
         in
         rank ppf ();

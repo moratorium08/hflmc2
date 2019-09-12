@@ -5,8 +5,8 @@ open Hflmc2_syntax.Type
 type t =
   | Var      of [ `I of TraceVar.t | `T of simple_ty Id.t ]
   | Bool     of bool
-  | Or       of t list
-  | And      of t list
+  | Or       of t * t
+  | And      of t * t
   | Exists   of string * t
   | Forall   of string * t
   | Abs      of simple_argty Id.t * t
@@ -23,14 +23,14 @@ let pp_hum : t Print.t =
       | Bool false -> Fmt.string ppf "false"
       | Var (`I x)      -> TraceVar.pp_hum ppf x
       | Var (`T x)      -> Print.id ppf x
-      | Or phis  ->
+      | Or (phi1,phi2)  ->
           let sep ppf () = Fmt.pf ppf "@ || " in
           P.show_paren (prec > P.Prec.or_) ppf "@[<hv 0>%a@]"
-            (P.list ~sep (hflz_ P.Prec.or_)) phis
-      | And phis  ->
+            (P.list ~sep (hflz_ P.Prec.or_)) [phi1;phi2]
+      | And (phi1,phi2)  ->
           let sep ppf () = Fmt.pf ppf "@ && " in
           P.show_paren (prec > P.Prec.or_) ppf "@[<hv 0>%a@]"
-            (P.list ~sep (hflz_ P.Prec.and_)) phis
+            (P.list ~sep (hflz_ P.Prec.and_)) [phi1;phi2]
       | Exists (l, psi) ->
           P.show_paren (prec > P.Prec.app) ppf "@[<1><%s>%a@]"
             l
@@ -63,13 +63,11 @@ let mk_var x =
 
 let mk_ands = function
   | [] -> Bool true
-  | [x] -> x
-  | xs -> And xs
+  | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> And(a,b))
 
 let mk_ors = function
   | [] -> Bool false
-  | [x] -> x
-  | xs -> Or xs
+  | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> Or(a,b))
 
 let mk_pred pred a1 a2 = Pred(pred, [a1;a2])
 
@@ -115,8 +113,8 @@ module Make = struct
               end
           end
       | Bool b           -> Bool b
-      | Or phis          -> Or (List.map phis ~f:(hflz hes subst))
-      | And phis         -> And (List.map phis ~f:(hflz hes subst))
+      | Or  (phi1, phi2) -> Or  (hflz hes subst phi1, hflz hes subst phi2)
+      | And (phi1, phi2) -> And (hflz hes subst phi1, hflz hes subst phi2)
       | Exists (l, phi)  -> Exists (l, hflz hes subst phi)
       | Forall (l, phi)  -> Forall (l, hflz hes subst phi)
       | Arith a          -> Arith (arith subst a)
@@ -146,8 +144,8 @@ let rec beta_head : simple_argty Id.t -> t -> t -> t =
     | Var (`T x') when Id.eq x x' -> e
     | Var _            -> phi
     | Bool _           -> phi
-    | Or phis          -> Or (List.map phis ~f:(beta_head x e))
-    | And phis         -> And (List.map phis ~f:(beta_head x e))
+    | Or  (phi1, phi2) -> Or  (beta_head x e phi1, beta_head x e phi2)
+    | And (phi1, phi2) -> And (beta_head x e phi1, beta_head x e phi2)
     | Exists (l, phi)  -> Exists (l, beta_head x e phi)
     | Forall (l, phi)  -> Forall (l, beta_head x e phi)
     | Arith a          -> Arith (beta_head_arith x e a)
@@ -179,8 +177,8 @@ let rec subst : t TraceVar.Map.t -> t -> t =
         end
     | Var (`T v)       -> Var (`T v)
     | Bool b           -> Bool b
-    | Or phis          -> Or (List.map phis ~f:(subst env))
-    | And phis         -> And (List.map phis ~f:(subst env))
+    | Or  (phi1, phi2) -> Or  (subst env phi1, subst env phi2)
+    | And (phi1, phi2) -> And (subst env phi1, subst env phi2)
     | Exists (l, phi)  -> Exists (l, subst env phi)
     | Forall (l, phi)  -> Forall (l, subst env phi)
     | Arith a          -> Arith (subst_arith env a)

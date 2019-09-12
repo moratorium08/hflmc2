@@ -282,14 +282,14 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
     | Bool true -> Fmt.string ppf "true"
     | Bool false -> Fmt.string ppf "false"
     | Var x -> id ppf x
-    | Or phis  ->
-        let sep ppf () = Fmt.pf ppf "@ || " in
-        show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@]"
-          (list ~sep (hflz_ format_ty_ Prec.or_)) phis
-    | And phis  ->
-        let sep ppf () = Fmt.pf ppf "@ && " in
-        show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@]"
-          (list ~sep (hflz_ format_ty_ Prec.and_)) phis
+    | Or(phi1,phi2)  ->
+        show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ || %a@]"
+          (hflz_ format_ty_ Prec.or_) phi1
+          (hflz_ format_ty_ Prec.or_) phi2
+    | And (phi1,phi2)  ->
+        show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ && %a@]"
+          (hflz_ format_ty_ Prec.and_) phi1
+          (hflz_ format_ty_ Prec.and_) phi2
     | Exists (l, psi) ->
         show_paren (prec > Prec.app) ppf "@[<1><%s>%a@]"
           l

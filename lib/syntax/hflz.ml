@@ -5,8 +5,8 @@ open Type
 type 'ty t =
   | Bool   of bool
   | Var    of 'ty Id.t
-  | Or     of 'ty t list
-  | And    of 'ty t list
+  | Or     of 'ty t * 'ty t
+  | And    of 'ty t * 'ty t
   | Exists of string * 'ty t
   | Forall of string * 'ty t
   | Abs    of 'ty arg Id.t * 'ty t
@@ -41,13 +41,11 @@ let mk_var x = Var x
 
 let mk_ands = function
   | [] -> Bool true
-  | [x] -> x
-  | xs -> And xs
+  | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> And(a,b))
 
 let mk_ors = function
   | [] -> Bool false
-  | [x] -> x
-  | xs -> Or xs
+  | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> Or(a,b))
 
 let mk_pred pred a1 a2 = Pred(pred, [a1;a2])
 

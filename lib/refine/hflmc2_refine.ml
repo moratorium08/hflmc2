@@ -29,18 +29,21 @@ let rec approximate
         Counterexample.pp_hum_normalized cex
     end;
     match expr, cex with
-    | (Bool true | And []), _ -> Bool true
-    | (Bool false | Or []), _ -> Bool false
+    | Bool true, _ -> Bool true
+    | Bool false, _ -> Bool false
     | Pred (op,as'), _ -> Pred (op, as')
-    | And exprs, And (_,i,c) ->
-        approximate hes reduce_env (List.nth_exn exprs i) c
+    | And (expr1,_), AndL c ->
+        approximate hes reduce_env expr1 c
+    | And (_,expr2), AndR c ->
+        approximate hes reduce_env expr2 c
     | And _, False ->
         Log.err (fun m -> m ~header:"approximate:And" "impossible?");
         assert false
-    | Or exprs, Or cs ->
+    | Or (expr1,expr2), Or (c1,c2) ->
         Formula.mk_ors
-          (List.map2_exn exprs cs
-             ~f:(fun expr c -> approximate hes reduce_env expr c))
+          [ approximate hes reduce_env expr1 c1
+          ; approximate hes reduce_env expr2 c2
+          ]
     | Or _, False ->
         Log.warn (fun m -> m ~header:"approximate:Or" "impossible?");
         assert false
@@ -69,7 +72,8 @@ let rec approximate
             let phi' = TraceExpr.beta_head x e phi in
             let expr = TraceExpr.mk_apps phi' es in
             approximate hes reduce_env expr c
-        | _ -> assert false
+        | _ ->
+            assert false
         end
     | Arith _, _ -> assert false
     | Exists _, _ | Forall _, _ -> Fn.todo()
@@ -222,14 +226,16 @@ let elim_variables'
 type trace =
   | Leaf of (HornClause.formula [@printer HornClause.pp_hum_formula])
   | Or   of (HornClause.formula [@printer HornClause.pp_hum_formula])
-          * trace list
-  | And  of int * int * trace (** (n,i,_) ith branch in n. 0-indexed *)
+          * trace * trace
+  | AndL of trace
+  | AndR of trace
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 let rec peek : trace -> HornClause.formula = function
   | Leaf f -> f
-  | Or (f,_) -> f
-  | And (_,_,t) -> peek t
+  | Or (f,_,_) -> f
+  | AndL t -> peek t
+  | AndR t -> peek t
 
 let tree_interpolant
       : Counterexample.normalized
@@ -242,7 +248,7 @@ let tree_interpolant
         -> HornClause.formula
         -> trace =
     fun guard p cex phi -> match cex, phi with
-      | Or [c1;c2], Or [f1;f2] ->
+      | Or (c1,c2), Or [f1;f2] ->
           let f1' = Trans.Simplify.formula @@
             Formula.(mk_implies (mk_ands (p::guard)) f1)
           in
@@ -262,9 +268,9 @@ let tree_interpolant
           end;
           let t1 = go (p::guard) (Formula.mk_not ip) c1 f1 in
           let t2 = go (p::guard) ip c2 f2 in
-          Or (p, [t1;t2])
-      | And (n,i,cex), f ->
-          And (n, i, go guard p cex f)
+          Or (p, t1,t2)
+      | AndL cex, f -> AndL (go guard p cex f)
+      | AndR cex, f -> AndR (go guard p cex f)
       | _ -> Leaf p
   in
   go [] (Formula.Bool true)
@@ -294,10 +300,10 @@ let gen_HCCS
             pp_trace cex
         end;
         match expr, cex with
-        | (Bool true | And []), _
-        | (And _ | Or _)      , Leaf _ ->
+        | Bool true, _
+        | (And _ | Or _), Leaf _ ->
             []
-        | (Bool false | Or []), _ ->
+        | Bool false, _ ->
             [{ head=None; body=guard }]
         | Pred (pred, as'), _ ->
             let body = guard
@@ -305,9 +311,11 @@ let gen_HCCS
               |> HornClause.append_pvs Option.(to_list pv)
             in
             [{ head=None; body }]
-        | And psis, And (_,i,c) ->
-            go reduce_env guard pv (List.nth_exn psis i) c
-        | Or [psi1;psi2], Or (_, [c1;c2]) ->
+        | And (psi1,_), AndL c ->
+            go reduce_env guard pv psi1 c
+        | And (_,psi2), AndR c ->
+            go reduce_env guard pv psi2 c
+        | Or (psi1,psi2), Or (_, c1,c2) ->
             let f1 = peek c1 in
             let f2 = peek c2 in
             Log.debug begin fun m -> m ~header:"f" "@[<v>%a@,%a@]"
