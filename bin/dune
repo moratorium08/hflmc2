@@ -1,4 +1,3 @@
-
 (executables
  (names main)
  (modules main)
@@ -7,21 +6,5 @@
  (package hflmc2)
  (section bin)
  (files (main.exe as hflmc2)))
-
-(executables
- (names tmp)
- (modules tmp)
- (libraries
-   fmt
-   fmt.cli
-   fmt.tty
-   logs
-   logs.cli
-   cmdliner
-   hflmc2))
-(install
- (package hflmc2)
- (section bin)
- (files (tmp.exe as tmp)))
 
 (env (dev (flags (:standard -warn-error -A))))
