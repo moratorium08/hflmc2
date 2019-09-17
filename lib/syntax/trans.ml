@@ -190,38 +190,26 @@ end
 
 module Simplify = struct
   let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =
-    let rec is_true : Hfl.t -> bool =
+    let rec is_trivially_true : Hfl.t -> bool =
       fun phi -> match phi with
       | Bool b -> b
-      | And(phis, _) -> List.for_all ~f:is_true phis
-      | Or (phis, _) -> List.exists  ~f:is_true phis
       | _ -> false
     in
-    let rec is_false : Hfl.t -> bool =
+    let rec is_trivially_false : Hfl.t -> bool =
       fun phi -> match phi with
       | Bool b -> not b
-      | And(phis, _) -> List.exists  ~f:is_false phis
-      | Or (phis, _) -> List.for_all ~f:is_false phis
       | _ -> false
     in
     fun ?(force=false) phi ->
       match Reduce.Hfl'.beta_eta phi with
-      (* | And(phis, k) when k = `Inserted || force -> *)
-      (*     let phis = List.map ~f:hfl phis in *)
-      (*     let phis = List.filter ~f:Fn.(not <<< is_true) phis in *)
-      (*     begin match phis with *)
-      (*     | []    -> Bool true *)
-      (*     | [phi] -> phi *)
-      (*     | _     -> And(phis, k) *)
-      (*     end *)
-      (* | Or(phis, k) when k = `Inserted || force -> *)
-      (*     let phis = List.map ~f:hfl phis in *)
-      (*     let phis = List.filter ~f:Fn.(not <<< is_false) phis in *)
-      (*     begin match phis with *)
-      (*     | []    -> Bool false *)
-      (*     | [phi] -> phi *)
-      (*     | _     -> Or(phis, k) *)
-      (*     end *)
+      | And(phis, k) when k = `Inserted || force ->
+          let phis = List.map ~f:hfl phis in
+          let phis = List.filter ~f:Fn.(not <<< is_trivially_true) phis in
+          And (phis, k)
+      | Or(phis, k) when k = `Inserted || force ->
+          let phis = List.map ~f:hfl phis in
+          let phis = List.filter ~f:Fn.(not <<< is_trivially_false) phis in
+          Or (phis, k)
       | And(phis, k) -> And(List.map ~f:hfl phis, k)(* preserve the structure *)
       | Or (phis, k) -> Or (List.map ~f:hfl phis, k)(* preserve the structure *)
       | Abs(x,phi)     -> Abs(x, hfl ~force phi)
