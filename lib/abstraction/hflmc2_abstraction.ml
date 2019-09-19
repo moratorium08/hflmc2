@@ -36,13 +36,15 @@ let pp_preds_map =
         Print.formula f
     in
     Print.pf ppf "@[<h>%a@]"
-      Print.(list ~sep:comma item)
+      Print.(list_set item)
       (List.sort ~compare:compare_id @@ FormulaMap.to_alist preds)
 
 
 let pp_gamma : gamma Print.t =
   fun ppf gamma ->
-    pp_preds_map ppf gamma.preds
+    Print.pf ppf "%a | %a "
+      pp_preds_map gamma.preds
+      Print.formula gamma.guard
 
 let return_preds (aty : abstraction_ty) : Formula.t list =
   snd @@ decompose_arrow aty
@@ -179,7 +181,7 @@ let rec abstract_coerce
                 let _IJs =
                   List.map _Is ~f:begin fun _I ->
                     let qs' = List.(map ~f:(nth_exn qs) _I) in
-                    let _Q  = Formula.mk_ands qs' in
+                    let _Q  = Formula.mk_ands (gamma.guard::qs') in
                     (* Q => \/i(/\Ji) を満たす極大の J1,...,Jh の集合を得る *)
                     let _Jss =
                       if FpatInterface.(_Q ==> Formula.Bool false) then
@@ -339,9 +341,9 @@ let rec abstract_infer
 
       (* And, Or *)
       | And (psi1,psi2) | Or (psi1,psi2) ->
-          let make_ope = match psi with
-            | And _ -> Hfl.mk_ands ~kind:`Original
-            | Or _  -> Hfl.mk_ors  ~kind:`Original
+          let ope,make_ope = match psi with
+            | And _ -> `And, Hfl.mk_ands ~kind:`Original
+            | Or _  -> `Or,  Hfl.mk_ors  ~kind:`Original
             | _ -> assert false
           in
           let [@warning "-8"] TyBool preds =
@@ -356,16 +358,37 @@ let rec abstract_infer
           in
           let gamma = { gamma with preds = preds_map } in
           let sigma' = TyBool preds in
-          let phis' =
-            List.map [psi1;psi2] ~f:begin fun psi ->
-              abstract_check gamma psi sigma'
-            end
+          let psi1',psi2' = match psi1,psi2 with
+            | Pred(p,as'), _ ->
+                let gamma2 =
+                  let c = match ope with
+                    | `And -> Formula.Pred(p,as')
+                    | `Or  -> Formula.(mk_not (Pred(p,as')))
+                  in
+                  { gamma with guard = Formula.mk_and c gamma.guard }
+                in
+                abstract_check gamma  psi1 sigma',
+                abstract_check gamma2 psi2 sigma'
+            | _, Pred(p,as') ->
+                let gamma1 =
+                  let c = match ope with
+                    | `And -> Formula.Pred(p,as')
+                    | `Or  -> Formula.(mk_not (Pred(p,as')))
+                  in
+                  { gamma with guard = Formula.mk_and c gamma.guard }
+                in
+                abstract_check gamma1 psi1 sigma',
+                abstract_check gamma  psi2 sigma'
+            | _ ->
+                abstract_check gamma psi1 sigma',
+                abstract_check gamma psi2 sigma'
           in
-          let phi' = Hfl.mk_abss vars @@ make_ope phis' in
+          let phi' = Hfl.mk_abss vars @@ make_ope [psi1';psi2']
+          in
           (sigma', phi')
       | Abs _ | Arith _ ->
           Print.(print (hflz simple_ty_) psi);
-          assert false (* impossible *)
+          Fn.fatal "impossible"
           (* NOTE Absはpsiがβ-reduxを持たないという仮定の元でimpossible *)
     in
       let phi = Trans.Simplify.hfl phi in
