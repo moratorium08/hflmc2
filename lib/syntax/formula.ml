@@ -22,6 +22,7 @@ type ('bvar, 'avar) gen_t =
 (* type t = ((string * [`Pos|`Neg]), [`Int] Id.t) gen_t *)
 type t = (Void.t, [`Int] Id.t) gen_t
   [@@deriving eq,ord,show,iter,map,fold,sexp]
+let hash : t -> int = Sexp.hash <<< sexp_of_t
 
 let mk_var x = Var x
 
