@@ -73,7 +73,6 @@ module Subst = struct
              -> abstraction_ty
              -> abstraction_ty =
       fun x a sigma ->
-        let x = Id.remove_ty x in
         match sigma with
         | TyBool preds ->
             TyBool (List.map ~f:(formula x a) preds)
@@ -86,7 +85,6 @@ module Subst = struct
          -> abstraction_ty arg
          -> abstraction_ty arg =
       fun x a arg ->
-        let x = Id.remove_ty x in
         match arg with
         | TyInt -> TyInt
         | TySigma(sigma) -> TySigma(abstraction_ty x a sigma)
