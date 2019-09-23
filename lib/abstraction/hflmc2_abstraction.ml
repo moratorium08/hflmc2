@@ -477,3 +477,4 @@ let abstract : env -> simple_ty Hflz.hes -> Hfl.hes =
         main' :: List.map ~f:(abstract_rule env) hes
     | [] -> assert false
 
+module Int_base = Int_base

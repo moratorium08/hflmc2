@@ -27,7 +27,7 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
     Abstraction.pp_env gamma
   end;
   (* Abstract *)
-  let phi = Abstraction.abstract gamma psi in
+  let phi = Abstraction.Int_base.abstract gamma psi in
   Log.app begin fun m -> m ~header:"AbstractedProg" "%a"
     Print.hfl_hes phi
   end;
