@@ -10,7 +10,7 @@ module Log = (val Logs.src_log log_src)
 type env = abstraction_ty IdMap.t
 
 module FormulaMap = Map.Make'(Formula)
-type preds_map =  (abstracted_ty Id.t) FormulaMap.t
+type preds_map = (abstracted_ty Id.t) FormulaMap.t
 
 type gamma =
   { env   : env
@@ -205,9 +205,9 @@ let rec abstract_coerce
                         let (<=) (_,p1) (_,p2) = FpatInterface.(p2 ==> p1) in
                         List.map ~f:fst @@ Fn.maximals' (<=) candidates
                       else if FpatInterface.is_valid _Q then
-                        [FpatInterface.min_valid_cores ps]
+                        [FpatInterface.min_valid_cores (Array.of_list ps)]
                       else
-                        [FpatInterface.strongest_post_cond _Q ps]
+                        [FpatInterface.strongest_post_cond _Q (Array.of_list ps)]
                     in
                     (_I, _Jss)
                   end
