@@ -59,6 +59,10 @@ module List = struct
         x = y end end
 end
 
+module Bool = Bool
+
+module Array = Array
+
 module String   = String
 
 module Map = struct

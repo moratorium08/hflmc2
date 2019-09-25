@@ -9,5 +9,7 @@ let () =
             | Hflmc2.Syntax.ParseError e
             | Hflmc2.Syntax.LexingError e
             ) -> print_endline e; "Fail"
-        end
+        end;
+      if Logs.Src.level Hflmc2.log_src <> None
+        then Hflmc2.report_times()
   | None -> ()

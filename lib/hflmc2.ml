@@ -8,7 +8,8 @@ module Refine      = Hflmc2_refine
 open Util
 open Syntax
 
-module Log = (val Logs.src_log @@ Logs.Src.create "Main")
+let log_src = Logs.Src.create "Main"
+module Log = (val Logs.src_log @@ log_src)
 
 type result = [ `Valid | `Invalid | `NoProgress ]
 
@@ -19,6 +20,34 @@ let show_result = function
 
 module CexSet = Set.Make(Modelcheck.Counterexample)
 
+let measure_time f =
+  let start  = Unix.gettimeofday () in
+  let result = f () in
+  let stop   = Unix.gettimeofday () in
+  result, stop -. start
+
+let times = Hashtbl.create (module String)
+let add_mesure_time tag f =
+  let r, time = measure_time f in
+  let if_found t = Hashtbl.set times ~key:tag ~data:(t+.time) in
+  let if_not_found _ = Hashtbl.set times ~key:tag ~data:time in
+  Hashtbl.find_and_call times tag ~if_found ~if_not_found;
+  r
+let all_start = Unix.gettimeofday ()
+let report_times () =
+  let total = Unix.gettimeofday() -. all_start in
+  let kvs = Hashtbl.to_alist times @ [("total", total)] in
+  match List.max_elt ~compare (List.map kvs ~f:(String.length<<<fst)) with
+  | None -> Print.pr "no time records"
+  | Some max_len ->
+      Print.pr "Profiling:@.";
+      List.iter kvs ~f:begin fun (k,v) ->
+        let s =
+          let pudding = String.(init (max_len - length k) ~f:(Fn.const ' ')) in
+          "  " ^ k ^ ":" ^ pudding
+        in Print.pr "%s %f sec@." s v
+      end
+
 let rec cegar_loop prev_cexs loop_count psi gamma =
   Log.app begin fun m -> m ~header:"TopOfLoop" "Loop count: %d"
       loop_count
@@ -27,12 +56,14 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
     Abstraction.pp_env gamma
   end;
   (* Abstract *)
-  let phi = Abstraction.Int_base.abstract gamma psi in
+  let phi = add_mesure_time "Abstraction" @@ fun () ->
+    Abstraction.Int_base.abstract gamma psi
+  in
   Log.app begin fun m -> m ~header:"AbstractedProg" "%a"
     Print.hfl_hes phi
   end;
   (* Modelcheck *)
-  match Modelcheck.run phi with
+  match add_mesure_time "Modelcheck" @@ fun () -> Modelcheck.run phi with
   | Ok() ->
       `Valid
   | Error cex ->
@@ -52,7 +83,9 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
               if !Options.oneshot then failwith "oneshot";
               cegar_loop (CexSet.add prev_cexs cex) (loop_count+1) psi gamma
           | ncex::ncexs ->
-              begin match Refine.run psi ncex gamma with
+              begin match add_mesure_time "Refine" @@ fun () ->
+                Refine.run psi ncex gamma
+              with
               | `Refined new_gamma -> loop new_gamma ncexs;
               | `Feasible -> `Invalid
               end
