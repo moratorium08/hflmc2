@@ -5,7 +5,7 @@ module FpatInterface = FpatInterface
 
 let log_src = Logs.Src.create
     ~doc:"Int-based Predicate Abstraction"
-    "Abstraction.Int_base"
+    "Abstraction"
 module Log = (val Logs.src_log log_src)
 
 module IType = struct
