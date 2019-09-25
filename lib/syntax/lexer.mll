@@ -20,6 +20,7 @@ rule token = parse
                            ; token lexbuf
                            }
 | "/*"                     { comment lexbuf; token lexbuf }
+| "%LTS"                   { skip_all lexbuf; token lexbuf }
 | eof                      { EOF       }
 | "%HES"                   { START_HES }
 | "%ENV"                   { START_ENV }
@@ -67,6 +68,9 @@ and comment = parse
     { failwith "unterminated comment" }
 | _
     { comment lexbuf }
+and skip_all = parse
+| eof { () }
+| _   { skip_all lexbuf }
 
 {
   (* This part is inserted into the end of the generated file. *)
