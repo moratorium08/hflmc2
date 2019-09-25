@@ -186,10 +186,16 @@ let rec infer_type
     | App(psi1, Arith a) ->
         begin match infer_type env psi1 with
         | IType.TyArrow({ty = TyInt preds;_} as x, ret_ty), preds_set ->
-            IType.Subst.arith x a ret_ty,
-            FormulaSet.(union
-              (map ~f:(Trans.Subst.Arith'.formula x a) preds_set)
-              (of_list (List.map ~f:(Trans.Subst.Arith'.formula x a) preds)))
+            let ty = IType.Subst.arith x a ret_ty in
+            let preds_set =
+              FormulaSet.(union
+                (map ~f:(Trans.Subst.Arith'.formula x a) preds_set)
+                (of_list (List.map ~f:(Trans.Subst.Arith'.formula x a) preds)))
+            in
+            ty,
+            FormulaSet.filter preds_set ~f: begin fun f ->
+                not FpatInterface.(is_valid f || is_unsat f)
+              end
         | _ -> assert false
         end
     | App(psi1,_) ->
@@ -215,17 +221,36 @@ let rec abstract_coerce
       | TyBool, TyBool
           when FormulaSet.(is_empty (diff preds_set preds_set')) -> phi
       | TyBool, TyBool ->
-          let ps = FormulaSet.to_list preds_set  in
-          let qs = FormulaSet.to_list preds_set' in
-          let l = List.length qs in
-          let k = List.length ps in
+          let ps =
+            let fvs = Hfl.fvs phi in
+            FormulaSet.(diff preds_set preds_set')
+            |> FormulaSet.filter ~f:begin fun f ->
+                 IdSet.mem fvs (name_of f)
+               end
+            |> FormulaSet.to_array
+          in
+          let qs = FormulaSet.to_array preds_set' in
+          let l = Array.length qs in
+          let k = Array.length ps in
           let one_to_l = List.(range 0 l) in (* to be honest, 0 to l-1 *)
           let one_to_k = List.(range 0 k) in
-          let _Is = List.powerset one_to_l in
+          (* Log.info begin fun m -> m ~header:"FOO" "%a@.%a" *)
+          (*   Print.(list_set int) one_to_l *)
+          (*   Print.(list_set int) @@ List.filter one_to_l ~f:begin fun i -> *)
+          (*     let q = Array.get qs i in *)
+          (*     FpatInterface.(not @@ is_valid q || is_unsat q) *)
+          (*   end *)
+          (* end; *)
+          let _Is = List.powerset @@
+            List.filter one_to_l ~f:begin fun i ->
+              let q = Array.get qs i in
+              FpatInterface.(not @@ is_valid q || is_unsat q)
+            end
+          in
           let phi's =
             let _IJs =
               List.map _Is ~f:begin fun _I ->
-                let qs' = List.(map ~f:(nth_exn qs) _I) in
+                let qs' = List.(map ~f:(Array.get qs) _I) in
                 let _Q  = Formula.mk_ands (guard::qs') in
                 (* Q => \/i(/\Ji) を満たす極大の J1,...,Jh の集合を得る *)
                 let _Jss =
@@ -305,6 +330,22 @@ let rec abstract_coerce
     end;
     phi'
 
+let rec is_simple_expr : Type.simple_ty Hflz.t -> Formula.t option = function
+  | Pred(p,as') -> Some (Pred(p,as'))
+  | And(psi1,psi2) ->
+      begin try
+        let [@warning "-8"] Some f1 = is_simple_expr psi1 in
+        let [@warning "-8"] Some f2 = is_simple_expr psi2 in
+        Some (And [f1;f2])
+      with _ -> None end
+  | Or (psi1,psi2) ->
+      begin try
+        let [@warning "-8"] Some f1 = is_simple_expr psi1 in
+        let [@warning "-8"] Some f2 = is_simple_expr psi2 in
+        Some (Or [f1;f2])
+      with _ -> None end
+  | _ -> None
+
 (* Γ | Φ_in | C ⊢⇑ ψ : σ ↝  φ;Φ_out *)
 let rec abstract_infer
           : env
@@ -333,11 +374,24 @@ let rec abstract_infer
       | App(psi, Arith a) ->
           begin match abstract_infer env psi with
           | TyArrow({ty = TyInt preds; _} as x, sigma), phi, preds_set ->
+              let preds' =
+                List.map preds ~f:begin fun f ->
+                  Trans.Subst.Arith'.formula x a f
+                  (* |> Formula.(mk_implies (mk_ands env.guard)) *)
+                  (* Problematic! *)
+                end
+              in
               IType.Subst.arith x a sigma,
-              Hfl.mk_apps phi @@ List.map preds
-                ~f:(Hfl.mk_var<<<name_of<<<Trans.Subst.Arith'.formula x a),
-              FormulaSet.(union preds_set @@ of_list @@
-                List.map preds ~f:(Trans.Subst.Arith'.formula x a))
+              Hfl.mk_apps phi @@ List.map preds' ~f:
+                begin fun f -> match () with
+                | () when FpatInterface.is_valid f -> Hfl.Bool true
+                | () when FpatInterface.is_unsat f -> Hfl.Bool false
+                | () -> Hfl.mk_var (name_of f)
+                end,
+              FormulaSet.union preds_set @@ FormulaSet.of_list @@
+                List.filter preds' ~f:begin fun f ->
+                  not FpatInterface.(is_valid f || is_unsat f)
+                end
           | _ -> assert false
           end
       | App(psi1, psi2) ->
@@ -350,11 +404,62 @@ let rec abstract_infer
               preds_set1
           | _ -> assert false
           end
+      | And (psi1,psi2) | Or (psi1, psi2) when true ->
+          let ope, reconstruct = match psi with
+            | And _ -> `And, fun phis -> Hfl.And(phis, `Original)
+            | Or  _ -> `Or , fun phis -> Hfl.Or (phis, `Original)
+            | _ -> assert false
+          in
+          begin match
+            (is_simple_expr psi1, psi1, `L),
+            (is_simple_expr psi2, psi2, `R)
+          with
+          | (Some f, psi_s, pat), (_, psi_m,_)
+          | (_, psi_m,_), (Some f, psi_s, pat) ->
+              let _, phi_s, preds_set_s = abstract_infer env psi_s in
+              let pred = match ope with
+                | `And -> f
+                | `Or  -> Formula.mk_not f
+              in
+              let guard = pred::env.guard in
+              let preds_set = FormulaSet.remove env.preds_set pred in
+              let _, phi_m, preds_set_m =
+                abstract_infer { env with guard; preds_set } psi_m
+              in
+              Log.debug begin fun m -> m ~header:"Update guard" "%a"
+                Print.formula pred
+              end;
+              let reorder = match pat with
+                | `L -> [phi_s;phi_m]
+                | `R -> [phi_m;phi_s]
+              in
+              TyBool,
+              reconstruct reorder,
+              FormulaSet.union preds_set_m preds_set_s
+          | _ ->
+            if false then (* TODO: control by option *)
+              let _, preds_set1 = infer_type env psi1 in
+              let _, preds_set2 = infer_type env psi2 in
+              let preds_set = FormulaSet.union_list
+                [ env.preds_set; preds_set1; preds_set2 ]
+              in
+              let phi1 = abstract_check { env with preds_set } psi1 TyBool in
+              let phi2 = abstract_check { env with preds_set } psi2 TyBool in
+              TyBool,
+              reconstruct [phi1;phi2],
+              FormulaSet.union preds_set1 preds_set2
+            else
+              let _, phi1, preds_set1 = abstract_infer env psi1 in
+              let _, phi2, preds_set2 = abstract_infer env psi2 in
+              TyBool,
+              reconstruct [phi1;phi2],
+              FormulaSet.union preds_set1 preds_set2
+          end
       | And ((Pred(p,as') as psi_s), psi_m)
       | And (psi_m, (Pred(p,as') as psi_s)) ->
           let _, phi_s, preds_set_s = abstract_infer env psi_s in
           let pred = Formula.(Pred(p,as')) in
-          let guard = Formula.(mk_and env.guard pred) in
+          let guard = pred :: env.guard in
           let preds_set = FormulaSet.remove env.preds_set pred in
           let _, phi_m, preds_set_m =
             abstract_infer { env with guard; preds_set } psi_m
@@ -385,23 +490,32 @@ let rec abstract_infer
           Hfl.mk_ors reorder ~kind:`Original,
           FormulaSet.union preds_set_m preds_set_s
       | And (psi1,psi2) | Or (psi1,psi2) ->
-          let _, preds_set1 = infer_type env psi1 in
-          let _, preds_set2 = infer_type env psi2 in
-          let preds_set = FormulaSet.union_list
-            [ env.preds_set; preds_set1; preds_set2 ]
-          in
-          let phi1 = abstract_check { env with preds_set } psi1 TyBool in
-          let phi2 = abstract_check { env with preds_set } psi2 TyBool in
-          TyBool,
-          (match psi with
-           | And _ -> Hfl.And([phi1;phi2],`Original)
-           | Or  _ -> Hfl.Or ([phi1;phi2],`Original) | _ -> assert false),
-          FormulaSet.union preds_set1 preds_set2
+          if false then
+            let _, preds_set1 = infer_type env psi1 in
+            let _, preds_set2 = infer_type env psi2 in
+            let preds_set = FormulaSet.union_list
+              [ env.preds_set; preds_set1; preds_set2 ]
+            in
+            let phi1 = abstract_check { env with preds_set } psi1 TyBool in
+            let phi2 = abstract_check { env with preds_set } psi2 TyBool in
+            TyBool,
+            (match psi with
+             | And _ -> Hfl.And([phi1;phi2],`Original)
+             | Or  _ -> Hfl.Or ([phi1;phi2],`Original) | _ -> assert false),
+            FormulaSet.union preds_set1 preds_set2
+          else
+            let _, phi1, preds_set1 = abstract_infer env psi1 in
+            let _, phi2, preds_set2 = abstract_infer env psi2 in
+            TyBool,
+            (match psi with
+             | And _ -> Hfl.And([phi1;phi2],`Original)
+             | Or  _ -> Hfl.Or ([phi1;phi2],`Original) | _ -> assert false),
+            FormulaSet.union preds_set1 preds_set2
       | Abs _ | Arith _ -> assert false
     in
       let phi = Trans.Simplify.hfl phi in
       Log.debug begin fun m -> m ~header:"Term:Infer"
-          "@[<hv 0>%a⊢@;%a@ ==> %a@;<1 1>⇢  %a; %a@]"
+          "@[<hv 0>%a⊢@;%a@ ==> %a@;<1 1>⇢  %a;@;<1 5>%a@]"
           pp_env env
           Print.(hflz simple_ty_) psi
           IType.pp_hum sigma
