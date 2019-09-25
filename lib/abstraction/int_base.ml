@@ -120,7 +120,7 @@ type gamma = IType.abst_ty IdMap.t
 type env =
   { gamma     : gamma
   ; preds_set : preds_set
-  ; guard     : Formula.t
+  ; guard     : Formula.t list
   }
 
 let name_of_formulas : (Formula.t, Type.abstracted_ty Id.t) Hashtbl.t =
@@ -159,7 +159,7 @@ let pp_env : env Print.t =
   fun ppf env ->
     Print.pf ppf "%a | %a "
       pp_preds env.preds_set
-      Print.formula env.guard
+      Print.formula (Formula.mk_ands env.guard)
 
 let merge_types tys =
   let append_preds ps qs =
@@ -201,8 +201,7 @@ let rec infer_type
         let ty1, preds_set1 = infer_type env psi1 in
         let ty2, preds_set2 = infer_type env psi2 in
         merge_types [ty1;ty2], FormulaSet.union preds_set1 preds_set2
-    | _ -> Fn.fatal "impossible"
-    (* Arith | Abs *)
+    | Arith _ | Abs _ -> Fn.fatal "impossible"
 
 (* Γ | C ⊢ φ : (Φ1,σ1)≤(Φ2,σ2) ↝  φ' *)
 let rec abstract_coerce
@@ -250,11 +249,11 @@ let rec abstract_coerce
             List.map _IJs ~f:begin fun (_I,_Jss) ->
               let conjunctions =
                 List.map _Jss ~f:begin fun _Js ->
-                  let mk_var i = Hfl.mk_var (name_of @@ List.nth_exn qs i) in
+                  let mk_var i = Hfl.mk_var (name_of @@ Array.get qs i) in
                   let mk_atom _J =
                     let subst =
                       List.map one_to_k ~f:begin fun j ->
-                        name_of (List.nth_exn ps j),
+                        name_of (Array.get ps j),
                         Hfl.Bool (List.mem ~equal:(=) _J j)
                       end
                     in
@@ -292,7 +291,7 @@ let rec abstract_coerce
               (preds_set, sigma2)
               (preds_set', sigma2')
           in Hfl.mk_abs x phi2
-      | _ -> Fn.fatal "OMG"
+      | _ -> Fn.fatal "abstract_coerce: simple type mismatch"
     in
     Log.debug begin fun m -> m ~header:"Term:Coerce"
       "@[<hv 0>%a⊢@;%a@;<1 1>: (%a,%a) ≺@;  (%a,%a)@;<1 0>⇢  %a@]"
@@ -372,7 +371,7 @@ let rec abstract_infer
       | Or (psi_m, (Pred(p,as') as psi_s)) ->
           let _, phi_s, preds_set_s = abstract_infer env psi_s in
           let pred = Formula.(mk_not @@ Pred(p,as')) in
-          let guard = Formula.(mk_and env.guard pred) in
+          let guard = pred :: env.guard in
           let preds_set = FormulaSet.remove env.preds_set pred in
           let _, phi_m, preds_set_m =
             abstract_infer { env with guard; preds_set } psi_m
@@ -436,7 +435,7 @@ and abstract_check
       | _ ->
           let sigma', phi, preds_set = abstract_infer env psi in
           let preds_set = FormulaSet.union env.preds_set preds_set in
-          abstract_coerce env.guard phi
+          abstract_coerce (Formula.mk_ands env.guard) phi
             (preds_set, sigma')
             (env.preds_set, sigma)
     in
@@ -452,7 +451,7 @@ and abstract_check
 
 let abstract_rule : gamma -> Type.simple_ty Hflz.hes_rule -> Hfl.hes_rule =
   fun gamma { var; body; fix } ->
-    let env = { gamma; preds_set=FormulaSet.empty; guard=Bool true} in
+    let env = { gamma; preds_set=FormulaSet.empty; guard=[]} in
     let aty = IdMap.lookup gamma var in
     let rule' =
       Hfl.{ var  = Id.{ var with ty = IType.abstract aty }
