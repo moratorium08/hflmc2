@@ -185,12 +185,12 @@ end
 
 module Simplify = struct
   let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =
-    let rec is_trivially_true : Hfl.t -> bool =
+    let is_trivially_true : Hfl.t -> bool =
       fun phi -> match phi with
       | Bool b -> b
       | _ -> false
     in
-    let rec is_trivially_false : Hfl.t -> bool =
+    let is_trivially_false : Hfl.t -> bool =
       fun phi -> match phi with
       | Bool b -> not b
       | _ -> false

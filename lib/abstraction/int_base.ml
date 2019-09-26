@@ -408,7 +408,7 @@ let rec abstract_infer
               preds_set1
           | _ -> assert false
           end
-      | And (psi1,psi2) | Or (psi1, psi2) when true ->
+      | And (psi1,psi2) | Or (psi1, psi2) ->
           let ope, reconstruct = match psi with
             | And _ -> `And, fun phis -> Hfl.And(phis, `Original)
             | Or  _ -> `Or , fun phis -> Hfl.Or (phis, `Original)
@@ -459,62 +459,6 @@ let rec abstract_infer
               reconstruct [phi1;phi2],
               FormulaSet.union preds_set1 preds_set2
           end
-      | And ((Pred(p,as') as psi_s), psi_m)
-      | And (psi_m, (Pred(p,as') as psi_s)) ->
-          let _, phi_s, preds_set_s = abstract_infer env psi_s in
-          let pred = Formula.(Pred(p,as')) in
-          let guard = pred :: env.guard in
-          let preds_set = FormulaSet.remove env.preds_set pred in
-          let _, phi_m, preds_set_m =
-            abstract_infer { env with guard; preds_set } psi_m
-          in
-          let reorder = match psi with
-            | And (Pred _, _) -> [phi_s;phi_m]
-            | And (_, Pred _) -> [phi_m;phi_s]
-            | _ -> assert false
-          in
-          TyBool,
-          Hfl.mk_ands reorder ~kind:`Original,
-          FormulaSet.union preds_set_m preds_set_s
-      | Or ((Pred(p,as') as psi_s), psi_m)
-      | Or (psi_m, (Pred(p,as') as psi_s)) ->
-          let _, phi_s, preds_set_s = abstract_infer env psi_s in
-          let pred = Formula.(mk_not @@ Pred(p,as')) in
-          let guard = pred :: env.guard in
-          let preds_set = FormulaSet.remove env.preds_set pred in
-          let _, phi_m, preds_set_m =
-            abstract_infer { env with guard; preds_set } psi_m
-          in
-          let reorder = match psi with
-            | Or (Pred _, _) -> [phi_s;phi_m]
-            | Or (_, Pred _) -> [phi_m;phi_s]
-            | _ -> assert false
-          in
-          TyBool,
-          Hfl.mk_ors reorder ~kind:`Original,
-          FormulaSet.union preds_set_m preds_set_s
-      | And (psi1,psi2) | Or (psi1,psi2) ->
-          if false then
-            let _, preds_set1 = infer_type env psi1 in
-            let _, preds_set2 = infer_type env psi2 in
-            let preds_set = FormulaSet.union_list
-              [ env.preds_set; preds_set1; preds_set2 ]
-            in
-            let phi1 = abstract_check { env with preds_set } psi1 TyBool in
-            let phi2 = abstract_check { env with preds_set } psi2 TyBool in
-            TyBool,
-            (match psi with
-             | And _ -> Hfl.And([phi1;phi2],`Original)
-             | Or  _ -> Hfl.Or ([phi1;phi2],`Original) | _ -> assert false),
-            FormulaSet.union preds_set1 preds_set2
-          else
-            let _, phi1, preds_set1 = abstract_infer env psi1 in
-            let _, phi2, preds_set2 = abstract_infer env psi2 in
-            TyBool,
-            (match psi with
-             | And _ -> Hfl.And([phi1;phi2],`Original)
-             | Or  _ -> Hfl.Or ([phi1;phi2],`Original) | _ -> assert false),
-            FormulaSet.union preds_set1 preds_set2
       | Abs _ | Arith _ -> assert false
     in
       let phi = Trans.Simplify.hfl phi in
