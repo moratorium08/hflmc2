@@ -377,8 +377,11 @@ let rec abstract_infer
               let preds' =
                 List.map preds ~f:begin fun f ->
                   Trans.Subst.Arith'.formula x a f
-                  (* |> Formula.(mk_implies (mk_ands env.guard)) *)
-                  (* Problematic! *)
+                  (* Problematic! *) (* TODO control by option *)
+                  |> Formula.(mk_implies (mk_ands env.guard))
+                  |> Trans.Simplify.formula
+                        ~is_true:FpatInterface.is_valid
+                        ~is_false:FpatInterface.is_unsat
                 end
               in
               IType.Subst.arith x a sigma,

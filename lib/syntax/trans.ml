@@ -211,25 +211,26 @@ module Simplify = struct
       | App(phi1,phi2) -> App(hfl ~force phi1, hfl ~force phi2)
       | phi -> phi
 
+  let rec is_true_def =
+    fun phi -> match phi with
+    | Formula.Bool b -> b
+    | Formula.And phis -> List.for_all ~f:is_true_def phis
+    | Formula.Or  phis -> List.exists  ~f:is_true_def phis
+    | _ -> false
+  let rec is_false_def =
+    fun phi -> match phi with
+    | Formula.Bool b -> not b
+    | Formula.And phis -> List.exists  ~f:is_false_def phis
+    | Formula.Or  phis -> List.for_all ~f:is_false_def phis
+    | _ -> false
+
   let rec formula
             : 'bvar 'avar
-            . ('bvar, 'avar) Formula.gen_t
+            . ?is_true:(('bvar, 'avar) Formula.gen_t -> bool)
+           -> ?is_false:(('bvar, 'avar) Formula.gen_t -> bool)
+           -> ('bvar, 'avar) Formula.gen_t
            -> ('bvar, 'avar) Formula.gen_t =
-    let rec is_true =
-      fun phi -> match phi with
-      | Formula.Bool b -> b
-      | Formula.And phis -> List.for_all ~f:is_true phis
-      | Formula.Or  phis -> List.exists  ~f:is_true phis
-      | _ -> false
-    in
-    let rec is_false =
-      fun phi -> match phi with
-      | Formula.Bool b -> not b
-      | Formula.And phis -> List.exists  ~f:is_false phis
-      | Formula.Or  phis -> List.for_all ~f:is_false phis
-      | _ -> false
-    in
-    function
+    fun ?(is_true=is_true_def) ?(is_false=is_false_def) -> function
     | Formula.And phis ->
         let phis = List.map ~f:formula phis in
         let phis = List.filter ~f:Fn.(not <<< is_true) phis in
