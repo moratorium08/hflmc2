@@ -9,9 +9,10 @@ let oneshot = ref false
 
 module Abstraction = struct
   (* NOTE Actual value is set by Cmdliner *)
-  let max_ors           = ref 0
-  let max_ands          = ref 0
-  let exhaustive_search = ref true
+  let max_ors              = ref (Obj.magic())
+  let max_ands             = ref (Obj.magic())
+  let exhaustive_search    = ref (Obj.magic())
+  let modify_pred_by_guard = ref (Obj.magic())
 end
 
 (******************************************************************************)
@@ -55,15 +56,19 @@ type params =
   ; abst_exhaustive_search : bool [@default false]
     (** Do exhaustive search in predicate abstraction *)
 
+  ; abst_no_modify_pred_by_guard : bool [@default false]
+    (** Whether modify [pred] into [C => pred] *)
+
   }
   [@@deriving cmdliner,show]
 
 let set_up_params params =
   set_debug_modules params.debug;
-  set_ref Abstraction.max_ors           params.abst_max_ors;
-  set_ref Abstraction.max_ands          params.abst_max_ands;
-  set_ref Abstraction.exhaustive_search params.abst_exhaustive_search;
-  set_ref oneshot                       params.oneshot;
+  set_ref oneshot                          params.oneshot;
+  set_ref Abstraction.max_ors              params.abst_max_ors;
+  set_ref Abstraction.max_ands             params.abst_max_ands;
+  set_ref Abstraction.exhaustive_search    params.abst_exhaustive_search;
+  set_ref Abstraction.modify_pred_by_guard (not params.abst_no_modify_pred_by_guard);
   params.input
 
 (******************************************************************************)

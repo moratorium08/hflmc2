@@ -377,12 +377,14 @@ let rec abstract_infer
           | TyArrow({ty = TyInt preds; _} as x, sigma), phi, preds_set ->
               let preds' =
                 List.map preds ~f:begin fun f ->
-                  Trans.Subst.Arith'.formula x a f
-                  (* Problematic! *) (* TODO control by option *)
-                  |> Formula.(mk_implies (mk_ands env.guard))
-                  |> Trans.Simplify.formula
-                        ~is_true:FpatInterface.is_valid
-                        ~is_false:FpatInterface.is_unsat
+                  let pred = Trans.Subst.Arith'.formula x a f in
+                  if !Options.modify_pred_by_guard then
+                    pred (* This may result in increase of #predicate *)
+                    |> Formula.(mk_implies (mk_ands env.guard))
+                    |> Trans.Simplify.formula
+                          ~is_true:FpatInterface.is_valid
+                          ~is_false:FpatInterface.is_unsat
+                  else pred
                 end
               in
               IType.Subst.arith x a sigma,
