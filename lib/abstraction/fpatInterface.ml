@@ -98,6 +98,8 @@ let is_unsat : Formula.t -> bool =
 let is_consistent_set : Formula.t list -> bool =
   fun fs -> not (Formula.mk_ands fs ==> Formula.Bool false)
 
+let simplify = Trans.Simplify.formula ~is_true:is_valid ~is_false:is_unsat
+
 module FpatReImpl = struct
   type def =
     { pred : Formula.t
@@ -354,23 +356,10 @@ module FpatReImpl = struct
 
 end
 
-let min_unsat_cores' : Formula.t list -> bformula =
+let min_unsat_cores' : Formula.t array -> bformula =
   fun preds ->
-    if false then
-      let pbs =
-        List.mapi preds ~f:begin fun i pred ->
-          let p = of_formula pred in
-          let x = Fpat.(Formula.of_term
-                        @@ Term.mk_var (Idnt.make ("x"^string_of_int i))) in
-                        (* NOTE: ith predicate is named "xi" *)
-          (p, x)
-        end
-      in
-      Fpat.PredAbst.min_unsat_cores [] pbs
-      |> to_bformula
-    else
-      let defs = Array.of_list @@
-        List.mapi preds ~f:begin fun i pred ->
+      let defs =
+        Array.mapi preds ~f:begin fun i pred ->
           let bvar = ("x"^string_of_int i, `Pos) in
           FpatReImpl.{pred; bvar}
         end
@@ -378,10 +367,11 @@ let min_unsat_cores' : Formula.t list -> bformula =
       FpatReImpl.min_unsat_cores (Formula.Bool true) defs
 
 (* phiをpredsのみで（否定を使わずに）近似．弱い方に倒す *)
-let weakest_pre_cond' : Formula.t -> Formula.t list -> bformula =
+let weakest_pre_cond' : Formula.t -> Formula.t array -> bformula =
   fun phi preds ->
     if false then
       let env = [] in
+      let preds = Array.to_list preds in
       let pbs =
         List.mapi preds ~f:begin fun i pred ->
           let p = of_formula pred in
@@ -397,8 +387,8 @@ let weakest_pre_cond' : Formula.t -> Formula.t list -> bformula =
       |> fst
       |> to_bformula
     else
-      let defs = Array.of_list @@
-        List.mapi preds ~f:begin fun i pred ->
+      let defs =
+        Array.mapi preds ~f:begin fun i pred ->
           let bvar = ("x"^string_of_int i, `Pos) in
           FpatReImpl.{pred; bvar}
         end
@@ -407,20 +397,20 @@ let weakest_pre_cond' : Formula.t -> Formula.t list -> bformula =
 
 
 (* phiをpredsのみで（否定を使わずに）近似．強い方に倒す *)
-let strongest_post_cond' : Formula.t -> Formula.t list -> bformula =
+let strongest_post_cond' : Formula.t -> Formula.t array -> bformula =
   fun phi preds ->
     Formula.mk_not' negate_var
       @@ weakest_pre_cond'
           (Formula.mk_not phi)
-          (List.map preds ~f:Formula.mk_not)
+          (Array.map preds ~f:Formula.mk_not)
 
-let min_valid_cores' : Formula.t list -> bformula =
+let min_valid_cores' : Formula.t array -> bformula =
   fun preds ->
     Formula.mk_not' negate_var
       @@ min_unsat_cores'
-      @@ List.map preds ~f:Formula.mk_not
+      @@ Array.map preds ~f:Formula.mk_not
 
-let aux_in_DNF : bformula -> int list list =
+let to_index_repr : bformula -> int list list =
   fun phi ->
     List.map (Formula.to_DNF phi) ~f:begin
       List.map ~f:begin function
@@ -429,14 +419,12 @@ let aux_in_DNF : bformula -> int list list =
         | _ -> assert false
       end
     end
-let weakest_pre_cond : Formula.t -> Formula.t array -> int list list =
-  (* fun phi preds -> aux_in_DNF @@ weakest_pre_cond' phi @@ Array.to_list preds *)
-  fun phi preds -> aux_in_DNF @@ weakest_pre_cond' phi @@ Array.to_list preds
-
 let strongest_post_cond : Formula.t -> Formula.t array -> int list list =
-  fun phi preds -> aux_in_DNF @@ strongest_post_cond' phi @@ Array.to_list preds
-let min_unsat_cores : Formula.t array -> int list list =
-  fun preds -> aux_in_DNF @@ min_unsat_cores' @@ Array.to_list preds
+  fun phi preds -> to_index_repr @@ strongest_post_cond' phi preds
 let min_valid_cores : Formula.t array -> int list list =
-  fun preds -> aux_in_DNF @@ min_valid_cores' @@ Array.to_list preds
+  fun preds -> to_index_repr @@ min_valid_cores' preds
 
+(* let weakest_pre_cond : Formula.t -> Formula.t array -> int list list = *)
+(*   fun phi preds -> to_index_repr @@ weakest_pre_cond' phi @@ Array.to_list preds *)
+(* let min_unsat_cores : Formula.t array -> int list list = *)
+(*   fun preds -> to_index_repr @@ min_unsat_cores' preds *)

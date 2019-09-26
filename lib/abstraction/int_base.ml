@@ -221,11 +221,10 @@ let rec abstract_coerce
       | TyBool, TyBool
           when FormulaSet.(is_empty (diff preds_set preds_set')) -> phi
       | TyBool, TyBool ->
-          let ps =
-            let fvs = Hfl.fvs phi in
-            FormulaSet.(diff preds_set preds_set')
+          let ps = preds_set
+            |> FormulaSet.diff -$- preds_set'
             |> FormulaSet.filter ~f:begin fun f ->
-                 IdSet.mem fvs (name_of f)
+                 IdSet.mem (Hfl.fvs phi) (name_of f)
                end
             |> FormulaSet.to_array
           in
@@ -249,6 +248,8 @@ let rec abstract_coerce
           in
           let phi's =
             let _IJs =
+              let min_valid_cores'= FpatInterface.min_valid_cores' ps in
+              let min_valid_cores = FpatInterface.to_index_repr min_valid_cores' in
               List.map _Is ~f:begin fun _I ->
                 let qs' = List.(map ~f:(Array.get qs) _I) in
                 let _Q  = Formula.mk_ands (guard::qs') in
@@ -257,10 +258,32 @@ let rec abstract_coerce
                   if FpatInterface.(_Q ==> Formula.Bool false) then
                     [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
                   else if FpatInterface.is_valid _Q then
-                    [FpatInterface.min_valid_cores ps]
+                    [min_valid_cores]
                   else
-                    [FpatInterface.strongest_post_cond _Q ps]
+                    (* TODO remove dupulicate
+                     * TODO まとめて計算できるようにする
+                     * というかなんで今はmin_valid_coresと別々に計算してるんだろう *)
+                    [FpatInterface.to_index_repr @@ Formula.mk_ands
+                      [ min_valid_cores'
+                      ; FpatInterface.strongest_post_cond' _Q ps
+                      ]
+                    ]
                 in
+                if false then Log.debug begin fun m ->
+                  let x =
+                    let open Formula in
+                    mk_ands @@ List.map _Jss ~f:
+                      begin fun _Js ->
+                        mk_ors @@ List.map _Js ~f:
+                          begin fun _J ->
+                            mk_ands @@ List.map _J ~f:(Array.get ps)
+                          end
+                      end
+                  in
+                  m ~header:"CoerceAtom" "@[<v>%a ===> %a@]"
+                    Print.formula (FpatInterface.simplify _Q)
+                    Print.formula (FpatInterface.simplify x)
+                end;
                 (_I, _Jss)
               end
             in
