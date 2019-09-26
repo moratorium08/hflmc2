@@ -200,11 +200,11 @@ module Simplify = struct
       | And(phis, k) when k = `Inserted || force ->
           let phis = List.map ~f:hfl phis in
           let phis = List.filter ~f:Fn.(not <<< is_trivially_true) phis in
-          And (phis, k)
+          Hfl.mk_ands phis ~kind:k
       | Or(phis, k) when k = `Inserted || force ->
           let phis = List.map ~f:hfl phis in
           let phis = List.filter ~f:Fn.(not <<< is_trivially_false) phis in
-          Or (phis, k)
+          Hfl.mk_ors phis ~kind:k
       | And(phis, k) -> And(List.map ~f:hfl phis, k)(* preserve the structure *)
       | Or (phis, k) -> Or (List.map ~f:hfl phis, k)(* preserve the structure *)
       | Abs(x,phi)     -> Abs(x, hfl ~force phi)
