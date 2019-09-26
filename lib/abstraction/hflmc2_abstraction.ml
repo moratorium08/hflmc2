@@ -94,7 +94,7 @@ let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
 (* 最初はとりあえず効率を考えないでbacktrackで実装しよう *)
 let rec infer_type : env -> simple_ty Hflz.t -> abstraction_ty =
   fun env psi -> match psi with
-    | Bool b -> TyBool [Bool b] (* TODO これでいいんか？ *)
+    | Bool _ -> TyBool []
     | Var x -> IdMap.lookup env x
     | Pred(p,as') -> TyBool [Pred(p,as')]
     | App(psi1, Arith a) ->
@@ -294,8 +294,8 @@ let rec abstract_infer
           (sigma , Var { v with ty = Type.abstract sigma })
       (* Bool *)
       | Bool b ->
-          let sigma = TyBool Formula.[Bool b] in
-          (sigma, Hfl.mk_identity ATyBool)
+          let sigma = TyBool [] in
+          (sigma, Hfl.Bool b)
       (* Pred-Simple *)
       | Pred(p,as') ->
           let sigma = TyBool Formula.[Pred(p,as')] in

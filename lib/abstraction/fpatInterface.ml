@@ -108,10 +108,9 @@ module FpatReImpl = struct
 
   type defs = def array
 
-  (* TODO intのbitを使う *)
   module Conj_ = struct
     (* represents conjunction of predicates 
-     * If defs=[|p1;p2;p3|], [|true;false;true|} represents p1/\p3 *)
+     * If defs=[|p1;p2;p3|], [|true;false;true|] represents p1/\p3 *)
     type t = bool array
     let sexp_of_t = Array.sexp_of_t Bool.sexp_of_t
     let t_of_sexp = Array.t_of_sexp Bool.t_of_sexp
@@ -141,10 +140,10 @@ module FpatReImpl = struct
         end
   end
   module Conj = struct
+    (* represents conjunction of predicates
+     * If defs=[|p1;p2;p3|], 0b101 represents p1/\p3 *)
     type t = int
-    let sexp_of_t = sexp_of_int
-    let t_of_sexp = int_of_sexp
-    let compare   = compare
+      [@@deriving eq,ord,show,iter,map,fold,sexp]
     let pp =
       let bin_of_int d =
         if d < 0 then invalid_arg "bin_of_int" else
@@ -256,7 +255,7 @@ module FpatReImpl = struct
         end
         |> Set.to_list
         |> Pbss.union_list
-        |> Set.diff -$- pbss2 (* TODO これでいいのか *)
+        |> Set.diff -$- pbss2
         (* |> Pbss.filter ~f:begin fun pbs -> *)
         (*      Array.count pbs ~f:Fn.id <= 3 (* andは3つまで *) *)
         (*    end *)
@@ -321,7 +320,7 @@ module FpatReImpl = struct
         end
         |> Set.to_list
         |> Pbss.union_list
-        |> Set.diff -$- pbss2 (* TODO これでいいのか *)
+        |> Set.diff -$- pbss2
         (* |> Pbss.filter ~f:begin fun pbs -> *)
         (*      Array.count pbs ~f:Fn.id <= 3 (* andは3つまで *) *)
         (*    end *)
@@ -408,11 +407,6 @@ let weakest_pre_cond' : Formula.t -> Formula.t list -> bformula =
 
 
 (* phiをpredsのみで（否定を使わずに）近似．強い方に倒す *)
-(* TODO:
- *  phi=true; preds={n<0; n>=0}のとき，trueが返ってくるが，
- *  n<0 \/ n>=0 が返ってきてくれたほうがabstractionの結果は良くなる
- *  誤差の範囲かも知れないけど（要検証）
- * *)
 let strongest_post_cond' : Formula.t -> Formula.t list -> bformula =
   fun phi preds ->
     Formula.mk_not' negate_var

@@ -134,11 +134,8 @@ module Subst = struct
                 let x_rule =
                   List.find_exn hes ~f:(fun rule -> Id.eq x rule.var)
                 in
-                (* TODO
-                 * このbodyがTyBool型を持っていることは隠れinvariant．
-                 * parserで保証されている？ *)
                 let vars1, body = Hflz.decompose_abs x_rule.body in
-                (vars0@vars1), body
+                vars0@vars1, body
             | vars, body -> vars, body
           in
           let env = IdMap.of_list @@ List.zip_exn vars args in
