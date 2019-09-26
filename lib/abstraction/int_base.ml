@@ -402,10 +402,10 @@ let rec abstract_infer
           end
       | App(psi1, psi2) ->
           begin match abstract_infer env psi1 with
-          | TyArrow({ty = TySigma sigma1; _}, sigma2), phi1, preds_set1 ->
+          | TyArrow({ty = TySigma sigma; _}, sigma'), phi1, preds_set1 ->
               let preds_set = FormulaSet.union env.preds_set preds_set1 in
-              let phi2 = abstract_check { env with preds_set } psi2 sigma1 in
-              sigma2,
+              let phi2 = abstract_check { env with preds_set } psi2 sigma in
+              sigma',
               Hfl.mk_app phi1 phi2,
               preds_set1
           | _ -> assert false
@@ -443,7 +443,7 @@ let rec abstract_infer
               reconstruct reorder,
               FormulaSet.union preds_set_m preds_set_s
           | _ ->
-            if false then (* TODO: control by option *)
+            if false then (* TODO (low priority): control by option *)
               let _, preds_set1 = infer_type env psi1 in
               let _, preds_set2 = infer_type env psi2 in
               let preds_set = FormulaSet.union_list
