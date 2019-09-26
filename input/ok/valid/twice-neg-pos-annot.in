@@ -1,5 +1,5 @@
 %HES
-S n          =v Twice Neg n Pos || n <= 0.
+S            =v Twice Neg n Pos || n <= 0.
 Neg x k      =v k (-x).
 Pos y        =v y > 0.
 Twice f z k_ =v f z (Flip f k_).

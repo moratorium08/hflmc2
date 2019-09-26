@@ -1,6 +1,5 @@
-/* This example requires intersectoin type inference */
 %HES
-S n         =v Twice Neg Pos n || n <= 0.
+S           =v Twice Neg Pos n \/ n <= 0.
 Twice f k z =v f (f k) z.
-Neg k x     =v k (-x).
+Neg k x     =v k (0-x).
 Pos y       =v y > 0.
