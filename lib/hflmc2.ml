@@ -18,7 +18,7 @@ let show_result = function
   | `Invalid    -> "Invalid"
   | `NoProgress -> "NoProgress"
 
-module CexSet = Set.Make(Modelcheck.Counterexample)
+module CexSet = Set.Make'(Modelcheck.Counterexample)
 
 let measure_time f =
   let start  = Unix.gettimeofday () in

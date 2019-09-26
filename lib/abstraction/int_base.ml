@@ -112,7 +112,7 @@ module IType = struct
   end
 end
 
-module FormulaSet = Set.Make(Formula)
+module FormulaSet = Set.Make'(Formula)
 type preds_set = FormulaSet.t
 
 type gamma = IType.abst_ty IdMap.t
@@ -269,7 +269,8 @@ let rec abstract_coerce
               |> List.sort ~compare:Fn.(on snd compare)
               |> List.group ~break:Fn.(on snd (<>))
               (* Remove I which has its subset in the same group *)
-              |> List.concat_map ~f:Fn.(maximals' (on fst (flip List.subset)))
+              |> List.concat_map
+                  ~f:(List.maximals' Fn.(on fst (flip List.subset)))
             in
             List.map _IJs ~f:begin fun (_I,_Jss) ->
               let conjunctions =

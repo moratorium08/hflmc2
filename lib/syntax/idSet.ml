@@ -1,5 +1,5 @@
 open Hflmc2_util
-include Set.Make(Id.Key)
+include Set.Make'(Id.Key)
 let singleton : 'a. 'a Id.t -> t =
   fun v -> singleton (Id.remove_ty v)
 let remove : 'a. t -> 'a Id.t -> t =

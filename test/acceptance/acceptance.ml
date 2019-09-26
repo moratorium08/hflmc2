@@ -30,7 +30,7 @@ let check : test_sort -> bool =
     let files = List.sort ~compare @@ Sys.ls_dir dir in
     let max_len =
       List.map ~f:String.length files
-      |> Fn.maximals' (fun a b -> a <= b)
+      |> List.maximals' (fun a b -> a <= b)
       |> List.hd_exn
     in
     let count = ref 0 in

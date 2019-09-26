@@ -58,7 +58,7 @@ module Key = struct
 end
 
 module Map = Map.Make'(Key)
-module Set = Set.Make(Key)
+module Set = Set.Make'(Key)
 
 let counters : (t, int) Hashtbl.t = Hashtbl.create (module Key)
 let reset_counters () = Hashtbl.clear counters

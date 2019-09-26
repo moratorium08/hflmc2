@@ -50,7 +50,7 @@ module Counterexample = struct
           , Or (c21,c22) -> c11<=c21 && c12<=c22
           | _ -> false
         in
-        match Fn.maximals' (<=) @@ List.map ~f:simplify cs with
+        match List.maximals' (<=) @@ List.map ~f:simplify cs with
         | [x] -> x
         | xs -> Nd xs
 

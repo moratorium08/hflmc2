@@ -186,7 +186,7 @@ module FpatReImpl = struct
        (not b2 || b1)
      end
 
-  module Pbss = Set.Make(struct
+  module Pbss = Set.Make'(struct
     include Conj
     include Core.Comparable.Make(Conj)
   end)
@@ -278,7 +278,7 @@ module FpatReImpl = struct
               pp_pbss pbss
             end; pbss
            end
-        (* |> Fn.maximals' list_subset *) (* TODO *)
+        |> Pbss.maximals' Conj.(=~>)
         |> begin fun pbss ->
             if Pbss.is_empty pbss
             then (pbss1, pbss3)

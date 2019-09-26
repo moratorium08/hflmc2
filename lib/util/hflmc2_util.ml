@@ -57,6 +57,52 @@ module List = struct
     for_all xs ~f:begin fun x ->
       exists ys ~f:begin fun y ->
         x = y end end
+  (* compareをリスペクトするtotal orderがあればmerge sortの
+   * 要領でO(n log n)でできるがこれがボトルネックとなるとは思えないので
+   * とりあえず O(n^2) で実装する
+   *)
+  let rec maximals
+       : 'a list
+      -> compare:('a -> 'a -> int option)
+      -> 'a list =
+    fun xs ~compare ->
+      let remove_lt x ys =
+        let is_maximal = ref true in
+        let rec go x ys =
+          match ys with
+          | [] -> []
+          | y::ys ->
+              begin match compare x y with
+              | Some n when n >= 0 ->
+                  go x ys
+              | Some _ ->
+                  is_maximal := false;
+                  y :: go y ys (* xでもよいがこの方が速い *)
+              | None ->
+                  y :: go x ys
+              end
+        in
+        let ys' = go x ys in
+        (!is_maximal, ys')
+      in
+      match xs with
+      | [] -> []
+      | x::xs ->
+          let (is_maximal, ys) = remove_lt x xs in
+          if is_maximal
+          then x :: maximals ~compare ys
+          else maximals ~compare ys
+  let maximals' (<=) xs =
+    let compare a b =
+      let a_le_b = a <= b in
+      let b_le_a = b <= a in
+      match () with
+      | _ when a_le_b && b_le_a -> Some 0
+      | _ when a_le_b           -> Some (-1)
+      | _ when b_le_a           -> Some 1
+      | _                       -> None
+    in
+    maximals ~compare xs
 end
 
 module Bool = Bool
@@ -87,9 +133,16 @@ end
 module IntMap   = Map.Make'(Int)
 module StrMap   = Map.Make'(String)
 
-module Set      = Set
-module IntSet   = Set.Make(Int)
-module StrSet   = Set.Make(String)
+module Set      = struct
+  include Set
+  module Make'(Elt : Elt) = struct
+    include Make(Elt)
+    let maximals' (<=) set =
+      to_list set |> List.maximals' (<=) |> of_list
+  end
+end
+module IntSet   = Set.Make'(Int)
+module StrSet   = Set.Make'(String)
 
 module Option   = Option
 
@@ -140,53 +193,6 @@ module Fn = struct
   let ( <<< ) f g x = f (g x)
   let ( >>> ) f g x = g (f x)
   let ( -$- ) f x y = f y x
-
-  (* compareをリスペクトするtotal orderがあればmerge sortの
-   * 要領でO(n log n)でできるがこれがボトルネックとなるとは思えないので
-   * とりあえず O(n^2) で実装する
-   *)
-  let rec maximals
-       : 'a list
-      -> compare:('a -> 'a -> int option)
-      -> 'a list =
-    fun xs ~compare ->
-      let remove_lt x ys =
-        let is_maximal = ref true in
-        let rec go x ys =
-          match ys with
-          | [] -> []
-          | y::ys ->
-              begin match compare x y with
-              | Some n when n >= 0 ->
-                  go x ys
-              | Some _ ->
-                  is_maximal := false;
-                  y :: go y ys (* xでもよいがこの方が速い *)
-              | None ->
-                  y :: go x ys
-              end
-        in
-        let ys' = go x ys in
-        (!is_maximal, ys')
-      in
-      match xs with
-      | [] -> []
-      | x::xs ->
-          let (is_maximal, ys) = remove_lt x xs in
-          if is_maximal
-          then x :: maximals ~compare ys
-          else maximals ~compare ys
-  let maximals' (<=) xs =
-    let compare a b =
-      let a_le_b = a <= b in
-      let b_le_a = b <= a in
-      match () with
-      | _ when a_le_b && b_le_a -> Some 0
-      | _ when a_le_b           -> Some (-1)
-      | _ when b_le_a           -> Some 1
-      | _                       -> None
-    in
-    maximals ~compare xs
 
   let read_file file = In_channel.(with_file file ~f:input_all)
 

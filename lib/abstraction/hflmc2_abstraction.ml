@@ -203,7 +203,7 @@ let rec abstract_coerce
                           end
                         in
                         let (<=) (_,p1) (_,p2) = FpatInterface.(p2 ==> p1) in
-                        List.map ~f:fst @@ Fn.maximals' (<=) candidates
+                        List.map ~f:fst @@ List.maximals' (<=) candidates
                       else if FpatInterface.is_valid _Q then
                         [FpatInterface.min_valid_cores (Array.of_list ps)]
                       else
@@ -218,7 +218,8 @@ let rec abstract_coerce
                   |> List.sort ~compare:Fn.(on snd compare)
                   |> List.group ~break:Fn.(on snd (<>))
                   (* Remove I which has its subset in the same group *)
-                  |> List.concat_map ~f:Fn.(maximals' (on fst (flip List.subset)))
+                  |> List.concat_map
+                      ~f:(List.maximals' Fn.(on fst (flip List.subset)))
                 in
                 List.map _IJs ~f:begin fun (_I,_Jss) ->
                   let conjunctions =
