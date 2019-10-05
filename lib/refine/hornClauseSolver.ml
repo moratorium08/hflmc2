@@ -11,7 +11,7 @@ let () = Fpat.FPATConfig.set_default()
 module ToFpat = struct
 
   let idnt_of_tv : TraceVar.t -> Fpat.Idnt.t =
-    fun t -> Fpat.Idnt.make (Print.strf "%a" TraceVar.pp_hum t)
+    fun t -> Fpat.Idnt.make (Print.strf "|%a|" TraceVar.pp_hum t)
 
   let term_of_tv : TraceVar.t -> Fpat.Term.t =
     fun t -> Fpat.Term.mk_var (idnt_of_tv t)
@@ -22,7 +22,7 @@ module ToFpat = struct
       Fpat.TypTerm.make (term_of_tv t) Fpat.Type.mk_int
 
   let idnt_of_aged : TraceVar.aged -> Fpat.Idnt.t =
-    fun aged -> Fpat.Idnt.make (Print.strf "%a" TraceVar.pp_hum_aged aged)
+    fun aged -> Fpat.Idnt.make (Print.strf "|%a|" TraceVar.pp_hum_aged aged)
 
   let term_of_aged : TraceVar.aged -> Fpat.Term.t =
     fun aged -> Fpat.Term.mk_var (idnt_of_aged aged)
@@ -33,7 +33,7 @@ module ToFpat = struct
       Fpat.TypTerm.make (term_of_aged aged) Fpat.Type.mk_int
 
   let idnt_of_trace_var : TraceVar.t -> Fpat.Idnt.t =
-    fun tv -> Fpat.Idnt.make (Print.strf "%a" TraceVar.pp_hum tv)
+    fun tv -> Fpat.Idnt.make (Print.strf "|%a|" TraceVar.pp_hum tv)
 
   let term_of_trace_var : TraceVar.t -> Fpat.Term.t =
     fun tv -> Fpat.Term.mk_var (idnt_of_trace_var tv)
@@ -69,7 +69,7 @@ module ToFpat = struct
   let rec formula_of_arith : arith -> Fpat.Formula.t = function
     | Int n -> Fpat.Formula.of_term @@ Fpat.Term.mk_const (Fpat.Const.Int n)
     | Var (`E x) ->
-        let x' = Fpat.Idnt.make (Id.to_string x) in
+        let x' = Fpat.Idnt.make ("|"^Id.to_string x^"|") in
         Fpat.Formula.mk_var x' []
     | Var (`I tv) ->
         Fpat.Formula.of_term @@ term_of_trace_var tv
@@ -120,7 +120,7 @@ module ToFpat = struct
     fun chc -> Fpat.HornClause.make (head chc.head) (body chc.body)
 
   let hccs : t list -> Fpat.HCCS.t =
-    List.map ~f:(hornClause) >>> Fpat.HCCS.normalize2
+    List.map ~f:hornClause >>> Fpat.HCCS.normalize2
 end
 
 module OfFpat = struct
@@ -183,7 +183,7 @@ module OfFpat = struct
       let lookup_pred : HornClause.pred_var -> Formula.t =
         fun pv ->
           let pv_name = match pv with
-            | PredVar aged -> TraceVar.string_of_aged aged
+            | PredVar aged -> "|"^TraceVar.string_of_aged aged^"|"
           in
           let fpat_args, fpat_pred =
             StrMap.find_exn pred_map pv_name
@@ -285,8 +285,8 @@ let interpolate : formula -> formula -> formula option =
             end
           in
           let map = StrMap.of_alist_exn @@ List.map xs ~f:begin function
-            | `I x -> TraceVar.string_of x, `I x
-            | `E n -> Id.to_string n, `E n
+            | `I x -> "|"^TraceVar.string_of x^"|", `I x
+            | `E n -> "|"^Id.to_string n^"|", `E n
             end
           in fun x -> StrMap.find_exn map x
         in
