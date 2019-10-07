@@ -303,13 +303,11 @@ let gen_HCCS
         | (And _ | Or _), Leaf _ ->
             []
         | Bool false, _ ->
-            [{ head=None; body=guard }]
-        | Pred (pred, as'), _ ->
-            let body = guard
-              |> HornClause.append_phi Formula.[mk_not @@ mk_pred pred as']
-              |> HornClause.append_pvs Option.(to_list pv)
-            in
-            [{ head=None; body }]
+            let body = HornClause.append_pvs Option.(to_list pv) guard in
+            [{ head= `P (Formula.mk_bool false); body }]
+         | Pred (pred, as'), _ ->
+            let body = HornClause.append_pvs Option.(to_list pv) guard in
+            [{ head= `P (Formula.mk_pred pred as'); body }]
         | And (psi1,_), AndL c ->
             go reduce_env guard pv psi1 c
         | And (_,psi2), AndR c ->
@@ -509,7 +507,6 @@ let gen_HCCS
       TraceExpr.(mk_apps (mk_var head) (List.map args ~f:mk_var))
     in
     go TraceVar.Map.empty empty_guard None main cex
-
 
 type result = [ `Feasible | `Refined of Hflmc2_abstraction.env ]
 
