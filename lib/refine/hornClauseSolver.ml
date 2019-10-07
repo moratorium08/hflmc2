@@ -313,10 +313,10 @@ let solve : simple_ty Hflz.hes -> t list -> Hflmc2_abstraction.env =
           , Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate false))
       ; "GenHCCSSolver+Interp"
           , Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate true))
-      ; "BwIPHCCSSolver"
-          , Fpat.BwIPHCCSSolver.solve
-      ; "FwHCCSSolver"
-          , Fpat.FwHCCSSolver.solve_simp
+      ; "BwIPHCCSSolver" , Fpat.BwIPHCCSSolver.solve
+      ; "Pdr"            , Fpat.HCCSSolver.solve_pdr
+      (* ; "Duality"        , Fpat.HCCSSolver.solve_duality *)
+      (* ; "FwHCCSSolver"   , Fpat.FwHCCSSolver.solve_simp *)
       ]
     in
     let map =
