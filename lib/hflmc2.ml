@@ -18,7 +18,8 @@ let show_result = function
   | `Invalid    -> "Invalid"
   | `NoProgress -> "NoProgress"
 
-module CexSet = Set.Make'(Modelcheck.Counterexample)
+module CexSet = Set.Make'(Modelcheck.Counterexample.Normalized)
+(* module CexSet = Set.Make'(Modelcheck.Counterexample) *)
 
 let measure_time f =
   let start  = Unix.gettimeofday () in
@@ -72,17 +73,21 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
       Log.app begin fun m -> m ~header:"Counterexample" "@[<2>%a@]"
         Sexp.pp_hum (C.sexp_of_t cex)
       end;
-      if CexSet.mem prev_cexs cex then
-        `NoProgress
+      (* Refine *)
+      let ncexs = CexSet.(diff (of_list (C.normalize cex)) prev_cexs) in
+      if CexSet.is_empty ncexs then
+        Fn.fatal "NoProgress"
       else
-        (* Refine *)
-        let ncexs = C.normalize cex in
+        let next_cexs = CexSet.union prev_cexs ncexs in
         let rec loop gamma ncexs =
           match ncexs with
           | [] ->
               if !Options.oneshot then failwith "oneshot";
-              cegar_loop (CexSet.add prev_cexs cex) (loop_count+1) psi gamma
+              cegar_loop next_cexs (loop_count+1) psi gamma
           | ncex::ncexs ->
+              Log.info begin fun m -> m ~header:"Refine:cex" "%a"
+                C.pp_hum_normalized ncex
+              end;
               begin match add_mesure_time "Refine" @@ fun () ->
                 Refine.run psi ncex gamma
               with
@@ -90,7 +95,7 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
               | `Feasible -> `Invalid
               end
         in
-        loop gamma ncexs
+        loop gamma (CexSet.to_list ncexs)
 
 let main file =
   let psi, gamma = Syntax.parse_file file in

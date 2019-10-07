@@ -79,6 +79,12 @@ module Counterexample = struct
           (List.cartesian_product (normalize c1) (normalize c2))
           ~f:(fun (c1,c2) -> Or (c1,c2))
     | Nd cs -> List.concat_map cs ~f:normalize
+
+  module Normalized = struct
+    type t = normalized
+      [@@deriving eq,ord,show,iter,map,fold,sexp]
+    let pp_hum = pp_hum_normalized
+  end
 end
 
 
