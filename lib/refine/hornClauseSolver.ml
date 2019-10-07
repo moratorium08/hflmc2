@@ -211,7 +211,14 @@ module OfFpat = struct
               fx, { x with ty = `Int }
             end
           in
-          formula (StrMap.find_exn rename_map) fpat_pred
+          let rename s = match StrMap.find rename_map s with
+            (* TODO
+             * lbで解を求めた場合，p(x,y) = x = z /\ z < y みたいな解が
+             * 返ってくる場合があって，変数を除去しないといけない *)
+            | None -> Fn.fatal @@ "var " ^ s ^ " : int not found"
+            | Some v -> v
+          in
+          formula rename fpat_pred
       in
       let rec abstraction_ty_of_aged (aged : TraceVar.aged) : abstraction_ty =
         let sty        = Type.unsafe_unlift @@ TraceVar.type_of_aged aged in
