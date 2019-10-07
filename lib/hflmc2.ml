@@ -11,12 +11,11 @@ open Syntax
 let log_src = Logs.Src.create "Main"
 module Log = (val Logs.src_log @@ log_src)
 
-type result = [ `Valid | `Invalid | `NoProgress ]
+type result = [ `Valid | `Invalid ]
 
 let show_result = function
   | `Valid      -> "Valid"
   | `Invalid    -> "Invalid"
-  | `NoProgress -> "NoProgress"
 
 module CexSet = Set.Make'(Modelcheck.Counterexample.Normalized)
 (* module CexSet = Set.Make'(Modelcheck.Counterexample) *)
