@@ -97,12 +97,13 @@ let rec formula_to_orig : formula -> Formula.t = function
 (* Head and Body                                                              *)
 (******************************************************************************)
 
-type head = pred_var option
+type head = [ `V of pred_var | `P of formula ] option
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 let pp_hum_head : head Print.t =
   fun ppf -> function
     | None   -> Print.string ppf "_|_"
-    | Some v -> pp_hum_pred_var ppf v
+    | Some (`V v) -> pp_hum_pred_var ppf v
+    | Some (`P f) -> pp_hum_formula ppf f
 
 type body =
   { pvs: pred_var list
