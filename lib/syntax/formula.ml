@@ -24,6 +24,8 @@ type t = (Void.t, [`Int] Id.t) gen_t
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 let hash : t -> int = Sexp.hash <<< sexp_of_t
 
+let mk_bool b = Bool b
+
 let mk_var x = Var x
 
 let mk_and a b = And [a;b]

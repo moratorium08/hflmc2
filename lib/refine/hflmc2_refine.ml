@@ -524,11 +524,11 @@ let run
       `Feasible
     else
       let tree_interpolant = tree_interpolant cex expanded in
-      Log.debug begin fun m -> m ~header:"Trace" "@[<v>%a@]"
+      Log.info begin fun m -> m ~header:"Trace" "@[<v>%a@]"
         pp_trace tree_interpolant
       end;
       let hccs = gen_HCCS hes tree_interpolant in
-      Log.debug begin fun m -> m ~header:"HCCS" "@[<v>%a@]"
+      Log.info begin fun m -> m ~header:"HCCS" "@[<v>%a@]"
         (Print.list HornClause.pp_hum) hccs
       end;
       let new_gamma = HornClauseSolver.solve hes hccs in
