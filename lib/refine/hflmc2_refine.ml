@@ -440,7 +440,7 @@ let gen_HCCS
                 end;
 
                 let hcc =
-                  HornClause.{ body=current_guard; head=Some (`V next_pv) }
+                  HornClause.{ body=current_guard; head = `V next_pv }
                 in
                 Log.debug begin fun m -> m ~header:"CHC" "%a"
                   HornClause.pp_hum hcc

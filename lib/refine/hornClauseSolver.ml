@@ -107,9 +107,8 @@ module ToFpat = struct
     | Pred(_,_) -> assert false
 
   let head : HornClause.head -> Fpat.HornClause.head = function
-    | None -> Fpat.HornClause.mk_head None
-    | Some (`V v) -> Fpat.HornClause.mk_head (Some (pred_var v))
-    | Some (`P f) -> Fpat.HornClause.mk_head None ~phi:(formula f)
+    | `V v -> Fpat.HornClause.mk_head (Some (pred_var v))
+    | `P f -> Fpat.HornClause.mk_head None ~phi:(formula f)
 
   let body : body -> Fpat.HornClause.body =
     fun { pvs ; phi } ->
@@ -124,9 +123,8 @@ module ToFpat = struct
     fun chc ->
       let open Fpat.HornClause in
       match chc.head with
-      | None        -> make (mk_head None) (body chc.body)
-      | Some (`V v) -> make (mk_head (Some (pred_var v))) (body chc.body)
-      | Some (`P f) -> make (mk_head None) (body (chc.body |> append_phi [Formula.mk_not f]))
+      | `V v -> make (mk_head (Some (pred_var v))) (body chc.body)
+      | `P f -> make (mk_head None) (body (chc.body |> append_phi [Formula.mk_not f]))
 
   let hccs : t list -> Fpat.HCCS.t =
     List.map ~f:hornClause >>> Fpat.HCCS.normalize2
