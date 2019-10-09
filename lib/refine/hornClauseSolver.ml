@@ -315,6 +315,9 @@ let is_valid : formula -> bool =
 let solve : simple_ty Hflz.hes -> t list -> Hflmc2_abstraction.env =
   fun hes hccs ->
     let hccs' = ToFpat.hccs hccs in
+    let tmp_file = Filename.temp_file "refine-" ".smt2" in
+    Log.info begin fun m -> m ~header:"SaveHCCS" "%s" tmp_file end;
+    Fpat.HCCS.save_smtlib2 tmp_file hccs';
     let solvers =
       [ "GenHCCSSolver"
           , Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate false))

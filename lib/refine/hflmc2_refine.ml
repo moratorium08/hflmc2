@@ -274,6 +274,25 @@ let tree_interpolant
   in
   go [] (Formula.Bool true)
 
+let rec to_simple_expr : TraceExpr.t -> trace -> HornClause.formula option =
+  fun psi c -> match psi, c with
+  | Pred(p,as'), _ -> Some (Pred(p,as'))
+  | And(psi,_), AndL c -> to_simple_expr psi c
+  | And(_,psi), AndR c -> to_simple_expr psi c
+  | And(psi1,psi2), _ ->
+      begin try
+        let [@warning "-8"] Some f1 = to_simple_expr psi1 (Leaf (Bool true)) in
+        let [@warning "-8"] Some f2 = to_simple_expr psi2 (Leaf (Bool true)) in
+        Some (And [f1;f2])
+      with _ -> None end
+  | Or (psi1,psi2), Or (_, c1, c2) ->
+      begin try
+        let [@warning "-8"] Some f1 = to_simple_expr psi1 c1 in
+        let [@warning "-8"] Some f2 = to_simple_expr psi2 c2 in
+        Some (Or [f1;f2])
+      with _ -> None end
+  | _ -> None
+
 let gen_HCCS
     :  simple_ty Hflz.hes
     -> trace
@@ -305,7 +324,7 @@ let gen_HCCS
         | Bool false, _ ->
             let body = HornClause.append_pvs Option.(to_list pv) guard in
             [{ head= `P (Formula.mk_bool false); body }]
-         | Pred (pred, as'), _ ->
+        | Pred (pred, as'), _ ->
             let body = HornClause.append_pvs Option.(to_list pv) guard in
             [{ head= `P (Formula.mk_pred pred as'); body }]
         | And (psi1,_), AndL c ->
@@ -313,80 +332,92 @@ let gen_HCCS
         | And (_,psi2), AndR c ->
             go reduce_env guard pv psi2 c
         | Or (psi1,psi2), Or (_, c1,c2) ->
-            let f1 = peek c1 in
-            let f2 = peek c2 in
-            Log.debug begin fun m -> m ~header:"f" "@[<v>%a@,%a@]"
-              HornClause.pp_hum_formula f1
-              HornClause.pp_hum_formula f2
-            end;
-            let fvs = TraceVar.Set.of_list @@
-              List.concat_map (Option.to_list pv @ guard.pvs)
-                ~f:HornClause.args_of_pred_var @
-              List.concat_map (guard.phi) ~f:begin fun x ->
-                match Formula.fvs x with
-                | (_, vs) ->
-                    List.map vs ~f:begin function
-                    | `I x -> x
-                    | `E _ -> assert false
-                    end
+            begin match (to_simple_expr psi1 c1, psi1, c1),
+                        (to_simple_expr psi2 c2, psi2, c2) with
+            (* XXX Problematic! benchmark/inputs/Burn_POPL18/ack.in fails *)
+            (* | (Some f, _, _), (_, psi, c) | (_, psi, c), (Some f, _, _) -> *)
+            (*   let guard = HornClause.append_phi [Formula.mk_not f] guard in *)
+            (*   go reduce_env guard pv psi c *)
+            | _ ->
+              let f1 = peek c1 in
+              let f2 = peek c2 in
+              Log.info (fun m -> m ~header:"OR" "%a" TraceExpr.pp_hum expr);
+              Log.debug begin fun m -> m ~header:"f" "@[<v>%a@,%a@]"
+                HornClause.pp_hum_formula f1
+                HornClause.pp_hum_formula f2
               end;
-            in
-            Log.debug begin fun m -> m ~header:"fvs" "@[<v>%a@]"
-              Print.(list_comma TraceVar.pp_hum) (TraceVar.Set.to_list fvs)
-            end;
-            let bind = List.filter_map (TraceVar.Map.to_alist reduce_env) ~f:
-                begin fun (x, (e, _)) ->
-                  match TraceVar.type_of x, e with
-                  | TyInt, Arith a ->
-                      Some (Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ])
-                  | _ -> None
+              let fvs = TraceVar.Set.of_list @@
+                List.concat_map (Option.to_list pv @ guard.pvs)
+                  ~f:HornClause.args_of_pred_var @
+                List.concat_map (guard.phi) ~f:begin fun x ->
+                  match Formula.fvs x with
+                  | (_, vs) ->
+                      List.map vs ~f:begin function
+                      | `I x -> x
+                      | `E _ -> assert false
+                      end
+                end;
+              in
+              Log.debug begin fun m -> m ~header:"fvs" "@[<v>%a@]"
+                Print.(list_comma TraceVar.pp_hum) (TraceVar.Set.to_list fvs)
+              end;
+              let bind = List.filter_map (TraceVar.Map.to_alist reduce_env) ~f:
+                  begin fun (x, (e, _)) ->
+                    match TraceVar.type_of x, e with
+                    | TyInt, Arith a ->
+                        Some (Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ])
+                    | _ -> None
+                  end
+              in
+              let f1' = elim_variables' ~using:bind ~keep:fvs f1 in
+              let f2' = elim_variables' ~using:bind ~keep:fvs f2 in
+              Log.debug begin fun m -> m ~header:"bind" "@[<v>%a@]"
+                Print.(list_comma HornClause.pp_hum_formula) bind
+              end;
+              Log.debug begin fun m -> m ~header:"f'" "@[<v>%a@,%a@]"
+                HornClause.pp_hum_formula f1'
+                HornClause.pp_hum_formula f2'
+              end;
+              List.iter [f1';f2'] ~f:begin fun f' ->
+                List.iter (snd @@ Formula.fvs f') ~f:begin function
+                | `I x -> assert(TraceVar.Set.mem fvs x)
+                | `E _ -> assert false
                 end
-            in
-            let f1' = elim_variables' ~using:bind ~keep:fvs f1 in
-            let f2' = elim_variables' ~using:bind ~keep:fvs f2 in
-            Log.debug begin fun m -> m ~header:"bind" "@[<v>%a@]"
-              Print.(list_comma HornClause.pp_hum_formula) bind
-            end;
-            Log.debug begin fun m -> m ~header:"f'" "@[<v>%a@,%a@]"
-              HornClause.pp_hum_formula f1'
-              HornClause.pp_hum_formula f2'
-            end;
-            List.iter [f1';f2'] ~f:begin fun f' ->
-              List.iter (snd @@ Formula.fvs f') ~f:begin function
-              | `I x -> assert(TraceVar.Set.mem fvs x)
-              | `E _ -> assert false
-              end
-            end;
-            let hccs1 = go reduce_env guard pv psi1 c1 in
-            let hccs2 = go reduce_env guard pv psi2 c2 in
-            let hccs1' = match hccs1 with
-              | [] -> []
-              | hcc1::hccs1 ->
-                  let hcc1' =
-                    { hcc1 with body = HornClause.append_phi [f1'] hcc1.body }
-                  in
-                  Log.debug begin fun m -> m ~header:"CHC1" "@[<v>%a@,⇓@,%a@]"
-                    HornClause.pp_hum hcc1
-                    HornClause.pp_hum hcc1'
-                  end;
-                  hcc1'::hccs1
-            in
-            let hccs2' = match hccs2 with
-              | [] -> []
-              | hcc2::hccs2 ->
-                  (* TODO 先頭だけで良い？orが続くとダメでは *)
-                  let hcc2' =
-                    { hcc2 with body = HornClause.append_phi [f2'] hcc2.body }
-                  in
-                  Log.debug begin fun m -> m ~header:"CHC2" "@[<v>%a@,⇓@,%a@]"
-                    HornClause.pp_hum hcc2
-                    HornClause.pp_hum hcc2'
-                  end;
-                  hcc2'::hccs2
-            in
-            hccs1' @ hccs2'
-        | Or _, _ ->
-            Fn.todo ~info:"impossible? 3 or more disjunctions" ()
+              end;
+              if false then
+                let hccs1 = go reduce_env (guard |> HornClause.append_phi [f1']) pv psi1 c1 in
+                let hccs2 = go reduce_env (guard |> HornClause.append_phi [f2']) pv psi2 c2 in
+                hccs1 @ hccs2
+              else
+                let hccs1 = go reduce_env guard pv psi1 c1 in
+                let hccs2 = go reduce_env guard pv psi2 c2 in
+                let hccs1' = match hccs1 with
+                  | [] -> []
+                  | hcc1::hccs1 ->
+                      let hcc1' =
+                        { hcc1 with body = HornClause.append_phi [f1'] hcc1.body }
+                      in
+                      Log.debug begin fun m -> m ~header:"CHC1" "@[<v>%a@,⇓@,%a@]"
+                        HornClause.pp_hum hcc1
+                        HornClause.pp_hum hcc1'
+                      end;
+                      hcc1'::hccs1
+                in
+                let hccs2' = match hccs2 with
+                  | [] -> []
+                  | hcc2::hccs2 ->
+                      (* TODO 先頭だけで良い？orが続くとダメでは *)
+                      let hcc2' =
+                        { hcc2 with body = HornClause.append_phi [f2'] hcc2.body }
+                      in
+                      Log.debug begin fun m -> m ~header:"CHC2" "@[<v>%a@,⇓@,%a@]"
+                        HornClause.pp_hum hcc2
+                        HornClause.pp_hum hcc2'
+                      end;
+                      hcc2'::hccs2
+                in
+                hccs1' @ hccs2'
+            end
         | (App _| Var _), _ ->
             let expr_head, args = TraceExpr.decompose_app expr in
             begin match expr_head with
@@ -507,6 +538,7 @@ let gen_HCCS
       TraceExpr.(mk_apps (mk_var head) (List.map args ~f:mk_var))
     in
     go TraceVar.Map.empty empty_guard None main cex
+
 
 type result = [ `Feasible | `Refined of Hflmc2_abstraction.env ]
 
