@@ -310,11 +310,217 @@ let interpolate : formula -> formula -> formula option =
     | exception Fpat.InterpProver.NoInterpolant ->
         None
 
-
 let is_valid : formula -> bool =
   fun f -> Fpat.SMTProver.is_valid_dyn (ToFpat.formula f)
 
-let solve : simple_ty Hflz.hes -> t list -> Hflmc2_abstraction.env =
+type solution = formula list PredVarMap.t
+
+let solve_hccs : HornClause.t list -> solution =
+  fun hccs ->
+    Log.info begin fun m -> m ~header:"solve_hccs" "@[<v>%a@]"
+      (Print.list HornClause.pp_hum) hccs
+    end;
+    let hccs' = ToFpat.hccs hccs in
+    let solvers =
+      let open Fpat in
+      [ "GenHCCSSolver"
+          , GenHCCSSolver.solve (CHGenInterpProver.interpolate false)
+      ; "GenHCCSSolver+Interp"
+          , GenHCCSSolver.solve (CHGenInterpProver.interpolate true)
+      ; "BwIPHCCSSolver" , BwIPHCCSSolver.solve
+      ; "Pdr"            , HCCSSolver.solve_pdr
+      (* ; "Duality"        , HCCSSolver.solve_duality *)
+      (* ; "LowerBound"     , FwHCCSSolver.solve_simp *)
+      ]
+    in
+    Log.info begin fun m -> m ~header:"SaveHCCS" "%s" @@
+      let tmp_file = Filename.temp_file "refine-" ".smt2" in
+      Fpat.HCCS.save_smtlib2 tmp_file hccs';
+      tmp_file
+    end;
+    let raw_solution =
+      match
+        List.find_map solvers ~f:begin fun (name, solver) ->
+          match solver hccs' with
+          | ans -> Some ans
+          | exception e ->
+              Log.warn begin fun m -> m ~header:"Fpat"
+                "`%s` failed to solve the HCCS: %s"
+                name (Printexc.to_string e)
+              end;
+              None
+        end
+      with
+      | Some map ->
+          Log.info begin fun m -> m ~header:"FpatAnswer" "%a"
+            Fpat.PredSubst.pr map;
+          end;
+          StrMap.of_alist_exn @@ List.map map ~f:begin function
+          | Fpat.Idnt.V x, pred -> x, pred
+          | _ -> assert false
+          end
+      | None ->
+          Log.err (fun m -> m ~header:"Fpat" "Could not solve HCCS");
+          Fn.fatal "Failed to solve HCCS"
+    in
+    let pvs = PredVarSet.of_list @@
+      List.concat_map hccs ~f:begin fun hcc ->
+        match hcc.head with
+        | `P _ -> hcc.body.pvs
+        | `V v -> v :: hcc.body.pvs
+      end
+    in
+    PredVarSet.fold pvs ~init:PredVarMap.empty ~f:begin fun acc pv ->
+      let pv_name = match pv with
+        | PredVar (Pos, aged) -> "|"^TraceVar.string_of_aged aged^"|"
+        | PredVar (Neg, _) -> assert false
+      in
+      match StrMap.find raw_solution pv_name with
+      | Some (fpat_args, fpat_pred) ->
+          let fpat_args = List.map fpat_args ~f:begin function
+             | Fpat.Idnt.V x, _ -> x
+             | _ -> assert false
+             end
+          in
+          let pv_args = args_of_pred_var pv in
+          let rename_map = StrMap.of_alist_exn @@
+            List.map2_exn fpat_args pv_args ~f:begin fun fx x ->
+              fx, x
+            end
+          in
+          let rename s = match StrMap.find rename_map s with
+            (* TODO
+             * lbで解を求めた場合，p(x,y) = x = z /\ z < y みたいな解が
+             * 返ってくる場合があって，変数を除去しないといけない *)
+            | None -> `I (TraceVar.Local { parent = TraceVar.(mk_aged ~age:0 @@
+                                                      Nt ({orig = Id.gen ~name:"foo" (TyBool())})
+                                                    )
+                                         ; name   = Id.gen ~name:s TyInt
+                                         ; fvs    = []
+                                         ; nth    = 0
+                                         })
+            | Some v -> `I v
+          in
+          let formula : HornClause.formula = (OfFpat.formula rename fpat_pred)
+          in PredVarMap.add_exn acc ~key:pv ~data:[formula]
+      | None -> assert false
+    end
+
+let solve_hccss : HornClause.t list list -> solution = fun css ->
+  let f : solution -> t list -> solution = fun current_solutions hccs ->
+    let lookup = function
+      (* | PredVar (Pos, _) as pv -> PredVarMap.find current_solutions pv *)
+      | PredVar (Pos, _) -> None
+      | PredVar (Neg, aged) ->
+          Option.map ~f:(List.map ~f:Formula.mk_not) @@
+            PredVarMap.find current_solutions (PredVar (Pos, aged))
+    in
+    let subst_head = function
+      | `V v ->
+        begin match lookup v with
+        | Some (f::_) -> `P f
+        | _ -> `V v
+        end
+      | `P f -> `P f
+    in
+    let subst_body body =
+      let pvs, phi =
+        List.partition_map body.pvs ~f:begin fun pv ->
+          match lookup pv with
+          | Some (f::_) -> `Snd f (* TODO fstで良いんか *)
+          | _ -> `Fst pv
+        end
+      in { pvs = pvs; phi = body.phi @ phi }
+    in
+    let hccs =
+      List.map hccs ~f:begin fun hcc ->
+        { body = subst_body hcc.body
+        ; head = subst_head hcc.head }
+      end
+    in
+    PredVarMap.merge current_solutions (solve_hccs hccs) ~f:
+      begin fun ~key:_ -> function
+      | `Left x -> Some x
+      | `Right x -> Some x
+      | `Both (x,y) -> Some (x@y)
+      end
+  in List.fold_left css ~init:PredVarMap.empty ~f
+
+
+let solution_to_env : simple_ty Hflz.hes -> solution -> Hflmc2_abstraction.env =
+  fun hes solution ->
+    let lookup_pred pv =
+      PredVarMap.find_exn solution pv
+      |> List.map ~f:begin Formula.map_gen_t Fn.id begin function
+           | `I (TraceVar.Local v) -> { v.name with ty = `Int }
+           | _ -> assert false
+           end
+         end
+    in
+    let rec abstraction_ty_of_aged (aged : TraceVar.aged) : abstraction_ty =
+      let sty        = Type.unsafe_unlift @@ TraceVar.type_of_aged aged in
+      let args, ()   = Type.decompose_arrow sty in
+      let tv_args    = TraceVar.mk_childlen aged in
+
+      (* main part *)
+      let preds : Formula.t list =
+        let underapproximation = lookup_pred (HornClause.mk_pred_var aged) in
+        Log.debug begin fun m -> m ~header:"Underapproximation" "%a : %a"
+          TraceVar.pp_hum_aged aged
+          Print.(list_comma formula) underapproximation
+        end;
+        underapproximation
+        |> List.map ~f:Trans.Simplify.formula
+        |> List.filter ~f:begin function
+           | Formula.Bool _ -> false
+           | _ -> true
+           end
+      in
+      (* recursive part *)
+      let new_args' =
+        List.map2_exn args tv_args ~f:begin fun arg tv_arg ->
+          match arg.ty with
+          | TyInt ->
+              { arg with ty = TyInt }
+          | TySigma _ ->
+              { arg with ty = TySigma (abstraction_ty_of_trace_var tv_arg) }
+        end
+      in
+      (* merge *)
+      Type.mk_arrows new_args' (TyBool preds)
+    and abstraction_ty_of_trace_var : TraceVar.t -> abstraction_ty =
+      fun tv ->
+        let on_age age =
+          let aged = TraceVar.(mk_aged ~age tv) in
+          abstraction_ty_of_aged aged
+        in
+        let abstraction_ty =
+          let n = match Hashtbl.find TraceVar.counters tv with
+            | None -> 0
+            | Some n -> n
+          in
+          if n = 0
+          then
+            Type.map_ty (Fn.const []) @@
+              Type.unsafe_unlift @@ TraceVar.type_of tv
+          else
+            (* NOTE
+             * Duplication is removed when merged with old environmet.
+             * See [Hflmc2_abstraction.merge_env] *)
+            Type.merges (@) (List.init n ~f:on_age)
+        in
+        abstraction_ty
+    in
+    IdMap.of_list @@ List.map hes ~f:begin fun rule ->
+      rule.var, abstraction_ty_of_trace_var (TraceVar.mk_nt rule.var)
+    end
+
+let solve : simple_ty Hflz.hes -> t list list -> Hflmc2_abstraction.env =
+  fun hes hccss -> 
+    solution_to_env hes 
+      (solve_hccss hccss)
+
+let solve_old : simple_ty Hflz.hes -> t list -> Hflmc2_abstraction.env =
   fun hes hccs ->
     let hccs' = ToFpat.hccs hccs in
     let tmp_file = Filename.temp_file "refine-" ".smt2" in
