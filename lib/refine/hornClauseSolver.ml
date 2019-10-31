@@ -43,12 +43,12 @@ module ToFpat = struct
       assert (TraceVar.type_of tv = TyInt);
       Fpat.TypTerm.make (term_of_trace_var tv) Fpat.Type.mk_int
 
-  let pva : pred_var -> Fpat.Pva.t =
-    function
-    | PredVar aged as pv ->
+  let pva : pred_var -> Fpat.Pva.t = function
+    | PredVar (Pos, aged) as pv ->
         Fpat.Pva.make
           (idnt_of_aged aged)
           (List.map (args_of_pred_var pv) ~f:typed_term_of_trace_var)
+    | PredVar (Neg, _) -> assert false
 
   let pred_var : pred_var -> Fpat.PredVar.t =
     fun pv ->
@@ -58,7 +58,8 @@ module ToFpat = struct
         end
       in
       let idnt = match pv with
-        | PredVar aged -> idnt_of_aged aged
+        | PredVar (Pos, aged) -> idnt_of_aged aged
+        | PredVar (Neg, _) -> assert false
       in
       Fpat.PredVar.make idnt typ_env
 
@@ -190,7 +191,8 @@ module OfFpat = struct
       let lookup_pred : HornClause.pred_var -> Formula.t =
         fun pv ->
           let pv_name = match pv with
-            | PredVar aged -> "|"^TraceVar.string_of_aged aged^"|"
+            | PredVar (Pos, aged) -> "|"^TraceVar.string_of_aged aged^"|"
+            | PredVar (Neg, _) -> assert false
           in
           let fpat_args, fpat_pred =
             StrMap.find_exn pred_map pv_name
@@ -324,9 +326,9 @@ let solve : simple_ty Hflz.hes -> t list -> Hflmc2_abstraction.env =
       ; "GenHCCSSolver+Interp"
           , Fpat.(GenHCCSSolver.solve (CHGenInterpProver.interpolate true))
       ; "BwIPHCCSSolver" , Fpat.BwIPHCCSSolver.solve
-      ; "Pdr"            , Fpat.HCCSSolver.solve_pdr
+      (* ; "Pdr"            , Fpat.HCCSSolver.solve_pdr *)
       (* ; "Duality"        , Fpat.HCCSSolver.solve_duality *)
-      (* ; "FwHCCSSolver"   , Fpat.FwHCCSSolver.solve_simp *)
+      ; "LowerBound"     , Fpat.FwHCCSSolver.solve_simp
       ]
     in
     let map =
