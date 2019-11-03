@@ -196,7 +196,7 @@ module OfFpat = struct
           in
           let fpat_args, fpat_pred =
             StrMap.find_exn pred_map pv_name
-            |> Pair.first begin List.map ~f:begin function
+            |> Pair.first ~f:begin List.map ~f:begin function
                  | Fpat.Idnt.V x, _ -> x
                  | _ -> assert false
                  end

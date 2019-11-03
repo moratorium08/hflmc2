@@ -137,44 +137,6 @@ let solve_for (x: TraceVar.t) (e: HornClause.formula) : HornClause.arith =
       end
   | _ -> assert false
 
-(* TODO 2x=n; 2x+1=m から n+1=m を引き出す *)
-(** @require every predicate in phi must be "=" *)
-let elim_variables
-      : HornClause.formula
-     -> keep:TraceVar.Set.t
-     -> HornClause.formula =
-  fun phi ~keep:vars ->
-    let rec go : HornClause.formula list -> HornClause.formula list = function
-      | [] -> []
-      | phi::phis ->
-          let fvs =
-            TraceVar.Set.of_list @@ List.filter_map (snd @@ Formula.fvs phi) ~f:
-              begin function
-              | `I x -> Some x
-              | _ -> None
-              end
-          in
-          if HornClauseSolver.is_valid phi then
-            go phis
-          else if TraceVar.Set.(is_empty (diff fvs vars)) then
-            phi :: go phis
-          else
-            let x = TraceVar.Set.(min_elt_exn (diff fvs vars)) in
-            let e = solve_for x phi in (* phi <=> x = e *)
-            let equal a b = match a, b with
-              | `I a, `I b -> TraceVar.equal a b
-              | `E a, `E b -> Id.eq a b
-              | _ -> false
-            in
-            go @@ List.map
-              ~f:(Trans.Subst.Arith'.formula_ equal (`I x) e)
-              phis
-    in
-    Formula.mk_ors @@
-      List.map Formula.(to_DNF phi) ~f:begin fun e ->
-        Formula.mk_ands (go e)
-      end
-
 let elim_variables'
       : using:(HornClause.formula list)
      -> keep:TraceVar.Set.t

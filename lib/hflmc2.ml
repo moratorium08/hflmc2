@@ -99,6 +99,9 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
           else
             (* 余計な述語を集めると重くなるのでこっちのが良いかも *)
             let ncex = List.hd_exn ncexs in
+            Log.info begin fun m -> m ~header:"Refine:cex" "%a"
+              C.pp_hum_normalized ncex
+            end;
             begin match add_mesure_time "Refine" @@ fun () ->
               Refine.run psi ncex gamma
             with

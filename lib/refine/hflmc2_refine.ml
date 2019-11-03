@@ -440,7 +440,7 @@ let gen_HCCS
                 let next_pv = HornClause.mk_pred_var aged in
                 let next_expr, next_guard = match tv with
                   | Local _ ->
-                      Pair.first
+                      Pair.first ~f:
                         (TraceExpr.mk_apps -$-
                           (List.map vars ~f:(TraceExpr.mk_var)))
                         (TraceVar.Map.find_exn reduce_env tv)

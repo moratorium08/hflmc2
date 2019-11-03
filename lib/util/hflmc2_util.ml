@@ -3,9 +3,9 @@ open Core
 
 module Pair = struct
   (* Bifunctor method *)
-  let bimap  f (x, y) = (f x, f y)
-  let first  f (x, y) = (f x, y)
-  let second f (x, y) = (x, f y)
+  let bimap  ~f (x, y) = (f x, f y)
+  let first  ~f (x, y) = (f x, y)
+  let second ~f (x, y) = (x, f y)
 end
 
 module List = struct
