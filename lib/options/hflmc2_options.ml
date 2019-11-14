@@ -15,6 +15,11 @@ module Abstraction = struct
   let modify_pred_by_guard = ref (Obj.magic())
 end
 
+module Refine = struct
+  (* NOTE Actual value is set by Cmdliner *)
+  let use_legacy           = ref (Obj.magic())
+end
+
 (******************************************************************************)
 (* Util(?)                                                                    *)
 (******************************************************************************)
@@ -59,6 +64,10 @@ type params =
   ; abst_no_modify_pred_by_guard : bool [@default false]
     (** Whether modify [pred] into [C => pred] *)
 
+  (* Abstraction *)
+  ; refine_legacy : bool [@default false]
+    (** Use old refine algorithm *)
+
   }
   [@@deriving cmdliner,show]
 
@@ -69,6 +78,7 @@ let set_up_params params =
   set_ref Abstraction.max_ands             params.abst_max_ands;
   set_ref Abstraction.exhaustive_search    params.abst_exhaustive_search;
   set_ref Abstraction.modify_pred_by_guard (not params.abst_no_modify_pred_by_guard);
+  set_ref Refine.use_legacy                params.refine_legacy;
   params.input
 
 (******************************************************************************)

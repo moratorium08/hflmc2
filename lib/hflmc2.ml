@@ -78,23 +78,43 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
         Fn.fatal "NoProgress"
       else
         let next_cexs = CexSet.union prev_cexs ncexs in
-        let rec loop gamma ncexs =
-          match ncexs with
-          | [] ->
-              if !Options.oneshot then failwith "oneshot";
-              cegar_loop next_cexs (loop_count+1) psi gamma
-          | ncex::ncexs ->
-              Log.info begin fun m -> m ~header:"Refine:cex" "%a"
-                C.pp_hum_normalized ncex
-              end;
-              begin match add_mesure_time "Refine" @@ fun () ->
-                Refine.run psi ncex gamma
-              with
-              | `Refined new_gamma -> loop new_gamma ncexs;
-              | `Feasible -> `Invalid
-              end
+        let ncexs = CexSet.to_list ncexs in
+        let new_gamma =
+          if false then
+            let rec loop gamma ncexs =
+              match ncexs with
+              | [] ->
+                  Some gamma
+              | ncex::ncexs ->
+                  Log.info begin fun m -> m ~header:"Refine:cex" "%a"
+                    C.pp_hum_normalized ncex
+                  end;
+                  begin match add_mesure_time "Refine" @@ fun () ->
+                    Refine.run psi ncex gamma
+                  with
+                  | `Refined new_gamma -> loop new_gamma ncexs
+                  | `Feasible -> None
+                  end
+            in loop gamma ncexs
+          else
+            (* 余計な述語を集めると重くなるのでこっちのが良いかも *)
+            let ncex = List.hd_exn ncexs in
+            Log.info begin fun m -> m ~header:"Refine:cex" "%a"
+              C.pp_hum_normalized ncex
+            end;
+            begin match add_mesure_time "Refine" @@ fun () ->
+              Refine.run psi ncex gamma
+            with
+            | `Refined new_gamma -> Some new_gamma
+            | `Feasible -> None
+            end
         in
-        loop gamma (CexSet.to_list ncexs)
+          if !Options.oneshot then failwith "oneshot";
+          match new_gamma with
+          | Some new_gamma ->
+              cegar_loop next_cexs (loop_count+1) psi new_gamma
+          | None ->
+              `Invalid
 
 let main file =
   let psi, gamma = Syntax.parse_file file in

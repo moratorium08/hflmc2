@@ -9,23 +9,38 @@ module Log = (val Logs.src_log @@ Logs.Src.create __MODULE__)
 (* Predicate Variable                                                         *)
 (******************************************************************************)
 
+(* Neg is used only in a few cases *)
+type polarity = Pos | Neg
+  [@@deriving eq,ord,show,iter,map,fold,sexp]
 (* F : x:int -> g:(y:int -> o) -> o
  * x:int -> g:(y:int -> P_g(x,y)) -> P_F(x) : template
  * PredVar F = P_F(x)
  * PredVar g = P_g(x,y)
  * (age of F and g is omitted here)
  * *)
-type pred_var = PredVar of TraceVar.aged  (* underapproximation of predicate  *)
+type pred_var = PredVar of polarity * TraceVar.aged  (* underapproximation of predicate  *)
   [@@deriving eq,ord,show,iter,map,fold,sexp]
+module PredVarKey = struct
+  type t = pred_var
+  let sexp_of_t = sexp_of_pred_var
+  let t_of_sexp = pred_var_of_sexp
+  let compare : t -> t -> int = compare_pred_var
+end
+module PredVarSet = Set.Make'(PredVarKey)
+module PredVarMap = Map.Make'(PredVarKey)
+
+let negate_pv = function
+  | PredVar (Pos,aged) -> PredVar (Neg,aged)
+  | PredVar (Neg,aged) -> PredVar (Pos,aged)
 
 let mk_pred_var aged = match TraceVar.type_of_aged aged with
   | TyInt -> invalid_arg "mk_pred_var"
-  | _     -> PredVar(aged)
+  | _     -> PredVar(Pos, aged)
 
 let args_of_pred_var pv =
   let all_args =
     match pv with
-    | PredVar aged ->
+    | PredVar (_, aged) ->
         let fvs = match aged.var with
           | Nt _ -> []
           | Local {fvs;_} -> fvs
@@ -33,13 +48,16 @@ let args_of_pred_var pv =
   in List.filter all_args
       ~f:(fun x -> TraceVar.type_of x = TyInt)
 
-
 let pp_hum_pred_var : pred_var Print.t =
   fun ppf pv ->
     let args = args_of_pred_var pv in
     match pv with
-    | PredVar aged ->
+    | PredVar (Pos, aged) ->
         Print.pf ppf "@[<h>P[%a](%a)@]"
+          TraceVar.pp_hum_aged aged
+          Print.(list ~sep:comma TraceVar.pp_hum) args
+    | PredVar (Neg, aged) ->
+        Print.pf ppf "@[<h>¬P[%a](%a)@]"
           TraceVar.pp_hum_aged aged
           Print.(list ~sep:comma TraceVar.pp_hum) args
 

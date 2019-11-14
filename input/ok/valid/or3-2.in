@@ -1,0 +1,6 @@
+%HES
+Main =v F n.
+F x  =v x = 0 \/ (P x \/ N x).
+P a  =v a > 0.
+N b  =v b < 0.
+
