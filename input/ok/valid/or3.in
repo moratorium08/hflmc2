@@ -3,38 +3,3 @@ Main =v F n.
 F x  =v (x = 0 \/ P x) \/ N x.
 P a  =v a > 0.
 N b  =v b < 0.
-
-%LTS
-================================================================================
-
-[Refine:Info:UbP2]
-  b < 0
-[Refine:Info:Orig]
-  P[F](x) <= true
-  P[N](b)∨ P[P](a) <= P[F](x), a = x, b = x
-  a > 0   <= P[P](a),
-  b < 0   <= P[N](b),
-[Refine:Info:HCCS]
-  P[F](x) <= true
-  P[P](a) <= P[F](x), a = x, b = x, b >= 0, x /= 0
-                                    ^^^^^^  ^^^^^^
-  a > 0   <= P[P](a),
-  こっちは解ける：
-  |F:0|(_) = true
-  |P:0|(a) = 0 < a
-[Refine:Info:HCCS]
-  P[F](x) <= true
-  P[N](b) <= P[F](x), a = x, b = x, 0 >= a, x /= 0
-                                            ^^^^^^ 抜けてる！
-  b < 0   <= P[N](b),
-
-[HornClauseSolver:Info:solve_hccs]
-  P[Main:0](Main:0.0)
-    <=
-  P[F:0](F:0.0)
-    <= P[Main:0](Main:0.0), F:0.0 = Main:0.0
-  P[N:0](N:0.0)
-    <= P[F:0](F:0.0), P:0.0 = F:0.0, N:0.0 = F:0.0, N:0.0 = F:0.0, 1 > P:0.0
-  N:0.0 < 0
-    <= P[N:0](N:0.0),
-
