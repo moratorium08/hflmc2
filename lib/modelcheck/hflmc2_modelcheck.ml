@@ -90,6 +90,10 @@ end
 
 let print_hors : Hfl.hes Fmt.t =
   fun ppf hes' ->
+    let id_to_string x =
+      Id.to_string x (* HorSat2's identifier should not contain '_' *)
+      |> Re2.replace_exn ~f:(fun _ -> "xxx") (Re2.create_exn "_")
+    in
     let or_inserted_set  = ref IntSet.empty in
     let and_inserted_set = ref IntSet.empty in
     let rec term : Hfl.t Fmt.t =
@@ -97,7 +101,7 @@ let print_hors : Hfl.hes Fmt.t =
       | Bool true -> Fmt.string ppf "t_true"
       | Bool false -> Fmt.string ppf "t_false"
       | Var x ->
-          Fmt.string ppf @@ Id.to_string x
+          Fmt.string ppf @@ id_to_string x
       | Or (phis, `Inserted) ->
           let n = List.length phis in
           or_inserted_set := IntSet.add !or_inserted_set n;
@@ -117,7 +121,7 @@ let print_hors : Hfl.hes Fmt.t =
       | Abs _ ->
           let args, phi = Hfl.decompose_abs phi in
           Fmt.pf ppf "(_fun %a -> %a)"
-            Fmt.(list ~sep:sp string) (List.map ~f:Id.to_string args)
+            Fmt.(list ~sep:sp string) (List.map ~f:id_to_string args)
             term phi
       | App _ ->
           let phi, args = Hfl.decompose_app phi in
@@ -130,9 +134,9 @@ let print_hors : Hfl.hes Fmt.t =
         let arity = Type.arity_of_abstracted_ty (Hfl.type_of body) in
         let eta_vars = List.init arity ~f:(Print.strf "eta%d") in
         Fmt.pf ppf "@[%s %a -> %a %a.@]@."
-          (Id.to_string var)
+          (id_to_string var)
           Fmt.(list ~sep:sp string)
-            (List.map ~f:Id.to_string args @ eta_vars)
+            (List.map ~f:id_to_string args @ eta_vars)
           term body
           Fmt.(list ~sep:sp string) eta_vars
     in
