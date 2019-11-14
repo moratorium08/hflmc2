@@ -156,6 +156,7 @@ module Arg      = Arg
 module Command  = Command
 
 module In_channel = In_channel
+module Out_channel = Out_channel
 
 module Void = struct
   type t = Void of { absurd : 'a. 'a }

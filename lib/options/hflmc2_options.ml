@@ -40,8 +40,8 @@ let set_debug_modules modules =
 (******************************************************************************)
 
 type params =
-  { input : string [@pos 0] [@docv "FILE"]
-  (* { input : string option [@docv "FILE"] *)
+  (* { input : string [@pos 0] [@docv "FILE"] *)
+  { input : string list [@pos 0] [@docv "FILE"]
 
   (* Logging *)
   ; debug : string list [@default []] [@docv "MODULE,..."]
@@ -127,13 +127,16 @@ let term_setup_log () =
     Cmdliner.Term.(const setup $ Fmt_cli.style_renderer () $ Logs_cli.level ())
 (*}}}*)
 
-let parse ?argv () : string option =
+type input = [`File of string | `Stdin]
+let parse ?argv () : input option =
   let term () =
     let open Cmdliner.Term in
     const (fun _ file -> file)
       $ term_setup_log () (* NOTE order matters *)
       $ term_set_up_params ()
   in match Cmdliner.Term.(eval ?argv (term (), info "hflmc2")) with
-  | `Ok file -> Some file
+  | `Ok [] -> Some `Stdin
+  | `Ok [file] -> Some (`File file)
+  | `Ok _ -> Fn.todo ~info:"multiple input files" ()
   | _     -> None
 
