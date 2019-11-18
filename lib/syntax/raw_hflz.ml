@@ -424,7 +424,7 @@ let rec rename_abstraction_ty
      -> abstraction_ty =
   fun ?(env=IdMap.empty) orig aty -> match orig, aty with
     | TyBool(), TyBool fs ->
-        TyBool(List.map ~f:(Trans.Subst.Id'.formula env) fs)
+        TyBool(List.map ~f:(Trans.Subst.Id.formula env) fs)
     | TyArrow({ty=TyInt;_} as x , ret_sty),
       TyArrow({ty=TyInt;_} as x', ret_aty) ->
         let env = IdMap.replace env x' {x with ty=`Int} in

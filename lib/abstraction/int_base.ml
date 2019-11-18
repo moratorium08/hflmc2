@@ -104,7 +104,7 @@ module IType = struct
     and arith_arg : unit Id.t -> Arith.t -> abst_arg_ty -> abst_arg_ty =
       fun x a sigma -> match sigma with
         | TyInt preds ->
-            TyInt (List.map preds ~f:(Trans.Subst.Arith'.formula x a))
+            TyInt (List.map preds ~f:(Trans.Subst.Arith.formula x a))
         | TySigma sigma ->
             TySigma (arith x a sigma)
     let arith : 'a. 'a Id.t -> Arith.t -> abst_ty -> abst_ty =
@@ -189,8 +189,8 @@ let rec infer_type
             let ty = IType.Subst.arith x a ret_ty in
             let preds_set =
               FormulaSet.(union
-                (map ~f:(Trans.Subst.Arith'.formula x a) preds_set)
-                (of_list (List.map ~f:(Trans.Subst.Arith'.formula x a) preds)))
+                (map ~f:(Trans.Subst.Arith.formula x a) preds_set)
+                (of_list (List.map ~f:(Trans.Subst.Arith.formula x a) preds)))
             in
             ty,
             FormulaSet.filter preds_set ~f: begin fun f ->
@@ -306,7 +306,7 @@ let rec abstract_coerce
                         Hfl.Bool (List.mem ~equal:(=) _J j)
                       end
                     in
-                    Trans.Subst.Hfl'.hfl (IdMap.of_list subst) phi
+                    Trans.Subst.Hfl.hfl (IdMap.of_list subst) phi
                   in
                   Hfl.mk_ands ~kind:`Inserted
                    @@ List.map _I ~f:mk_var
@@ -319,7 +319,7 @@ let rec abstract_coerce
       | TyArrow({ty=TyInt preds ;_} as x , sigma )
       , TyArrow({ty=TyInt preds';_} as x', sigma') ->
           let preds = List.map preds
-            ~f:(Trans.Subst.Id'.formula (IdMap.singleton x {x' with ty=`Int}))
+            ~f:(Trans.Subst.Id.formula (IdMap.singleton x {x' with ty=`Int}))
           in
           let sigma = IType.Subst.arith x (Arith.mk_var x') sigma in
           Hfl.mk_abss (List.map ~f:name_of preds') @@
@@ -400,7 +400,7 @@ let rec abstract_infer
           | TyArrow({ty = TyInt preds; _} as x, sigma), phi, preds_set ->
               let preds' =
                 List.map preds ~f:begin fun f ->
-                  let pred = Trans.Subst.Arith'.formula x a f in
+                  let pred = Trans.Subst.Arith.formula x a f in
                   if !Options.modify_pred_by_guard then
                     pred (* This may result in increase of #predicate *)
                     |> Formula.(mk_implies (mk_ands env.guard))
@@ -511,7 +511,7 @@ and abstract_check
       | Abs({ty=TyInt;_} as x, psi), TyArrow({ty=TyInt preds;_} as x', sigma) ->
           let preds =
             List.map preds ~f:begin fun pred ->
-              Trans.Subst.Id'.formula
+              Trans.Subst.Id.formula
                 (IdMap.singleton x' {x with ty=`Int}) pred
             end
           in

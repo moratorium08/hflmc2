@@ -168,7 +168,7 @@ let elim_variables
               | _ -> false
             in
             go @@ List.map
-              ~f:(Trans.Subst.Arith'.formula_ equal (`I x) e)
+              ~f:(Trans.Subst.Arith.formula_ equal (`I x) e)
               phis
     in
     Formula.mk_ors @@
@@ -214,9 +214,9 @@ let elim_variables'
               | _ -> false
             in
             let phis =
-              List.map ~f:(Trans.Subst.Arith'.formula_ equal (`I x) e) phis
+              List.map ~f:(Trans.Subst.Arith.formula_ equal (`I x) e) phis
             in
-            let target = Trans.Subst.Arith'.formula_ equal (`I x) e target in
+            let target = Trans.Subst.Arith.formula_ equal (`I x) e target in
             go phis target
           end
     in go eqs target

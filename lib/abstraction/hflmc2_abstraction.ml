@@ -84,7 +84,7 @@ let merge_lambda : int -> (Hfl.t list -> Hfl.t) -> Hfl.t list -> Hfl.t =
               (List.map ~f:Id.remove_ty orig_vars)
               (List.map ~f:Hfl.mk_var new_vars)
         with _ -> assert false
-      in Trans.Subst.Hfl'.hfl map phi
+      in Trans.Subst.Hfl.hfl map phi
     in
     let phis' = List.map phis ~f:Fn.(uncurry rename <<< gather_vars len) in
     Hfl.mk_abss new_vars (merge phis')
@@ -100,7 +100,7 @@ let rec infer_type : env -> simple_ty Hflz.t -> abstraction_ty =
     | App(psi1, Arith a) ->
         begin match infer_type env psi1 with
         | TyArrow(x, ret_ty) ->
-            Trans.Subst.Arith'.abstraction_ty x a ret_ty
+            Trans.Subst.Arith.abstraction_ty x a ret_ty
         | _ -> assert false
         end
     | App(psi1,_) ->
@@ -257,7 +257,7 @@ let rec abstract_coerce
       | TyArrow({ty = TyInt; _} as x, sigma)
       , TyArrow({ty = TyInt; _} as y, sigma') ->
           let sigma =
-            Trans.Subst.Arith'.abstraction_ty x (Arith.mk_var y) sigma
+            Trans.Subst.Arith.abstraction_ty x (Arith.mk_var y) sigma
           in
           abstract_coerce gamma sigma sigma' phi
       | TyArrow({ty = TySigma sigma1 ; _}, sigma2 )
@@ -310,7 +310,7 @@ let rec abstract_infer
       | App(psi, Arith a) ->
           begin match abstract_infer gamma psi with
           | TyArrow({ty = TyInt; _} as x, sigma), phi ->
-              (Trans.Subst.Arith'.abstraction_ty x a sigma, phi)
+              (Trans.Subst.Arith.abstraction_ty x a sigma, phi)
           | _ -> assert false
           end
       | App(psi1, psi2) ->
@@ -407,7 +407,7 @@ and abstract_check : gamma -> simple_ty Hflz.t -> Type.abstraction_ty -> Hfl.t =
     let phi : Hfl.t = match psi, sigma with
       | Abs({ty=TyInt;_} as x, psi), TyArrow({ty=TyInt;_} as x', sigma) ->
           let sigma =
-            Trans.Subst.Id'.abstraction_ty
+            Trans.Subst.Id.abstraction_ty
               (IdMap.singleton x' {x with ty=`Int}) sigma
           in
           abstract_check gamma psi sigma
