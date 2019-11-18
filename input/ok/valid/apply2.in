@@ -1,0 +1,3 @@
+%HES
+Main  =v n <= 0 \/ F (\i. i < n) 0.
+F g i =v g i.

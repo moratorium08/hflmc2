@@ -203,9 +203,10 @@ let rec to_simple_expr : TraceExpr.t -> Counterexample.normalized -> HornClause.
 
 type node =
   { clause      : HornClause.t [@printer HornClause.pp_hum]
-  ; actual_head : HornClause.head list (* required in optimization for Or. See Note[OrOpt] *)
+  ; actual_head : (HornClause.head [@printer HornClause.pp_hum_head]) list
+      (* required in optimization for Or. See Note[OrOpt] *)
   }
-  [@@deriving eq,ord,show,iter,map,fold,sexp]
+  [@@deriving eq,ord,show,iter,fold,sexp]
 
 let simple_node clause = { clause; actual_head = [clause.head] }
 
@@ -213,7 +214,7 @@ type hcc_tree =
   | Leaf
   | Seq  of node * hcc_tree
   | Br   of hcc_tree * hcc_tree
-  [@@deriving eq,ord,show,iter,map,fold,sexp]
+  [@@deriving eq,ord,show,iter,fold,sexp]
 
 let rec heads_of_hcc_tree = function
   | Leaf -> []
@@ -225,6 +226,11 @@ let rec modify_heads_of_hcc_tree ~f = function
   | Seq (c, t) -> Seq (f c, t)
   | Br (t1, t2) -> Br (modify_heads_of_hcc_tree ~f t1,
                        modify_heads_of_hcc_tree ~f t2)
+
+let rec map_hcc_tree ~f =function
+  | Leaf -> Leaf
+  | Seq (c, t) -> Seq (f c, map_hcc_tree ~f t)
+  | Br (t1, t2) -> Br (map_hcc_tree ~f t1, map_hcc_tree ~f t2)
 
 let rec hcc_tree_to_lists = function
   | Leaf -> []
@@ -320,20 +326,30 @@ let gen_HCCS
             (* mochi/mc91.inも *)
             | Seq ({clause= {head=`P _;_};actual_head}, Leaf), Seq (c, hcc_tree)
             | Seq (c, hcc_tree), Seq ({clause={head=`P _;_};actual_head}, Leaf) ->
-                Log.info begin fun m -> m  ~header:"XXX" "%a"
+                Log.info begin fun m -> m  ~header:"OptimizeOr" "%a"
                   (Print.list HornClause.pp_hum_head) actual_head
                 end;
-                let fs =
-                  List.map actual_head ~f:begin function
-                  | `P f -> f
-                  | `V _ -> assert false
-                  end
+                let modify_clause =
+                  let fs =
+                    List.map actual_head ~f:begin function
+                    | `P f -> f
+                    | `V _ -> assert false
+                    end
+                  in
+                  fun (c : HornClause.t) ->
+                    let body =
+                      HornClause.append_phi (List.map ~f:Formula.mk_not fs) c.body
+                    in { c with body }
                 in
                 let c_modified =
-                  let body = HornClause.append_phi (List.map ~f:Formula.mk_not fs) c.clause.body in
-                  let clause = { c.clause with body } in
+                  let clause = modify_clause c.clause in
                   let actual_head = actual_head @ c.actual_head in
                   { clause; actual_head }
+                in
+                let hcc_tree =
+                  map_hcc_tree hcc_tree ~f:begin fun node ->
+                    { node with clause = modify_clause node.clause }
+                  end
                 in
                 Log.info begin fun m -> m  ~header:"c_modified" "%a"
                   pp_node c_modified
@@ -341,6 +357,10 @@ let gen_HCCS
                 Seq (c_modified, hcc_tree), ret_reduce_env
 
             | _ ->
+                (* Log.warn begin fun m -> m ~header:"BrBr" "%a@,%a" *)
+                (*   pp_hcc_tree hcc_tree1 *)
+                (*   pp_hcc_tree hcc_tree2 *)
+                (* end; *)
                 let nodes1, nodes2 = Pair.bimap (hcc_tree1,hcc_tree2) ~f:heads_of_hcc_tree in
                 let (ps1, extra_f1), (ps2, _extra_f2) =
                   Pair.bimap (nodes1, nodes2) ~f:begin fun nodes ->
@@ -413,7 +433,8 @@ let gen_HCCS
                   HornClause.pp_hum_formula ub_p2
                 end;
                 let hcc_tree1' =
-                  modify_heads_of_hcc_tree hcc_tree1 ~f:begin fun c ->
+                  (* modify_heads_of_hcc_tree hcc_tree1 ~f:begin fun c -> *)
+                  map_hcc_tree hcc_tree1 ~f:begin fun c ->
                     let body =
                       c.clause.body
                       |> HornClause.append_phi [Formula.mk_not ub_p2]
@@ -422,7 +443,8 @@ let gen_HCCS
                   end
                 in
                 let hcc_tree2' =
-                  modify_heads_of_hcc_tree hcc_tree2 ~f:begin fun c ->
+                  (* modify_heads_of_hcc_tree hcc_tree2 ~f:begin fun c -> *)
+                  map_hcc_tree hcc_tree2 ~f:begin fun c ->
                     let body =
                       c.clause.body
                       |> HornClause.append_pvs (List.map ~f:HornClause.negate_pv ps1)
