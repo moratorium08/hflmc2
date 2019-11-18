@@ -170,7 +170,7 @@ end
 
 module Reduce = struct
   module Hfl = struct
-    let rec beta : Hfl.t -> Hfl.t = function
+    let rec beta : S.Hfl.t -> S.Hfl.t = function
       | Or (phis, k) -> Or (List.map ~f:beta phis, k)
       | And(phis, k) -> And(List.map ~f:beta phis, k)
       | App(phi1, phi2) ->
@@ -180,19 +180,67 @@ module Reduce = struct
           end
       | Abs(x, phi) -> Abs(x, beta phi)
       | phi -> phi
-    let rec eta : Hfl.t -> Hfl.t = function
+    let rec eta : S.Hfl.t -> S.Hfl.t = function (* The Coercion rule generates many eta reduxes *)
       | Abs(x, (App (phi, Var x')))
           when Id.eq x x' && not (IdSet.mem (Hfl.fvs phi) x) -> phi
-      | Abs(x, phi)      -> Abs(x, eta phi)
-      | Or (phis, k)     -> Or (List.map ~f:eta phis, k)
-      | And(phis, k)     -> And(List.map ~f:eta phis, k)
-      | App(phi1, phi2)  -> App(eta phi1, eta phi2)
-      | phi              -> phi
+      | Abs(x, phi)     -> Abs(x, eta phi)
+      | Or (phis, k)    -> Or (List.map ~f:eta phis, k)
+      | And(phis, k)    -> And(List.map ~f:eta phis, k)
+      | App(phi1, phi2) -> App(eta phi1, eta phi2)
+      | phi             -> phi
     let beta_eta = eta <<< beta
+  end
+  module Hflz = struct
+    let rec beta : 'a S.Hflz.t -> 'a S.Hflz.t = function
+      | Or (phi1, phi2) -> Or (beta phi1, beta phi2)
+      | And(phi1, phi2) -> And(beta phi1, beta phi2)
+      | App(phi1, phi2) ->
+          begin match beta phi1, beta phi2 with
+          | Abs(x, phi1), phi2 -> Subst.Hflz.hflz (IdMap.of_list [x,phi2]) phi1
+          | phi1, phi2 -> App(phi1, phi2)
+          end
+      | Abs(x, phi) -> Abs(x, beta phi)
+      | phi -> phi
   end
 end
 
 module Simplify = struct
+  let hflz : 'a Hflz.t -> 'a Hflz.t =
+    let rec is_trivially_true : 'a Hflz.t -> bool =
+      fun phi -> match phi with
+      | Bool b -> b
+      | Or (phi1,phi2) -> is_trivially_true phi1 || is_trivially_true phi2
+      | And(phi1,phi2) -> is_trivially_true phi1 && is_trivially_true phi2
+      | _ -> false
+    in
+    let rec is_trivially_false : 'a Hflz.t -> bool =
+      fun phi -> match phi with
+      | Bool b -> not b
+      | And(phi1,phi2) -> is_trivially_false phi1 || is_trivially_false phi2
+      | Or (phi1,phi2) -> is_trivially_false phi1 && is_trivially_false phi2
+      | _ -> false
+    in
+    let rec go phi =
+      match Reduce.Hflz.beta phi with
+      | And(phi1, phi2) ->
+          let phi1 = go phi1 in
+          let phi2 = go phi2 in
+          let phis = List.filter ~f:Fn.(not <<< is_trivially_true) [phi1;phi2] in
+          Hflz.mk_ands phis
+      | Or (phi1, phi2) ->
+          let phi1 = go phi1 in
+          let phi2 = go phi2 in
+          let phis = List.filter ~f:Fn.(not <<< is_trivially_false) [phi1;phi2] in
+          Hflz.mk_ors phis
+      | Abs(x,phi)     -> Abs(x, go phi)
+      | App(phi1,phi2) -> App(go phi1, go phi2)
+      | phi -> phi
+    in go
+  let hflz_hes_rule : 'a Hflz.hes_rule -> 'a Hflz.hes_rule =
+    fun rule -> { rule with body = hflz rule.body }
+  let hflz_hes : 'a Hflz.hes -> 'a Hflz.hes =
+    fun rules -> List.map ~f:hflz_hes_rule rules
+
   let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =
     let is_trivially_true : Hfl.t -> bool =
       fun phi -> match phi with

@@ -121,5 +121,9 @@ let main file =
   Log.app begin fun m -> m ~header:"Input" "%a"
     Print.(hflz_hes simple_ty_) psi
   end;
+  let psi = Syntax.Trans.Simplify.hflz_hes psi in
+  Log.app begin fun m -> m ~header:"Simplified" "%a"
+    Print.(hflz_hes simple_ty_) psi
+  end;
   cegar_loop CexSet.empty 1 psi gamma
 
