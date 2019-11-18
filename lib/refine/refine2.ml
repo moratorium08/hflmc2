@@ -334,10 +334,6 @@ let gen_HCCS
                 Seq (c_modified, hcc_tree), ret_reduce_env
 
             | _ ->
-                Log.warn begin fun m -> m ~header:"BrBr" "%a@,%a"
-                  pp_hcc_tree hcc_tree1
-                  pp_hcc_tree hcc_tree2
-                end;
                 let nodes1, nodes2 = Pair.bimap (hcc_tree1,hcc_tree2) ~f:heads_of_hcc_tree in
                 let (ps1, extra_f1), (ps2, _extra_f2) =
                   Pair.bimap (nodes1, nodes2) ~f:begin fun nodes ->
@@ -401,8 +397,8 @@ let gen_HCCS
                   end;
                   (* TODO
                    * どこまで使って良いのか分からない
-                   * fvs_p2じゃないといけない例 : input/fvs.in
-                   * fvs   じゃないといけない例 : これTODO *)
+                   * fvs_p2じゃないといけない例 : input/ok/valid/apply.in
+                   * fvs   じゃないといけない例 : TODO *)
                   elim_variables' ~using:bind ~keep:(TraceVar.Set.of_list fvs_p2) f2
                   (* elim_variables' ~using:bind ~keep:fvs f2 *)
                 in

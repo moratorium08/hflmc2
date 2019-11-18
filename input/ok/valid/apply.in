@@ -1,0 +1,6 @@
+%HES
+Main    =v App F n.
+F x     =v P x \/ N x.
+P a     =v a >  0.
+N b     =v b <= 0.
+App p y =v p y.
