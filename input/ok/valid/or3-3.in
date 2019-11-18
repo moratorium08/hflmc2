@@ -1,0 +1,3 @@
+%HES
+Main x y z =v F x y z (\r. (x <= r \/ y <= r) \/ z <= r).
+F x y z k  =v k x /\ k y /\ k z.

@@ -317,15 +317,22 @@ let gen_HCCS
 
             (* Note[OrOpt] *)
             (* TODO これをなくすとBurn_POPL18/r-lock.inがダメになる *)
-            | Seq ({clause= {head=`P f;_};_}, Leaf), Seq (c, hcc_tree)
-            | Seq (c, hcc_tree), Seq ({clause={head=`P f;_};_}, Leaf) ->
+            (* mochi/mc91.inも *)
+            | Seq ({clause= {head=`P _;_};actual_head}, Leaf), Seq (c, hcc_tree)
+            | Seq (c, hcc_tree), Seq ({clause={head=`P _;_};actual_head}, Leaf) ->
                 Log.info begin fun m -> m  ~header:"XXX" "%a"
-                  HornClause.pp_hum_formula f
+                  (Print.list HornClause.pp_hum_head) actual_head
                 end;
+                let fs =
+                  List.map actual_head ~f:begin function
+                  | `P f -> f
+                  | `V _ -> assert false
+                  end
+                in
                 let c_modified =
-                  let body = HornClause.append_phi [Formula.mk_not f] c.clause.body in
+                  let body = HornClause.append_phi (List.map ~f:Formula.mk_not fs) c.clause.body in
                   let clause = { c.clause with body } in
-                  let actual_head = `P f :: c.actual_head in
+                  let actual_head = actual_head @ c.actual_head in
                   { clause; actual_head }
                 in
                 Log.info begin fun m -> m  ~header:"c_modified" "%a"
