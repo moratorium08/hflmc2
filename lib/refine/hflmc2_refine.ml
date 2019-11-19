@@ -1,3 +1,4 @@
+(*
 open Hflmc2_util
 open Hflmc2_syntax
 open Hflmc2_syntax.Type
@@ -573,10 +574,10 @@ let run
       end;
       let new_gamma = HornClauseSolver.solve_old hes hccs in
       `Refined (Hflmc2_abstraction.merge_env old_gamma new_gamma)
-
+*)
 let run x =
   if !Hflmc2_options.Refine.use_legacy
-  then run x
-  else Refine2.run x
+  then Refine2.run x
+  else Refine3.run x
   (* then (print_endline "legacy"; run x) *)
   (* else (print_endline "new"; Refine2.run x) *)
