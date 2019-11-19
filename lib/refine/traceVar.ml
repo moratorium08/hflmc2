@@ -62,6 +62,12 @@ module Set = Set.Make'(Key)
 
 let counters : (t, int) Hashtbl.t = Hashtbl.create (module Key)
 let reset_counters () = Hashtbl.clear counters
+let with_counters_rollbacked f =
+  let backup = Hashtbl.copy counters in
+  let r = f () in
+  Hashtbl.clear counters;
+  Hashtbl.iteri backup ~f:(Hashtbl.replace counters);
+  r
 
 let mk_aged ~age tv = { var = tv; age }
 

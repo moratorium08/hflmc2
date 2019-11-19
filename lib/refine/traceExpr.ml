@@ -166,3 +166,25 @@ let rec subst : t TraceVar.Map.t -> t -> t =
     | Pred (op, as')   -> Pred (op, List.map as' ~f:(subst_arith env))
     | App (phi1, phi2) -> App (subst env phi1, subst env phi2)
     | Abs (v, phi)     -> Abs (v, subst env phi)
+
+let rec fvs = function
+  | Var (`I v)       -> TraceVar.Set.singleton v
+  | Var (`T _)       -> TraceVar.Set.empty
+  | Bool _           -> TraceVar.Set.empty
+  | Or  (phi1, phi2) -> TraceVar.Set.union (fvs phi1) (fvs phi2)
+  | And (phi1, phi2) -> TraceVar.Set.union (fvs phi1) (fvs phi2)
+  | App (phi1, phi2) -> TraceVar.Set.union (fvs phi1) (fvs phi2)
+  | Abs (_, phi)     -> fvs phi
+  | Arith a          -> TraceVar.Set.of_list @@
+                          List.filter_map (Arith.fvs a) ~f:begin function
+                          | `I x -> Some x
+                          | _ -> None
+                          end
+  | Pred (_, as')    -> TraceVar.Set.of_list @@
+                          List.filter_map (List.concat_map ~f:Arith.fvs as') ~f:begin
+                          function
+                          | `I x -> Some x
+                          | _ -> None
+                          end
+
+
