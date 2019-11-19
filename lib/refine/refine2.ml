@@ -346,6 +346,8 @@ let gen_HCCS
                   let actual_head = actual_head @ c.actual_head in
                   { clause; actual_head }
                 in
+                (* これをすると   mochi/r-lock.in  が死ぬ *)
+                (* これをしないと mochi2/bcopy2.in が死ぬ *)
                 let hcc_tree =
                   map_hcc_tree hcc_tree ~f:begin fun node ->
                     { node with clause = modify_clause node.clause }
@@ -377,17 +379,23 @@ let gen_HCCS
                     |> List.remove_duplicates ~equal:TraceVar.equal
                   end
                 in
-                let bind_constr = (* TODO この辺の正当性を確認しよう *)
-                  let fvs = List.remove_duplicates ~equal:TraceVar.equal @@ fvs_p1 @ fvs_p2 in
-                  List.map fvs ~f:begin fun x ->
-                    match TraceVar.type_of x, TraceVar.Map.find_exn ret_reduce_env x with
-                    | TyInt, (Arith a, _) ->
-                        Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ]
-                    | _ -> assert false
+                let bind_constr1, bind_constr2 =
+                  Pair.bimap (fvs_p1, fvs_p2) ~f:begin fun fvs_p ->
+                    let fvs = List.remove_duplicates ~equal:TraceVar.equal @@ fvs_p1@fvs_p2 in
+                    (* let fvs = List.remove_duplicates ~equal:TraceVar.equal fvs_p in *)
+                    List.map fvs ~f:begin fun x ->
+                      match TraceVar.type_of x, TraceVar.Map.find_exn ret_reduce_env x with
+                      | TyInt, (Arith a, _) ->
+                          Formula.mk_pred Eq [ Arith.mk_var' (`I x); a ]
+                      | _ -> assert false
+                    end
                   end
                 in
-                Log.info begin fun m -> m ~header:"BindConstr" "%a"
-                  (Print.list_set HornClause.pp_hum_formula) bind_constr
+                Log.info begin fun m -> m ~header:"BindConstr1" "%a"
+                  (Print.list_set HornClause.pp_hum_formula) bind_constr1
+                end;
+                Log.info begin fun m -> m ~header:"BindConstr2" "%a"
+                  (Print.list_set HornClause.pp_hum_formula) bind_constr2
                 end;
                 let ub_p2 =
                   let fvs = TraceVar.Set.of_list @@ List.concat
@@ -438,7 +446,7 @@ let gen_HCCS
                     let body =
                       c.clause.body
                       |> HornClause.append_phi [Formula.mk_not ub_p2]
-                      |> HornClause.append_phi bind_constr
+                      |> HornClause.append_phi bind_constr2
                     in { c with clause = { c.clause with body } }
                   end
                 in
@@ -449,7 +457,7 @@ let gen_HCCS
                       c.clause.body
                       |> HornClause.append_pvs (List.map ~f:HornClause.negate_pv ps1)
                       |> HornClause.append_phi (List.map ~f:Formula.mk_not extra_f1)
-                      |> HornClause.append_phi bind_constr
+                      |> HornClause.append_phi bind_constr1
                     in { c with clause = { c.clause with body } }
                   end
                 in
@@ -515,7 +523,9 @@ let gen_HCCS
                   let init_guard =
                     HornClause.(append_pvs (next_pv :: Option.to_list pv) guard)
                     (* HornClause.(append_pvs (Option.to_list pv) guard) *)
-                    (* HornClause.(append_pvs [next_pv] guard) (* TODO *) *)
+                        (* 例えばinputs/mochi/mc91.inで見つかる述語が複雑になってタイムアウト *)
+                    (* HornClause.(append_pvs [next_pv] guard) *)
+                        (* 例えばinputs/mochi/max.inがダメ *)
                   in
                   List.fold_left bind ~init:(init_guard, []) ~f:
                     begin fun (g, rev_acc) (x,e) ->
