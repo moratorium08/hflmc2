@@ -73,41 +73,44 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
         Sexp.pp_hum (C.sexp_of_t cex)
       end;
       (* Refine *)
-      let ncexs = CexSet.(diff (of_list (C.normalize cex)) prev_cexs) in
-      if CexSet.is_empty ncexs then
+      let new_cexs = CexSet.(diff (of_list (C.normalize cex)) prev_cexs) in
+      if CexSet.is_empty new_cexs then
         Fn.fatal "NoProgress"
       else
-        let next_cexs = CexSet.union prev_cexs ncexs in
-        let ncexs = CexSet.to_list ncexs in
-        let new_gamma =
+        let new_gamma, next_cexs =
           if false then
-            let rec loop gamma ncexs =
-              match ncexs with
-              | [] ->
-                  Some gamma
-              | ncex::ncexs ->
-                  Log.info begin fun m -> m ~header:"Refine:cex" "%a"
-                    C.pp_hum_normalized ncex
-                  end;
-                  begin match add_mesure_time "Refine" @@ fun () ->
-                    Refine.run psi ncex gamma
-                  with
-                  | `Refined new_gamma -> loop new_gamma ncexs
-                  | `Feasible -> None
-                  end
-            in loop gamma ncexs
+            let next_cexs = CexSet.union prev_cexs new_cexs in
+            let new_gamma =
+              let rec loop gamma ncexs =
+                match ncexs with
+                | [] ->
+                    Some gamma
+                | ncex::ncexs ->
+                    Log.info begin fun m -> m ~header:"Refine:cex" "%a"
+                      C.pp_hum_normalized ncex
+                    end;
+                    begin match add_mesure_time "Refine" @@ fun () ->
+                      Refine.run psi ncex gamma
+                    with
+                    | `Refined new_gamma -> loop new_gamma ncexs
+                    | `Feasible -> None
+                    end
+              in loop gamma (CexSet.to_list new_cexs)
+            in new_gamma, next_cexs
           else
-            (* 余計な述語を集めると重くなるのでこっちのが良いかも *)
-            let ncex = List.hd_exn ncexs in
-            Log.info begin fun m -> m ~header:"Refine:cex" "%a"
-              C.pp_hum_normalized ncex
-            end;
-            begin match add_mesure_time "Refine" @@ fun () ->
-              Refine.run psi ncex gamma
-            with
-            | `Refined new_gamma -> Some new_gamma
-            | `Feasible -> None
-            end
+            let ncex = List.hd_exn @@ CexSet.to_list new_cexs in
+            let next_cexs = CexSet.add prev_cexs ncex in
+            let new_gamma =
+              Log.info begin fun m -> m ~header:"Refine:cex" "%a"
+                C.pp_hum_normalized ncex
+              end;
+              begin match add_mesure_time "Refine" @@ fun () ->
+                Refine.run psi ncex gamma
+              with
+              | `Refined new_gamma -> Some new_gamma
+              | `Feasible -> None
+              end
+            in new_gamma, next_cexs
         in
           if !Options.oneshot then failwith "oneshot";
           match new_gamma with
