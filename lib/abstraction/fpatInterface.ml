@@ -418,7 +418,9 @@ let to_index_repr : bformula -> int list list =
             int_of_string @@ String.lstrip ~drop:(fun c -> c='x') x
         | _ -> assert false
       end
+      >>> List.remove_duplicates ~equal:(=)
     end
+    |> List.maximals' (Fn.flip List.subset)
 let strongest_post_cond : Formula.t -> Formula.t array -> int list list =
   fun phi preds -> to_index_repr @@ strongest_post_cond' phi preds
 let min_valid_cores : Formula.t array -> int list list =
