@@ -117,6 +117,7 @@ module FpatReImpl = struct
     let sexp_of_t = Array.sexp_of_t Bool.sexp_of_t
     let t_of_sexp = Array.t_of_sexp Bool.t_of_sexp
     let compare   = Array.compare Bool.compare
+    let size pbs = Array.count pbs ~f:Fn.id
 
     let singleton len i =
       let pbs = Array.create ~len false in
@@ -156,6 +157,8 @@ module FpatReImpl = struct
         in String.concat (aux [] d)
       in fun ppf x ->
         Print.pf ppf "%8s" (bin_of_int x)
+
+    let size pbs = Core.Int.popcount pbs
 
     let conj x y = x lor y
 
@@ -258,9 +261,9 @@ module FpatReImpl = struct
         |> Set.to_list
         |> Pbss.union_list
         |> Set.diff -$- pbss2
-        (* |> Pbss.filter ~f:begin fun pbs -> *)
-        (*      Array.count pbs ~f:Fn.id <= 3 (* andは3つまで *) *)
-        (*    end *)
+        |> Pbss.filter ~f:begin fun pbs ->
+             Conj.size pbs <= !Hflmc2_options.Abstraction.max_ands
+           end
         |> begin fun pbss ->
             Log.debug begin fun m -> m ~header:"npbss:1" "%a"
               pp_pbss pbss
@@ -323,9 +326,9 @@ module FpatReImpl = struct
         |> Set.to_list
         |> Pbss.union_list
         |> Set.diff -$- pbss2
-        (* |> Pbss.filter ~f:begin fun pbs -> *)
-        (*      Array.count pbs ~f:Fn.id <= 3 (* andは3つまで *) *)
-        (*    end *)
+        |> Pbss.filter ~f:begin fun pbs ->
+             Conj.size pbs <= !Hflmc2_options.Abstraction.max_ands
+           end
         |> Pbss.filter ~f:begin fun pbs -> (* これは停止性に必須っぽい *)
              (* pbs2 \in pbss2 は pbs2=>phi も pbs2=>¬phi も満たさない
               * pbsがpbs2のsubsetならなおさら *)

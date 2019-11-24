@@ -1,4 +1,5 @@
 
+module Core = Core
 open Core
 
 module Pair = struct
