@@ -30,9 +30,6 @@ module List = struct
     | None -> powerset xs
     | Some n -> powerset_with_limit n xs
   let singleton x = [x]
-  let snoc xs = match rev xs with
-    | []    -> failwith "List.snoc"
-    | x::xs -> (rev xs, x)
   let cartesian_products : 'a list list -> 'a list list =
     fun xss ->
       fold_right xss ~init:[[]] ~f:begin fun xs acc ->
