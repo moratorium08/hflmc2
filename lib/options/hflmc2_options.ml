@@ -7,6 +7,10 @@ open Hflmc2_util
 
 let oneshot = ref false
 
+module Preprocess = struct
+  let inlining = ref (Obj.magic())
+end
+
 module Abstraction = struct
   (* NOTE Actual value is set by Cmdliner *)
   let max_ors              = ref (Obj.magic())
@@ -51,11 +55,15 @@ type params =
   ; oneshot : bool [@default false]
     (** Do not loop *)
 
+  (* Preprocess *)
+  ; no_inlining : bool [@default false]
+    (** Disable inlining *)
+
   (* Abstraction *)
   ; abst_max_ors : int [@default 10]
     (** Maximum number of disjunction in predicate abstraction *)
 
-  ; abst_max_ands : int [@default 1]
+  ; abst_max_ands : int [@default 10]
     (** Maximum number of conjunction in predicate abstraction *)
 
   ; abst_exhaustive_search : bool [@default false]
@@ -74,6 +82,7 @@ type params =
 let set_up_params params =
   set_debug_modules params.debug;
   set_ref oneshot                          params.oneshot;
+  set_ref Preprocess.inlining              (not params.no_inlining);
   set_ref Abstraction.max_ors              params.abst_max_ors;
   set_ref Abstraction.max_ands             params.abst_max_ands;
   set_ref Abstraction.exhaustive_search    params.abst_exhaustive_search;
