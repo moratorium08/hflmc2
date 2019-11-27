@@ -222,7 +222,7 @@ let rec abstract_coerce
           when FormulaSet.(is_empty (diff preds_set preds_set')) -> phi
       | TyBool, TyBool ->
           let ps = preds_set
-            |> FormulaSet.diff -$- preds_set'
+            |> FormulaSet.diff -$- preds_set' (* this can result in NoProgress! *)
             |> FormulaSet.filter ~f:begin fun f ->
                  IdSet.mem (Hfl.fvs phi) (name_of f)
                end
@@ -233,87 +233,73 @@ let rec abstract_coerce
           let k = Array.length ps in
           let one_to_l = List.(range 0 l) in (* to be honest, 0 to l-1 *)
           let one_to_k = List.(range 0 k) in
-          (* Log.info begin fun m -> m ~header:"FOO" "%a@.%a" *)
-          (*   Print.(list_set int) one_to_l *)
-          (*   Print.(list_set int) @@ List.filter one_to_l ~f:begin fun i -> *)
-          (*     let q = Array.get qs i in *)
-          (*     FpatInterface.(not @@ is_valid q || is_unsat q) *)
-          (*   end *)
-          (* end; *)
-          let _Is = List.powerset @@
-            List.filter one_to_l ~f:begin fun i ->
-              let q = Array.get qs i in
-              FpatInterface.(not @@ is_valid q || is_unsat q)
+          Log.debug begin fun m -> m ~header:"Coerce" "%a ~> %a"
+            Print.(list_set formula) (Array.to_list ps)
+            Print.(list_set formula) (Array.to_list qs)
+          end;
+          let _Is =
+            List.powerset begin
+              List.filter one_to_l ~f:begin fun i ->
+                let q = Array.get qs i in
+                if FpatInterface.(not @@ is_valid q || is_unsat q)
+                then true
+                else assert false
+              end
             end
+            |> List.filter ~f:begin fun _I ->
+                 let qs' = List.(map ~f:(Array.get qs) _I) in
+                 _I = [] || not (FpatInterface.is_valid (Formula.mk_ands (guard::qs')))
+               end
           in
           let phi's =
             let _IJs =
-              let min_valid_cores'= FpatInterface.min_valid_cores' ps in
-              let min_valid_cores = FpatInterface.to_index_repr min_valid_cores' in
               List.map _Is ~f:begin fun _I ->
                 let qs' = List.(map ~f:(Array.get qs) _I) in
                 let _Q  = Formula.mk_ands (guard::qs') in
                 (* Q => \/i(/\Ji) を満たす極大の J1,...,Jh の集合を得る *)
-                let _Jss =
-                  if FpatInterface.(_Q ==> Formula.Bool false) then
-                    [[one_to_k]] (* /\{P1,...,Pk}が唯一の極大元 *)
-                  else if FpatInterface.is_valid _Q then
-                    [min_valid_cores]
-                  else
-                    (* TODO remove dupulicate
-                     * TODO まとめて計算できるようにする
-                     * というかなんで今はmin_valid_coresと別々に計算してるんだろう *)
-                    [FpatInterface.to_index_repr @@ Formula.mk_ands
-                      [ min_valid_cores'
-                      ; FpatInterface.strongest_post_cond' _Q ps
-                      ]
-                    ]
+                let _Js =
+                  if FpatInterface.is_unsat _Q then
+                    [one_to_k] (* /\{P1,...,Pk}が唯一の極大元 *)
+                  else begin
+                    FpatInterface.strongest_post_cond _Q ps
+                  end
                 in
-                if false then Log.debug begin fun m ->
+                Log.debug begin fun m ->
                   let x =
-                    let open Formula in
-                    mk_ands @@ List.map _Jss ~f:
-                      begin fun _Js ->
-                        mk_ors @@ List.map _Js ~f:
-                          begin fun _J ->
-                            mk_ands @@ List.map _J ~f:(Array.get ps)
-                          end
-                      end
+                    Formula.mk_ors @@ List.map _Js ~f:begin fun _J ->
+                      Formula.mk_ands @@ List.map _J ~f:(Array.get ps)
+                    end
                   in
                   m ~header:"CoerceAtom" "@[<v>%a ===> %a@]"
-                    Print.formula (FpatInterface.simplify _Q)
-                    Print.formula (FpatInterface.simplify x)
+                    Print.formula _Q
+                    Print.formula x
                 end;
-                (_I, _Jss)
+                (_I, _Js)
               end
             in
             let _IJs = _IJs
-              (* Group by equality of Jss *)
+              (* Group by equality of Js *)
               |> List.sort ~compare:Fn.(on snd compare)
               |> List.group ~break:Fn.(on snd (<>))
               (* Remove I which has its subset in the same group *)
-              |> List.concat_map
-                  ~f:(List.maximals' Fn.(on fst (flip List.subset)))
+              |> List.concat_map ~f:(List.maximals' Fn.(on fst (flip List.subset)))
             in
-            List.map _IJs ~f:begin fun (_I,_Jss) ->
-              let conjunctions =
-                List.map _Jss ~f:begin fun _Js ->
-                  let mk_var i = Hfl.mk_var (name_of @@ Array.get qs i) in
-                  let mk_atom _J =
-                    let subst =
-                      List.map one_to_k ~f:begin fun j ->
-                        name_of (Array.get ps j),
-                        Hfl.Bool (List.mem ~equal:(=) _J j)
-                      end
-                    in
-                    Trans.Subst.Hfl.hfl (IdMap.of_list subst) phi
-                  in
-                  Hfl.mk_ands ~kind:`Inserted
-                   @@ List.map _I ~f:mk_var
-                    @ List.map _Js ~f:mk_atom
-                end
+            List.map _IJs ~f:begin fun (_I,_Js) ->
+              let mk_var i =
+                Hfl.mk_var (name_of @@ Array.get qs i)
               in
-              Hfl.mk_ors ~kind:`Inserted conjunctions
+              let mk_atom _J =
+                let subst =
+                  List.map one_to_k ~f:begin fun j ->
+                    name_of (Array.get ps j),
+                    Hfl.Bool (List.mem ~equal:(=) _J j)
+                  end
+                in
+                Trans.Subst.Hfl.hfl (IdMap.of_list subst) phi
+              in
+              Hfl.mk_ands ~kind:`Inserted
+               @@ List.map _I ~f:mk_var
+                @ List.map _Js ~f:mk_atom
             end
           in Hfl.mk_ors ~kind:`Inserted phi's
       | TyArrow({ty=TyInt preds ;_} as x , sigma )
@@ -558,6 +544,6 @@ let abstract
   fun gamma' hes ->
     reset_name_of_formulas();
     let gamma = IdMap.map gamma' ~f:IType.of_bool_base in
-    Log.debug begin fun m -> m ~header:"IntEnv" "%a" pp_gamma gamma end;
+    Log.info begin fun m -> m ~header:"IntEnv" "%a" pp_gamma gamma end;
     List.map ~f:(abstract_rule gamma) hes
 

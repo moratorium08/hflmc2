@@ -57,7 +57,7 @@ let rec cegar_loop prev_cexs loop_count psi gamma =
   end;
   (* Abstract *)
   let phi = add_mesure_time "Abstraction" @@ fun () ->
-    Abstraction.Int_base.abstract gamma psi
+    Abstraction.abstract gamma psi
   in
   Log.app begin fun m -> m ~header:"AbstractedProg" "%a"
     Print.hfl_hes phi
