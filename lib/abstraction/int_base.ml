@@ -238,7 +238,7 @@ let rec abstract_coerce
             Print.(list_set formula) (Array.to_list qs)
           end;
           let _Is =
-            List.powerset begin
+            List.powerset ~limit:!Options.max_I  begin
               List.filter one_to_l ~f:begin fun i ->
                 let q = Array.get qs i in
                 if FpatInterface.(not @@ is_valid q || is_unsat q)

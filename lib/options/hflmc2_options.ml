@@ -13,7 +13,8 @@ end
 
 module Abstraction = struct
   (* NOTE Actual value is set by Cmdliner *)
-  let max_ors              = ref (Obj.magic())
+  let max_I                = ref (Obj.magic())
+  (* let max_ors              = ref (Obj.magic()) *)
   let max_ands             = ref (Obj.magic())
   let exhaustive_search    = ref (Obj.magic())
   let modify_pred_by_guard = ref (Obj.magic())
@@ -59,9 +60,14 @@ type params =
   ; no_inlining : bool [@default false]
     (** Disable inlining *)
 
+  (*
   (* Abstraction *)
   ; abst_max_ors : int [@default 10]
     (** Maximum number of disjunction in predicate abstraction *)
+  *)
+
+  ; abst_max_I : int [@default 2]
+    (** Maximum number of conjunction in the assumption of predicate abstraction *)
 
   ; abst_max_ands : int [@default 10]
     (** Maximum number of conjunction in predicate abstraction *)
@@ -83,7 +89,8 @@ let set_up_params params =
   set_debug_modules params.debug;
   set_ref oneshot                          params.oneshot;
   set_ref Preprocess.inlining              (not params.no_inlining);
-  set_ref Abstraction.max_ors              params.abst_max_ors;
+  (* set_ref Abstraction.max_ors              params.abst_max_ors; *)
+  set_ref Abstraction.max_I                params.abst_max_I;
   set_ref Abstraction.max_ands             params.abst_max_ands;
   set_ref Abstraction.exhaustive_search    params.abst_exhaustive_search;
   set_ref Abstraction.modify_pred_by_guard (not params.abst_no_modify_pred_by_guard);
