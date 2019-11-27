@@ -447,10 +447,21 @@ let gen_HCCS
                   let guard = guard
                     |> HornClause.append_pvs (List.map ~f:HornClause.negate_pv ps1)
                     |> HornClause.append_phi (List.map ~f:Formula.mk_not extra_f1)
-                    |> HornClause.append_phi bind_constr1
+                    (* |> HornClause.append_phi bind_constr1 *)
+                        (* TODO
+                         * あるとBurn_POPL18/a-max.inがNoProgress
+                         * ないとok/valid/2.inとかが死ぬ
+                         * *)
                   in
                   let hcc_tree2, _ = go reduce_env guard pv psi2 cex2 in
-                  hcc_tree2
+                  (* hcc_tree2 *)
+                  (* これで良いのか？正当性が何もわからん *)
+                  modify_heads_of_hcc_tree hcc_tree2 ~f:begin fun c ->
+                    { c with
+                      clause =
+                        { c.clause with 
+                          body = HornClause.append_phi bind_constr1 c.clause.body } }
+                  end
                 in
                 Br (hcc_tree1', hcc_tree2'), ret_reduce_env
             end
