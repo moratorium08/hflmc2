@@ -31,12 +31,12 @@ end
 
 let set_ref ref x = ref := x
 let set_ref_opt ref x = match x with None -> () | Some x -> ref := x
-let set_debug_modules modules =
+let set_module_log_level level modules =
   let logs = Logs.Src.list() in
   List.iter logs ~f:begin fun src ->
     if List.mem modules (Logs.Src.name src) ~equal:String.equal
     then begin
-      Logs.Src.set_level src (Some Debug)
+      Logs.Src.set_level src (Some level)
     end
   end
 
@@ -49,8 +49,10 @@ type params =
   { input : string list [@pos 0] [@docv "FILE"]
 
   (* Logging *)
-  ; debug : string list [@default []] [@docv "MODULE,..."]
+  ; log_debug : string list [@default []] [@docv "MODULE,..."] [@aka ["debug"]]
     (** Enable debug log of modules *)
+  ; log_info : string list [@default []] [@docv "MODULE,..."]
+    (** Enable info log of modules *)
 
   (* Whole procedure *)
   ; oneshot : bool [@default false]
@@ -86,10 +88,10 @@ type params =
   [@@deriving cmdliner,show]
 
 let set_up_params params =
-  set_debug_modules params.debug;
+  set_module_log_level Debug               params.log_debug;
+  set_module_log_level Info                params.log_info;
   set_ref oneshot                          params.oneshot;
   set_ref Preprocess.inlining              (not params.no_inlining);
-  (* set_ref Abstraction.max_ors              params.abst_max_ors; *)
   set_ref Abstraction.max_I                params.abst_max_I;
   set_ref Abstraction.max_ands             params.abst_max_ands;
   set_ref Abstraction.exhaustive_search    params.abst_exhaustive_search;
