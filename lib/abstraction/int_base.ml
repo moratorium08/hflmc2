@@ -378,6 +378,15 @@ let rec abstract_infer
           FormulaSet.empty
       | Pred(p,as') ->
           let pred = Formula.Pred(p,as') in
+          let pred =
+            if !Options.modify_pred_by_guard then
+              pred (* This may result in increase of #predicate *)
+              |> Formula.(mk_implies (mk_ands env.guard))
+              |> Trans.Simplify.formula
+                    ~is_true:FpatInterface.is_valid
+                    ~is_false:FpatInterface.is_unsat
+            else pred
+          in
           TyBool,
           Hfl.mk_var (name_of pred),
           FormulaSet.singleton pred
