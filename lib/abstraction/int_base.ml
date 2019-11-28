@@ -440,26 +440,49 @@ let rec abstract_infer
           with
           | (Some f, psi_s, pat), (_, psi_m,_)
           | (_, psi_m,_), (Some f, psi_s, pat) ->
-              let _, phi_s, preds_set_s = abstract_infer env psi_s in
-              let pred = match ope with
-                | `And -> f
-                | `Or  -> Formula.mk_not f
-              in
-              let guard = pred::env.guard in
-              let preds_set = FormulaSet.remove env.preds_set pred in
-              let _, phi_m, preds_set_m =
-                abstract_infer { env with guard; preds_set } psi_m
-              in
-              Log.debug begin fun m -> m ~header:"Update guard" "%a"
-                Print.formula pred
-              end;
-              let reorder = match pat with
-                | `L -> [phi_s;phi_m]
-                | `R -> [phi_m;phi_s]
-              in
-              TyBool,
-              reconstruct reorder,
-              FormulaSet.union preds_set_m preds_set_s
+              begin match ope with
+              | `Or -> (* もっと最適化できるかも *)
+                  let phi_s =
+                    abstract_check env psi_s TyBool
+                  in
+                  let pred = Formula.mk_not f in
+                  let guard = pred::env.guard in
+                  let preds_set = FormulaSet.remove env.preds_set pred in
+                  let _, phi_m, preds_set_m =
+                    abstract_infer { env with guard; preds_set } psi_m
+                  in
+                  Log.debug begin fun m -> m ~header:"Update guard" "%a"
+                    Print.formula pred
+                  end;
+                  let reordered = match pat with
+                    | `L -> [phi_s;phi_m]
+                    | `R -> [phi_m;phi_s]
+                  in
+                  TyBool,
+                  reconstruct reordered,
+                  preds_set_m
+              | _ ->
+                  let _, phi_s, preds_set_s = abstract_infer env psi_s in
+                  let pred = match ope with
+                    | `And -> f
+                    | `Or  -> Formula.mk_not f
+                  in
+                  let guard = pred::env.guard in
+                  let preds_set = FormulaSet.remove env.preds_set pred in
+                  let _, phi_m, preds_set_m =
+                    abstract_infer { env with guard; preds_set } psi_m
+                  in
+                  Log.debug begin fun m -> m ~header:"Update guard" "%a"
+                    Print.formula pred
+                  end;
+                  let reordered = match pat with
+                    | `L -> [phi_s;phi_m]
+                    | `R -> [phi_m;phi_s]
+                  in
+                  TyBool,
+                  reconstruct reordered,
+                  FormulaSet.union preds_set_m preds_set_s
+              end
           | _ ->
             if false then (* TODO (low priority): control by option *)
               let _, preds_set1 = infer_type env psi1 in
