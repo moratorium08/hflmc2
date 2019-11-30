@@ -1,0 +1,18 @@
+(executable
+  (name benchmark)
+  (libraries
+    core
+    cmdliner
+    lwt
+    lwt.unix
+    yojson
+    )
+  (preprocess (pps ppx_deriving.std ppx_deriving_yojson ppx_deriving_cmdliner)))
+(alias
+  (name benchmark)
+  (deps (file benchmark.ml))
+  (action (run %{exe:benchmark.exe})))
+
+(env (dev (flags (:standard -warn-error -A -w -3-33-39))))
+; dune build @test/benchmark -f
+; dune exec test/benchmark/benchmark.exe
