@@ -41,7 +41,7 @@ jobs:
           name: Install direct dependencies
           command: |
             # TODO better practice
-            opam install oUnit
+            opam install oUnit re2
       - run:
           name: Install horsat2
           command: |
