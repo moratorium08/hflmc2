@@ -27,7 +27,7 @@ type test_sort =
 let check : test_sort -> bool =
   fun sort ->
     let dir   = input_base_dir ^ sort.dir in
-    let files = List.sort ~compare @@ Sys.ls_dir dir in
+    let files = List.sort ~compare:String.compare @@ Sys.ls_dir dir in
     let max_len =
       List.map ~f:String.length files
       |> List.maximals' (fun a b -> a <= b)

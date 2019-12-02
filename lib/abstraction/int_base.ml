@@ -139,7 +139,7 @@ let reset_name_of_formulas() = Hashtbl.clear name_of_formulas
 
 let pp_gamma : IType.abst_ty IdMap.t Print.t =
   fun ppf gamma ->
-    let compare_id (x,_) (y,_) = compare x.Id.id y.Id.id in
+    let compare_id (x,_) (y,_) = Int.compare x.Id.id y.Id.id in
     let item ppf (f,aty) =
       Print.pf ppf "@[<h>%a : %a@]" Print.id f IType.pp_hum aty
     in
@@ -279,7 +279,7 @@ let rec abstract_coerce
             in
             let _IJs = _IJs
               (* Group by equality of Js *)
-              |> List.sort ~compare:Fn.(on snd compare)
+              |> List.sort ~compare:Fn.(on snd List.(compare (compare Int.compare)))
               |> List.group ~break:Fn.(on snd (<>))
               (* Remove I which has its subset in the same group *)
               |> List.concat_map ~f:(List.maximals' Fn.(on fst (flip List.subset)))
@@ -292,7 +292,7 @@ let rec abstract_coerce
                 let subst =
                   List.map one_to_k ~f:begin fun j ->
                     name_of (Array.get ps j),
-                    Hfl.Bool (List.mem ~equal:(=) _J j)
+                    Hfl.Bool (List.mem ~equal:Int.equal _J j)
                   end
                 in
                 Trans.Subst.Hfl.hfl (IdMap.of_list subst) phi

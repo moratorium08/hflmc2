@@ -20,7 +20,7 @@ type gamma =
 
 let pp_env : env Print.t =
   fun ppf env ->
-    let compare_id (x,_) (y,_) = compare x.Id.id y.Id.id in
+    let compare_id (x,_) (y,_) = Int.compare x.Id.id y.Id.id in
     let item ppf (f,aty) =
       Print.pf ppf "@[<h>%a : %a@]" Print.id f Print.abstraction_ty aty
     in

@@ -313,7 +313,7 @@ let to_index_repr : bformula -> int list list =
             int_of_string @@ String.lstrip ~drop:(fun c -> c='x') x
         | _ -> assert false
       end
-      >>> List.remove_duplicates ~equal:(=)
+      >>> List.remove_duplicates ~equal:Int.equal
     end
     |> List.maximals' (Fn.flip List.subset)
 
