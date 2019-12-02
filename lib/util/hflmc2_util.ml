@@ -103,6 +103,10 @@ module List = struct
     maximals ~compare xs
 end
 
+module Unit = Unit
+
+module Int = Int
+
 module Bool = Bool
 
 module Array = Array

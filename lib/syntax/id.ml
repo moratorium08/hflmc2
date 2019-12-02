@@ -32,7 +32,7 @@ module Key = struct
   type nonrec t = unit t
   let sexp_of_t = sexp_of_t sexp_of_unit
   let t_of_sexp = t_of_sexp unit_of_sexp
-  let compare : t -> t -> int = compare Unit.compare
+  let compare : t -> t -> int = compare Core.Unit.compare
   let hash : t -> int = String.hash <<< to_string
 end
 
