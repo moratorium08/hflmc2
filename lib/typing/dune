@@ -1,7 +1,6 @@
 (library
- (public_name hflmc2_abstraction)
+ (public_name hflmc2_typing)
  (libraries
-   fpat
    hflmc2_util
    hflmc2_options
    hflmc2_syntax)

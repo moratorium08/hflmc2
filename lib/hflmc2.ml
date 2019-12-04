@@ -1,9 +1,6 @@
 module Util        = Hflmc2_util
 module Options     = Hflmc2_options
 module Syntax      = Hflmc2_syntax
-module Abstraction = Hflmc2_abstraction
-module Modelcheck  = Hflmc2_modelcheck
-module Refine      = Hflmc2_refine
 
 open Util
 open Syntax
@@ -16,9 +13,6 @@ type result = [ `Valid | `Invalid ]
 let show_result = function
   | `Valid      -> "Valid"
   | `Invalid    -> "Invalid"
-
-module CexSet = Set.Make'(Modelcheck.Counterexample.Normalized)
-(* module CexSet = Set.Make'(Modelcheck.Counterexample) *)
 
 let measure_time f =
   let start  = Unix.gettimeofday () in
@@ -47,77 +41,6 @@ let report_times () =
           "  " ^ k ^ ":" ^ pudding
         in Print.pr "%s %f sec@." s v
       end
-
-let rec cegar_loop prev_cexs loop_count psi gamma =
-  Log.app begin fun m -> m ~header:"TopOfLoop" "Loop count: %d"
-      loop_count
-  end;
-  Log.app begin fun m -> m ~header:"Environmet" "%a"
-    Abstraction.pp_env gamma
-  end;
-  (* Abstract *)
-  let phi = add_mesure_time "Abstraction" @@ fun () ->
-    Abstraction.abstract gamma psi
-  in
-  Log.app begin fun m -> m ~header:"AbstractedProg" "%a"
-    Print.hfl_hes phi
-  end;
-  (* Modelcheck *)
-  match add_mesure_time "Modelcheck" @@ fun () -> Modelcheck.run phi with
-  | Ok() ->
-      `Valid
-  | Error cex ->
-      let module C = Modelcheck.Counterexample in
-      let cex = C.simplify cex in
-      Log.app begin fun m -> m ~header:"Counterexample" "@[<2>%a@]"
-        Sexp.pp_hum (C.sexp_of_t cex)
-      end;
-      (* Refine *)
-      let new_cexs = CexSet.(diff (of_list (C.normalize cex)) prev_cexs) in
-      if CexSet.is_empty new_cexs then
-        Fn.fatal "NoProgress"
-      else
-        let new_gamma, next_cexs =
-          if false then
-            let next_cexs = CexSet.union prev_cexs new_cexs in
-            let new_gamma =
-              let rec loop gamma ncexs =
-                match ncexs with
-                | [] ->
-                    Some gamma
-                | ncex::ncexs ->
-                    Log.info begin fun m -> m ~header:"Refine:cex" "%a"
-                      C.pp_hum_normalized ncex
-                    end;
-                    begin match add_mesure_time "Refine" @@ fun () ->
-                      Refine.run psi ncex gamma
-                    with
-                    | `Refined new_gamma -> loop new_gamma ncexs
-                    | `Feasible -> None
-                    end
-              in loop gamma (CexSet.to_list new_cexs)
-            in new_gamma, next_cexs
-          else
-            let ncex = List.hd_exn @@ CexSet.to_list new_cexs in
-            let next_cexs = CexSet.add prev_cexs ncex in
-            let new_gamma =
-              Log.info begin fun m -> m ~header:"Refine:cex" "%a"
-                C.pp_hum_normalized ncex
-              end;
-              begin match add_mesure_time "Refine" @@ fun () ->
-                Refine.run psi ncex gamma
-              with
-              | `Refined new_gamma -> Some new_gamma
-              | `Feasible -> None
-              end
-            in new_gamma, next_cexs
-        in
-          if !Options.oneshot then failwith "oneshot";
-          match new_gamma with
-          | Some new_gamma ->
-              cegar_loop next_cexs (loop_count+1) psi new_gamma
-          | None ->
-              `Invalid
 
 let main file =
   let psi, gamma = Syntax.parse_file file in
