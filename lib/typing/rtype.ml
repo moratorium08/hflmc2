@@ -1,9 +1,7 @@
 open Hflmc2_syntax
-
-type id = int
+open Rid
 
 type template = id * id list (* template prdicate name and its args *)
-
 
 let print_template (id, _) = Printf.printf "X%d" id
 

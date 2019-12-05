@@ -2,6 +2,7 @@ module Type = Rtype
 module Translate = Rtranslate
 module Infer = Rinfer
 module Rhflz = Rhflz
+module RArith = RArith
 
 
 let rec generate_env = function 

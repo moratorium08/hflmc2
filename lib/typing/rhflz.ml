@@ -14,13 +14,13 @@ type t =
   | Abs    of Rtype.t Id.t * t
   | App    of t * t
   (* constructers only for hflz *)
-  | Arith  of Arith.t
+  | Arith  of Rarith.t
   | Pred   of Formula.pred * Arith.t list
 
 let rec print_formula = function
   | Bool x when x -> Printf.printf "tt"
-  | Bool x -> Printf.printf "ff"
-  | Var v -> Printf.printf "id"
+  | Bool _ -> Printf.printf "ff"
+  | Var _ -> Printf.printf "id"
   | Or (x, y) -> 
     Printf.printf "(";
     print_formula x;
@@ -106,16 +106,3 @@ let decompose_app =
     | _ -> (phi, acc)
   in
   fun phi -> go phi []
-
-let rec fvs = function
-  | Var x          -> IdSet.singleton x
-  | Bool _         -> IdSet.empty
-  | Or (phi1,phi2) -> IdSet.union (fvs phi1) (fvs phi2)
-  | And(phi1,phi2) -> IdSet.union (fvs phi1) (fvs phi2)
-  | App(phi1,phi2) -> IdSet.union (fvs phi1) (fvs phi2)
-  | Abs(x,phi)     -> IdSet.remove (fvs phi) x
-  | Arith a        -> IdSet.of_list @@ List.map ~f:Id.remove_ty @@ Arith.fvs a
-  | Pred (_,as')   -> IdSet.union_list @@ List.map as' ~f:begin fun a ->
-                        IdSet.of_list @@ List.map ~f:Id.remove_ty @@ Arith.fvs a
-                      end
-

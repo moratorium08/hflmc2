@@ -21,6 +21,8 @@ and translate_simple_ty:'a Type.ty -> Rtype.t = function
   | Type.TyArrow (a, s) -> 
     RArrow((translate_id_arg a).ty, translate_simple_ty s)
 
+let rec translate_arith = function
+  | Arith.Int x -> RArith.Int x
 
 let rec translate_body body =
   let open Rhflz in

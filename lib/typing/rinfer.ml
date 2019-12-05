@@ -33,7 +33,6 @@ let rec _subtype t t' renv m =
  | RArrow(t, s), RArrow(t', s') ->
    let m' = _subtype t' t (RAnd(renv, rty t')) m in
    _subtype s s' renv m' 
- | RInt _, RInt _ -> m
  | _, _ -> 
  failwith "program error(subtype)"
 
@@ -77,6 +76,11 @@ let rec infer_formula formula env m =
       | (RArrow(arg, body), tau) -> (arg, body, tau)
       | _ -> failwith "type is not correct"
     in begin
+      (*
+      match (arg, tau) with
+       | RInt(RId(id)), RInt m -> 
+         (subst body id tau
+      *)
       let m'' = subtype arg tau m' in
       (body, m'')
     end
