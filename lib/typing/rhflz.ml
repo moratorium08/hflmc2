@@ -8,17 +8,17 @@ open Rtype
 
 type t =
   | Bool   of bool
-  | Var    of sigma Id.t
+  | Var    of Rtype.t Id.t
   | Or     of t * t
   | And    of t * t
-  | Abs    of arg Id.t * t
+  | Abs    of Rtype.t Id.t * t
   | App    of t * t
   (* constructers only for hflz *)
   | Arith  of Arith.t
   | Pred   of Formula.pred * Arith.t list
 
 type hes_rule =
-  { var  : sigma Id.t
+  { var  : Rtype.t Id.t
   ; body : t
   ; fix  : Fixpoint.t
   }

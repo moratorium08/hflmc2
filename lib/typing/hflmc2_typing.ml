@@ -1,2 +1,3 @@
-module Rtype = Rtype
-module Translate = Translate
+module Type = Rtype
+module Translate = Rtranslate
+module Infer = Rinfer

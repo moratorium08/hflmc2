@@ -11,15 +11,15 @@ let generate_template () = (generate_id (), [])
 (* ここらへんきれいに実装できるのかな *)
 (* 型によってdispatchする関数を変えるようにする的な *)
 let rec translate_id (id: 'a Type.ty Id.t) : (Rtype.t Id.t) = { id with Id.ty = translate_simple_ty id.ty }
-and translate_id_arg (id: 'a Type.ty Type.arg Id.t): (Rtype.arg Id.t) = { id with Id.ty = translate_simple_arg id.ty }
+and translate_id_arg (id: 'a Type.ty Type.arg Id.t): (Rtype.t Id.t) = { id with Id.ty = translate_simple_arg id.ty }
 and translate_simple_arg = function 
-  | Type.TyInt -> RInt (generate_id ())
-  | Type.TySigma t -> RSigma (translate_simple_ty t)
+  | Type.TyInt -> RInt (RId(generate_id ()))
+  | Type.TySigma t -> (translate_simple_ty t)
 and translate_simple_ty:'a Type.ty -> Rtype.t = function 
   (* should handle annotation? *)
-  | Type.TyBool _ -> RBool (generate_template ()) 
+  | Type.TyBool _ -> RBool (RTemplate(generate_template ()))
   | Type.TyArrow (a, s) -> 
-    RArrow(translate_id_arg a, translate_simple_ty s)
+    RArrow((translate_id_arg a).ty, translate_simple_ty s)
 
 
 let rec translate_body body =
