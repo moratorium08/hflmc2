@@ -46,7 +46,12 @@ let rec infer_formula formula env m =
   match formula with
   | Bool b when b -> (RBool(RTrue), m)
   | Bool _ -> (RBool(RFalse), m)
-  | Var id -> (id.ty, m)
+  | Var id -> 
+    begin
+    match IdMap.find env id with
+    | Some(t) -> (t, m)
+    | None -> failwith "no var(infer_formula)"
+    end
   | Abs (arg, body) -> 
     let env' = IdMap.add env arg arg.ty in
     let (body_t, l) = infer_formula body env' m in
@@ -76,11 +81,11 @@ let rec infer_formula formula env m =
       (body, m'')
     end
   
-let infer_rule (rule: hes_rule) (chcs: chc list): chc list = 
+let infer_rule (rule: hes_rule) env (chcs: chc list): chc list = 
   print_string "uo\n";
   print_constraints chcs;
   print_string "hoge\n";
-  let (t, m) = infer_formula rule.body IdMap.empty chcs in
+  let (t, m) = infer_formula rule.body env chcs in
   print_string "piyo\n";
   print_constraints m;
   print_string "nyan\n";
@@ -90,12 +95,12 @@ let infer_rule (rule: hes_rule) (chcs: chc list): chc list =
   print_newline ();*)
   subtype t rule.var.ty m 
  
-let rec infer_hes (hes: hes) (accum: chc list): chc list = match hes with
+let rec infer_hes (hes: hes) env (accum: chc list): chc list = match hes with
   | [] -> accum
   | rule::xs -> 
-    let accum' = infer_rule rule accum in
-    infer_hes xs accum'
+    let accum' = infer_rule rule env accum in
+    infer_hes xs env accum'
 
-let infer hes = 
-  let constraints = infer_hes hes [] in
+let infer hes env = 
+  let constraints = infer_hes hes env [] in
   print_constraints constraints
