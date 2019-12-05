@@ -17,6 +17,43 @@ type t =
   | Arith  of Arith.t
   | Pred   of Formula.pred * Arith.t list
 
+let rec print_formula = function
+  | Bool x when x -> Printf.printf "tt"
+  | Bool x -> Printf.printf "ff"
+  | Var v -> Printf.printf "id"
+  | Or (x, y) -> 
+    Printf.printf "(";
+    print_formula x;
+    Printf.printf ")";
+    Printf.printf " || ";
+    Printf.printf "(";
+    print_formula y;
+    Printf.printf ")";
+  | And (x, y) -> 
+    Printf.printf "(";
+    print_formula x;
+    Printf.printf ")";
+    Printf.printf " && ";
+    Printf.printf "(";
+    print_formula y;
+    Printf.printf ")"
+  | Abs (_, y) -> 
+    Printf.printf "\\id.";
+    Printf.printf "(";
+    print_formula y;
+    Printf.printf ")"
+  | App (x, y) -> 
+    Printf.printf "(";
+    print_formula x;
+    Printf.printf ")";
+    Printf.printf " ";
+    Printf.printf "(";
+    print_formula y;
+    Printf.printf ")";
+  | Arith _ -> Printf.printf "arith"
+  | Pred _ -> Printf.printf "pred"
+
+
 type hes_rule =
   { var  : Rtype.t Id.t
   ; body : t

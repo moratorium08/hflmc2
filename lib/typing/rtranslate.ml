@@ -35,9 +35,15 @@ let rec translate_body body =
   | Hflz.Arith x -> Arith x
   | Hflz.Pred (x, y) -> Pred (x, y)
 
-let translate
+let translate_rule
   (formula: Type.simple_ty Hflz.hes_rule)
   : Rhflz.hes_rule
   =  
   let body = translate_body formula.body in
   {Rhflz.var=translate_id formula.var; Rhflz.fix=formula.fix; Rhflz.body = body}
+
+let rec translate_hes = function
+  | [] -> []
+  | x::xs -> (translate_rule x) :: (translate_hes xs)
+
+let translate = translate_hes

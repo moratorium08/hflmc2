@@ -1,6 +1,7 @@
 module Util        = Hflmc2_util
 module Options     = Hflmc2_options
 module Syntax      = Hflmc2_syntax
+module Typing      = Hflmc2_typing
 
 open Util
 open Syntax
@@ -51,5 +52,6 @@ let main file =
   Log.app begin fun m -> m ~header:"Simplified" "%a"
     Print.(hflz_hes simple_ty_) psi
   end;
+  Typing.main psi;
   `Invalid
 

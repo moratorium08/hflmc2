@@ -5,6 +5,7 @@
     glpk
     hflmc2_util
     hflmc2_syntax
+    hflmc2_typing
     ))
 
 (env (dev (flags (:standard -warn-error -A))))
