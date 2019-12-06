@@ -8,6 +8,15 @@ let id_source = ref 0
 let generate_id () = id_source := !id_source + 1; !id_source
 let generate_template () = (generate_id (), [])
 
+let rec add_args_to_pred (args: Arith.t list): Rtype.t -> Rtype.t= 
+  let open Rtype in
+  function 
+  | RArrow(x, y) -> 
+    RArrow (add_args_to_pred args x, add_args_to_pred args y)
+  | RBool(RTemplate(id, _)) -> RBool(RTemplate(id, args))
+  | RInt x -> RInt x
+  | _ -> failwith "add_args_to_pred"
+
 (* ここらへんきれいに実装できるのかな *)
 (* 型によってdispatchする関数を変えるようにする的な *)
 let rec translate_id (id: 'a Type.ty Id.t) : (Rtype.t Id.t) = { id with Id.ty = translate_simple_ty id.ty }
@@ -24,20 +33,17 @@ and translate_simple_arg id = match id.ty with
   | Type.TyInt -> RInt (RId({id with Id.ty = `Int}))
   | Type.TySigma t -> (translate_simple_ty t)
 
-let rec translate_body body ty =
+let rec translate_body body ids =
   let open Rhflz in
   match body with 
-  | Hflz.Var id -> Var ({id with Id.ty=ty})
+  | Hflz.Var id -> Var (translate_id id)
   | Hflz.Abs (arg, body) ->
-    begin
-      match ty with
-      | RArrow(arg_ty, ty') ->
-        Abs({arg with Id.ty=arg_ty}, translate_body body ty')
-      | _ -> failwith "translate_body"
-    end
-  | Hflz.Or(x, y) -> Or(translate_body x ty, translate_body y ty)
-  | Hflz.And(x, y) -> And(translate_body x ty, translate_body y ty)
-  | Hflz.App(x, y) -> App(translate_body x ty, translate_body y ty)
+    let id = translate_id_arg arg in
+    let id' = { id with Id.ty=add_args_to_pred ids id.ty } in
+    Abs(id', translate_body body ids)
+  | Hflz.Or(x, y) -> Or(translate_body x ids, translate_body y ids)
+  | Hflz.And(x, y) -> And(translate_body x ids, translate_body y ids)
+  | Hflz.App(x, y) -> App(translate_body x ids, translate_body y ids)
   | Hflz.Bool x -> Bool x
   | Hflz.Arith x -> Arith x
   | Hflz.Pred (x, y) -> Pred (x, y)
@@ -61,29 +67,20 @@ let rec collect_id_from_formula accum =
 let collect_id (var: Rtype.t Id.t): Arith.t list = 
   collect_id_from_type [] var.ty |> List.map (fun x -> Arith.Var x)
 
-let rec add_args_to_pred (args: Arith.t list): Rtype.t -> Rtype.t= 
-  let open Rtype in
-  function 
-  | RArrow(x, y) -> 
-    RArrow (add_args_to_pred args x, add_args_to_pred args y)
-  | RBool(RTemplate(id, _)) -> RBool(RTemplate(id, args))
-  | RInt x -> RInt x
-  | _ -> failwith "add_args_to_pred"
-
 let translate_rule
   (formula: Type.simple_ty Hflz.hes_rule)
   : Rhflz.hes_rule
   =  
   let var = translate_id formula.var in
-  let body = translate_body formula.body var.ty in
   let ids = collect_id var in
+  let body = translate_body formula.body ids in
   let var = {var with Id.ty=add_args_to_pred ids var.ty} in
   {Rhflz.var=var; Rhflz.fix=formula.fix; Rhflz.body = body}
 
 let rec translate_hes = function
   | [] -> []
   | x::xs -> 
-    Print.printf "uo%d\n" (List.length xs);
+(*    Print.printf "uo%d\n" (List.length xs);*)
   (translate_rule x) :: (translate_hes xs)
 
 let translate = translate_hes
