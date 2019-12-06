@@ -97,6 +97,8 @@ let rec infer_formula formula env m =
     in begin
       match (arg, tau) with
        | RInt(RId(id)), RInt m -> 
+        print_rtype arg; print_string " =? "; print_rtype tau; 
+        print_string "->"; print_rtype body; print_newline();
          (subst id m body, m')
        | _ ->
         let m'' = subtype arg tau m' in

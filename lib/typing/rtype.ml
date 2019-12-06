@@ -34,7 +34,9 @@ and refinement
 and template = id * Arith.t list (* template prdicate name and its args *)
 
 let print_rint = function
-  | RId x -> print_string "id"
+  | RId x -> 
+    Print.id Fmt.stdout x;
+    Fmt.flush Fmt.stdout () 
   | RArith x -> 
     Print.arith Fmt.stdout x;
     Fmt.flush Fmt.stdout () 

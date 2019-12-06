@@ -33,21 +33,6 @@ and translate_simple_arg id = match id.ty with
   | Type.TyInt -> RInt (RId({id with Id.ty = `Int}))
   | Type.TySigma t -> (translate_simple_ty t)
 
-let rec translate_body body ids =
-  let open Rhflz in
-  match body with 
-  | Hflz.Var id -> Var (translate_id id)
-  | Hflz.Abs (arg, body) ->
-    let id = translate_id_arg arg in
-    let id' = { id with Id.ty=add_args_to_pred ids id.ty } in
-    Abs(id', translate_body body ids)
-  | Hflz.Or(x, y) -> Or(translate_body x ids, translate_body y ids)
-  | Hflz.And(x, y) -> And(translate_body x ids, translate_body y ids)
-  | Hflz.App(x, y) -> App(translate_body x ids, translate_body y ids)
-  | Hflz.Bool x -> Bool x
-  | Hflz.Arith x -> Arith x
-  | Hflz.Pred (x, y) -> Pred (x, y)
-
 let rec collect_id_from_type accum = function
   | Rtype.RArrow(x, y) -> 
     collect_id_from_type (collect_id_from_type accum y) x
@@ -55,6 +40,40 @@ let rec collect_id_from_type accum = function
     id::accum
   | _ -> accum
 
+let rec translate_body body =
+  let open Rhflz in
+  match body with 
+  | Hflz.Var id -> Var (translate_id id)
+  | Hflz.Abs (arg, body) ->
+    Abs(translate_id_arg arg, translate_body body)
+  | Hflz.Or(x, y) -> Or(translate_body x, translate_body y)
+  | Hflz.And(x, y) -> And(translate_body x, translate_body y)
+  | Hflz.App(x, y) -> App(translate_body x, translate_body y)
+  | Hflz.Bool x -> Bool x
+  | Hflz.Arith x -> Arith x
+  | Hflz.Pred (x, y) -> Pred (x, y)
+
+let rec collect_id_from_body (body: Rhflz.t): [`Int] Id.t list =
+  let open Rhflz in
+  let open Rtype in
+  match body with 
+  | Var id -> []
+  | Abs (arg, body) ->
+    let ids = collect_id_from_type [] arg.ty in
+    ids @ collect_id_from_body body
+  | Or(x, y) | And(x, y) | App(x, y) ->
+     collect_id_from_body x @ collect_id_from_body y
+  | _ -> []
+
+let rec update_body_with_ids body ids =
+  let open Rhflz in
+  match body with 
+  | Abs (arg, body) ->
+    Abs({arg with Id.ty=add_args_to_pred ids arg.ty}, update_body_with_ids body ids)
+  | Or(x, y) -> Or(update_body_with_ids x ids, update_body_with_ids y ids)
+  | And(x, y) -> And(update_body_with_ids x ids, update_body_with_ids y ids)
+  | App(x, y) -> App(update_body_with_ids x ids,  update_body_with_ids y ids)
+  | x -> x
 (*
 let rec collect_id_from_formula accum = 
   let open Rhflz in function
@@ -73,9 +92,11 @@ let translate_rule
   =  
   let var = translate_id formula.var in
   let ids = collect_id var in
-  let body = translate_body formula.body ids in
+  let body = translate_body formula.body in
+  let ids' = List.map (fun x -> Arith.Var x) (collect_id_from_body body) in
+  let body' = update_body_with_ids body ids' in
   let var = {var with Id.ty=add_args_to_pred ids var.ty} in
-  {Rhflz.var=var; Rhflz.fix=formula.fix; Rhflz.body = body}
+  {Rhflz.var=var; Rhflz.fix=formula.fix; Rhflz.body = body'}
 
 let rec translate_hes = function
   | [] -> []
