@@ -1,17 +1,28 @@
 open Hflmc2_syntax
 open Rid
 
-type template = id * id list (* template prdicate name and its args *)
 
 let print_template (id, _) = Printf.printf "X%d" id
 
-type refinement
+type rint =
+  | RId of [`Int] Id.t
+  | RArith of Arith.t
+and t 
+  = RBool of refinement
+  | RArrow of t * t
+  | RInt of rint
+and refinement
   = RTrue
    | RFalse
    | RPred of Formula.pred * Arith.t list
    | RAnd of refinement * refinement
    | ROr of refinement * refinement
    | RTemplate of template
+and template = id * (id * rint) list (* template prdicate name and its args *)
+
+let print_rint = function
+  | RId x -> print_string "id"
+  | RArith x -> Print.print Print.arith x
 
 let rec print_refinement = function
   | RTrue -> Printf.printf "tt"
@@ -31,19 +42,6 @@ let rec print_refinement = function
     Printf.printf " \\/ "; 
     print_refinement y
   | RTemplate t -> print_template t
-  
-type rint =
-  | RId of id
-  | RArith of Arith.t
-
-let print_rint = function
-  | RId x -> print_string "id"
-  | RArith x -> Print.print Print.arith x
-
-type t 
-  = RBool of refinement
-  | RArrow of t * t
-  | RInt of rint
 
 let rec print_rtype = function
   | RBool r -> Printf.printf "*["; print_refinement r; Printf.printf "]"
@@ -52,3 +50,6 @@ let rec print_rtype = function
     Printf.printf " -> ";
     print_rtype y
   | RInt _ -> Printf.printf "int"
+
+  
+

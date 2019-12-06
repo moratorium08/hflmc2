@@ -38,6 +38,24 @@ let rec _subtype t t' renv m =
 
 let subtype t t' m = _subtype t t' RTrue m
 
+let rec subst_pred id rint (_, l) = match rint with 
+  | RId id' -> 
+    List.map (Trans.Subst.Arith.arith id (Arith.Var(id'))) l
+  | RArith a ->
+    List.map (Trans.Subst.Arith.arith id a) l
+
+let rec subst_refinement id rint = function
+  | RPred (p, l) -> RPred(p, subst_pred id rint (p, l))
+  | RAnd(x, y) -> RAnd(subst_refinement id rint x, subst_refinement id rint y)
+  | ROr(x, y) -> ROr(subst_refinement id rint x, subst_refinement id rint y)
+  | RTemplate(id, l) -> RTemplate(id, (id, rint) ::l)
+  | x -> x
+
+let rec subst id rint = function
+  | RBool r -> RBool(subst_refinement id rint r)
+  | RArrow(x, y) -> RArrow(subst id rint x, subst id rint y)
+  | RInt x -> RInt x
+
 (* And, Or, Appで制約を生成 *)
 let rec infer_formula formula env m = 
   (*print_formula formula;

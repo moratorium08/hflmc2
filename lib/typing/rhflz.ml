@@ -14,7 +14,7 @@ type t =
   | Abs    of Rtype.t Id.t * t
   | App    of t * t
   (* constructers only for hflz *)
-  | Arith  of Rarith.t
+  | Arith  of Arith.t
   | Pred   of Formula.pred * Arith.t list
 
 let rec print_formula = function

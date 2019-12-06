@@ -13,16 +13,13 @@ let generate_template () = (generate_id (), [])
 let rec translate_id (id: 'a Type.ty Id.t) : (Rtype.t Id.t) = { id with Id.ty = translate_simple_ty id.ty }
 and translate_id_arg (id: 'a Type.ty Type.arg Id.t): (Rtype.t Id.t) = { id with Id.ty = translate_simple_arg id.ty }
 and translate_simple_arg = function 
-  | Type.TyInt -> RInt (RId(generate_id ()))
+  | Type.TyInt -> RInt (RId(Id.gen `Int))
   | Type.TySigma t -> (translate_simple_ty t)
 and translate_simple_ty:'a Type.ty -> Rtype.t = function 
   (* should handle annotation? *)
   | Type.TyBool _ -> RBool (RTemplate(generate_template ()))
   | Type.TyArrow (a, s) -> 
     RArrow((translate_id_arg a).ty, translate_simple_ty s)
-
-let rec translate_arith = function
-  | Arith.Int x -> RArith.Int x
 
 let rec translate_body body =
   let open Rhflz in
