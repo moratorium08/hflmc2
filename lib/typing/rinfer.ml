@@ -22,7 +22,7 @@ let rec rty = function
 let rec _subtype t t' lenv renv m = 
   match (t, t') with
  | RBool(p), RBool(p') -> 
-   {head=RAnd(renv, p'); body=RAnd(lenv, p)} :: m
+   {body=RAnd(lenv, RAnd(renv, p')); head=p} :: m
  | RArrow(RInt(x), t), RArrow(RInt(y), t')  ->
    let x' = rint2arith x in
    let y' = rint2arith y in
