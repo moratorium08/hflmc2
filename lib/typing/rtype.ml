@@ -63,4 +63,6 @@ let rec print_rtype = function
   | RInt x -> Printf.printf "int("; print_rint x; Printf.printf ")"
 
   
-
+let rint2arith = function
+  | RId x -> Arith.Var(x)
+  | RArith x -> x

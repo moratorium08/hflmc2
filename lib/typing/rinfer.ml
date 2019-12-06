@@ -20,15 +20,17 @@ let rec rty = function
   | RBool(phi) -> phi
   | _ -> failwith "program error(rty)"
 
-let rec _subtype t t' renv m = 
+let rec _subtype t t' lenv renv m = 
   match (t, t') with
  | RBool(p), RBool(p') -> 
-   {head=RAnd(renv, p'); body=p} :: m
- | RArrow(RInt(_), t), RArrow(RInt(_), t')  ->
-   _subtype t t' renv m
+   {head=RAnd(renv, p'); body=RAnd(lenv, p)} :: m
+ | RArrow(RInt(x), t), RArrow(RInt(y), t')  ->
+   let x' = rint2arith x in
+   let y' = rint2arith y in
+   _subtype t t' (RAnd(lenv, RPred(Formula.Eq, [x'; y'])))  renv m
  | RArrow(t, s), RArrow(t', s') ->
-   let m' = _subtype t' t (RAnd(renv, rty t')) m in
-   _subtype s s' renv m' 
+   let m' = _subtype t' t lenv (RAnd(renv, rty t')) m in
+   _subtype s s' lenv renv m' 
  | _, _ -> 
   print_rtype t;
   Printf.printf "=";
@@ -36,7 +38,7 @@ let rec _subtype t t' renv m =
   print_newline ();
  failwith "program error(subtype)"
 
-let subtype t t' m = _subtype t t' RTrue m
+let subtype t t' m = _subtype t t' RTrue RTrue m
 
 let rec subst_ariths id rint l = match rint with 
   | RId id' -> 
@@ -84,7 +86,7 @@ let rec infer_formula formula env m =
     in begin
     match formula with 
     | Or _ -> (RBool(ROr(rx, ry)), m')
-    | And _ -> (RBool(RAnd(rx, ry)), m')
+  | And _ -> (RBool(RAnd(rx, ry)), m')
     | _ -> failwith "program error(1)"
     end
   | App(x, y) -> 
@@ -103,13 +105,17 @@ let rec infer_formula formula env m =
       end
   
 let infer_rule (rule: hes_rule) env (chcs: chc list): chc list = 
+  (*
   print_string "uo\n";
   print_constraints chcs;
   print_string "hoge\n";
+  *)
   let (t, m) = infer_formula rule.body env chcs in
+  (*
   print_string "piyo\n";
   print_constraints m;
   print_string "nyan\n";
+  *)
   (*print_rtype rule.var.ty;
   print_newline ();
   print_rtype t;
