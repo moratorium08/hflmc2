@@ -4,9 +4,11 @@ open Rid
 let rec print_ariths = function
   | [] -> ()
   | [x] -> 
-    Print.print Print.arith x
+    Print.arith Fmt.stdout x;
+    Fmt.flush Fmt.stdout () ;
   | x::xs ->
-    Print.print Print.arith x;
+    Print.arith Fmt.stdout x;
+    Fmt.flush Fmt.stdout () ;
     print_string ",";
     print_ariths xs
 
@@ -33,25 +35,37 @@ and template = id * Arith.t list (* template prdicate name and its args *)
 
 let print_rint = function
   | RId x -> print_string "id"
-  | RArith x -> Print.print Print.arith x
+  | RArith x -> 
+    Print.arith Fmt.stdout x;
+    Fmt.flush Fmt.stdout () 
 
 let rec print_refinement = function
   | RTrue -> Printf.printf "tt"
   | RFalse -> Printf.printf "ff"
   | RPred (x,[f1; f2]) -> 
-    Print.print Print.arith f1;
-    Print.print Print.pred x;
-    Print.print Print.arith f2;
+    Print.arith Fmt.stdout f1;
+    Print.pred Fmt.stdout x;
+    Print.arith Fmt.stdout f2;
+    Fmt.flush Fmt.stdout () ;
   | RPred (x,_) -> 
-    Print.print Print.pred x;
+    Print.pred Fmt.stdout x;
+    Fmt.flush Fmt.stdout () ;
   | RAnd(x, y) -> 
+    print_string "(";
     print_refinement x; 
+    print_string ")";
     Printf.printf " /\\ "; 
-    print_refinement y
+    print_string "(";
+    print_refinement y;
+    print_string ")";
   | ROr(x, y) -> 
+    print_string "(";
     print_refinement x; 
+    print_string ")";
     Printf.printf " \\/ "; 
-    print_refinement y
+    print_string "(";
+    print_refinement y;
+    print_string ")";
   | RTemplate t -> print_template t
 
 let rec print_rtype = function
