@@ -24,15 +24,20 @@ and translate_simple_arg id = match id.ty with
   | Type.TyInt -> RInt (RId({id with Id.ty = `Int}))
   | Type.TySigma t -> (translate_simple_ty t)
 
-let rec translate_body body =
+let rec translate_body body ty =
   let open Rhflz in
   match body with 
-  | Hflz.Var id -> Var (translate_id id)
+  | Hflz.Var id -> Var ({id with Id.ty=ty})
   | Hflz.Abs (arg, body) ->
-    Abs(translate_id_arg arg, translate_body body)
-  | Hflz.Or(x, y) -> Or(translate_body x, translate_body y)
-  | Hflz.And(x, y) -> And(translate_body x, translate_body y)
-  | Hflz.App(x, y) -> App(translate_body x, translate_body y)
+    begin
+      match ty with
+      | RArrow(arg_ty, ty') ->
+        Abs({arg with Id.ty=arg_ty}, translate_body body ty')
+      | _ -> failwith "translate_body"
+    end
+  | Hflz.Or(x, y) -> Or(translate_body x ty, translate_body y ty)
+  | Hflz.And(x, y) -> And(translate_body x ty, translate_body y ty)
+  | Hflz.App(x, y) -> App(translate_body x ty, translate_body y ty)
   | Hflz.Bool x -> Bool x
   | Hflz.Arith x -> Arith x
   | Hflz.Pred (x, y) -> Pred (x, y)
@@ -69,8 +74,8 @@ let translate_rule
   (formula: Type.simple_ty Hflz.hes_rule)
   : Rhflz.hes_rule
   =  
-  let body = translate_body formula.body in
   let var = translate_id formula.var in
+  let body = translate_body formula.body var.ty in
   let ids = collect_id var in
   let var = {var with Id.ty=add_args_to_pred ids var.ty} in
   {Rhflz.var=var; Rhflz.fix=formula.fix; Rhflz.body = body}
