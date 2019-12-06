@@ -82,6 +82,8 @@ let translate_rule
 
 let rec translate_hes = function
   | [] -> []
-  | x::xs -> (translate_rule x) :: (translate_hes xs)
+  | x::xs -> 
+    Print.printf "uo%d\n" (List.length xs);
+  (translate_rule x) :: (translate_hes xs)
 
 let translate = translate_hes

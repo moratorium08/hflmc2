@@ -12,7 +12,6 @@ let rec print_constraints = function
   | [] -> ()
   | x::xs -> print_chc x; print_newline(); print_constraints xs
 
-
 (* check whether t <= t' holds *)
 let rec rty = function
   | RArrow(RInt(_), t) -> rty t
@@ -120,13 +119,15 @@ let infer_rule (rule: hes_rule) env (chcs: chc list): chc list =
   print_newline ();
   print_rtype t;
   print_newline ();*)
+  print_rtype t;
+  print_newline ();
   subtype t rule.var.ty m 
  
 let rec infer_hes (hes: hes) env (accum: chc list): chc list = match hes with
   | [] -> accum
   | rule::xs -> 
-    let accum' = infer_rule rule env accum in
-    infer_hes xs env accum'
+    (*Print.printf "uo%d\n" (List.length hes);*)
+    infer_rule rule env accum |> infer_hes xs env 
 
 let infer hes env = 
   let constraints = infer_hes hes env [] in
