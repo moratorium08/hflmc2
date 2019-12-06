@@ -1,8 +1,19 @@
 open Hflmc2_syntax
 open Rid
 
+let rec print_ariths = function
+  | [] -> ()
+  | [x] -> 
+    Print.print Print.arith x
+  | x::xs ->
+    Print.print Print.arith x;
+    print_string ",";
+    print_ariths xs
 
-let print_template (id, _) = Printf.printf "X%d" id
+let print_template (id, l) = 
+  Printf.printf "X%d(" id;
+  print_ariths l;
+  print_string ")"
 
 type rint =
   | RId of [`Int] Id.t
@@ -18,7 +29,7 @@ and refinement
    | RAnd of refinement * refinement
    | ROr of refinement * refinement
    | RTemplate of template
-and template = id * (id * rint) list (* template prdicate name and its args *)
+and template = id * Arith.t list (* template prdicate name and its args *)
 
 let print_rint = function
   | RId x -> print_string "id"
@@ -49,7 +60,7 @@ let rec print_rtype = function
     print_rtype x;
     Printf.printf " -> ";
     print_rtype y
-  | RInt _ -> Printf.printf "int"
+  | RInt x -> Printf.printf "int("; print_rint x; Printf.printf ")"
 
   
 

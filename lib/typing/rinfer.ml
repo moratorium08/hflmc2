@@ -23,10 +23,6 @@ let rec rty = function
 let rec _subtype t t' renv m = 
   match (t, t') with
  | RBool(p), RBool(p') -> 
-  (*print_rtype t;
-  Printf.printf "=";
-  print_rtype t';
-  print_newline ();*)
    {head=RAnd(renv, p'); body=p} :: m
  | RArrow(RInt(_), t), RArrow(RInt(_), t')  ->
    _subtype t t' renv m
@@ -34,21 +30,25 @@ let rec _subtype t t' renv m =
    let m' = _subtype t' t (RAnd(renv, rty t')) m in
    _subtype s s' renv m' 
  | _, _ -> 
+  print_rtype t;
+  Printf.printf "=";
+  print_rtype t';
+  print_newline ();
  failwith "program error(subtype)"
 
 let subtype t t' m = _subtype t t' RTrue m
 
-let rec subst_pred id rint (_, l) = match rint with 
+let rec subst_ariths id rint l = match rint with 
   | RId id' -> 
     List.map (Trans.Subst.Arith.arith id (Arith.Var(id'))) l
   | RArith a ->
     List.map (Trans.Subst.Arith.arith id a) l
 
 let rec subst_refinement id rint = function
-  | RPred (p, l) -> RPred(p, subst_pred id rint (p, l))
+  | RPred (p, l) -> RPred(p, subst_ariths id rint l)
   | RAnd(x, y) -> RAnd(subst_refinement id rint x, subst_refinement id rint y)
   | ROr(x, y) -> ROr(subst_refinement id rint x, subst_refinement id rint y)
-  | RTemplate(id, l) -> RTemplate(id, (id, rint) ::l)
+  | RTemplate(id', l) -> RTemplate(id', subst_ariths id rint l)
   | x -> x
 
 let rec subst id rint = function
@@ -56,7 +56,7 @@ let rec subst id rint = function
   | RArrow(x, y) -> RArrow(subst id rint x, subst id rint y)
   | RInt x -> RInt x
 
-(* And, Or, Appで制約を生成 *)
+(* Appで制約を生成 *)
 let rec infer_formula formula env m = 
   (*print_formula formula;
   print_newline ();*)
@@ -94,14 +94,13 @@ let rec infer_formula formula env m =
       | (RArrow(arg, body), tau) -> (arg, body, tau)
       | _ -> failwith "type is not correct"
     in begin
-      (*
       match (arg, tau) with
        | RInt(RId(id)), RInt m -> 
-         (subst body id tau
-      *)
-      let m'' = subtype arg tau m' in
-      (body, m'')
-    end
+         (subst id m body, m')
+       | _ ->
+        let m'' = subtype arg tau m' in
+        (body, m'')
+      end
   
 let infer_rule (rule: hes_rule) env (chcs: chc list): chc list = 
   print_string "uo\n";
