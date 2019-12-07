@@ -62,6 +62,30 @@ let rec subst id rint = function
   | RArrow(x, y) -> RArrow(subst id rint x, subst id rint y)
   | RInt x -> RInt x
 
+let rec find_and_cut_substs rt ids = match rt with 
+  | RAnd(x, y) ->
+    let (x', ids') = find_and_cut_substs x ids in
+    let (y', ids'') = find_and_cut_substs y ids' in
+    (RAnd(x', y'), ids'')
+  | ROr(x, y) -> 
+    let (x', ids') = find_and_cut_substs x ids in
+    let (y', ids'') = find_and_cut_substs y ids' in
+    (ROr(x', y'), ids'')
+  | RPred(Formula.Eq, [Arith.Var(x); y]) ->
+    (RTrue, (x, RArith(y)) :: ids)
+  | x -> (x, ids)
+
+let subst_chc chc = 
+  let (body', substs) = find_and_cut_substs chc.body [] in
+  let rec inner l rt = match l with
+    | [] -> rt
+    | (x, y)::xs ->
+      subst_refinement x y rt |> inner xs
+  in 
+  let head = inner substs chc.head in
+  let body = inner substs body' in
+  {head=head; body=body}
+
 (* Appで制約を生成 *)
 let rec infer_formula formula env m = 
   (*print_formula formula;
@@ -138,4 +162,5 @@ let rec infer_hes (hes: hes) env (accum: chc list): chc list = match hes with
 
 let infer hes env = 
   let constraints = infer_hes hes env [] in
-  print_constraints constraints
+  let simplified = List.map subst_chc constraints in
+  print_constraints simplified
