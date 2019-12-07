@@ -19,16 +19,21 @@ let rec rty = function
   | RBool(phi) -> phi
   | _ -> failwith "program error(rty)"
 
+let conjoin x y =
+  if x = RTrue then y
+  else if y = RTrue then x
+  else RAnd(x, y)
+
 let rec _subtype t t' lenv renv m = 
   match (t, t') with
  | RBool(p), RBool(p') -> 
-   {body=RAnd(lenv, RAnd(renv, p')); head=p} :: m
+   {body=conjoin lenv (conjoin renv p'); head=p} :: m
  | RArrow(RInt(x), t), RArrow(RInt(y), t')  ->
    let x' = rint2arith x in
    let y' = rint2arith y in
-   _subtype t t' (RAnd(lenv, RPred(Formula.Eq, [x'; y'])))  renv m
+   _subtype t t' (conjoin lenv (RPred(Formula.Eq, [x'; y'])))  renv m
  | RArrow(t, s), RArrow(t', s') ->
-   let m' = _subtype t' t lenv (RAnd(renv, rty t')) m in
+   let m' = _subtype t' t lenv (conjoin renv (rty t')) m in
    _subtype s s' lenv renv m' 
  | _, _ -> 
   print_rtype t;
@@ -47,7 +52,7 @@ let rec subst_ariths id rint l = match rint with
 
 let rec subst_refinement id rint = function
   | RPred (p, l) -> RPred(p, subst_ariths id rint l)
-  | RAnd(x, y) -> RAnd(subst_refinement id rint x, subst_refinement id rint y)
+  | RAnd(x, y) -> conjoin (subst_refinement id rint x) (subst_refinement id rint y)
   | ROr(x, y) -> ROr(subst_refinement id rint x, subst_refinement id rint y)
   | RTemplate(id', l) -> RTemplate(id', subst_ariths id rint l)
   | x -> x
@@ -85,7 +90,7 @@ let rec infer_formula formula env m =
     in begin
     match formula with 
     | Or _ -> (RBool(ROr(rx, ry)), m')
-  | And _ -> (RBool(RAnd(rx, ry)), m')
+    | And _ -> (RBool(conjoin rx ry), m')
     | _ -> failwith "program error(1)"
     end
   | App(x, y) -> 
