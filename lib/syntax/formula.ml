@@ -19,6 +19,14 @@ type ('bvar, 'avar) gen_t =
   | Pred of pred * 'avar Arith.gen_t list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
+let negate_pred = function
+  | Eq  -> Neq
+  | Neq -> Eq
+  | Le  -> Gt
+  | Gt  -> Le
+  | Lt  -> Ge
+  | Ge  -> Lt
+
 (* type t = ((string * [`Pos|`Neg]), [`Int] Id.t) gen_t *)
 type t = (Void.t, [`Int] Id.t) gen_t
   [@@deriving eq,ord,show,iter,map,fold,sexp]
@@ -49,15 +57,7 @@ let rec mk_not' (negate_var : 'bvar -> 'bvar) = function
   | Bool b -> Bool (not b)
   | Or  fs -> And (List.map fs ~f:(mk_not' negate_var))
   | And fs -> Or  (List.map fs ~f:(mk_not' negate_var))
-  | Pred(pred, as') ->
-      let pred' = match pred with
-        | Eq  -> Neq
-        | Neq -> Eq
-        | Le  -> Gt
-        | Gt  -> Le
-        | Lt  -> Ge
-        | Ge  -> Lt
-      in Pred(pred', as')
+  | Pred(pred, as') -> Pred(negate_pred pred, as')
 let mk_not f = mk_not' Void.absurd f
 
 let mk_implies a b = mk_or (mk_not a) b

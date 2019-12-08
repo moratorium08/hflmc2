@@ -35,9 +35,48 @@ let subst_chc chc =
   let body = inner substs body' in
   {head=head; body=body}
 
-  (*
-type dnf = 
+(* refinemenet listではなくandのないrefinementを定義したいが、きれいにやる方法がよく分からないので、とりあえず、書く *)
+type dnf = refinement list
 
-(* disjunction normal form *)
-let translate_to_dnf (head: refinemet): = 
-  *)
+let rec cross l r = 
+  let rec cross_inner l item = match l with
+    | [] -> []
+    | x::xs -> RAnd(x, item) :: cross_inner xs item
+  in
+  match r with
+  | [] -> []
+  | x::xs -> 
+    cross_inner l x @ cross l xs
+(* dnf: disjunction normal form *)
+let rec translate_to_dnf (head: refinement): dnf = match head with
+  | ROr(x, y) -> 
+    translate_to_dnf x @ translate_to_dnf y
+  | RAnd(x, y) -> 
+    let left = translate_to_dnf x in
+    let right = translate_to_dnf y in
+    cross left right
+  | x -> [x]
+
+let rec split_dnf preds non_preds = function
+  | [] -> (preds, non_preds)
+  | x::xs when does_contain_pred x -> 
+    split_dnf (x::preds) non_preds xs
+  | x::xs -> 
+    split_dnf preds (x::non_preds) xs
+
+let rec dnf2ref (head:dnf): refinement = match head with
+  | [] -> RFalse 
+  | [x] -> x
+  | x::xs -> List.fold_left (fun accum elem -> ROr(accum, elem)) x xs
+
+let rec cnf2ref (head:dnf): refinement = match head with
+  | [] -> RTrue
+  | [x] -> x
+  | x::xs -> List.fold_left (fun accum elem -> RAnd(accum, elem)) x xs
+
+(* Move non predicate or-concatted clause to body *)
+let rec expand_head_exact chc = 
+  let (preds, non_preds) = chc.head |> translate_to_dnf |> split_dnf [] [] in
+  let negated_non_preds = non_preds |> List.map negate_ref |> cnf2ref in
+  let preds' = dnf2ref preds in
+  {head=preds'; body=conjoin chc.body negated_non_preds}

@@ -105,3 +105,20 @@ let rec subst id rint = function
   | RBool r -> RBool(subst_refinement id rint r)
   | RArrow(x, y) -> RArrow(subst id rint x, subst id rint y)
   | RInt x -> RInt x
+
+
+(* check if refinement contains template *)
+let rec does_contain_pred = function 
+  | RTemplate _ -> true
+  | RAnd(x, y) | ROr(x, y) -> does_contain_pred x || does_contain_pred y
+  | _ -> false
+
+(* returns not formula. Negating template is illegal, so throws execption *)
+exception TriedToNegateTemplate
+let rec negate_ref = function
+  | RTemplate _ -> raise TriedToNegateTemplate
+  | RAnd(x, y) -> ROr(negate_ref x, negate_ref y)
+  | ROr(x, y) -> RAnd(negate_ref x, negate_ref y)
+  | RTrue -> RFalse
+  | RFalse -> RTrue
+  | RPred(p, l) -> RPred(Formula.negate_pred p, l)
