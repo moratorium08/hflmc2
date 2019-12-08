@@ -1,16 +1,7 @@
 open Rhflz 
 open Rtype
 open Hflmc2_syntax
-
-type chc = {head: refinement; body: refinement}
-let print_chc chc = 
-  print_refinement chc.body;
-  Printf.printf " => ";
-  print_refinement chc.head
-
-let rec print_constraints = function
-  | [] -> ()
-  | x::xs -> print_chc x; print_newline(); print_constraints xs
+open Chc
 
 (* check whether t <= t' holds *)
 let rec rty = function
@@ -18,11 +9,6 @@ let rec rty = function
   | RArrow(_, s) -> rty s
   | RBool(phi) -> phi
   | _ -> failwith "program error(rty)"
-
-let conjoin x y =
-  if x = RTrue then y
-  else if y = RTrue then x
-  else RAnd(x, y)
 
 let rec _subtype t t' lenv renv m = 
   match (t, t') with
@@ -43,48 +29,6 @@ let rec _subtype t t' lenv renv m =
  failwith "program error(subtype)"
 
 let subtype t t' m = _subtype t t' RTrue RTrue m
-
-let rec subst_ariths id rint l = match rint with 
-  | RId id' -> 
-    List.map (Trans.Subst.Arith.arith id (Arith.Var(id'))) l
-  | RArith a ->
-    List.map (Trans.Subst.Arith.arith id a) l
-
-let rec subst_refinement id rint = function
-  | RPred (p, l) -> RPred(p, subst_ariths id rint l)
-  | RAnd(x, y) -> conjoin (subst_refinement id rint x) (subst_refinement id rint y)
-  | ROr(x, y) -> ROr(subst_refinement id rint x, subst_refinement id rint y)
-  | RTemplate(id', l) -> RTemplate(id', subst_ariths id rint l)
-  | x -> x
-
-let rec subst id rint = function
-  | RBool r -> RBool(subst_refinement id rint r)
-  | RArrow(x, y) -> RArrow(subst id rint x, subst id rint y)
-  | RInt x -> RInt x
-
-let rec find_and_cut_substs rt ids = match rt with 
-  | RAnd(x, y) ->
-    let (x', ids') = find_and_cut_substs x ids in
-    let (y', ids'') = find_and_cut_substs y ids' in
-    (RAnd(x', y'), ids'')
-  | ROr(x, y) -> 
-    let (x', ids') = find_and_cut_substs x ids in
-    let (y', ids'') = find_and_cut_substs y ids' in
-    (ROr(x', y'), ids'')
-  | RPred(Formula.Eq, [Arith.Var(x); y]) ->
-    (RTrue, (x, RArith(y)) :: ids)
-  | x -> (x, ids)
-
-let subst_chc chc = 
-  let (body', substs) = find_and_cut_substs chc.body [] in
-  let rec inner l rt = match l with
-    | [] -> rt
-    | (x, y)::xs ->
-      subst_refinement x y rt |> inner xs
-  in 
-  let head = inner substs chc.head in
-  let body = inner substs body' in
-  {head=head; body=body}
 
 (* Appで制約を生成 *)
 let rec infer_formula formula env m = 
@@ -134,7 +78,7 @@ let rec infer_formula formula env m =
         (body, m'')
       end
   
-let infer_rule (rule: hes_rule) env (chcs: chc list): chc list = 
+let infer_rule (rule: hes_rule) env (chcs: (refinement, refinement) chc list): (refinement, refinement) chc list = 
   (*
   print_string "uo\n";
   print_constraints chcs;
@@ -154,7 +98,7 @@ let infer_rule (rule: hes_rule) env (chcs: chc list): chc list =
   print_newline ();
   subtype t rule.var.ty m 
  
-let rec infer_hes (hes: hes) env (accum: chc list): chc list = match hes with
+let rec infer_hes (hes: hes) env (accum: (refinement, refinement) chc list): (refinement, refinement) chc list = match hes with
   | [] -> accum
   | rule::xs -> 
     (*Print.printf "uo%d\n" (List.length hes);*)

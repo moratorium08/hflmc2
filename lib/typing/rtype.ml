@@ -82,3 +82,26 @@ let rec print_rtype = function
 let rint2arith = function
   | RId x -> Arith.Var(x)
   | RArith x -> x
+
+let conjoin x y =
+  if x = RTrue then y
+  else if y = RTrue then x
+  else RAnd(x, y)
+
+let rec subst_ariths id rint l = match rint with 
+  | RId id' -> 
+    List.map (Trans.Subst.Arith.arith id (Arith.Var(id'))) l
+  | RArith a ->
+    List.map (Trans.Subst.Arith.arith id a) l
+
+let rec subst_refinement id rint = function
+  | RPred (p, l) -> RPred(p, subst_ariths id rint l)
+  | RAnd(x, y) -> conjoin (subst_refinement id rint x) (subst_refinement id rint y)
+  | ROr(x, y) -> ROr(subst_refinement id rint x, subst_refinement id rint y)
+  | RTemplate(id', l) -> RTemplate(id', subst_ariths id rint l)
+  | x -> x
+
+let rec subst id rint = function
+  | RBool r -> RBool(subst_refinement id rint r)
+  | RArrow(x, y) -> RArrow(subst id rint x, subst id rint y)
+  | RInt x -> RInt x
