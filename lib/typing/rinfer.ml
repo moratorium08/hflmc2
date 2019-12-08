@@ -94,8 +94,6 @@ let infer_rule (rule: hes_rule) env (chcs: (refinement, refinement) chc list): (
   print_newline ();
   print_rtype t;
   print_newline ();*)
-  print_rtype t;
-  print_newline ();
   subtype t rule.var.ty m 
  
 let rec infer_hes (hes: hes) env (accum: (refinement, refinement) chc list): (refinement, refinement) chc list = match hes with
@@ -111,4 +109,4 @@ let infer hes env =
   print_constraints simplified;
   print_string "expanded CHC\n";
   let simplified' = List.map expand_head_exact simplified in
-  print_constraints simplified'
+  print_string (Chc_solver.chc2smt2 simplified')
