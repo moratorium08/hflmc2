@@ -54,6 +54,8 @@ let main file =
     Print.(hflz_hes simple_ty_) psi
   end;
   *)
-  Typing.main psi;
-  `Invalid
+  if Typing.main psi then
+    `Valid
+  else 
+    `Invalid
 

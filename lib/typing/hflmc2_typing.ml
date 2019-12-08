@@ -22,7 +22,9 @@ let rec print_types = function
 
 let main x = 
   let y = Translate.translate x in
+  (*
   print_types y;
   print_newline();
+  *)
   let env = generate_env y in
   Infer.infer y env

@@ -4,6 +4,8 @@ open Rtype
 
 (* set of template *)
 
+let cmd = "hoice"
+
 let prologue = "(set-logic HORN)
 (set-info :status sat)
 "
@@ -115,3 +117,25 @@ let chc2smt2 chcs =
   let def = preds |> Rid.M.bindings |> List.map pred_def |> List.fold_left (^) "" in
   let body = chcs |> List.map gen_assert |> List.fold_left (^) "" in
   prologue ^ def ^ body ^ epilogue
+
+
+type result = [`Unknown | `Sat | `Unsat | `Fail]
+let check_sat chcs = 
+  let smt2 = chc2smt2 chcs in
+  Random.self_init ();
+  let r = Random.int 0x10000000 in
+  let filename = Printf.sprintf "tmp/%d.smt2" r in
+  let out_filename = Printf.sprintf "tmp/%d.out" r in
+  let oc = open_out filename in
+  Printf.fprintf oc "%s" smt2;
+  close_out oc;
+  let cmd = Printf.sprintf "%s %s > %s" cmd filename out_filename in
+  let _ = Sys.command cmd in
+  let ic = open_in out_filename in
+  let line = input_line ic in
+  close_in ic;
+  print_string line;
+  if line = "sat" then `Sat
+  else if line = "unsat" then `Unsat
+  else if line = "unknown" then `Unknown
+  else `Fail

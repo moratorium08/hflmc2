@@ -105,8 +105,9 @@ let rec infer_hes (hes: hes) env (accum: (refinement, refinement) chc list): (re
 let infer hes env = 
   let constraints = infer_hes hes env [] in
   let simplified = List.map subst_chc constraints in
-  print_string "generated CHC\n";
+  (*print_string "generated CHC\n";
   print_constraints simplified;
-  print_string "expanded CHC\n";
+  print_string "expanded CHC\n";*)
   let simplified' = List.map expand_head_exact simplified in
-  print_string (Chc_solver.chc2smt2 simplified')
+  (* print_string (Chc_solver.chc2smt2 simplified')*)
+  Chc_solver.check_sat simplified = `Sat
