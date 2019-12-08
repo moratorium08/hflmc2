@@ -23,6 +23,10 @@ module Refine = struct
   let use_legacy           = ref (Obj.magic())
 end
 
+module Typing = struct
+  let solver               = ref (Obj.magic())
+end
+
 (******************************************************************************)
 (* Util(?)                                                                    *)
 (******************************************************************************)
@@ -72,6 +76,10 @@ type params =
   (* Refine *)
   ; refine_legacy : bool [@default false] [@docs "Refine"]
     (** Use old refine algorithm *)
+  
+  (* Typing *)
+  ; solver : string [@default "z3"] [@docs "Typing"] [@docv "solver_name"]
+  (** Choose background CHC solver. Available: z3, hoice, fptprover *)
 
   }
   [@@deriving cmdliner,show]
@@ -85,6 +93,7 @@ let set_up_params params =
   set_ref Abstraction.max_ands             params.abst_max_ands;
   set_ref Abstraction.modify_pred_by_guard (not params.abst_no_modify_pred_by_guard);
   set_ref Refine.use_legacy                params.refine_legacy;
+  set_ref Typing.solver                    params.solver;
   params.input
 
 (******************************************************************************)

@@ -1,10 +1,20 @@
 open Hflmc2_syntax
+open Hflmc2_options
 open Chc
 open Rtype
 
 (* set of template *)
 
-let cmd = "hoice"
+let selected_cmd () = 
+  let sv = !Typing.solver in
+  if sv = "z3" then 
+    "z3"
+  else if sv = "hoice" then 
+    "hoice"
+  else if sv = "fptprover" then
+    "fptprover --format smt-lib2"
+  else
+    failwith "selected solver is not found"
 
 let prologue = "(set-logic HORN)
 (set-info :status sat)
@@ -129,13 +139,13 @@ let check_sat chcs =
   let oc = open_out filename in
   Printf.fprintf oc "%s" smt2;
   close_out oc;
+  let cmd = selected_cmd () in
   let cmd = Printf.sprintf "%s %s > %s" cmd filename out_filename in
   let _ = Sys.command cmd in
   let ic = open_in out_filename in
   let line = input_line ic in
   close_in ic;
-  print_string line;
   if line = "sat" then `Sat
   else if line = "unsat" then `Unsat
-  else if line = "unknown" then `Unknown
-  else `Fail
+  else if line = "unknown" then (Printf.printf "%s\n" line; `Unknown)
+  else (Printf.printf "%s\n" line; `Fail)

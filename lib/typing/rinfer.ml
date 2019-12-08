@@ -110,4 +110,4 @@ let infer hes env =
   print_string "expanded CHC\n";*)
   let simplified' = List.map expand_head_exact simplified in
   (* print_string (Chc_solver.chc2smt2 simplified')*)
-  Chc_solver.check_sat simplified = `Sat
+  Chc_solver.check_sat simplified' = `Sat
