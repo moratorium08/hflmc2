@@ -102,8 +102,9 @@ let rec infer_hes (hes: hes) env (accum: (refinement, refinement) chc list): (re
     (*Print.printf "uo%d\n" (List.length hes);*)
     infer_rule rule env accum |> infer_hes xs env 
 
-let infer hes env = 
+let infer hes env top = 
   let constraints = infer_hes hes env [] in
+  let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
   let simplified = List.map subst_chc constraints in
   (*print_string "generated CHC\n";
   print_constraints simplified;

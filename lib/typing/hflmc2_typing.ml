@@ -21,10 +21,12 @@ let rec print_types = function
     print_types xs
 
 let main x = 
-  let y = Translate.translate x in
+  let (y, top) = Translate.translate x in
   (*
   print_types y;
   print_newline();
   *)
   let env = generate_env y in
-  Infer.infer y env
+  match top with
+  | Some(top) -> Infer.infer y env top
+  | None -> false
