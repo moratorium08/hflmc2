@@ -37,24 +37,46 @@ let subst_chc chc =
 
 (* refinemenet listではなくandのないrefinementを定義したいが、きれいにやる方法がよく分からないので、とりあえず、書く *)
 type dnf = refinement list
+type cnf = refinement list
 
-let rec cross l r = 
-  let rec cross_inner l item = match l with
+let rec cross_and l r = 
+  let rec cross_and_inner l item = match l with
     | [] -> []
-    | x::xs -> RAnd(x, item) :: cross_inner xs item
+    | x::xs -> RAnd(x, item) :: cross_and_inner xs item
   in
   match r with
   | [] -> []
   | x::xs -> 
-    cross_inner l x @ cross l xs
+    cross_and_inner l x @ cross_and l xs
+
+let rec cross_or l r = 
+  let rec cross_or_inner l item = match l with
+    | [] -> []
+    | x::xs -> ROr(x, item) :: cross_or_inner xs item
+  in
+  match r with
+  | [] -> []
+  | x::xs -> 
+    cross_or_inner l x @ cross_or l xs
+
 (* dnf: disjunction normal form *)
-let rec translate_to_dnf (head: refinement): dnf = match head with
+let rec ref2dnf (head: refinement): dnf = match head with
   | ROr(x, y) -> 
-    translate_to_dnf x @ translate_to_dnf y
+    ref2dnf x @ ref2dnf y
   | RAnd(x, y) -> 
-    let left = translate_to_dnf x in
-    let right = translate_to_dnf y in
-    cross left right
+    let left = ref2dnf x in
+    let right = ref2dnf y in
+    cross_and left right
+  | x -> [x]
+  
+(* cnf: conjunction normal form *)
+let rec ref2cnf (head: refinement): cnf = match head with
+  | RAnd(x, y) -> 
+    ref2cnf x @ ref2cnf y
+  | ROr(x, y) -> 
+    let left = ref2cnf x in
+    let right = ref2cnf y in
+    cross_or left right
   | x -> [x]
 
 let rec split_dnf preds non_preds = function
@@ -76,7 +98,24 @@ let rec cnf2ref (head:dnf): refinement = match head with
 
 (* Move non predicate or-concatted clause to body *)
 let rec expand_head_exact chc = 
-  let (preds, non_preds) = chc.head |> translate_to_dnf |> split_dnf [] [] in
+  let (preds, non_preds) = chc.head |> ref2dnf |> split_dnf [] [] in
   let negated_non_preds = non_preds |> List.map negate_ref |> cnf2ref in
   let preds' = dnf2ref preds in
   {head=preds'; body=conjoin chc.body negated_non_preds}
+
+let rec split_head_by_and_when_possible head = 
+  let preds = ref2dnf head in
+  match preds with
+  | [] -> Some([head])
+  | [pred] ->
+    Some(ref2cnf pred)
+  | _ -> None
+
+let divide_chc chc = 
+  let rec inner heads = match heads with
+    | [] -> []
+    | head::xs -> {chc with head=head} :: inner xs
+  in
+  match split_head_by_and_when_possible chc.head with
+  | Some(heads) -> Some(inner heads)
+  | None -> None

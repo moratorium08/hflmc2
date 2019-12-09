@@ -2,6 +2,7 @@
  (public_name hflmc2_typing)
  (libraries
    fpat
+   core
    hflmc2_util
    hflmc2_options
    hflmc2_syntax)

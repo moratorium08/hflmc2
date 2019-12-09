@@ -110,4 +110,26 @@ let infer hes env =
   print_string "expanded CHC\n";*)
   let simplified' = List.map expand_head_exact simplified in
   (* print_string (Chc_solver.chc2smt2 simplified')*)
-  Chc_solver.check_sat simplified' = `Sat
+  let (@!) x y = match (x, y) with
+    | Some(x), Some(y) -> Some(x @ y)
+    | _ -> None
+  in
+  let rec divide_chcs = function
+    | [] -> Some([])
+    | x::xs -> divide_chc x @! divide_chcs xs
+  in
+  let divided = divide_chcs simplified' in
+  match divided with
+    | Some(divided) -> 
+      begin
+      print_string (Chc_solver.chc2smt2 simplified');
+      print_newline ();
+      print_newline ();
+      print_string (Chc_solver.chc2smt2 divided);
+      Chc_solver.check_sat divided = `Sat
+      end
+    | None ->
+      begin
+      Printf.printf "Some definite clause has or-head\n";
+      Chc_solver.check_sat simplified' = `Sat
+      end
