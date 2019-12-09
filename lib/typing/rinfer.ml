@@ -102,7 +102,17 @@ let rec infer_hes (hes: hes) env (accum: (refinement, refinement) chc list): (re
     (*Print.printf "uo%d\n" (List.length hes);*)
     infer_rule rule env accum |> infer_hes xs env 
 
+let rec print_hes = function
+  | [] -> ()
+  | hes_rule::xs -> 
+    print_string hes_rule.var.name;
+    print_string " ";
+    print_rtype hes_rule.var.ty;
+    print_newline ();
+    print_hes xs
+
 let infer hes env top = 
+  print_hes hes;
   let constraints = infer_hes hes env [] in
   let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
   let simplified = List.map subst_chc constraints in
@@ -110,6 +120,7 @@ let infer hes env top =
   print_constraints simplified;
   print_string "expanded CHC\n";*)
   let simplified' = List.map expand_head_exact simplified in
+  print_constraints simplified';
   (* print_string (Chc_solver.chc2smt2 simplified')*)
   let (@!) x y = match (x, y) with
     | Some(x), Some(y) -> Some(x @ y)

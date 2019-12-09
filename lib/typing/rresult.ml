@@ -1,0 +1,1 @@
+type result = [`Unknown | `Sat | `Unsat | `Fail]
