@@ -44,7 +44,7 @@ let report_times () =
       end
 
 let main file =
-  let psi, gamma = Syntax.parse_file file in
+  let psi, _ = Syntax.parse_file file in
   Log.app begin fun m -> m ~header:"Input" "%a"
     Print.(hflz_hes simple_ty_) psi
   end;
@@ -54,8 +54,7 @@ let main file =
     Print.(hflz_hes simple_ty_) psi
   end;
   *)
-  if Typing.main psi then
-    `Valid
-  else 
-    `Invalid
+  match Typing.main psi with
+  | Typing.Result.(`Sat) ->  `Valid
+  | _ -> `Invalid
 

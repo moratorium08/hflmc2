@@ -17,7 +17,6 @@ let selected_cmd () =
     failwith "selected solver is not found"
 
 let prologue = "(set-logic HORN)
-(set-info :status sat)
 "
 
 let epilogue = "\
@@ -129,7 +128,6 @@ let chc2smt2 chcs =
   prologue ^ def ^ body ^ epilogue
 
 
-type result = [`Unknown | `Sat | `Unsat | `Fail]
 let check_sat chcs = 
   let smt2 = chc2smt2 chcs in
   Random.self_init ();

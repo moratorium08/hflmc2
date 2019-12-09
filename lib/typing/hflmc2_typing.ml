@@ -2,8 +2,7 @@ module Type = Rtype
 module Translate = Rtranslate
 module Infer = Rinfer
 module Rhflz = Rhflz
-module RArith = RArith
-
+module Result = Rresult
 
 let rec generate_env = function 
   | [] -> Hflmc2_syntax.IdMap.empty
@@ -29,4 +28,4 @@ let main x =
   let env = generate_env y in
   match top with
   | Some(top) -> Infer.infer y env top
-  | None -> false
+  | None -> `Fail

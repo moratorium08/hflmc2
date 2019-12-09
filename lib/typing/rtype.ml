@@ -1,5 +1,6 @@
 open Hflmc2_syntax
 open Rid
+open Rresult
 
 let rec print_ariths = function
   | [] -> ()

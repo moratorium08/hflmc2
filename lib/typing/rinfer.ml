@@ -70,8 +70,8 @@ let rec infer_formula formula env m =
     in begin
       match (arg, tau) with
        | RInt(RId(id)), RInt m -> 
-        print_rtype arg; print_string " =? "; print_rtype tau; 
-        print_string "->"; print_rtype body; print_newline();
+        (*print_rtype arg; print_string " =? "; print_rtype tau; 
+        print_string "->"; print_rtype body; print_newline();*)
          (subst id m body, m')
        | _ ->
         let m'' = subtype arg tau m' in
@@ -123,14 +123,16 @@ let infer hes env top =
   match divided with
     | Some(divided) -> 
       begin
+      (*
       print_string (Chc_solver.chc2smt2 simplified');
       print_newline ();
       print_newline ();
       print_string (Chc_solver.chc2smt2 divided);
-      Chc_solver.check_sat divided = `Sat
+      *)
+      Chc_solver.check_sat divided 
       end
     | None ->
       begin
-      Printf.printf "Some definite clause has or-head\n";
-      Chc_solver.check_sat simplified' = `Sat
+      Printf.printf "[Warning]Some definite clause has or-head\n";
+      Chc_solver.check_sat simplified' 
       end
