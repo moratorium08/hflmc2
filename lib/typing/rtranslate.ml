@@ -47,13 +47,6 @@ and translate_simple_arg env id = match id.ty with
   | Type.TySigma t -> 
     translate_simple_ty env t, env
 
-let rec collect_id_from_type accum = function
-  | Rtype.RArrow(x, y) -> 
-    collect_id_from_type (collect_id_from_type accum y) x
-  | Rtype.RInt(RId(id)) -> 
-    id::accum
-  | _ -> accum
-
 let translate_top_id (id: 'a Type.ty Id.t) : (Rtype.t Id.t) = 
   let rec replace_return_template ty = match ty with
     | Rtype.RBool(RTemplate(_, l)) -> Rtype.RBool(RTemplate(generate_top_template l))
