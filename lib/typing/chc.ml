@@ -119,3 +119,5 @@ let divide_chc chc =
   match split_head_by_and_when_possible chc.head with
   | Some(heads) -> Some(inner heads)
   | None -> None
+
+let dual chc = {head=Rtype.dual chc.body; body=Rtype.dual chc.head}

@@ -115,17 +115,35 @@ let rec print_hes = function
     print_rtype hes_rule.var.ty;
     print_newline ();
     print_hes xs
+  
+let rec dnf_size = function
+  | [] -> 0
+  | x::xs -> 
+    let x = ref2dnf x.head |> List.length in
+    let y = dnf_size xs in
+    if x > y then x else y
 
 let infer hes env top = 
   print_hes hes;
   let constraints = infer_hes hes env [] in
   let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
+
   let simplified = List.map subst_chc constraints in
   (*print_string "generated CHC\n";
   print_constraints simplified;
   print_string "expanded CHC\n";*)
   let simplified' = List.map expand_head_exact simplified in
   print_constraints simplified';
+  let size = dnf_size simplified' in
+  Printf.printf "[Size] %d\n" size;
+
+  let dual = List.map Chc.dual simplified in
+  let simplified'' = List.map expand_head_exact dual in
+  let size_dual = dnf_size simplified'' in
+  Printf.printf "[Dual Size] %d\n" size;
+
+  let target = if size <= size_dual then simplified' else simplified'' in
+
   (* print_string (Chc_solver.chc2smt2 simplified')*)
   let (@!) x y = match (x, y) with
     | Some(x), Some(y) -> Some(x @ y)
@@ -135,7 +153,7 @@ let infer hes env top =
     | [] -> Some([])
     | x::xs -> divide_chc x @! divide_chcs xs
   in
-  let divided = divide_chcs simplified' in
+  let divided = divide_chcs target in
   match divided with
     | Some(divided) -> 
       begin
@@ -150,5 +168,5 @@ let infer hes env top =
     | None ->
       begin
       Printf.printf "[Warning]Some definite clause has or-head\n";
-      Chc_solver.check_sat simplified' 
+      Chc_solver.check_sat target 
       end

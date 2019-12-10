@@ -122,3 +122,11 @@ let rec negate_ref = function
   | RTrue -> RFalse
   | RFalse -> RTrue
   | RPred(p, l) -> RPred(Formula.negate_pred p, l)
+
+let rec dual = function
+  | RTemplate x -> RTemplate x
+  | RAnd(x, y) -> ROr(dual x, dual y)
+  | ROr(x, y) -> RAnd(dual x, dual y)
+  | RTrue -> RFalse
+  | RFalse -> RTrue
+  | RPred(p, l) -> RPred(Formula.negate_pred p, l)
