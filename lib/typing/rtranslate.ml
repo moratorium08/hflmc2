@@ -16,15 +16,6 @@ let generate_top_template args  =
     created := true;
     (id_top, args)
 
-let rec add_args_to_pred (args: Arith.t list): Rtype.t -> Rtype.t= 
-  let open Rtype in
-  function 
-  | RArrow(x, y) -> 
-    RArrow (add_args_to_pred args x, add_args_to_pred args y)
-  | RBool(RTemplate(id, _)) -> RBool(RTemplate(id, args))
-  | RInt x -> RInt x
-  | _ -> failwith "add_args_to_pred"
-
 (* ここらへんきれいに実装できるのかな *)
 (* 型によってdispatchする関数を変えるようにする的な *)
 let rec translate_id id = { id with Id.ty = translate_simple_ty [] Id.(id.ty) }
