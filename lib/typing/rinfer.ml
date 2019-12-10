@@ -5,7 +5,6 @@ open Chc
 
 (* check whether t <= t' holds *)
 let rec rty = function
-  | RArrow(RInt(_), t) -> rty t
   | RArrow(_, s) -> rty s
   | RBool(phi) -> phi
   | _ -> failwith "program error(rty)"
@@ -19,7 +18,7 @@ let rec _subtype t t' lenv renv m =
    let y' = rint2arith y in
    _subtype t t' (conjoin lenv (RPred(Formula.Eq, [x'; y'])))  renv m
  | RArrow(t, s), RArrow(t', s') ->
-   let m' = _subtype t' t lenv (conjoin renv (rty t')) m in
+   let m' = _subtype t' t lenv (conjoin renv (rty s')) m in
    _subtype s s' lenv renv m' 
  | _, _ -> 
   print_rtype t;

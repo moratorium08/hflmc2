@@ -107,7 +107,6 @@ let rec subst id rint = function
   | RArrow(x, y) -> RArrow(subst id rint x, subst id rint y)
   | RInt x -> RInt x
 
-
 (* check if refinement contains template *)
 let rec does_contain_pred = function 
   | RTemplate _ -> true

@@ -8,13 +8,13 @@ let id_top = 0
 let created = ref false
 
 let generate_id () = id_source := !id_source + 1; !id_source
-let generate_template () = (generate_id (), [])
-let generate_top_template () = 
+let generate_template args = (generate_id (), List.map (fun x -> Arith.Var(x)) args)
+let generate_top_template args  = 
   if !created then
     failwith "You attempted to create top template twice"
   else
     created := true;
-    (id_top, [])
+    (id_top, args)
 
 let rec add_args_to_pred (args: Arith.t list): Rtype.t -> Rtype.t= 
   let open Rtype in
@@ -27,19 +27,25 @@ let rec add_args_to_pred (args: Arith.t list): Rtype.t -> Rtype.t=
 
 (* ここらへんきれいに実装できるのかな *)
 (* 型によってdispatchする関数を変えるようにする的な *)
-let rec translate_id (id: 'a Type.ty Id.t) : (Rtype.t Id.t) = { id with Id.ty = translate_simple_ty id.ty }
-and translate_id_arg (id: 'a Type.ty Type.arg Id.t): (Rtype.t Id.t) = { id with Id.ty = translate_simple_arg id }
-and _translate_simple_arg = function 
-  | Type.TyInt -> Rtype.RInt (RId(Id.gen `Int))
-  | Type.TySigma t -> (translate_simple_ty t)
-and translate_simple_ty:'a Type.ty -> Rtype.t = function 
+let rec translate_id id = { id with Id.ty = translate_simple_ty [] Id.(id.ty) }
+and translate_id_arg env id = 
+  let (ty, env) = translate_simple_arg env id in
+  { id with Id.ty = ty}, env
+and translate_simple_ty env = 
+  let open Rtype in
+  function 
   (* should handle annotation? *)
-  | Type.TyBool _ -> RBool (RTemplate(generate_template ()))
+  | Type.TyBool _ -> 
+    RBool (RTemplate(generate_template env))
   | Type.TyArrow (a, s) -> 
-    RArrow((translate_id_arg a).ty, translate_simple_ty s)
-and translate_simple_arg id = match id.ty with
-  | Type.TyInt -> RInt (RId({id with Id.ty = `Int}))
-  | Type.TySigma t -> (translate_simple_ty t)
+    let (ty, env) = translate_simple_arg env a in
+    RArrow(ty, translate_simple_ty env s)
+and translate_simple_arg env id = match id.ty with
+  | Type.TyInt -> 
+    let id = {id with Id.ty = `Int} in
+    RInt (RId(id)), id::env
+  | Type.TySigma t -> 
+    translate_simple_ty env t, env
 
 let rec collect_id_from_type accum = function
   | Rtype.RArrow(x, y) -> 
@@ -50,59 +56,27 @@ let rec collect_id_from_type accum = function
 
 let translate_top_id (id: 'a Type.ty Id.t) : (Rtype.t Id.t) = 
   let rec replace_return_template ty = match ty with
-    | Rtype.RBool _ -> Rtype.RBool(RTemplate(generate_top_template ()))
+    | Rtype.RBool(RTemplate(_, l)) -> Rtype.RBool(RTemplate(generate_top_template l))
     | Rtype.RArrow(a, s) -> Rtype.RArrow(a, replace_return_template s)
     | _ -> failwith "program error" (* should not occur int *)
   in
   let id = translate_id id in
   {id with Id.ty=replace_return_template id.ty}
 
-let rec translate_body body =
+let rec translate_body env body =
   let open Rhflz in
   match body with 
   | Hflz.Var id -> Var (translate_id id)
   | Hflz.Abs (arg, body) ->
-    Abs(translate_id_arg arg, translate_body body)
-  | Hflz.Or(x, y) -> Or(translate_body x, translate_body y)
-  | Hflz.And(x, y) -> And(translate_body x, translate_body y)
-  | Hflz.App(x, y) -> App(translate_body x, translate_body y)
+    let (id, env) = translate_id_arg env arg in
+    Abs(id, translate_body env body)
+  | Hflz.Or(x, y) -> Or(translate_body env x, translate_body env y)
+  | Hflz.And(x, y) -> And(translate_body env x, translate_body env y)
+  | Hflz.App(x, y) -> App(translate_body env x, translate_body env y)
   | Hflz.Bool x -> Bool x
   | Hflz.Arith x -> Arith x
   | Hflz.Pred (x, y) -> Pred (x, y)
-
-let rec collect_id_from_body (body: Rhflz.t): [`Int] Id.t list =
-  let open Rhflz in
-  let open Rtype in
-  match body with 
-  | Var _ -> []
-  | Abs (arg, body) ->
-    let ids = collect_id_from_type [] arg.ty in
-    ids @ collect_id_from_body body
-  | Or(x, y) | And(x, y) | App(x, y) ->
-     collect_id_from_body x @ collect_id_from_body y
-  | _ -> []
-
-let rec update_body_with_ids body ids =
-  let open Rhflz in
-  match body with 
-  | Abs (arg, body) ->
-    Abs({arg with Id.ty=add_args_to_pred ids arg.ty}, update_body_with_ids body ids)
-  | Or(x, y) -> Or(update_body_with_ids x ids, update_body_with_ids y ids)
-  | And(x, y) -> And(update_body_with_ids x ids, update_body_with_ids y ids)
-  | App(x, y) -> App(update_body_with_ids x ids,  update_body_with_ids y ids)
-  | x -> x
-(*
-let rec collect_id_from_formula accum = 
-  let open Rhflz in function
-  | Abs(id, body) -> 
-    collect_id_from_formula (collect_id_from_type accum id.ty) body
-  | Or(x, y) | And(x, y) | App(x, y)  -> 
-    collect_id_from_formula (collect_id_from_formula accum x) y
-  | _ -> accum
-*)
-let collect_id (var: Rtype.t Id.t): Arith.t list = 
-  collect_id_from_type [] var.ty |> List.map (fun x -> Arith.Var x)
-
+  
 let translate_rule
   ?(top=false)
   (formula: Type.simple_ty Hflz.hes_rule)
@@ -114,12 +88,9 @@ let translate_rule
   else
     translate_id formula.var 
   in
-  let ids = collect_id var in
-  let body = translate_body formula.body in
-  let ids' = List.map (fun x -> Arith.Var x) (collect_id_from_body body) in
-  let body' = update_body_with_ids body ids' in
-  let var = {var with Id.ty=add_args_to_pred ids var.ty} in
-  {Rhflz.var=var; Rhflz.fix=formula.fix; Rhflz.body = body'}
+  let body = translate_body [] formula.body in
+  let var = {var with Id.ty=var.ty} in
+  {Rhflz.var=var; Rhflz.fix=formula.fix; Rhflz.body = body}
 
 let rec get_top = function
   | Rtype.RBool(RTemplate(x)) -> x
