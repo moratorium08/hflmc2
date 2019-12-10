@@ -79,7 +79,7 @@ let rec infer_formula formula env m =
         print_string "subtyping...";
         print_rtype arg; print_string " =? "; print_rtype tau; 
         print_newline();
-        let m'' = subtype arg tau m' in
+        let m'' = subtype (RArrow(arg, body)) (RArrow(tau, body)) m' in
         (body, m'')
       end
   
