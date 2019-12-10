@@ -3,23 +3,26 @@ open Rtype
 open Hflmc2_syntax
 open Chc
 
-(* check whether t <= t' holds *)
+let new_var () = RId(Id.gen `Int)
 let rec rty = function
   | RArrow(_, s) -> rty s
   | RBool(phi) -> phi
   | _ -> failwith "program error(rty)"
 
-let rec _subtype t t' lenv renv m = 
+(* check whether t <= t' holds *)
+let rec _subtype t t' renv m =
   match (t, t') with
  | RBool(p), RBool(p') -> 
-   {body=conjoin lenv (conjoin renv p'); head=p} :: m
- | RArrow(RInt(x), t), RArrow(RInt(y), t')  ->
-   let x' = rint2arith x in
-   let y' = rint2arith y in
-   _subtype t t' (conjoin lenv (RPred(Formula.Eq, [x'; y'])))  renv m
+   {body=conjoin renv p'; head=p} :: m
+ | RArrow(RInt(RId(x)), t), RArrow(RInt(RId(y)), t')  ->
+   (* substitute generate new variable and substitute t and t' by the new var *)
+   let v = new_var () in
+   let t2 = subst x v t in
+   let t2' = subst y v t' in
+   _subtype t2 t2' renv m
  | RArrow(t, s), RArrow(t', s') ->
-   let m' = _subtype t' t lenv (conjoin renv (rty s')) m in
-   _subtype s s' lenv renv m' 
+   let m' = _subtype t' t (conjoin renv (rty s')) m in
+   _subtype s s' renv m' 
  | _, _ -> 
   print_rtype t;
   Printf.printf "=";
@@ -27,7 +30,7 @@ let rec _subtype t t' lenv renv m =
   print_newline ();
  failwith "program error(subtype)"
 
-let subtype t t' m = _subtype t t' RTrue RTrue m
+let subtype t t' m = _subtype t t' RTrue m
 
 (* Appで制約を生成 *)
 let rec infer_formula formula env m = 
@@ -70,9 +73,12 @@ let rec infer_formula formula env m =
       match (arg, tau) with
        | RInt(RId(id)), RInt m -> 
         (*print_rtype arg; print_string " =? "; print_rtype tau; 
-        print_string "->"; print_rtype body; print_newline();*)
+        print_string "||"; print_rtype body; print_newline();*)
          (subst id m body, m')
        | _ ->
+        print_string "subtyping...";
+        print_rtype arg; print_string " =? "; print_rtype tau; 
+        print_newline();
         let m'' = subtype arg tau m' in
         (body, m'')
       end
