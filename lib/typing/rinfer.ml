@@ -94,8 +94,9 @@ let rec infer_formula formula env m =
        | _ ->
         print_string "subtyping...";
         print_rtype @@ RArrow(arg, body); print_string " =? "; print_rtype @@ RArrow(tau, body); print_newline();
-        let m'' = subtype (RArrow(arg, body)) (RArrow(tau, body)) m' in
-        (body, m'')
+        let body' = clone_type_with_new_pred env body in 
+        let m'' = subtype (RArrow(arg, body)) (RArrow(tau, body')) m' in
+        (body', m'')
       end
   
 let infer_rule (rule: hes_rule) env (chcs: (refinement, refinement) chc list): (refinement, refinement) chc list = 

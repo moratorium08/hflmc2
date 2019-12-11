@@ -1,20 +1,7 @@
 open Hflmc2_syntax
 
-module Rtype = Rtype
+open Rtype
 module Rhflz = Rhflz
-
-let id_source = ref 0
-let id_top = 0
-let created = ref false
-
-let generate_id () = id_source := !id_source + 1; !id_source
-let generate_template args = (generate_id (), List.map (fun x -> Arith.Var(x)) args)
-let generate_top_template args  = 
-  if !created then
-    failwith "You attempted to create top template twice"
-  else
-    created := true;
-    (id_top, args)
 
 (* ここらへんきれいに実装できるのかな *)
 (* 型によってdispatchする関数を変えるようにする的な *)

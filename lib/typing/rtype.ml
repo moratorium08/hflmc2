@@ -2,6 +2,20 @@ open Hflmc2_syntax
 open Rid
 open Rresult
 
+
+
+let id_source = ref 0
+let id_top = 0
+let created = ref false
+let generate_id () = id_source := !id_source + 1; !id_source
+let generate_template args = (generate_id (), List.map (fun x -> Arith.Var(x)) args)
+let generate_top_template args  = 
+  if !created then
+    failwith "You attempted to create top template twice"
+  else
+    created := true;
+    (id_top, args)
+
 let rec print_ariths = function
   | [] -> ()
   | [x] -> 
@@ -33,6 +47,12 @@ and refinement
    | ROr of refinement * refinement
    | RTemplate of template
 and template = id * Arith.t list (* template prdicate name and its args *)
+
+(* clone *)
+let rec clone_type_with_new_pred env = function
+  | RBool(RTemplate(_, _)) -> RBool(RTemplate(generate_id (), env))
+  | RArrow(x, y) -> RArrow(clone_type_with_new_pred env x, clone_type_with_new_pred env y)
+  | x -> x
 
 let print_rint = function
   | RId x -> 
@@ -132,3 +152,4 @@ let rec dual = function
   | RTrue -> RFalse
   | RFalse -> RTrue
   | RPred(p, l) -> RPred(Formula.negate_pred p, l)
+
