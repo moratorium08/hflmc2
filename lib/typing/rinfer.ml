@@ -47,7 +47,7 @@ let rec _subtype t t' renv m =
 let subtype t t' m = _subtype t t' RTrue m
 
 (* Appで制約を生成 *)
-let rec infer_formula formula env m = 
+let rec infer_formula formula env m ints = 
   (*
   print_formula formula;
   print_newline ();
@@ -63,13 +63,21 @@ let rec infer_formula formula env m =
     end
   | Abs (arg, body) -> 
     let env' = IdMap.add env arg arg.ty in
-    let (body_t, l) = infer_formula body env' m in
+    let ints' = 
+      begin
+      match arg.ty with
+      | RInt (RId(i)) -> 
+        Arith.Var(i)::ints
+      | _ -> ints 
+      end
+    in
+    let (body_t, l) = infer_formula body env' m ints' in
     (RArrow(arg.ty, body_t), l)
   | Pred (f, args) -> (RBool(RPred(f, args)), m)
   | Arith x -> (RInt (RArith x), m)
   | Or (x, y) | And (x, y) -> 
-    let (x', mx) = infer_formula x env m in
-    let (y', m') = infer_formula y env mx in
+    let (x', mx) = infer_formula x env m ints in
+    let (y', m') = infer_formula y env mx ints in
     let (rx, ry) = match (x', y') with
       | (RBool(rx), RBool(ry)) -> (rx, ry)
       | _ -> failwith "type is not correct"
@@ -80,8 +88,8 @@ let rec infer_formula formula env m =
     | _ -> failwith "program error(1)"
     end
   | App(x, y) -> 
-    let (x', mx) = infer_formula x env m in
-    let (y', m') = infer_formula y env mx in
+    let (x', mx) = infer_formula x env m ints in
+    let (y', m') = infer_formula y env mx ints in
     let (arg, body, tau) = match (x', y') with
       | (RArrow(arg, body), tau) -> (arg, body, tau)
       | _ -> failwith "type is not correct"
@@ -94,7 +102,7 @@ let rec infer_formula formula env m =
        | _ ->
         print_string "subtyping...";
         print_rtype @@ RArrow(arg, body); print_string " =? "; print_rtype @@ RArrow(tau, body); print_newline();
-        let body' = clone_type_with_new_pred env body in 
+        let body' = clone_type_with_new_pred ints body in 
         let m'' = subtype (RArrow(arg, body)) (RArrow(tau, body')) m' in
         (body', m'')
       end
@@ -107,7 +115,7 @@ let infer_rule (rule: hes_rule) env (chcs: (refinement, refinement) chc list): (
   print_formula rule.body;
   print_newline();
 
-  let (t, m) = infer_formula rule.body env chcs in
+  let (t, m) = infer_formula rule.body env chcs [] in
 
   let m = subtype t rule.var.ty m in
   print_string "[Result]\n";

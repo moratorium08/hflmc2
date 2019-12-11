@@ -49,9 +49,9 @@ and refinement
 and template = id * Arith.t list (* template prdicate name and its args *)
 
 (* clone *)
-let rec clone_type_with_new_pred env = function
-  | RBool(RTemplate(_, _)) -> RBool(RTemplate(generate_id (), env))
-  | RArrow(x, y) -> RArrow(clone_type_with_new_pred env x, clone_type_with_new_pred env y)
+let rec clone_type_with_new_pred ints = function
+  | RBool(RTemplate(_, _)) -> RBool(RTemplate(generate_id (), ints))
+  | RArrow(x, y) -> RArrow(clone_type_with_new_pred ints x, clone_type_with_new_pred ints y)
   | x -> x
 
 let print_rint = function
