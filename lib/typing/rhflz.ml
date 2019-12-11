@@ -20,38 +20,43 @@ type t =
 let rec print_formula = function
   | Bool x when x -> Printf.printf "tt"
   | Bool _ -> Printf.printf "ff"
-  | Var _ -> Printf.printf "id"
+  | Var x -> Printf.printf "%s" (Id.to_string x)
   | Or (x, y) -> 
     Printf.printf "(";
     print_formula x;
-    Printf.printf ")";
     Printf.printf " || ";
-    Printf.printf "(";
     print_formula y;
     Printf.printf ")";
   | And (x, y) -> 
     Printf.printf "(";
     print_formula x;
-    Printf.printf ")";
     Printf.printf " && ";
-    Printf.printf "(";
     print_formula y;
-    Printf.printf ")"
-  | Abs (_, y) -> 
-    Printf.printf "\\id.";
+    Printf.printf ")";
+  | Abs (x, y) -> 
     Printf.printf "(";
+    Printf.printf "\\";
+    print_rtype x.ty;
+    Printf.printf ".";
     print_formula y;
     Printf.printf ")"
   | App (x, y) -> 
     Printf.printf "(";
     print_formula x;
-    Printf.printf ")";
     Printf.printf " ";
-    Printf.printf "(";
     print_formula y;
     Printf.printf ")";
-  | Arith _ -> Printf.printf "arith"
-  | Pred _ -> Printf.printf "pred"
+  | Arith x ->
+    Print.arith Fmt.stdout x;
+    Fmt.flush Fmt.stdout () 
+  | Pred (x,[f1; f2]) -> 
+    Print.arith Fmt.stdout f1;
+    Print.pred Fmt.stdout x;
+    Print.arith Fmt.stdout f2;
+    Fmt.flush Fmt.stdout () ;
+  | Pred (x,_) -> 
+    Print.pred Fmt.stdout x;
+    Fmt.flush Fmt.stdout () ;
 
 
 type hes_rule =

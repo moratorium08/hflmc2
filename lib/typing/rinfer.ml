@@ -9,11 +9,25 @@ let rec rty = function
   | RBool(phi) -> phi
   | _ -> failwith "program error(rty)"
 
+let add_constraint x m = 
+  match x.head with
+  | RTemplate(p, l) ->
+  begin
+    let rec find_template = function 
+      | RTemplate(p', l') when p = p' && l = l' -> true
+      | RAnd(x, y) -> find_template x || find_template y
+      | _ -> false
+    in
+    if find_template x.body then m else x::m
+  end
+  | _ -> x::m
+
 (* check whether t <= t' holds *)
 let rec _subtype t t' renv m =
   match (t, t') with
  | RBool(p), RBool(p') -> 
-   {body=conjoin renv p'; head=p} :: m
+   (*{body=conjoin renv p'; head=p} :: m*)
+   add_constraint ({body=conjoin renv p'; head=p}) m
  | RArrow(RInt(RId(x)), t), RArrow(RInt(RId(y)), t')  ->
    (* substitute generate new variable and substitute t and t' by the new var *)
    let v = new_var () in
@@ -34,8 +48,10 @@ let subtype t t' m = _subtype t t' RTrue m
 
 (* Appで制約を生成 *)
 let rec infer_formula formula env m = 
-  (*print_formula formula;
-  print_newline ();*)
+  (*
+  print_formula formula;
+  print_newline ();
+  *)
   match formula with
   | Bool b when b -> (RBool(RTrue), m)
   | Bool _ -> (RBool(RFalse), m)
@@ -77,29 +93,25 @@ let rec infer_formula formula env m =
          (subst id m body, m')
        | _ ->
         print_string "subtyping...";
-        print_rtype arg; print_string " =? "; print_rtype tau; 
-        print_newline();
+        print_rtype @@ RArrow(arg, body); print_string " =? "; print_rtype @@ RArrow(tau, body); print_newline();
         let m'' = subtype (RArrow(arg, body)) (RArrow(tau, body)) m' in
         (body, m'')
       end
   
 let infer_rule (rule: hes_rule) env (chcs: (refinement, refinement) chc list): (refinement, refinement) chc list = 
-  (*
-  print_string "uo\n";
-  print_constraints chcs;
-  print_string "hoge\n";
-  *)
+  print_newline();
+  print_newline();
+  print_string "infering new formula: ";
+  Printf.printf "%s = " rule.var.name;
+  print_formula rule.body;
+  print_newline();
+
   let (t, m) = infer_formula rule.body env chcs in
-  (*
-  print_string "piyo\n";
+
+  let m = subtype t rule.var.ty m in
+  print_string "[Result]\n";
   print_constraints m;
-  print_string "nyan\n";
-  *)
-  (*print_rtype rule.var.ty;
-  print_newline ();
-  print_rtype t;
-  print_newline ();*)
-  subtype t rule.var.ty m 
+  m
  
 let rec infer_hes (hes: hes) env (accum: (refinement, refinement) chc list): (refinement, refinement) chc list = match hes with
   | [] -> accum

@@ -74,9 +74,11 @@ let rec print_refinement = function
 let rec print_rtype = function
   | RBool r -> Printf.printf "*["; print_refinement r; Printf.printf "]"
   | RArrow(x, y) ->
+    print_string "(";
     print_rtype x;
     Printf.printf " -> ";
-    print_rtype y
+    print_rtype y;
+    print_string ")";
   | RInt x -> Printf.printf "int("; print_rint x; Printf.printf ")"
 
   
