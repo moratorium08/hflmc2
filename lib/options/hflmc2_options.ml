@@ -78,7 +78,7 @@ type params =
     (** Use old refine algorithm *)
   
   (* Typing *)
-  ; solver : string [@default "z3"] [@docs "Typing"] [@docv "solver_name"]
+  ; solver : string [@default "auto"] [@docs "Typing"] [@docv "solver_name"]
   (** Choose background CHC solver. Available: z3, hoice, fptprover *)
 
   }

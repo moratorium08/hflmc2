@@ -5,16 +5,26 @@ open Rtype
 
 (* set of template *)
 
-let selected_cmd () = 
+let selected_cmd size = 
+  let rec inner sv = 
+    if sv = "z3" then 
+      "z3"
+    else if sv = "hoice" then 
+      "hoice"
+    else if sv = "fptprove" then
+      "fptprove --synthesizer dt --format clp --problem psat -edq -edrc -epp -fq 20 --format smt-lib2 or.smt2"
+    else
+      failwith "selected solver is not found"
+  in
   let sv = !Typing.solver in
-  if sv = "z3" then 
-    "z3"
-  else if sv = "hoice" then 
-    "hoice"
-  else if sv = "fptprove" then
-    "fptprove --synthesizer dt --format clp --problem psat -edq -edrc -epp -fq 20 --format smt-lib2 or.smt2"
-  else
-    failwith "selected solver is not found"
+  if sv = "auto" then
+    begin
+      if size > 1 then
+        inner "fptprove"
+      else
+        inner "z3"
+    end
+  else inner sv
 
 let prologue = "(set-logic HORN)
 "
@@ -128,7 +138,7 @@ let chc2smt2 chcs =
   prologue ^ def ^ body ^ epilogue
 
 
-let check_sat chcs = 
+let check_sat chcs size = 
   let smt2 = chc2smt2 chcs in
   Random.self_init ();
   let r = Random.int 0x10000000 in
@@ -137,7 +147,7 @@ let check_sat chcs =
   let oc = open_out filename in
   Printf.fprintf oc "%s" smt2;
   close_out oc;
-  let cmd = selected_cmd () in
+  let cmd = selected_cmd size in
   let cmd = Printf.sprintf "%s %s > %s" cmd filename out_filename in
   let _ = Sys.command cmd in
   let ic = open_in out_filename in

@@ -48,12 +48,10 @@ let main file =
   Log.app begin fun m -> m ~header:"Input" "%a"
     Print.(hflz_hes simple_ty_) psi
   end;
-  (*
   let psi = Syntax.Trans.Simplify.hflz_hes psi in
   Log.app begin fun m -> m ~header:"Simplified" "%a"
     Print.(hflz_hes simple_ty_) psi
   end;
-  *)
   match Typing.main psi with
   | Typing.Result.(`Sat) ->  `Valid
   | _ -> `Invalid

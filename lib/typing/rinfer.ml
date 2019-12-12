@@ -173,4 +173,4 @@ let infer hes env top =
   let target = if size <= size_dual then simplified' else simplified'' in
 
   if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
-  Chc_solver.check_sat target
+  Chc_solver.check_sat target (dnf_size target)

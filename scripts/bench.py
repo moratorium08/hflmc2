@@ -4,14 +4,16 @@ import signal
 import subprocess
 
 TARGET = './_build/default/bin/main.exe'
-TIMEOUT = 5 # sec
+TIMEOUT = 5  # sec
 
 parser = argparse.ArgumentParser()
 parser.add_argument("solver", help="set background CHC solver")
 parser.add_argument("benchdir", help="directory which contains benchmarks")
+parser.add_argument("--timeout", help="timeout", default=TIMEOUT)
 args = parser.parse_args()
 
 cmd_template = TARGET + ' --solver {} {}'
+
 
 def run(cmd):
     with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, preexec_fn=os.setsid) as p:
@@ -25,6 +27,7 @@ def run(cmd):
                 pass
             raise
 
+
 def gen_cmd(file):
     s = args.solver
     if s == 'z3':
@@ -36,13 +39,16 @@ def gen_cmd(file):
     else:
         raise Exception('No such solver')
 
+
 class ParseError(Exception):
     pass
+
 
 def parse_stdout(stdout):
     idx = stdout.find('Verification Result:')
     result = stdout[idx:].split('\n')
     cur = 0
+
     def readline():
         nonlocal cur
         line = result[cur]
@@ -57,7 +63,7 @@ def parse_stdout(stdout):
             return 'valid'
         else:
             raise ParseError
-    
+
     def parse_profile():
         line = readline()
         if 'total' in line:
@@ -86,11 +92,13 @@ def parse_stdout(stdout):
         result_data['ok'] = False
     return result_data
 
+
 def p(file, result):
     if result['ok']:
         print(f'{file}\t{result["result"]}\t{result["total"]}')
     else:
         print(f'{file}\t{result["error"]}')
+
 
 def handle(file, callback=p):
     cmd = gen_cmd(file)
@@ -103,15 +111,21 @@ def handle(file, callback=p):
 
 
 results = []
+
+
 def callback(file, result):
     p(file, result)
     result['file'] = file
     results.append(result)
 
+
 def stat():
-    valid_cnt = sum(1 for _ in filter(lambda x: 'result' in x and x['result'] == 'valid', results))
-    invalid_cnt = sum(1 for _ in filter(lambda x: 'result' in x and x['result'] == 'invalid', results))
-    timeout_cnt= sum(1 for _ in filter(lambda x: 'error' in x and x['error'] == 'timeout', results))
+    valid_cnt = sum(1 for _ in filter(
+        lambda x: 'result' in x and x['result'] == 'valid', results))
+    invalid_cnt = sum(1 for _ in filter(
+        lambda x: 'result' in x and x['result'] == 'invalid', results))
+    timeout_cnt = sum(1 for _ in filter(
+        lambda x: 'error' in x and x['error'] == 'timeout', results))
 
     no_errors = [x for x in results if x['ok']]
     mean = sum(x['total'] for x in no_errors) / len(no_errors)
@@ -129,5 +143,6 @@ def main():
         if file.endswith('.in'):
             handle(os.path.join(args.benchdir, file), callback=callback)
     stat()
+
 
 main()
