@@ -9,11 +9,12 @@ open Syntax
 let log_src = Logs.Src.create "Main"
 module Log = (val Logs.src_log @@ log_src)
 
-type result = [ `Valid | `Invalid ]
+type result = [ `Valid | `Invalid | `Fail]
 
 let show_result = function
   | `Valid      -> "Valid"
   | `Invalid    -> "Invalid"
+  | `Fail       -> "Fail"
 
 let measure_time f =
   let start  = Unix.gettimeofday () in
@@ -54,5 +55,6 @@ let main file =
   end;
   match Typing.main psi with
   | Typing.Result.(`Sat) ->  `Valid
-  | _ -> `Invalid
+  | Typing.Result.(`Unsat) ->  `Invalid
+  | _ -> `Fail
 
