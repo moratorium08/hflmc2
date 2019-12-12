@@ -101,8 +101,8 @@ let rec infer_formula formula env m ints =
          (subst id m body, m')
        | _ ->
         print_string "subtyping...";
-        print_rtype @@ RArrow(arg, body); print_string " =? "; print_rtype @@ RArrow(tau, body); print_newline();
         let body' = clone_type_with_new_pred ints body in 
+        print_rtype @@ RArrow(arg, body); print_string " =? "; print_rtype @@ RArrow(tau, body'); print_newline();
         let m'' = subtype (RArrow(arg, body)) (RArrow(tau, body')) m' in
         (body', m'')
       end

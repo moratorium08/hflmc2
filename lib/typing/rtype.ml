@@ -51,7 +51,10 @@ and template = id * Arith.t list (* template prdicate name and its args *)
 (* clone *)
 let rec clone_type_with_new_pred ints = function
   | RBool(RTemplate(_, _)) -> RBool(RTemplate(generate_id (), ints))
-  | RArrow(x, y) -> RArrow(clone_type_with_new_pred ints x, clone_type_with_new_pred ints y)
+  | RArrow(RInt(RId(id)), y) ->
+    RArrow(RInt(RId(id)), clone_type_with_new_pred (Arith.Var(id)::ints) y)
+  | RArrow(x, y) -> 
+    RArrow(clone_type_with_new_pred ints x, clone_type_with_new_pred ints y)
   | x -> x
 
 let print_rint = function
