@@ -11,8 +11,8 @@ let selected_cmd () =
     "z3"
   else if sv = "hoice" then 
     "hoice"
-  else if sv = "fptprover" then
-    "fptprover --format smt-lib2"
+  else if sv = "fptprove" then
+    "fptprove --synthesizer dt --format clp --problem psat -edq -edrc -epp -fq 20 --format smt-lib2 or.smt2"
   else
     failwith "selected solver is not found"
 
