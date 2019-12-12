@@ -72,8 +72,18 @@ def parse_stdout(stdout):
             result_data['result'] = parse_verification_result()
         elif 'Profiling' in line:
             result_data['total'] = parse_profile()
+        elif 'ill-typed' in line:
+            result_data['ok'] = False
+            result_data['error'] = 'ill-typed'
+            return result_data
         else:
             pass
+    # adhoc
+    if 'result' in result_data and 'total' in result_data:
+        result_data['ok'] = True
+    else:
+        result_data['error'] = 'unknown'
+        result_data['ok'] = False
     return result_data
 
 def p(file, result):
@@ -87,15 +97,37 @@ def handle(file, callback=p):
     try:
         stdout = run(cmd).decode('utf-8')
         result = parse_stdout(stdout)
-        result['ok'] = True
     except subprocess.TimeoutExpired:
         result = {'ok': False, 'error': 'timeout'}
+    callback(file, result)
+
+
+results = []
+def callback(file, result):
     p(file, result)
+    result['file'] = file
+    results.append(result)
+
+def stat():
+    valid_cnt = sum(1 for _ in filter(lambda x: 'result' in x and x['result'] == 'valid', results))
+    invalid_cnt = sum(1 for _ in filter(lambda x: 'result' in x and x['result'] == 'invalid', results))
+    timeout_cnt= sum(1 for _ in filter(lambda x: 'error' in x and x['error'] == 'timeout', results))
+
+    no_errors = [x for x in results if x['ok']]
+    mean = sum(x['total'] for x in no_errors) / len(no_errors)
+    print('[Result]')
+    print(f'- solver={args.solver}')
+    print(f'- valid={valid_cnt}')
+    print(f'- invalid={invalid_cnt}')
+    print(f'- timeout={timeout_cnt}')
+    print(f'- mean_without_errors={mean}')
+
 
 def main():
     files = os.listdir(args.benchdir)
     for file in files:
         if file.endswith('.in'):
-            handle(os.path.join(args.benchdir, file))
+            handle(os.path.join(args.benchdir, file), callback=callback)
+    stat()
 
 main()
