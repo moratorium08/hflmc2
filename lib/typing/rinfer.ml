@@ -150,10 +150,17 @@ let infer hes env top =
   let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
 
   let simplified = List.map subst_chc constraints in
+
+  let rec divide_chcs = function
+    | [] -> []
+    | x::xs -> divide_chc x @ divide_chcs xs
+  in
+  let divided_chc = divide_chcs simplified in
+
   (*print_string "generated CHC\n";
   print_constraints simplified;
   print_string "expanded CHC\n";*)
-  let simplified' = List.map expand_head_exact simplified in
+  let simplified' = List.map expand_head_exact divided_chc in
   print_constraints simplified';
   let size = dnf_size simplified' in
   Printf.printf "[Size] %d\n" size;
@@ -165,29 +172,5 @@ let infer hes env top =
 
   let target = if size <= size_dual then simplified' else simplified'' in
 
-  (* print_string (Chc_solver.chc2smt2 simplified')*)
-  let (@!) x y = match (x, y) with
-    | Some(x), Some(y) -> Some(x @ y)
-    | _ -> None
-  in
-  let rec divide_chcs = function
-    | [] -> Some([])
-    | x::xs -> divide_chc x @! divide_chcs xs
-  in
-  let divided = divide_chcs target in
-  match divided with
-    | Some(divided) -> 
-      begin
-      (*
-      print_string (Chc_solver.chc2smt2 simplified');
-      print_newline ();
-      print_newline ();
-      print_string (Chc_solver.chc2smt2 divided);
-      *)
-      Chc_solver.check_sat divided 
-      end
-    | None ->
-      begin
-      Printf.printf "[Warning]Some definite clause has or-head\n";
-      Chc_solver.check_sat target 
-      end
+  if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
+  Chc_solver.check_sat target

@@ -116,8 +116,6 @@ let divide_chc chc =
     | [] -> []
     | head::xs -> {chc with head=head} :: inner xs
   in
-  match split_head_by_and_when_possible chc.head with
-  | Some(heads) -> Some(inner heads)
-  | None -> None
+  chc.head |> ref2cnf |> inner
 
 let dual chc = {head=Rtype.dual chc.body; body=Rtype.dual chc.head}
