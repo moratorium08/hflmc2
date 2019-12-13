@@ -79,6 +79,7 @@ def parse_stdout(stdout):
             return parse_profile()
 
     result_data = dict()
+    result_data['solver'] = 'fptprove' if 'Some definite clause has or-head' in stdout else 'z3'
     while cur < len(result):
         line = readline()
         if 'Verification Result:' in line:
@@ -102,7 +103,7 @@ def parse_stdout(stdout):
 
 def p(file, result):
     if result['ok']:
-        print(f'{file}\t{result["result"]}\t{result["total"]}')
+        print(f'{file}\t{result["result"]}\t{result["total"]}\t{result["solver"]}')
     else:
         print(f'{file}\t{result["error"]}')
 

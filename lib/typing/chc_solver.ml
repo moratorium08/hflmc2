@@ -8,7 +8,7 @@ open Rtype
 let selected_cmd size = 
   let rec inner sv = 
     if sv = "z3" then 
-      "z3"
+      "z3 fp.engine=spacer"
     else if sv = "hoice" then 
       "hoice"
     else if sv = "fptprove" then
