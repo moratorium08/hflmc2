@@ -9,16 +9,17 @@ TIMEOUT = 5  # sec
 parser = argparse.ArgumentParser()
 parser.add_argument("solver", help="set background CHC solver")
 parser.add_argument("benchdir", help="directory which contains benchmarks")
-parser.add_argument("--timeout", help="timeout", default=TIMEOUT)
+parser.add_argument("--timeout", help="timeout", default=TIMEOUT, type=int)
+parser.add_argument('--no-inline', action='store_true')
 args = parser.parse_args()
 
-cmd_template = TARGET + ' --solver {} {}'
+cmd_template = TARGET + ' --solver {} {} {}'
 
 
 def run(cmd):
     with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, preexec_fn=os.setsid) as p:
         try:
-            output, _ = p.communicate(timeout=TIMEOUT)
+            output, _ = p.communicate(timeout=args.timeout)
             return output
         except subprocess.TimeoutExpired:
             try:
@@ -30,12 +31,17 @@ def run(cmd):
 
 def gen_cmd(file):
     s = args.solver
+    ag = ''
+    if args.no_inline:
+        ag += '--no-inlining'
     if s == 'z3':
-        return cmd_template.format("z3", file)
+        return cmd_template.format("z3", ag, file)
     elif s == 'hoice':
-        return cmd_template.format("hoice", file)
+        return cmd_template.format("hoice", ag, file)
     elif s == 'fptprove':
-        return cmd_template.format("fptprove", file)
+        return cmd_template.format("fptprove", ag, file)
+    elif s == 'auto':
+        return cmd_template.format("auto", ag, file)
     else:
         raise Exception('No such solver')
 
@@ -138,7 +144,7 @@ def stat():
 
 
 def main():
-    files = os.listdir(args.benchdir)
+    files = sorted(os.listdir(args.benchdir))
     for file in files:
         if file.endswith('.in'):
             handle(os.path.join(args.benchdir, file), callback=callback)
