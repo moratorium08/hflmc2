@@ -68,6 +68,8 @@ def parse_stdout(stdout):
             return 'invalid'
         elif 'Valid' in line:
             return 'valid'
+        elif 'Fail' in line:
+            return 'fail'
         else:
             raise ParseError
 
