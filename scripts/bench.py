@@ -147,7 +147,7 @@ def stat():
 
 def main():
     with open(args.list) as f:
-        files = f.read().split('\n')
+        files = f.read().strip('\n').split('\n')
     for file in files:
         handle(os.path.join(args.basedir, file), callback=callback)
     stat()
