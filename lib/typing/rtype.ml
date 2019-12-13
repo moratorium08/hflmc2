@@ -156,3 +156,45 @@ let rec dual = function
   | RFalse -> RTrue
   | RPred(p, l) -> RPred(Formula.negate_pred p, l)
 
+(* This is an adhoc optimization of formulas. The reason why this function is required is
+that consider following program and its safety property problem.
+
+[Program]
+(* the definition of f and g is omitted *)
+let h x = if x >= 0 then g x else f x
+let m n = assert(h n)
+[HES Formula]
+H x =v (x >= 0 /\ G x) \/ (x < 0 /\ F x)
+S n =v H n
+
+Then this formula will generate chc formulas, at least one of which has a head which contains 
+more than one or.
+To remedy this problem, the above "gadget" of formula can automatically be translated to the following.
+H x =v (x < 0 \/ G x) /\ (x >= 0 /\ F x)
+S n =v H n
+And this is what The following function does.
+
+And for the speed of translation, I did not use the complete algorithm for this, just checking 
+the negation of one formula is equal to the other.
+*)
+
+let rec translate_if = 
+  function
+  | ROr(RAnd(a, b), RAnd(a', b')) ->
+    let fa = does_contain_pred a |> not in
+    let fb = does_contain_pred b |> not in
+    let fa' = does_contain_pred a' |> not in
+    let fb' = does_contain_pred b' |> not in
+    if fa && fa' && negate_ref a = a' then
+      RAnd(ROr(a', translate_if b), ROr(a, translate_if b'))
+    else if fa && fb' && negate_ref a = b' then
+      RAnd(ROr(b', translate_if b), ROr(a, translate_if a'))
+    else if fb && fa' && negate_ref b = a' then
+      RAnd(ROr(a', translate_if a), ROr(b, translate_if b'))
+   else if fb && fb' && negate_ref b = b' then
+      RAnd(ROr(b', translate_if a), ROr(b, translate_if a'))
+    else 
+      ROr(RAnd(translate_if a, translate_if b), RAnd(translate_if a', translate_if b'))
+  | ROr(x, y) -> ROr(translate_if x, translate_if y)
+  | RAnd(x, y) -> RAnd(translate_if x, translate_if y)
+  | x -> x

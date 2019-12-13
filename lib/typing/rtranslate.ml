@@ -72,7 +72,7 @@ let rec translate_hes = function
   | [] -> ([], None)
   | x::xs -> 
     let open Hflz in
-    let flag = x.var.name = "S" || x.var.name = "Main" in
+    let flag = x.var.name = "S" || x.var.name = "Main" || x.var.name = "MAIN" in
     let (l, y) = translate_hes xs in
     let rule = translate_rule x ~top:flag in
     let y = 

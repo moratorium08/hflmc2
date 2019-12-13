@@ -3,14 +3,15 @@ import os
 import signal
 import subprocess
 
-TARGET = './_build/default/bin/main.exe'
+TARGET = 'dune exec hflmc2 -- '
 TIMEOUT = 5  # sec
 
 parser = argparse.ArgumentParser()
-parser.add_argument("solver", help="set background CHC solver")
-parser.add_argument("benchdir", help="directory which contains benchmarks")
+parser.add_argument("list", help="list which contains benchmarks")
 parser.add_argument("--timeout", help="timeout", default=TIMEOUT, type=int)
 parser.add_argument('--no-inline', action='store_true')
+parser.add_argument("--solver", help="set background CHC solver", default="auto")
+parser.add_argument("--basedir", help="base directory", default="./")
 args = parser.parse_args()
 
 cmd_template = TARGET + ' --solver {} {} {}'
@@ -144,11 +145,10 @@ def stat():
 
 
 def main():
-    files = sorted(os.listdir(args.benchdir))
+    with open(args.list) as f:
+        files = f.read().split('\n')
     for file in files:
-        if file.endswith('.in'):
-            handle(os.path.join(args.benchdir, file), callback=callback)
+        handle(os.path.join(args.basedir, file), callback=callback)
     stat()
-
 
 main()

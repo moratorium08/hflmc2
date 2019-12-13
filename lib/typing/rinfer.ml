@@ -144,11 +144,7 @@ let rec dnf_size = function
     let y = dnf_size xs in
     if x > y then x else y
 
-let infer hes env top = 
-  print_hes hes;
-  let constraints = infer_hes hes env [] in
-  let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
-
+let simplify constraints =
   let simplified = List.map subst_chc constraints in
 
   let rec divide_chcs = function
@@ -156,21 +152,31 @@ let infer hes env top =
     | x::xs -> divide_chc x @ divide_chcs xs
   in
   let divided_chc = divide_chcs simplified in
-
-  (*print_string "generated CHC\n";
-  print_constraints simplified;
-  print_string "expanded CHC\n";*)
   let simplified' = List.map expand_head_exact divided_chc in
-  print_constraints simplified';
-  let size = dnf_size simplified' in
+  simplified'
+
+let infer hes env top = 
+  print_hes hes;
+  let constraints = infer_hes hes env [] in
+  let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
+
+  print_constraints constraints;
+  (* Preprocess of CHCs *)
+  let constraints = List.map (fun chc -> 
+    {chc with head=translate_if chc.head}
+  ) constraints in
+
+  let simplified = simplify constraints in
+  let size = dnf_size simplified in
   Printf.printf "[Size] %d\n" size;
 
-  let dual = List.map Chc.dual simplified in
-  let simplified'' = List.map expand_head_exact dual in
-  let size_dual = dnf_size simplified'' in
-  Printf.printf "[Dual Size] %d\n" size;
+  if size > 1 then begin
+    let dual = List.map Chc.dual constraints in
+    let simplified' = simplify dual in
+    let size_dual = dnf_size simplified' in
+    Printf.printf "[Dual Size] %d\n" size;
+    let target = if size <= size_dual then simplified else simplified' in
 
-  let target = if size <= size_dual then simplified' else simplified'' in
-
-  if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
-  Chc_solver.check_sat target (dnf_size target)
+    if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
+    Chc_solver.check_sat target (dnf_size target)
+  end else Chc_solver.check_sat simplified 1
