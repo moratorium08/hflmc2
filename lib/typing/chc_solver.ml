@@ -3,16 +3,17 @@ open Hflmc2_options
 open Chc
 open Rtype
 
+
 (* set of template *)
 
 let selected_cmd size = 
   let rec inner sv = 
     if sv = "z3" then 
-      "z3 fp.engine=spacer"
+      [|"z3"; "fp.engine=spacer"|]
     else if sv = "hoice" then 
-      "hoice"
+      [|"hoice"|]
     else if sv = "fptprove" then
-      "fptprove --synthesizer dt --format clp --problem psat -edq -edrc -epp -fq 20 --format smt-lib2 or.smt2"
+      [|"fptprove"; "--synthesizer"; "dt"; "--format"; "clp"; "--problem"; "psat"; "-edq"; "-edrc"; "-epp"; "-fq"; "20"; "--format"; "smt-lib2"|]
     else
       failwith "selected solver is not found"
   in
@@ -22,7 +23,7 @@ let selected_cmd size =
       if size > 1 then
         inner "fptprove"
       else
-        inner "z3"
+        inner "hoice"
     end
   else inner sv
 
@@ -31,6 +32,7 @@ let prologue = "(set-logic HORN)
 
 let epilogue = "\
 (check-sat)
+(get-model)
 "
 
 let rec collect_preds chcs m = 
@@ -138,22 +140,96 @@ let chc2smt2 chcs =
   prologue ^ def ^ body ^ epilogue
 
 
+let parse_model model = 
+  let open Hflmc2_util in
+  (* Ported from Iwayama san's parser 
+     https://github.com/Hogeyama/hflmc2/blob/0c29b0b3a8aacb2496615244b3d93e98370c6eee/lib/refine/hornClauseSolver.ml#L215-L280
+  *)
+  let open Sexp in
+  let fail f s = invalid_arg @@ f ^ ": " ^ Sexp.to_string s in
+  let mk_var name =
+     Id.{ name; id=0; ty=`Int }
+  in
+  let parse_arg = function
+    | List [Atom v; Atom "Int" ] -> Arith.Var(mk_var v)
+    | s -> fail "parse_arg" s
+  in
+  let rec parse_arith = function
+    | Atom s ->
+        begin match int_of_string s with
+        | n -> Arith.mk_int n
+        | exception _ -> Arith.mk_var' (mk_var s)
+        end
+    | List (Atom op :: ss) ->
+        let op = match op with
+          | "+" -> Arith.Add
+          | "-" -> Arith.Sub
+          | "*" -> Arith.Mult
+          | s   -> fail "parse_arith:op" (Atom s)
+        in
+        let [@warning "-8"] a::as' = List.map ss ~f:parse_arith in
+        List.fold_left ~init:a as' ~f:begin fun a b ->
+          Arith.mk_op op [a; b]
+        end
+    | s -> fail "parse_arith" s
+  in
+  let rec parse_formula = function
+    | Atom "true"  -> RTrue
+    | Atom "false" -> RFalse
+    | List (Atom a :: ss) ->
+        let a = match a with
+          | "="   -> `Pred Formula.Eq
+          | "!="  -> `Pred Formula.Neq
+          | "<="  -> `Pred Formula.Le
+          | ">="  -> `Pred Formula.Ge
+          | "<"   -> `Pred Formula.Lt
+          | ">"   -> `Pred Formula.Gt
+          | "and" -> `And 
+          | "or"  -> `Or 
+          | s     -> fail "parse_formula:list" (Atom s)
+        in
+        begin match a with
+        | `Pred pred ->
+            RPred (pred, (List.map ~f:parse_arith ss))
+        | `And ->
+            let  [@warning "-8"] a::as' = List.map ss ~f:parse_formula in
+            List.fold_left ~init:a as' ~f:(fun x y -> RAnd(x, y))
+        | `Or -> 
+            let  [@warning "-8"] a::as' = List.map ss ~f:parse_formula in
+            List.fold_left ~init:a as' ~f:(fun x y -> ROr(x, y))
+        end
+    | s -> fail "parse_formula" s
+  in
+  let parse_def = function
+    | List [Atom "define-fun"; Atom id; List args; Atom "Bool"; body] ->
+        let args = List.map ~f:parse_arg args in
+        let body = parse_formula body in
+        {head=body; body=RTemplate(0, args)}
+    | s -> fail "parse_def" s
+  in
+  match Sexplib.Sexp.parse model with
+  | Done(model, _) -> begin 
+    match model with
+    | List (Atom "model" :: sol) ->
+        Ok(List.map ~f:parse_def sol)
+    | _ -> Error "parse_model" 
+    end
+  | _ -> Error "failed to parse model"
+
 let check_sat chcs size = 
+  let open Hflmc2_util in
   let smt2 = chc2smt2 chcs in
   Random.self_init ();
   let r = Random.int 0x10000000 in
-  let filename = Printf.sprintf "tmp/%d.smt2" r in
-  let out_filename = Printf.sprintf "tmp/%d.out" r in
-  let oc = open_out filename in
+  let file = Printf.sprintf "tmp/%d.smt2" r in
+  let oc = open_out file in
   Printf.fprintf oc "%s" smt2;
   close_out oc;
   let cmd = selected_cmd size in
-  let cmd = Printf.sprintf "%s %s > %s" cmd filename out_filename in
-  let _ = Sys.command cmd in
-  let ic = open_in out_filename in
-  let line = input_line ic in
-  close_in ic;
-  if line = "sat" then `Sat
-  else if line = "unsat" then `Unsat
-  else if line = "unknown" then (Printf.printf "%s\n" line; `Unknown)
-  else (Printf.printf "%s\n" line; `Fail)
+  let _, out, _ = Fn.run_command ~timeout:20.0 (Array.concat [cmd; [|file|]]) in
+  match String.lsplit2 out ~on:'\n' with
+  | Some ("unsat", _) -> `Unsat
+  | Some ("sat", model) ->
+    `Sat(parse_model model)
+  | Some ("unknown", _) -> `Unknown
+  | _ -> (Printf.printf "Failed to handle the result of chc solver\n\n%s\n" out; `Fail)

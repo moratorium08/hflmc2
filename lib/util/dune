@@ -4,6 +4,8 @@
    fmt
    logs
    logs.fmt
+   lwt
+   lwt.unix
    core))
 
 (env

@@ -3,6 +3,7 @@ module Translate = Rtranslate
 module Infer = Rinfer
 module Rhflz = Rhflz
 module Result = Rresult
+module Chc = Chc
 
 let rec generate_env = function 
   | [] -> Hflmc2_syntax.IdMap.empty

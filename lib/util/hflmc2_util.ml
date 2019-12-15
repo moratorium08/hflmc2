@@ -1,4 +1,3 @@
-
 module Core = Core
 open Core
 
@@ -202,6 +201,22 @@ module Fn = struct
   let assert_no_exn f =
     try f () with e -> print_endline (Exn.to_string e); assert false
 
+  let run_command ?(timeout=20.0) cmd =
+    let f_out, fd_out = Unix.mkstemp "/tmp/run_command.stdout" in
+    let f_err, fd_err = Unix.mkstemp "/tmp/run_command.stderr" in
+    let process_status = Lwt_main.run @@
+      Lwt_process.exec
+        ~timeout
+        ~stdout:(`FD_move fd_out)
+        ~stderr:(`FD_move fd_err)
+        ("", cmd)
+    in
+    let stdout = read_file f_out in
+    let stderr = read_file f_err in
+    Unix.remove f_out;
+    Unix.remove f_err;
+    (process_status, stdout, stderr)
+
   class counter = object
     val mutable cnt = 0
     method tick =
@@ -246,3 +261,5 @@ let sexp_of_unit      = sexp_of_unit
 module Logs     = Logs
 module Logs_cli = Logs_cli
 module Logs_fmt = Logs_fmt
+
+type ('a, 'b) result = Ok of 'a | Error of 'b
