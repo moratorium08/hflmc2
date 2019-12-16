@@ -6,7 +6,7 @@ import json
 import time
 
 from common import *
-from target import cli_arg, gen_cmd, parse_stdout, config, callback, stat
+from target import cli_arg, gen_cmd, parse_stdout, config, callback, stat, pre_cmd
 
 TIMEOUT = 5
 
@@ -27,11 +27,13 @@ cfg.args = args
 config(cfg)
 
 
-def run(cmd):
+def run(cmd, timeout=None):
+    if timeout is None:
+        timeout=args.timeout
     st = time.perf_counter()
     with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, preexec_fn=os.setsid) as p:
         try:
-            output, _ = p.communicate(timeout=args.timeout)
+            output, _ = p.communicate(timeout=timeout)
             ed = time.perf_counter()
             elapsed = ed - st
             return output, elapsed
@@ -71,6 +73,8 @@ def save_json(filename):
 
 
 def main():
+    out, _ = run(pre_cmd(), timeout=1000)
+    print(out)
     with open(args.list) as f:
         files = f.read().strip('\n').split('\n')
     for file in files:

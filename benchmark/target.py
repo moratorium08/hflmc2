@@ -5,6 +5,11 @@ cmd_template = TARGET + ' {} {}'  # <option> <filename>
 
 cfg = None
 
+
+def pre_cmd():
+    return 'dune build'
+
+
 def config(c):
     global cfg
     cfg = c
@@ -100,7 +105,7 @@ def callback(file, result):
     p(file, result)
 
 
-def stat(args, results):
+def stat(results):
     valid_cnt = sum(1 for _ in filter(
         lambda x: 'result' in x and x['result'] == 'valid', results))
     invalid_cnt = sum(1 for _ in filter(
@@ -111,7 +116,7 @@ def stat(args, results):
     no_errors = [x for x in results if x['ok']]
     mean = sum(x['total'] for x in no_errors) / len(no_errors)
     print('[Result]')
-    print(f'- solver={args.solver}')
+    print(f'- solver={cfg.args.solver}')
     print(f'- valid={valid_cnt}')
     print(f'- invalid={invalid_cnt}')
     print(f'- timeout={timeout_cnt}')

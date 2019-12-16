@@ -68,4 +68,4 @@ def callback(file, result):
 
 
 def stat(results):
-    pass
+    print(results)
