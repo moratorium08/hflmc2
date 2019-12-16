@@ -43,8 +43,8 @@ benchmarkers = os.listdir(os.path.join(base, 'backend'))
 for benchmark in benchmarkers:
     file = read_file('backend/' + benchmark)
 
-    generated = target.replace(TARGET, f)
-    with open(os.path.join(benchdir, benchmark)) as f:
-        f.write(file)
+    generated = target.replace(TARGET, file)
+    with open(os.path.join(benchdir, benchmark), 'w') as f:
+        f.write(generated)
 
 
