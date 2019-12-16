@@ -47,7 +47,7 @@ def gen_cmd(file):
         ags.append("--solver auto")
     else:
         raise Exception('No such solver')
-    
+
     ag = ' '.join(ags)
     return cmd_template.format(ag, file)
 
@@ -113,7 +113,7 @@ def p(file, result):
     if result['ok']:
         print(f'{file}\t{result["result"]}\t{result["total"]}\t{result["solver"]}')
     else:
-        print(f'{file}\t{result["error"]}')
+        print(f'{file}\t{result["error"]}\t{TIMEOUT}\t{result["solver"]}')
 
 
 def handle(file, callback=p):
