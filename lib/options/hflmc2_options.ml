@@ -25,6 +25,7 @@ end
 
 module Typing = struct
   let solver               = ref (Obj.magic())
+  let show_refinement      = ref (Obj.magic())
 end
 
 (******************************************************************************)
@@ -79,7 +80,10 @@ type params =
   
   (* Typing *)
   ; solver : string [@default "auto"] [@docs "Typing"] [@docv "solver_name"]
-  (** Choose background CHC solver. Available: z3, hoice, fptprover *)
+  (** Choose background CHC solver. Available: auto z3, hoice, fptprover *)
+
+  ; show_refinement: bool [@default false] [@docs "Typing"] [@docv "solver_name"]
+  (** Show refinement types. This sometimes fails because of parsing the solution from CHC solver... *)
 
   }
   [@@deriving cmdliner,show]
@@ -94,6 +98,7 @@ let set_up_params params =
   set_ref Abstraction.modify_pred_by_guard (not params.abst_no_modify_pred_by_guard);
   set_ref Refine.use_legacy                params.refine_legacy;
   set_ref Typing.solver                    params.solver;
+  set_ref Typing.show_refinement           params.show_refinement;
   params.input
 
 (******************************************************************************)

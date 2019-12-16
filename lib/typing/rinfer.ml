@@ -226,8 +226,12 @@ let infer hes env top =
       begin 
         match x with 
         | Ok(x) -> 
+          let open Hflmc2_options in
           let hes = print_derived_refinement_type x in
-          print_hes hes
+          if !Typing.show_refinement then
+            print_hes hes
+          else 
+            ()
         | Error(s) -> Printf.printf "%s\n" s
       end;
       `Sat
