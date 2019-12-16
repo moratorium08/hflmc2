@@ -54,15 +54,7 @@ let main file =
     Print.(hflz_hes simple_ty_) psi
   end;
   match Typing.main psi with
-  | Typing.Result.(`Sat(x)) ->  
-    let open Util in
-    begin
-    match x with
-      | Ok(x) ->  
-       Typing.Chc.print_constraints x;
-      | Error(s) -> Printf.printf "%s\n" s
-    end;
-    `Valid
+  | Typing.Result.(`Sat) ->  `Valid
   | Typing.Result.(`Unsat) ->  `Invalid
   | _ -> `Fail
 

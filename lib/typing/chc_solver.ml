@@ -151,7 +151,7 @@ let parse_model model =
      Id.{ name; id=0; ty=`Int }
   in
   let parse_arg = function
-    | List [Atom v; Atom "Int" ] -> Arith.Var(mk_var v)
+    | List [Atom v; Atom "Int" ] -> mk_var v
     | s -> fail "parse_arg" s
   in
   let rec parse_arith = function
@@ -167,10 +167,23 @@ let parse_model model =
           | "*" -> Arith.Mult
           | s   -> fail "parse_arith:op" (Atom s)
         in
-        let [@warning "-8"] a::as' = List.map ss ~f:parse_arith in
-        List.fold_left ~init:a as' ~f:begin fun a b ->
-          Arith.mk_op op [a; b]
-        end
+          begin
+          match ss with
+          | [] -> failwith "program error(parse_arith)"
+          | [x] -> begin
+              let e = 
+              match op with 
+              | Arith.Add | Arith.Sub -> 0
+              | Arith.Mult -> 1
+              in
+              Arith.mk_op op [Arith.Int(e); parse_arith x]
+            end
+          | _ -> 
+            let [@warning "-8"] a::as' = List.map ss ~f:parse_arith in
+              List.fold_left ~init:a as' ~f:begin fun a b ->
+                Arith.mk_op op [a; b]
+              end
+            end
     | s -> fail "parse_arith" s
   in
   let rec parse_formula = function
@@ -186,6 +199,7 @@ let parse_model model =
           | ">"   -> `Pred Formula.Gt
           | "and" -> `And 
           | "or"  -> `Or 
+          | "not" -> `Not 
           | s     -> fail "parse_formula:list" (Atom s)
         in
         begin match a with
@@ -197,6 +211,9 @@ let parse_model model =
         | `Or -> 
             let  [@warning "-8"] a::as' = List.map ss ~f:parse_formula in
             List.fold_left ~init:a as' ~f:(fun x y -> ROr(x, y))
+        | `Not -> 
+            let [@warning "-8"] [f] = List.map ss ~f:parse_formula in
+            negate_ref f
         end
     | s -> fail "parse_formula" s
   in
@@ -204,9 +221,11 @@ let parse_model model =
     | List [Atom "define-fun"; Atom id; List args; Atom "Bool"; body] ->
         let args = List.map ~f:parse_arg args in
         let body = parse_formula body in
-        {head=body; body=RTemplate(0, args)}
+        let id = Scanf.sscanf id "X%d" (fun x -> x) in
+        (id, args, body)
     | s -> fail "parse_def" s
   in
+  print_string model;
   match Sexplib.Sexp.parse model with
   | Done(model, _) -> begin 
     match model with

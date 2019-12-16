@@ -156,27 +156,81 @@ let simplify constraints =
   simplified'
 
 let infer hes env top = 
-  print_hes hes;
-  let constraints = infer_hes hes env [] in
-  let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
+  let infer_inner hes env top = 
+    print_hes hes;
+    let constraints = infer_hes hes env [] in
+    let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
 
-  print_constraints constraints;
-  (* Preprocess of CHCs *)
-  let constraints = List.map (fun chc -> 
-    {chc with head=translate_if chc.head}
-  ) constraints in
+    print_constraints constraints;
+    (* Preprocess of CHCs *)
+    let constraints = List.map (fun chc -> 
+      {chc with head=translate_if chc.head}
+    ) constraints in
 
-  let simplified = simplify constraints in
-  let size = dnf_size simplified in
-  Printf.printf "[Size] %d\n" size;
+    let simplified = simplify constraints in
+    let size = dnf_size simplified in
+    Printf.printf "[Size] %d\n" size;
 
-  if size > 1 then begin
-    let dual = List.map Chc.dual constraints in
-    let simplified' = simplify dual in
-    let size_dual = dnf_size simplified' in
-    Printf.printf "[Dual Size] %d\n" size;
-    let target = if size <= size_dual then simplified else simplified' in
+    if size > 1 then begin
+      let dual = List.map Chc.dual constraints in
+      let simplified' = simplify dual in
+      let size_dual = dnf_size simplified' in
+      Printf.printf "[Dual Size] %d\n" size;
+      let target = if size <= size_dual then simplified else simplified' in
 
-    if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
-    Chc_solver.check_sat target (dnf_size target)
-  end else Chc_solver.check_sat simplified 1
+      if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
+      Chc_solver.check_sat target (dnf_size target)
+    end else Chc_solver.check_sat simplified 1
+  in 
+  let rec gen_name_type_map constraints m = match constraints with
+    | [] -> m
+    | (id, args, body)::xs -> 
+      m |> Rid.M.add id (args, body) |> gen_name_type_map xs
+  in
+  let print_derived_refinement_type constraints = 
+    let m = gen_name_type_map constraints Rid.M.empty in
+    let rec subst_ids map t = 
+      match map with 
+      | [] -> t
+      | (src, dst):: xs -> 
+        t |> subst_refinement src (RArith dst) |> subst_ids xs
+    in
+    let rec zip l r = match (l, r) with 
+      | [], [] -> []
+      | [], _ | _ , [] -> failwith "program error(print_derived_refinement_type)"
+      | x::xs, y::ys -> (x, y)::zip xs ys
+    in
+    let rec translate_ty = function 
+      | RArrow (x, y) -> RArrow(translate_ty x, translate_ty y)
+      | RBool(RTemplate(p, l)) -> 
+        let (args, body) = Rid.M.find p m in
+        let map = zip args l in
+        let body' = subst_ids map body in
+        RBool(body')
+      | x -> x
+    in
+    let rec inner = 
+      let open Rhflz in
+      function
+      | [] -> []
+      | rule::hes -> 
+        let rule = {rule with var={rule.var with ty=translate_ty rule.var.ty}} in
+        rule :: inner hes
+    in
+    inner hes
+  in
+  let open Util in
+  let x = infer_inner hes env top in
+  match x with
+  | `Sat(x) -> 
+      begin 
+        match x with 
+        | Ok(x) -> 
+          let hes = print_derived_refinement_type x in
+          print_hes hes
+        | Error(s) -> Printf.printf "%s\n" s
+      end;
+      `Sat
+  | `Unsat -> `Unsat
+  | `Fail -> `Fail
+  | `Unknown -> `Unknown
