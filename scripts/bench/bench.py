@@ -5,8 +5,13 @@ import subprocess
 import json
 import time
 
+############ Do not change[common] ############
+############ Do not change[target] ############
+
+############ Do not change[start] ############
 from common import *
 from target import cli_arg, gen_cmd, parse_stdout, config, callback, stat, pre_cmd
+############  Do not change[end]  ############
 
 TIMEOUT = 5
 

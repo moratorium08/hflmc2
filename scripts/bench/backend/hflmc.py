@@ -1,4 +1,6 @@
+############ Do not change[start] ############
 from common import *
+############  Do not change[end]  ############
 
 TARGET = 'cargo run --release -- '
 cmd_template = TARGET + ' {} {}'  # <option> <filename>
