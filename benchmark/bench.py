@@ -16,7 +16,7 @@ parser.add_argument("--solver", help="set background CHC solver", default="auto"
 parser.add_argument("--basedir", help="base directory", default="./inputs/")
 args = parser.parse_args()
 
-cmd_template = TARGET + ' --solver {} {} {}'
+cmd_template = TARGET + ' {} {}'  # <option> <filename>
 
 
 def run(cmd):
@@ -33,20 +33,24 @@ def run(cmd):
 
 
 def gen_cmd(file):
-    s = args.solver
-    ag = ''
+    ags = []
     if args.no_inline:
-        ag += '--no-inlining'
+        ags.append('--no-inlining')
+    s = args.solver
     if s == 'z3':
-        return cmd_template.format("z3", ag, file)
+        ags.append("--solver z3")
     elif s == 'hoice':
-        return cmd_template.format("hoice", ag, file)
+        ags.append("--solver hoice")
     elif s == 'fptprove':
-        return cmd_template.format("fptprove", ag, file)
+        ags.append("--solver fptprove")
     elif s == 'auto':
-        return cmd_template.format("auto", ag, file)
+        ags.append("--solver auto")
     else:
         raise Exception('No such solver')
+    
+    ag = ' '.join(ags)
+    return cmd_template.format(ag, file)
+
 
 
 class ParseError(Exception):
