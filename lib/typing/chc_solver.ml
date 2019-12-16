@@ -249,6 +249,10 @@ let check_sat chcs size =
   match String.lsplit2 out ~on:'\n' with
   | Some ("unsat", _) -> `Unsat
   | Some ("sat", model) ->
-    `Sat(parse_model model)
+    let open Hflmc2_options in
+    if !Typing.show_refinement then
+      `Sat(parse_model model)
+    else
+      `Sat(Error "did not calculate refinement. Use --show-refinement")
   | Some ("unknown", _) -> `Unknown
   | _ -> (Printf.printf "Failed to handle the result of chc solver\n\n%s\n" out; `Fail)

@@ -2,6 +2,7 @@ import argparse
 import os
 import signal
 import subprocess
+import json
 
 TARGET = 'dune exec hflmc2 -- '
 TIMEOUT = 5  # sec
@@ -10,8 +11,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("list", help="list which contains benchmarks")
 parser.add_argument("--timeout", help="timeout", default=TIMEOUT, type=int)
 parser.add_argument('--no-inline', action='store_true')
+parser.add_argument('--json', help="set filename in which results will be saved", default=None)
 parser.add_argument("--solver", help="set background CHC solver", default="auto")
-parser.add_argument("--basedir", help="base directory", default="./")
+parser.add_argument("--basedir", help="base directory", default="./inputs/")
 args = parser.parse_args()
 
 cmd_template = TARGET + ' --solver {} {} {}'
@@ -147,11 +149,17 @@ def stat():
     print(f'- mean_without_errors={mean}')
 
 
+def save_json(filename):
+    with open(filename, "w") as f:
+        json.dump(results, f)
+
 def main():
     with open(args.list) as f:
         files = f.read().strip('\n').split('\n')
     for file in files:
         handle(os.path.join(args.basedir, file), callback=callback)
     stat()
+    if args.json is not None:
+        save_json(args.json)
 
 main()
