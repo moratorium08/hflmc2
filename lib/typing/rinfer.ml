@@ -219,7 +219,6 @@ let infer hes env top =
     in
     inner hes
   in
-  let open Util in
   let x = infer_inner hes env top in
   match x with
   | `Sat(x) -> 
