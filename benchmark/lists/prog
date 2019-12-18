@@ -1,6 +1,5 @@
 prog/sum-e.in
 prog/ack.in
-prog/non-termination
 prog/max.in
 prog/sum.in
 prog/sum2.in
