@@ -13,7 +13,7 @@ let selected_solver size =
       if size > 1 then
         `Fptprove
       else
-        `Spacer
+        `Hoice
     end
   else if sv = "z3" || sv = "spacer" then `Spacer
   else if sv = "hoice" then `Hoice
@@ -39,6 +39,10 @@ let get_epilogue size =
     "\
     (check-sat-using (then propagate-values qe-light horn))
     (get-model)
+    "
+  | `Fptprove -> 
+    "\
+    (check-sat)
     "
   | _ ->
     "\
