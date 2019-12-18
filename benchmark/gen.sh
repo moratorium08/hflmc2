@@ -16,3 +16,4 @@ done
 cd ../
 # adhoc
 mv lists/Burn_POPL18 lists/burn
+mv lists/higher_nonterminating lists/nonterminating
