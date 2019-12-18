@@ -4,36 +4,47 @@ open Chc
 open Rtype
 
 
-(* set of template *)
+type solver = [`Spacer | `Hoice | `Fptprove]
 
-let selected_cmd size = 
-  let rec inner sv = 
-    if sv = "z3" then 
-      [|"z3"; "fp.engine=spacer"|]
-    else if sv = "hoice" then 
-      [|"hoice"|]
-    else if sv = "fptprove" then
-      [|"fptprove"; "--synthesizer"; "dt"; "--format"; "clp"; "--problem"; "psat"; "-edq"; "-edrc"; "-epp"; "-fq"; "20"; "--format"; "smt-lib2"|]
-    else
-      failwith "selected solver is not found"
-  in
+let selected_solver size = 
   let sv = !Typing.solver in
   if sv = "auto" then
     begin
       if size > 1 then
-        inner "fptprove"
+        `Fptprove
       else
-        inner "hoice"
+        `Spacer
     end
-  else inner sv
+  else if sv = "z3" || sv = "spacer" then `Spacer
+  else if sv = "hoice" then `Hoice
+  else if sv = "fptprove" then `Fptprove
+  else failwith ("Unknown solver: " ^ sv)
+
+(* set of template *)
+let selected_cmd size = 
+  match selected_solver size with
+  | `Spacer -> 
+    [|"z3"; "fp.engine=spacer"|]
+  | `Hoice ->
+    [|"hoice"|]
+  | `Fptprove ->
+    [|"fptprove"; "--synthesizer"; "dt"; "--format"; "clp"; "--problem"; "psat"; "-edq"; "-edrc"; "-epp"; "-fq"; "20"; "--format"; "smt-lib2"|]
 
 let prologue = "(set-logic HORN)
 "
 
-let epilogue = "\
-(check-sat)
-(get-model)
-"
+let get_epilogue size = 
+  match selected_solver size with
+  | `Spacer ->
+    "\
+    (check-sat-using (then propagate-values qe-light horn))
+    (get-model)
+    "
+  | _ ->
+    "\
+    (check-sat)
+    (get-model)
+    "
 
 let rec collect_preds chcs m = 
   let rec inner rt m = match rt with 
@@ -133,11 +144,11 @@ let gen_assert chc =
   let s = Printf.sprintf "(=> %s %s)" body head in
   Printf.sprintf "(assert (forall (%s) %s))\n" vars_s s
 
-let chc2smt2 chcs = 
+let chc2smt2 chcs size = 
   let preds = collect_preds chcs Rid.M.empty in
   let def = preds |> Rid.M.bindings |> List.map pred_def |> List.fold_left (^) "" in
   let body = chcs |> List.map gen_assert |> List.fold_left (^) "" in
-  prologue ^ def ^ body ^ epilogue
+  prologue ^ def ^ body ^ (get_epilogue size)
 
 
 let parse_model model = 
@@ -237,7 +248,7 @@ let parse_model model =
 
 let check_sat chcs size = 
   let open Hflmc2_util in
-  let smt2 = chc2smt2 chcs in
+  let smt2 = chc2smt2 chcs size in
   Random.self_init ();
   let r = Random.int 0x10000000 in
   let file = Printf.sprintf "/tmp/%d.smt2" r in
