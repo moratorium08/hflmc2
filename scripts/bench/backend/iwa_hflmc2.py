@@ -12,6 +12,10 @@ def config(c):
     cfg = c
 
 
+def pre_cmd():
+    return 'dune build'
+
+
 def cli_arg(parser):
     parser.add_argument('--no-inline', action='store_true')
     return parser
