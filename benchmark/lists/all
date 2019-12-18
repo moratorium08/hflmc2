@@ -26,8 +26,6 @@ higher_nonterminating/passing_cond.in
 higher_nonterminating/indirectHO_e.in
 higher_nonterminating/inf_closure.in
 higher_nonterminating/loopHO.in
-lists/higher_nonterminating
-lists/burn.in
 mochi/sum-e.in
 mochi/r-file.in
 mochi/intro3.in
