@@ -7,7 +7,7 @@ let end_of_previousline = ref 0
 let space = ['\t' '\n' '\r' ' ']
 let newline = ['\n']
 let digit = ['0'-'9']
-let lower = ['a'-'z' '_']
+let lower = ['a'-'z']
 let upper = ['A'-'Z']
 let alphanum = ['0'-'9' 'a'-'z' 'A'-'Z' '_']
 let ope_symbols = [ '=' '<' '>' '+' '-' '*' '&' '|' '\\' '/' '!' ]
@@ -39,6 +39,7 @@ rule token = parse
 | "int"                    { TINT      }
 | "bool"                   { TBOOL     }
 | "->"                     { TARROW    }
+| "_"                      { LIDENT("!") (* adhoc. because hoice complains id _ *)} 
 | digit digit*             { INT (int_of_string (Lexing.lexeme lexbuf)) }
 | upper alphanum*          { UIDENT (Lexing.lexeme lexbuf) }
 | lower alphanum*          { LIDENT (Lexing.lexeme lexbuf) }
