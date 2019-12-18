@@ -1,11 +1,13 @@
 import os
 
 base = os.path.dirname(os.path.abspath(__file__))
+repo = os.path.dirname(os.path.dirname(base))
 
 START = '############ Do not change[start] ############\n'
 END = '############  Do not change[end]  ############\n'
 COMMON = '############ Do not change[common] ############\n'
 TARGET = '############ Do not change[target] ############\n'
+BASE = '############ Do not change[base] ############\n'
 
 
 def read_file(filename):
@@ -32,8 +34,9 @@ common = read_file('common.py')
 target = read_file('bench.py')
 
 target = target.replace(COMMON, common)
+target = target.replace(BASE, f'base = "{os.path.join(repo, "benchmark")}"')
 
-benchdir= os.path.join(base, 'benchmark')
+benchdir = os.path.join(base, 'benchmark')
 try:
     os.makedirs(benchdir)
 except FileExistsError:
@@ -46,5 +49,3 @@ for benchmark in benchmarkers:
     generated = target.replace(TARGET, file)
     with open(os.path.join(benchdir, benchmark), 'w') as f:
         f.write(generated)
-
-

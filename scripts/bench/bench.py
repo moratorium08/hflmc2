@@ -5,10 +5,12 @@ import subprocess
 import json
 import time
 
+############ Do not change[base] ############
 ############ Do not change[common] ############
 ############ Do not change[target] ############
 
 ############ Do not change[start] ############
+base = "./"
 from common import *
 from target import cli_arg, gen_cmd, parse_stdout, config, callback, stat, pre_cmd
 ############  Do not change[end]  ############
@@ -20,10 +22,10 @@ class Config:
         pass
 
 parser = argparse.ArgumentParser()
-parser.add_argument("list", help="list which contains benchmarks")
+parser.add_argument("list", help="benchmark target name")
 parser.add_argument("--timeout", help="timeout", default=TIMEOUT, type=int)
 parser.add_argument('--json', help="set filename in which results will be saved", default=None)
-parser.add_argument("--basedir", help="base directory", default="./inputs/")
+parser.add_argument("--basedir", help="base directory", default=base)
 parser = cli_arg(parser)
 args = parser.parse_args()
 
@@ -80,7 +82,7 @@ def save_json(filename):
 def main():
     out, _ = run(pre_cmd(), timeout=1000)
     print(out)
-    with open(args.list) as f:
+    with open(os.path.join(base, 'lists', args.list)) as f:
         files = f.read().strip('\n').split('\n')
     for file in files:
         handle(os.path.join(args.basedir, file), parse_stdout, callback=callback)

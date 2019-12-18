@@ -32,7 +32,7 @@ def parse_stdout(stdout):
         result_data['result'] = 'invalid'
     elif result == 'unsat':
         result_data['result'] = 'valid'
-    else
+    else:
         result_data['result'] = 'unknown'
 
     return result_data
