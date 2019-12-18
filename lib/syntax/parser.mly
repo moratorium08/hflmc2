@@ -170,7 +170,7 @@ lambda:
 
 lvar:
 (* Adhoc way. Because hoice complains the use of _ as an identity *)
-| LIDENT { if $1 = "_" then "!" else $1 }
+| LIDENT { if $1 = "_" then "replaced!" else $1 }
 
 uvar:
 | UIDENT { $1 }
