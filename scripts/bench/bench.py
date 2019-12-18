@@ -82,10 +82,10 @@ def save_json(filename):
 def main():
     out, _ = run(pre_cmd(), timeout=1000)
     print(out)
-    with open(os.path.join(base, 'lists', args.list)) as f:
+    with open(os.path.join(args.basedir, 'lists', args.list)) as f:
         files = f.read().strip('\n').split('\n')
     for file in files:
-        handle(os.path.join(args.basedir, file), parse_stdout, callback=callback)
+        handle(os.path.join(args.basedir, 'inputs', file), parse_stdout, callback=callback)
     stat(results)
     if args.json is not None:
         save_json(args.json)

@@ -240,7 +240,7 @@ let check_sat chcs size =
   let smt2 = chc2smt2 chcs in
   Random.self_init ();
   let r = Random.int 0x10000000 in
-  let file = Printf.sprintf "tmp/%d.smt2" r in
+  let file = Printf.sprintf "/tmp/%d.smt2" r in
   let oc = open_out file in
   Printf.fprintf oc "%s" smt2;
   close_out oc;

@@ -34,7 +34,7 @@ common = read_file('common.py')
 target = read_file('bench.py')
 
 target = target.replace(COMMON, common)
-target = target.replace(BASE, f'base = "{os.path.join(repo, "benchmark")}"')
+target = target.replace(BASE, f'base = "{os.path.join(repo, "benchmark")}"\n')
 
 benchdir = os.path.join(base, 'benchmark')
 try:
