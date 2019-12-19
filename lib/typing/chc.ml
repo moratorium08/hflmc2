@@ -180,7 +180,14 @@ let expand chcs =
   let rec gen_map chcs m = match chcs with
     | [] -> m
     | {head=RTemplate(p, l); body=body}::xs -> 
-      m |> Rid.M.add p (l, body) |> gen_map xs
+      let cnt' = count_preds body in
+      begin
+        match Rid.M.find_opt p m with
+        | Some((_, _, cnt)) when cnt <= cnt' -> 
+          gen_map xs m
+        | _ -> 
+          m |> Rid.M.add p (l, body, cnt') |> gen_map xs
+      end
     | _::xs -> 
       m |> gen_map xs
   in
@@ -204,7 +211,7 @@ let expand chcs =
     match head with
     | ROr(x, y) -> ROr(expand_one_step' x, expand_one_step' y)
     | RTemplate(p, l) when Rid.M.mem p m ->
-      let (l', body) = Rid.M.find p m in
+      let (l', body, _) = Rid.M.find p m in
       (* subst l' -> l of body *)
       let l'' = arith_var_list_to_id_list l' in
       let l''' = List.map (fun x -> RArith x) l in
@@ -223,11 +230,6 @@ let expand chcs =
       | _ -> chc::expand_one_step xs
     end
   in
-  print_string "before\n";
-  print_constraints chcs;
   let chcs = expand_one_step chcs in
-  print_string "after\n";
-  print_constraints chcs;
-  (*let chcs = trans_list chcs in*)
   let chcs = underapproximate chcs in
   chcs

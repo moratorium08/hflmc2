@@ -143,6 +143,12 @@ let rec does_contain_pred = function
   | RTemplate _ -> true
   | RAnd(x, y) | ROr(x, y) -> does_contain_pred x || does_contain_pred y
   | _ -> false
+  
+let rec count_preds = function 
+  | RTemplate _ -> 1
+  | RAnd(x, y) | ROr(x, y) -> count_preds x + count_preds y
+  | _ -> 0
+
 
 (* returns not formula. Negating template is illegal, so throws execption *)
 exception TriedToNegateTemplate
