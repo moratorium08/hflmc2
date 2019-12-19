@@ -132,6 +132,12 @@ let rec subst id rint = function
   | RArrow(x, y) -> RArrow(subst id rint x, subst id rint y)
   | RInt x -> RInt x
 
+(* tuple of ids of substitution *)
+let rec subst_refinement_with_ids body l = match l with
+  | [] -> body
+  | (x, y):: xs -> 
+    subst_refinement_with_ids (subst_refinement x y body) xs
+
 (* check if refinement contains template *)
 let rec does_contain_pred = function 
   | RTemplate _ -> true

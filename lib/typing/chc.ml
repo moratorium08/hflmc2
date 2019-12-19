@@ -119,3 +119,115 @@ let divide_chc chc =
   chc.head |> ref2cnf |> inner
 
 let dual chc = {head=Rtype.dual chc.body; body=Rtype.dual chc.head}
+
+
+let rec normalize chcs = 
+  let rec divide_chcs = function
+  | [] -> []
+  | x::xs -> divide_chc x @ divide_chcs xs
+in
+(* args: template's arguments 
+  current_vars: occurred variable set which is reused
+  *)
+let rec rename args current_vars accum = match args with
+  | [] -> [], accum
+  | Arith.Var(n)::xs when not (IdSet.mem current_vars n) -> 
+    let (l, ret) = rename xs (IdSet.add current_vars n) accum in
+    Arith.Var(n) :: l, ret 
+  | x::xs ->
+    let new_id = Id.gen ~name:"tmp" `Int in
+    let accum' = conjoin accum (RPred(Formula.Eq, [Arith.Var(new_id); x])) in
+    let (l, ret) = rename xs current_vars accum' in
+    Arith.Var(new_id) :: l, ret
+in
+let rec rename_rty rty = match rty with
+  | ROr(x, y) -> 
+    let (x, a) = rename_rty x in
+    let (y, b) = rename_rty y in
+    ROr(x, y), (conjoin a b)
+  | RTemplate(p, l) -> 
+      let (l, ret) = rename l IdSet.empty RTrue in
+      RTemplate(p, l), ret
+  | RFalse -> RFalse, RTrue
+  | _ -> failwith "program error(normalize)"
+in
+let rename_head chc = 
+  (*let (h, ret) = match chc.head with
+  | ROr _ -> rename_rty chc.head 
+  | _ -> chc.head, RTrue
+  in*)
+  let h, ret = rename_rty chc.head in
+  {body=conjoin ret chc.body; head=h}
+in
+let divided_chc = divide_chcs chcs in
+let simplified' = List.map expand_head_exact divided_chc in
+let renamed = List.map rename_head simplified' in
+renamed
+
+let rec underapproximate chcs = 
+  (* heuristic........ *)
+  let rec good_bye_or rty = match rty with
+    | ROr(_, x) -> good_bye_or x
+    | x -> x
+  in
+  match chcs with
+  | [] -> []
+  | chc::xs -> 
+    {chc with head=good_bye_or chc.head}::underapproximate xs
+
+(* expand iterator にして、順に調べられるようにする *)
+let expand chcs = 
+  let rec gen_map chcs m = match chcs with
+    | [] -> m
+    | {head=RTemplate(p, l); body=body}::xs -> 
+      m |> Rid.M.add p (l, body) |> gen_map xs
+    | _::xs -> 
+      m |> gen_map xs
+  in
+
+  (* first, normalize chcs and create maps from pred to chc *)
+  let chcs = normalize chcs in
+  let m = gen_map chcs Rid.M.empty in
+
+  (* auxiliary function *)
+  let rec expand_one_step' head = 
+    let rec arith_var_list_to_id_list l = match l with
+    | [] -> []
+    | Arith.Var(x)::xs -> x::arith_var_list_to_id_list xs
+    | _ -> failwith "program error(expand_one_step')"
+    in
+    let rec zip l l' = match (l, l') with
+      | ([], []) -> []
+      | (x::xs, y::ys) -> (x, y)::zip xs ys
+      | _ -> failwith "program error(expand_one_step' zip)"
+    in
+    match head with
+    | ROr(x, y) -> ROr(expand_one_step' x, expand_one_step' y)
+    | RTemplate(p, l) when Rid.M.mem p m ->
+      let (l', body) = Rid.M.find p m in
+      (* subst l' -> l of body *)
+      let l'' = arith_var_list_to_id_list l' in
+      let l''' = List.map (fun x -> RArith x) l in
+      let sl = zip l'' l''' in
+      let body' = subst_refinement_with_ids body sl in
+      body'
+    | x -> x
+  in
+  let rec expand_one_step chcs = match chcs with
+    | [] -> []
+    | chc::xs -> 
+    begin
+      match chc.head with
+      | ROr _ -> 
+        {chc with head=expand_one_step' chc.head} :: expand_one_step xs
+      | _ -> chc::expand_one_step xs
+    end
+  in
+  print_string "before\n";
+  print_constraints chcs;
+  let chcs = expand_one_step chcs in
+  print_string "after\n";
+  print_constraints chcs;
+  (*let chcs = trans_list chcs in*)
+  let chcs = underapproximate chcs in
+  chcs
