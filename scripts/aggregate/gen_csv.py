@@ -30,12 +30,14 @@ def main():
     table = dict()
     for key in keys:
         table[key] = []
-    
+
     for data in datas:
         for item in data:
             key = ds_iden(item['file'])
-            table[key].append(item['time'])
-    
+            target = 'invalid' if key.endswith('-e.in') else 'valid'
+            t = item['time'] if target == item['result'] else 5
+            table[key].append(t)
+
     for key, row in table.items():
         print(f"{key}, {', '.join(map(str, row))}")
 
