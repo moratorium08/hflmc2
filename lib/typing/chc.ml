@@ -119,3 +119,75 @@ let divide_chc chc =
   chc.head |> ref2cnf |> inner
 
 let dual chc = {head=Rtype.dual chc.body; body=Rtype.dual chc.head}
+
+
+let rec normalize chcs = 
+  let rec divide_chcs = function
+  | [] -> []
+  | x::xs -> divide_chc x @ divide_chcs xs
+in
+(* args: template's arguments 
+  current_vars: occurred variable set which is reused
+  *)
+let rec rename args current_vars accum = match args with
+  | [] -> [], accum
+  | Arith.Var(n)::xs when not (IdSet.mem current_vars n) -> 
+    let (l, ret) = rename xs (IdSet.add current_vars n) accum in
+    Arith.Var(n) :: l, ret 
+  | x::xs ->
+    let new_id = Id.gen ~name:"tmp" `Int in
+    let accum' = conjoin accum (RPred(Formula.Eq, [Arith.Var(new_id); x])) in
+    let (l, ret) = rename xs current_vars accum' in
+    Arith.Var(new_id) :: l, ret
+in
+let rec rename_rty rty = match rty with
+  | ROr(x, y) -> 
+    let (x, a) = rename_rty x in
+    let (y, b) = rename_rty y in
+    ROr(x, y), (conjoin a b)
+  | RTemplate(p, l) -> 
+      let (l, ret) = rename l IdSet.empty RTrue in
+      RTemplate(p, l), ret
+  | RFalse -> RFalse, RTrue
+  | _ -> failwith "program error(normalize)"
+in
+let rename_head chc = 
+  (*let (h, ret) = match chc.head with
+  | ROr _ -> rename_rty chc.head 
+  | _ -> chc.head, RTrue
+  in*)
+  let h, ret = rename_rty chc.head in
+  {body=conjoin ret chc.body; head=h}
+in
+let divided_chc = divide_chcs chcs in
+let simplified' = List.map expand_head_exact divided_chc in
+print_string "debugging\n";
+print_constraints simplified';
+let renamed = List.map rename_head simplified' in
+print_string "then\n";
+print_constraints renamed;
+renamed
+
+let rec underapproximate chcs = failwith "hoge"
+
+(* expand iterator にして、順に調べられるようにする *)
+let expand chcs = 
+  (*let rec expand_pred p = match p with
+    | 
+  and expand r = match r with 
+    | ROr(x, y) -> ROr(expand x, expand y)
+    | RTemplate(p) -> expand_pred p
+    | x -> x
+  and trans r = match r with 
+    | ROr(x, y) -> ROr(expand x, expand y)
+    | RAnd(x, y) -> RAnd(trans x, trans y)
+    | x -> x
+  in
+  let rec trans_list l = match l with
+  | [] -> []
+  | x::xs -> {x with trans x.head} :: trans_list xs
+  in*) 
+  let chcs = normalize chcs in
+  (*let chcs = trans_list chcs in*)
+  let chcs = underapproximate chcs in
+  chcs

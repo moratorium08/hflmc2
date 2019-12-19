@@ -144,16 +144,7 @@ let rec dnf_size = function
     let y = dnf_size xs in
     if x > y then x else y
 
-let simplify constraints =
-  let simplified = List.map subst_chc constraints in
-
-  let rec divide_chcs = function
-    | [] -> []
-    | x::xs -> divide_chc x @ divide_chcs xs
-  in
-  let divided_chc = divide_chcs simplified in
-  let simplified' = List.map expand_head_exact divided_chc in
-  simplified'
+let simplify = normalize
 
 let infer hes env top = 
   let infer_inner hes env top = 
