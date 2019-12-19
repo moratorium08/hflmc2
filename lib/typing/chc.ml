@@ -177,21 +177,6 @@ let rec underapproximate chcs =
 
 (* expand iterator にして、順に調べられるようにする *)
 let expand chcs = 
-  (*let rec expand_pred p = match p with
-    | 
-  and expand r = match r with 
-    | ROr(x, y) -> ROr(expand x, expand y)
-    | RTemplate(p) -> expand_pred p
-    | x -> x
-  and trans r = match r with 
-    | ROr(x, y) -> ROr(expand x, expand y)
-    | RAnd(x, y) -> RAnd(trans x, trans y)
-    | x -> x
-  in
-  let rec trans_list l = match l with
-  | [] -> []
-  | x::xs -> {x with trans x.head} :: trans_list xs
-  in*) 
   let rec gen_map chcs m = match chcs with
     | [] -> m
     | {head=RTemplate(p, l); body=body}::xs -> 
