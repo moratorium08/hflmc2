@@ -161,14 +161,19 @@ let rename_head chc =
 in
 let divided_chc = divide_chcs chcs in
 let simplified' = List.map expand_head_exact divided_chc in
-print_string "debugging\n";
-print_constraints simplified';
 let renamed = List.map rename_head simplified' in
-print_string "then\n";
-print_constraints renamed;
 renamed
 
-let rec underapproximate chcs = failwith "hoge"
+let rec underapproximate chcs = 
+  (* heuristic........ *)
+  let rec good_bye_or rty = match rty with
+    | ROr(_, x) -> good_bye_or x
+    | x -> x
+  in
+  match chcs with
+  | [] -> []
+  | chc::xs -> 
+    {chc with head=good_bye_or chc.head}::underapproximate xs
 
 (* expand iterator にして、順に調べられるようにする *)
 let expand chcs = 
@@ -187,7 +192,57 @@ let expand chcs =
   | [] -> []
   | x::xs -> {x with trans x.head} :: trans_list xs
   in*) 
+  let rec gen_map chcs m = match chcs with
+    | [] -> m
+    | {head=RTemplate(p, l); body=body}::xs -> 
+      m |> Rid.M.add p (l, body) |> gen_map xs
+    | _::xs -> 
+      m |> gen_map xs
+  in
+
+  (* first, normalize chcs and create maps from pred to chc *)
   let chcs = normalize chcs in
+  let m = gen_map chcs Rid.M.empty in
+
+  (* auxiliary function *)
+  let rec expand_one_step' head = 
+    let rec arith_var_list_to_id_list l = match l with
+    | [] -> []
+    | Arith.Var(x)::xs -> x::arith_var_list_to_id_list xs
+    | _ -> failwith "program error(expand_one_step')"
+    in
+    let rec zip l l' = match (l, l') with
+      | ([], []) -> []
+      | (x::xs, y::ys) -> (x, y)::zip xs ys
+      | _ -> failwith "program error(expand_one_step' zip)"
+    in
+    match head with
+    | ROr(x, y) -> ROr(expand_one_step' x, expand_one_step' y)
+    | RTemplate(p, l) when Rid.M.mem p m ->
+      let (l', body) = Rid.M.find p m in
+      (* subst l' -> l of body *)
+      let l'' = arith_var_list_to_id_list l' in
+      let l''' = List.map (fun x -> RArith x) l in
+      let sl = zip l'' l''' in
+      let body' = subst_refinement_with_ids body sl in
+      body'
+    | x -> x
+  in
+  let rec expand_one_step chcs = match chcs with
+    | [] -> []
+    | chc::xs -> 
+    begin
+      match chc.head with
+      | ROr _ -> 
+        {chc with head=expand_one_step' chc.head} :: expand_one_step xs
+      | _ -> chc::expand_one_step xs
+    end
+  in
+  print_string "before\n";
+  print_constraints chcs;
+  let chcs = expand_one_step chcs in
+  print_string "after\n";
+  print_constraints chcs;
   (*let chcs = trans_list chcs in*)
   let chcs = underapproximate chcs in
   chcs

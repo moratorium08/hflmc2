@@ -166,11 +166,20 @@ let infer hes env top =
       let dual = List.map Chc.dual constraints in
       let simplified' = simplify dual in
       let size_dual = dnf_size simplified' in
-      Printf.printf "[Dual Size] %d\n" size;
-      let target = if size <= size_dual then simplified else simplified' in
+      Printf.printf "[Dual Size] %d\n" size_dual;
+      let target = if size < size_dual then simplified else simplified' in
 
-      if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
-      Chc_solver.check_sat target (dnf_size target)
+      let target' = expand target in
+      print_string "remove or \n";
+      print_constraints target';
+      (*let target' = target in*)
+      match Chc_solver.check_sat target' 1 with
+      | `Sat(x) -> `Sat(x)
+      | _ ->
+        begin
+          if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
+          Chc_solver.check_sat target (dnf_size target)
+        end
     end else Chc_solver.check_sat simplified 1
   in 
   let rec gen_name_type_map constraints m = match constraints with
