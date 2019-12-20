@@ -3,6 +3,36 @@ open Rtype
 open Hflmc2_syntax
 open Chc
 
+(* timer*)
+let measure_time f =
+  let start  = Unix.gettimeofday () in
+  let result = f () in
+  let stop   = Unix.gettimeofday () in
+  result, stop -. start
+let times = let open Hflmc2_util in Hashtbl.create (module String)
+let add_mesure_time tag f =
+   let open Hflmc2_util in
+  let r, time = measure_time f in
+  let if_found t = Hashtbl.set times ~key:tag ~data:(t+.time) in
+  let if_not_found _ = Hashtbl.set times ~key:tag ~data:time in
+  Hashtbl.find_and_call times tag ~if_found ~if_not_found;
+  r
+let report_times () =
+   let open Hflmc2_util in
+  let kvs = Hashtbl.to_alist times in
+  match List.max_elt ~compare (List.map kvs ~f:(String.length<<<fst)) with
+  | None -> Print.pr "no time records"
+  | Some max_len ->
+      Print.pr "Profiling:@.";
+      List.iter kvs ~f:begin fun (k,v) ->
+        let s =
+          let pudding = String.(init (max_len - length k) ~f:(Fn.const ' ')) in
+          "  " ^ k ^ ":" ^ pudding
+        in Print.pr "%s %f sec@." s v
+      end
+
+(* The above code should be merged in hflmc2.ml... *)
+
 let new_var () = RId(Id.gen `Int)
 let rec rty = function
   | RArrow(_, s) -> rty s
@@ -147,6 +177,10 @@ let rec dnf_size = function
 let simplify = normalize
 
 let infer hes env top = 
+  let call_solver_with_timer hes size = 
+    add_mesure_time "CHC Solver" @@ fun () ->
+    Chc_solver.check_sat hes size
+  in
   let infer_inner hes env top = 
     print_hes hes;
     let constraints = infer_hes hes env [] in
@@ -173,14 +207,14 @@ let infer hes env top =
       print_string "remove or \n";
       print_constraints target';
       (*let target' = target in*)
-      match Chc_solver.check_sat target' 1 with
+      match call_solver_with_timer target' 1 with
       | `Sat(x) -> `Sat(x)
       | _ ->
         begin
           if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
-          Chc_solver.check_sat target (dnf_size target)
+          call_solver_with_timer target (dnf_size target)
         end
-    end else Chc_solver.check_sat simplified 1
+    end else call_solver_with_timer simplified 1
   in 
   let rec gen_name_type_map constraints m = match constraints with
     | [] -> m
@@ -220,6 +254,7 @@ let infer hes env top =
     inner hes
   in
   let x = infer_inner hes env top in
+  report_times ();
   match x with
   | `Sat(x) -> 
       begin 
