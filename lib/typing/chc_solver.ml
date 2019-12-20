@@ -126,7 +126,10 @@ and ariths2smt2 l =
 let template2smt2 (p, l) =
   let name = Rid.to_string p in
   let args = ariths2smt2 l in
-    Printf.sprintf "(%s %s)" name args
+    if args = "" then
+      Printf.sprintf "%s" name 
+    else
+      Printf.sprintf "(%s %s)" name args
 
 let pred2smt2 (p, l) =
   let args = ariths2smt2 l in
@@ -146,7 +149,10 @@ let gen_assert chc =
   let body = ref2smt2 chc.body in
   let head = ref2smt2 chc.head in
   let s = Printf.sprintf "(=> %s %s)" body head in
-  Printf.sprintf "(assert (forall (%s) %s))\n" vars_s s
+  if vars_s = "" then
+    Printf.sprintf "(assert %s)\n" s
+  else
+    Printf.sprintf "(assert (forall (%s) %s))\n" vars_s s
 
 let chc2smt2 chcs size = 
   let preds = collect_preds chcs Rid.M.empty in
