@@ -2,7 +2,7 @@
 from common import *
 ############  Do not change[end]  ############
 
-TARGET = 'cargo run --release -- '
+TARGET = '../target/release/hflmc '
 cmd_template = TARGET + ' {} {}'  # <option> <filename>
 
 cfg = None

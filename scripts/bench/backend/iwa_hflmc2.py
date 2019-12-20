@@ -2,7 +2,7 @@
 from common import *
 ############  Do not change[end]  ############
 
-TARGET = 'dune exec hflmc2 -- '
+TARGET = '../_build/default/bin/main.exe '
 cmd_template = TARGET + ' {} {}'  # <option> <filename>
 
 cfg = None
