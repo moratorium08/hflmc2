@@ -26,6 +26,7 @@ end
 module Typing = struct
   let solver               = ref (Obj.magic())
   let show_refinement      = ref (Obj.magic())
+  let mode_burn_et_al      = ref (Obj.magic())
 end
 
 (******************************************************************************)
@@ -82,9 +83,11 @@ type params =
   ; solver : string [@default "auto"] [@docs "Typing"] [@docv "solver_name"]
   (** Choose background CHC solver. Available: auto z3, hoice, fptprover *)
 
-  ; show_refinement: bool [@default false] [@docs "Typing"] [@docv "solver_name"]
+  ; show_refinement: bool [@default false] [@docs "Typing"] [@docv "show refinement"]
   (** Show refinement types. This sometimes fails because of parsing the solution from CHC solver... *)
 
+  ; mode_burn_et_al: bool [@default false] [@docs "Typing"] [@docv "Use the subtyping rule of burn et al"]
+  (** Use Subtying rule in burn et al *)
   }
   [@@deriving cmdliner,show]
 
@@ -99,6 +102,7 @@ let set_up_params params =
   set_ref Refine.use_legacy                params.refine_legacy;
   set_ref Typing.solver                    params.solver;
   set_ref Typing.show_refinement           params.show_refinement;
+  set_ref Typing.mode_burn_et_al           params.mode_burn_et_al;
   params.input
 
 (******************************************************************************)

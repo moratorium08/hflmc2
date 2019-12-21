@@ -56,8 +56,7 @@ let add_constraint x m =
 let rec _subtype t t' renv m =
   match (t, t') with
  | RBool(p), RBool(p') -> 
-   (*{body=conjoin renv p'; head=p} :: m*)
-   add_constraint ({body=conjoin renv p'; head=p}) m
+    add_constraint ({body=conjoin renv p'; head=p}) m
  | RArrow(RInt(RId(x)), t), RArrow(RInt(RId(y)), t')  ->
    (* substitute generate new variable and substitute t and t' by the new var *)
    let v = new_var () in
@@ -65,7 +64,12 @@ let rec _subtype t t' renv m =
    let t2' = subst y v t' in
    _subtype t2 t2' renv m
  | RArrow(t, s), RArrow(t', s') ->
-   let m' = _subtype t' t (conjoin renv (rty s')) m in
+   let m' = 
+   if !Hflmc2_options.Typing.mode_burn_et_al then
+     _subtype t' t renv m
+   else
+     _subtype t' t (conjoin renv (rty s')) m
+   in
    _subtype s s' renv m' 
  | _, _ -> 
   print_rtype t;
@@ -209,6 +213,7 @@ let infer hes env top =
       (*let target' = target in*)
       match call_solver_with_timer target' 1 with
       | `Sat(x) -> `Sat(x)
+      | `Fail -> failwith "hoge"
       | _ ->
         begin
           if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
