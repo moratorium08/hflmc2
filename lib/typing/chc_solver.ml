@@ -139,7 +139,7 @@ let rec ref2smt2 rt = match rt with
   | RTrue -> "true"
   | RFalse -> "false"
   | RAnd(x, y) -> Printf.sprintf "(and %s %s)" (ref2smt2 x) (ref2smt2 y)
-  | ROr(x, y) -> Printf.sprintf "(or%s %s)" (ref2smt2 x) (ref2smt2 y)
+  | ROr(x, y) -> Printf.sprintf "(or %s %s)" (ref2smt2 x) (ref2smt2 y)
   | RTemplate(p, l) -> template2smt2 (p, l)
   | RPred(p, l) -> pred2smt2(p, l)
 

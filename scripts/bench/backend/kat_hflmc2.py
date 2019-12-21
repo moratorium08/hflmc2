@@ -20,6 +20,7 @@ def config(c):
 def cli_arg(parser):
     parser.add_argument("--solver", help="set background CHC solver", default="auto")
     parser.add_argument('--no-inline', action='store_true')
+    parser.add_argument('--mode-burn-et-al', action='store_true')
     return parser
 
 
@@ -28,6 +29,8 @@ def gen_cmd(file):
     ags = []
     if args.no_inline:
         ags.append('--no-inlining')
+    if args.mode_burn_et_al:
+        ags.append('--mode-burn-et-al')
     s = args.solver
     if s == 'z3':
         ags.append("--solver z3")
