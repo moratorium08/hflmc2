@@ -79,17 +79,13 @@ let rec print_refinement = function
   | RAnd(x, y) -> 
     print_string "(";
     print_refinement x; 
-    print_string ")";
     Printf.printf " /\\ "; 
-    print_string "(";
     print_refinement y;
     print_string ")";
   | ROr(x, y) -> 
     print_string "(";
     print_refinement x; 
-    print_string ")";
     Printf.printf " \\/ "; 
-    print_string "(";
     print_refinement y;
     print_string ")";
   | RTemplate t -> print_template t
