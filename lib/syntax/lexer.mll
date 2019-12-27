@@ -39,7 +39,7 @@ rule token = parse
 | "int"                    { TINT      }
 | "bool"                   { TBOOL     }
 | "->"                     { TARROW    }
-| "∀"                      { FORALL    }
+| "#"                      { FORALL    }
 | digit digit*             { INT (int_of_string (Lexing.lexeme lexbuf)) }
 | upper alphanum*          { UIDENT (Lexing.lexeme lexbuf) }
 | lower alphanum*          { LIDENT (Lexing.lexeme lexbuf) }
