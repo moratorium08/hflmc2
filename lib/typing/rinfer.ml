@@ -181,9 +181,9 @@ let rec dnf_size = function
 let simplify = normalize
 
 let infer hes env top = 
-  let call_solver_with_timer hes size = 
+  let call_solver_with_timer hes solver = 
     add_mesure_time "CHC Solver" @@ fun () ->
-    Chc_solver.check_sat hes size
+    Chc_solver.check_sat hes solver
   in
   let infer_inner hes env top = 
     print_hes hes;
@@ -211,15 +211,15 @@ let infer hes env top =
       print_string "remove or \n";
       print_constraints target';
       (*let target' = target in*)
-      match call_solver_with_timer target' 1 with
+      match call_solver_with_timer target' Chc_solver.(`Spacer) with
       | `Sat(x) -> `Sat(x)
       | `Fail -> failwith "hoge"
       | _ ->
         begin
           if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
-          call_solver_with_timer target (dnf_size target)
+          call_solver_with_timer target Chc_solver.(`Fptprove)
         end
-    end else call_solver_with_timer simplified 1
+    end else call_solver_with_timer simplified (Chc_solver.selected_solver 1)
   in 
   let rec gen_name_type_map constraints m = match constraints with
     | [] -> m

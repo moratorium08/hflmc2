@@ -21,8 +21,7 @@ let selected_solver size =
   else failwith ("Unknown solver: " ^ sv)
 
 (* set of template *)
-let selected_cmd size = 
-  match selected_solver size with
+let selected_cmd = function
   | `Spacer -> 
     [|"z3"; "fp.engine=spacer"|]
   | `Hoice ->
@@ -33,8 +32,8 @@ let selected_cmd size =
 let prologue = "(set-logic HORN)
 "
 
-let get_epilogue size = 
-  match selected_solver size with
+let get_epilogue = 
+  function 
   | `Spacer ->
     "\
     (check-sat-using (then propagate-values qe-light horn))
@@ -154,11 +153,11 @@ let gen_assert chc =
   else
     Printf.sprintf "(assert (forall (%s) %s))\n" vars_s s
 
-let chc2smt2 chcs size = 
+let chc2smt2 chcs solver = 
   let preds = collect_preds chcs Rid.M.empty in
   let def = preds |> Rid.M.bindings |> List.map pred_def |> List.fold_left (^) "" in
   let body = chcs |> List.map gen_assert |> List.fold_left (^) "" in
-  prologue ^ def ^ body ^ (get_epilogue size)
+  prologue ^ def ^ body ^ (get_epilogue solver)
 
 
 let parse_model model = 
@@ -256,16 +255,16 @@ let parse_model model =
     end
   | _ -> Error "failed to parse model"
 
-let check_sat chcs size = 
+let check_sat chcs solver = 
   let open Hflmc2_util in
-  let smt2 = chc2smt2 chcs size in
+  let smt2 = chc2smt2 chcs solver in
   Random.self_init ();
   let r = Random.int 0x10000000 in
   let file = Printf.sprintf "/tmp/%d.smt2" r in
   let oc = open_out file in
   Printf.fprintf oc "%s" smt2;
   close_out oc;
-  let cmd = selected_cmd size in
+  let cmd = selected_cmd solver in
   let _, out, _ = Fn.run_command ~timeout:20.0 (Array.concat [cmd; [|file|]]) in
   match String.lsplit2 out ~on:'\n' with
   | Some ("unsat", _) -> `Unsat
