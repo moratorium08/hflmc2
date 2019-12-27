@@ -142,13 +142,13 @@ let rec ref2smt2 rt = match rt with
   | RTemplate(p, l) -> template2smt2 (p, l)
   | RPred(p, l) -> pred2smt2(p, l)
 
-let gen_assert chc =
+let gen_assert solver chc =
   let vars = collect_vars chc in
   let vars_s = vars |> IdSet.to_list |> List.map var_def |> List.fold_left (^) "" in
   let body = ref2smt2 chc.body in
   let head = ref2smt2 chc.head in
   let s = Printf.sprintf "(=> %s %s)" body head in
-  if vars_s = "" then
+  if vars_s = "" && solver == `Spacer then
     Printf.sprintf "(assert %s)\n" s
   else
     Printf.sprintf "(assert (forall (%s) %s))\n" vars_s s
@@ -156,7 +156,7 @@ let gen_assert chc =
 let chc2smt2 chcs solver = 
   let preds = collect_preds chcs Rid.M.empty in
   let def = preds |> Rid.M.bindings |> List.map pred_def |> List.fold_left (^) "" in
-  let body = chcs |> List.map gen_assert |> List.fold_left (^) "" in
+  let body = chcs |> List.map (gen_assert solver) |> List.fold_left (^) "" in
   prologue ^ def ^ body ^ (get_epilogue solver)
 
 
