@@ -281,7 +281,7 @@ let check_sat ?(timeout=20.0) chcs solver =
         begin
           let ret = check_sat_inner 1.0 x in
           match ret with
-          | `Sat(_) -> ret
+          | `Sat(_) | `Unsat -> ret
           | _ -> loop xs
         end
     in loop tries
