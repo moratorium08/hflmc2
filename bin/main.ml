@@ -1,5 +1,4 @@
 let () =
-  Printf.printf "nani\n";
   let file =
     match Hflmc2.Options.parse() with
     | Some (`File file) -> file

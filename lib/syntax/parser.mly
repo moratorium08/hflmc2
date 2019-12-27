@@ -16,7 +16,7 @@ open Raw_hflz
 %token LAMBDA DOT "." COLON ":"
 %token DEF_G "=v"
 %token DEF_L "=m"
-%token FORALL "#"
+%token FORALL 
 
 %token PLUS  "+" MINUS "-" STAR  "*" NEG
 %token EQ "=" NEQ "<>" LE "<=" GE ">=" /* LT "<" GT ">" */
@@ -66,7 +66,7 @@ abs_expr:
 | lambda* forall_expr { mk_abss $1 $2 }
 
 forall_expr:
-| "#" lvar "." forall_expr { mk_forall $2 $4 }
+| FORALL lvar "." forall_expr { mk_forall $2 $4 }
 | and_or_expr              { $1 }
 
 and_or_expr:

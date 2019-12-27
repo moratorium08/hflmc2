@@ -46,7 +46,6 @@ let report_times () =
 
 let main file =
   let psi, _ = Syntax.parse_file file in
-
   Log.app begin fun m -> m ~header:"Input" "%a"
     Print.(hflz_hes simple_ty_) psi
   end;

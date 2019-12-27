@@ -178,16 +178,11 @@ let parse_string str =
 
 let parse_file file =
   In_channel.with_file file ~f:begin fun ch ->
-    Printf.printf "kasu\n";
     let lexbuf = Lexing.from_channel ch in
-    let a = 
     lexbuf.lex_start_p <- { lexbuf.lex_start_p with pos_fname = file };
     lexbuf.lex_curr_p  <- { lexbuf.lex_curr_p  with pos_fname = file };
     lexbuf
     |> Parser.main
-    in 
-    Printf.printf "uouo\n";
-    a
     |> Raw_hflz.to_typed
   end
 

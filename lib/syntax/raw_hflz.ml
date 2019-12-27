@@ -264,7 +264,7 @@ module Typing = struct
             self#add_ty_env x tv_arg;
             let psi = self#term id_env psi tv_ret in
             Abs(lift_arg x, psi)
-        | Forall(name, body) -> 
+        | Forall(name, psi) -> 
             let id = new_id() in
             let x = Id.{ name; id; ty = () } in
             let tv_arg = new_tyvar() in
