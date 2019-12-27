@@ -211,7 +211,7 @@ let infer hes env top =
       print_string "remove or \n";
       print_constraints target';
       (*let target' = target in*)
-      match call_solver_with_timer target' Chc_solver.(`Spacer) with
+      match call_solver_with_timer target' Chc_solver.auto with
       | `Sat(x) -> `Sat(x)
       | `Fail -> failwith "hoge"
       | _ ->

@@ -6,10 +6,12 @@ open Rtype
 
 type solver = [`Spacer | `Hoice | `Fptprove]
 
+let auto = `Auto(`Hoice, [`Hoice; `Spacer])
+
 let selected_solver size = 
   let sv = !Typing.solver in
   if size > 1 then `Fptprove
-  else if sv = "auto" then `Auto(`Hoice, [`Hoice; `Spacer])
+  else if sv = "auto" then auto
   else if sv = "z3" || sv = "spacer" then `Spacer
   else if sv = "hoice" then `Hoice
   else if sv = "fptprove" then `Fptprove

@@ -103,30 +103,27 @@ let rec expand_head_exact chc =
   let preds' = dnf2ref preds in
   {head=preds'; body=conjoin chc.body negated_non_preds}
 
-let rec split_head_by_and_when_possible head = 
-  let preds = ref2dnf head in
-  match preds with
-  | [] -> Some([head])
-  | [pred] ->
-    Some(ref2cnf pred)
-  | _ -> None
-
-let divide_chc chc = 
+let divide_head chc = 
   let rec inner heads = match heads with
     | [] -> []
     | head::xs -> {chc with head=head} :: inner xs
   in
   chc.head |> ref2cnf |> inner
 
+let divide_body chc = 
+  let rec inner bodies = match bodies with
+    | [] -> []
+    | body::xs -> {chc with body=body} :: inner xs
+  in
+  chc.body |> ref2dnf |> inner
+
 let dual chc = {head=Rtype.dual chc.body; body=Rtype.dual chc.head}
 
-
 let rec normalize chcs = 
-  let rec divide_chcs = function
-  | [] -> []
-  | x::xs -> divide_chc x @ divide_chcs xs
-in
-(* args: template's arguments 
+  let rec fmap f = function [] -> [] | x::xs -> f x @ fmap f xs in
+  let rec divide_heads heads = fmap divide_head heads in
+  let rec divide_bodies bodies = fmap divide_body bodies in 
+  (* args: template's arguments 
   current_vars: occurred variable set which is reused
   *)
 let rec rename args current_vars accum = match args with
@@ -159,7 +156,8 @@ let rename_head chc =
   let h, ret = rename_rty chc.head in
   {body=conjoin ret chc.body; head=h}
 in
-let divided_chc = divide_chcs chcs in
+let divided_chc = divide_heads chcs in
+let divided_chc = divide_bodies divided_chc in
 let simplified' = List.map expand_head_exact divided_chc in
 let renamed = List.map rename_head simplified' in
 renamed
