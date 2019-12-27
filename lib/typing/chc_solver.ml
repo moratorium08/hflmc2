@@ -8,13 +8,8 @@ type solver = [`Spacer | `Hoice | `Fptprove]
 
 let selected_solver size = 
   let sv = !Typing.solver in
-  if sv = "auto" then
-    begin
-      if size > 1 then
-        `Fptprove
-      else
-        `Hoice
-    end
+  if size > 1 then `Fptprove
+  else if sv = "auto" then `Auto(`Hoice, [`Hoice; `Spacer])
   else if sv = "z3" || sv = "spacer" then `Spacer
   else if sv = "hoice" then `Hoice
   else if sv = "fptprove" then `Fptprove
@@ -255,24 +250,39 @@ let parse_model model =
     end
   | _ -> Error "failed to parse model"
 
-let check_sat chcs solver = 
-  let open Hflmc2_util in
-  let smt2 = chc2smt2 chcs solver in
-  Random.self_init ();
-  let r = Random.int 0x10000000 in
-  let file = Printf.sprintf "/tmp/%d.smt2" r in
-  let oc = open_out file in
-  Printf.fprintf oc "%s" smt2;
-  close_out oc;
-  let cmd = selected_cmd solver in
-  let _, out, _ = Fn.run_command ~timeout:20.0 (Array.concat [cmd; [|file|]]) in
-  match String.lsplit2 out ~on:'\n' with
-  | Some ("unsat", _) -> `Unsat
-  | Some ("sat", model) ->
-    let open Hflmc2_options in
-    if !Typing.show_refinement then
-      `Sat(parse_model model)
-    else
-      `Sat(Error "did not calculate refinement. Use --show-refinement")
-  | Some ("unknown", _) -> `Unknown
-  | _ -> (Printf.printf "Failed to handle the result of chc solver\n\n%s\n" out; `Fail)
+let check_sat ?(timeout=20.0) chcs solver = 
+  let check_sat_inner timeout solver = 
+    let open Hflmc2_util in
+    let smt2 = chc2smt2 chcs solver in
+    Random.self_init ();
+    let r = Random.int 0x10000000 in
+    let file = Printf.sprintf "/tmp/%d.smt2" r in
+    let oc = open_out file in
+    Printf.fprintf oc "%s" smt2;
+    close_out oc;
+    let cmd = selected_cmd solver in
+    let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [cmd; [|file|]]) in
+    match String.lsplit2 out ~on:'\n' with
+    | Some ("unsat", _) -> `Unsat
+    | Some ("sat", model) ->
+      let open Hflmc2_options in
+      if !Typing.show_refinement then
+        `Sat(parse_model model)
+      else
+        `Sat(Error "did not calculate refinement. Use --show-refinement")
+    | Some ("unknown", _) -> `Unknown
+    | _ -> (Printf.printf "Failed to handle the result of chc solver\n\n%s\n" out; `Fail)
+  in 
+  match solver with
+  | `Auto(mainly, tries) ->
+    let rec loop = function 
+      | [] -> check_sat_inner timeout mainly
+      | x::xs -> 
+        begin
+          let ret = check_sat_inner 1.0 x in
+          match ret with
+          | `Sat(_) -> ret
+          | _ -> loop xs
+        end
+    in loop tries
+  | `Spacer | `Hoice | `Fptprove as sv -> check_sat_inner timeout sv
