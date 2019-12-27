@@ -9,6 +9,7 @@ type raw_hflz =
   | Int  of int
   | Op   of Arith.op * raw_hflz list
   | Pred of Formula.pred * raw_hflz list
+  | Forall of string * raw_hflz
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 type hes_rule =
   { var  : string
@@ -24,6 +25,7 @@ let mk_int n     = Int(n)
 let mk_bool b    = Bool b
 let mk_var x     = Var x
 let mk_op op as' = Op(op,as')
+let mk_forall var body = Forall(var, body)
 
 let mk_ands = function
   | [] -> Bool true
@@ -262,11 +264,21 @@ module Typing = struct
             self#add_ty_env x tv_arg;
             let psi = self#term id_env psi tv_ret in
             Abs(lift_arg x, psi)
+        | Forall(name, body) -> 
+            let id = new_id() in
+            let x = Id.{ name; id; ty = () } in
+            let tv_arg = new_tyvar() in
+            unify tv TvBool;
+            let id_env = StrMap.replace id_env ~key:name ~data:id in
+            self#add_ty_env x tv_arg;
+            let psi = self#term id_env psi TvBool in
+            Forall(lift_arg x, psi)
         | App (psi1, psi2) ->
             let tv_arg = new_tyvar() in
             let psi1 = self#term id_env psi1 (TvArrow(tv_arg, tv)) in
             let psi2 = self#term id_env psi2 tv_arg in
             App (psi1, psi2)
+            
 
     method hes_rule : id_env -> hes_rule -> unit Hflz.hes_rule =
       fun id_env rule ->
@@ -362,6 +374,7 @@ module Typing = struct
       | And (psi1,psi2)  -> And (self#term psi1, self#term psi2)
       | App (psi1, psi2) -> App (self#term psi1, self#term psi2)
       | Abs (x, psi)     -> Abs (self#arg_id x, self#term psi)
+      | Forall(x, psi)   -> Forall (self#arg_id x, self#term psi)
       | Arith a          -> Arith a
       | Pred (pred,as')  -> Pred(pred, as')
 
@@ -450,6 +463,9 @@ let rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
         | Abs ({ty=TySigma ty;_} as x, psi) ->
             Abs(x, term (IdMap.add env x ty) psi)
         | Abs ({ty=TyInt;_} as x, psi) -> Abs(x, term env psi)
+        | Forall ({ty=TySigma ty;_} as x, psi) ->
+            Forall (x, term (IdMap.add env x ty) psi)
+        | Forall ({ty=TyInt;_} as x, psi) -> Forall (x, term env psi)
     in
     let rule : simple_ty IdMap.t
             -> simple_ty Hflz.hes_rule

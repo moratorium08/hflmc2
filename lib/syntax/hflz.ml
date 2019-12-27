@@ -8,6 +8,7 @@ type 'ty t =
   | Or     of 'ty t * 'ty t
   | And    of 'ty t * 'ty t
   | Abs    of 'ty arg Id.t * 'ty t
+  | Forall of 'ty arg Id.t * 'ty t
   | App    of 'ty t * 'ty t
   (* constructers only for hflz *)
   | Arith  of Arith.t
@@ -76,6 +77,7 @@ let rec fvs = function
   | And(phi1,phi2) -> IdSet.union (fvs phi1) (fvs phi2)
   | App(phi1,phi2) -> IdSet.union (fvs phi1) (fvs phi2)
   | Abs(x,phi)     -> IdSet.remove (fvs phi) x
+  | Forall (x,phi) -> IdSet.remove (fvs phi) x
   | Arith a        -> IdSet.of_list @@ List.map ~f:Id.remove_ty @@ Arith.fvs a
   | Pred (_,as')   -> IdSet.union_list @@ List.map as' ~f:begin fun a ->
                         IdSet.of_list @@ List.map ~f:Id.remove_ty @@ Arith.fvs a

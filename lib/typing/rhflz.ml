@@ -13,6 +13,7 @@ type t =
   | And    of t * t
   | Abs    of Rtype.t Id.t * t
   | App    of t * t
+  | Forall of Rtype.t Id.t * t
   (* constructers only for hflz *)
   | Arith  of Arith.t
   | Pred   of Formula.pred * Arith.t list
@@ -36,6 +37,13 @@ let rec print_formula = function
   | Abs (x, y) -> 
     Printf.printf "(";
     Printf.printf "\\";
+    print_rtype x.ty;
+    Printf.printf ".";
+    print_formula y;
+    Printf.printf ")"
+  | Forall (x, y) -> 
+    Printf.printf "(";
+    Printf.printf "∀";
     print_rtype x.ty;
     Printf.printf ".";
     print_formula y;

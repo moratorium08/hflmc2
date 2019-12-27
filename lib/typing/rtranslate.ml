@@ -41,6 +41,9 @@ let rec translate_body env body =
   | Hflz.Abs (arg, body) ->
     let (id, env) = translate_id_arg env arg in
     Abs(id, translate_body env body)
+  | Hflz.Forall (arg, body) ->
+    let (id, env) = translate_id_arg env arg in
+    Forall(id, translate_body env body)
   | Hflz.Or(x, y) -> Or(translate_body env x, translate_body env y)
   | Hflz.And(x, y) -> And(translate_body env x, translate_body env y)
   | Hflz.App(x, y) -> App(translate_body env x, translate_body env y)

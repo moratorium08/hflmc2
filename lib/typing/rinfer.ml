@@ -107,6 +107,8 @@ let rec infer_formula formula env m ints =
     in
     let (body_t, l) = infer_formula body env' m ints' in
     (RArrow(arg.ty, body_t), l)
+  | Forall(arg, body) ->
+      failwith "hoge"
   | Pred (f, args) -> (RBool(RPred(f, args)), m)
   | Arith x -> (RInt (RArith x), m)
   | Or (x, y) | And (x, y) -> 
@@ -130,8 +132,6 @@ let rec infer_formula formula env m ints =
     in begin
       match (arg, tau) with
        | RInt(RId(id)), RInt m -> 
-        (*print_rtype arg; print_string " =? "; print_rtype tau; 
-        print_string "||"; print_rtype body; print_newline();*)
          (subst id m body, m')
        | _ ->
         print_string "subtyping...";

@@ -138,6 +138,7 @@ module Subst = struct
         | And(phi1,phi2) -> And(hflz env phi1, hflz env phi2)
         | App(phi1,phi2) -> App(hflz env phi1, hflz env phi2)
         | Abs(x, t)      -> Abs(x, hflz (IdMap.remove env x) t)
+        | Forall(x, t)   -> Forall(x, hflz (IdMap.remove env x) t)
         | Arith a        -> Arith (arith env a)
         | Pred (p,as')   -> Pred(p, List.map ~f:(arith env) as')
         | Bool _         -> phi

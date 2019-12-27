@@ -79,6 +79,7 @@ end = struct
             | I.T_TARROW    -> "TARROW"
             | I.T_START_ENV -> "START_ENV"
             | I.T_SEMICOLON -> "SEMICOLON"
+            | I.T_FORALL    -> "FORALL"
             end
         | I.X (I.N x) -> print @@ begin match x with
             | I.N_uvar                     -> "uvar"
