@@ -29,6 +29,7 @@ open Raw_hflz
 %left PLUS MINUS
 %left STAR
 %nonassoc NEG
+%right FORALL
 
 %type <Raw_hflz.hes> hes
 %type <(string * Type.abstraction_ty) list> env
@@ -63,15 +64,12 @@ hflz:
 | abs_expr { $1 }
 
 abs_expr:
-| lambda* forall_expr { mk_abss $1 $2 }
-
-forall_expr:
-| FORALL lvar "." forall_expr { mk_forall $2 $4 }
-| and_or_expr              { $1 }
+| lambda* and_or_expr { mk_abss $1 $2 }
 
 and_or_expr:
 | and_or_expr "&&" and_or_expr  { mk_ands [$1;$3] }
 | and_or_expr "||" and_or_expr  { mk_ors  [$1;$3] }
+| FORALL lvar "." and_or_expr   { mk_forall $2 $4 }
 | pred_expr                     { $1 }
 
 pred_expr:

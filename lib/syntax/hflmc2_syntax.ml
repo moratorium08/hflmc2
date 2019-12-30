@@ -103,7 +103,6 @@ end = struct
             | I.N_app_expr                 -> "app_expr"
             | I.N_and_or_expr              -> "and_or_expr"
             | I.N_abs_expr                 -> "abs_expr"
-            | I.N_forall_expr              -> "forall_expr"
             | I.N_main                     -> "main"
             | I.N_env                      -> "env"
             | I.N_assignment               -> "assignment"
