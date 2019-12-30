@@ -15,7 +15,7 @@ let generate_top_template args  =
   else
     created := true;
     (id_top, args)
-
+  
 let rec print_ariths = function
   | [] -> ()
   | [x] -> 
@@ -47,6 +47,8 @@ and refinement
    | ROr of refinement * refinement
    | RTemplate of template
 and template = id * Arith.t list (* template prdicate name and its args *)
+
+let generate_rtemplate args = RTemplate(generate_id(), args)
 
 (* clone *)
 let rec clone_type_with_new_pred ints = function
@@ -206,3 +208,13 @@ let rec translate_if =
   | ROr(x, y) -> ROr(translate_if x, translate_if y)
   | RAnd(x, y) -> RAnd(translate_if x, translate_if y)
   | x -> x
+
+
+let rec to_bottom = function 
+  | RArrow(x, y) -> RArrow(to_top x, to_bottom y)
+  | RBool _ -> RBool RFalse
+  | RInt(x) -> RInt(x)
+and to_top = function
+  | RArrow(x, y) -> RArrow(to_bottom x, to_top y)
+  | RBool _ -> RBool RTrue
+  | RInt(x) -> RInt(x)

@@ -108,7 +108,19 @@ let rec infer_formula formula env m ints =
     let (body_t, l) = infer_formula body env' m ints' in
     (RArrow(arg.ty, body_t), l)
   | Forall(arg, body) ->
-      failwith "hoge"
+    let env' = IdMap.add env arg arg.ty in
+    let ints' = 
+      begin
+      match arg.ty with
+      | RInt (RId(i)) -> 
+        Arith.Var(i)::ints
+      | _ -> ints 
+      end
+    in
+    let (body_t, l) = infer_formula body env' m ints' in
+    let template = RBool(generate_rtemplate ints) in
+    let l'' = subtype body_t template l in
+    (template, l'')
   | Pred (f, args) -> (RBool(RPred(f, args)), m)
   | Arith x -> (RInt (RArith x), m)
   | Or (x, y) | And (x, y) -> 

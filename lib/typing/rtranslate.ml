@@ -43,6 +43,7 @@ let rec translate_body env body =
     Abs(id, translate_body env body)
   | Hflz.Forall (arg, body) ->
     let (id, env) = translate_id_arg env arg in
+    let id = {id with ty=Rtype.to_bottom id.ty} in
     Forall(id, translate_body env body)
   | Hflz.Or(x, y) -> Or(translate_body env x, translate_body env y)
   | Hflz.And(x, y) -> And(translate_body env x, translate_body env y)
