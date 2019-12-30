@@ -47,6 +47,8 @@ rule token = parse
                            | "+"           -> PLUS
                            | "-"           -> MINUS
                            | "*"           -> STAR
+                           | "/"           -> SLASH 
+                           | "%"           -> PERCENT
                            | "="           -> EQ
                            | "!="          -> NEQ
                            | "<>"          -> NEQ

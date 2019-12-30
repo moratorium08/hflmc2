@@ -93,6 +93,8 @@ let op2smt2 =
   | Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
+  | Div -> "/"
+  | Mod -> "%"
 
 let pred2smt2 pred args = 
   let open Formula in

@@ -40,14 +40,20 @@ module Prec = struct
     | Arith.Add -> add
     | Arith.Sub -> add
     | Arith.Mult -> mult
+    | Arith.Div -> mult
+    | Arith.Mod -> mult
   let op_is_leftassoc = function
     | Arith.Add -> true
     | Arith.Sub -> true
     | Arith.Mult -> true
+    | Arith.Div -> true
+    | Arith.Mod -> true
   let op_is_rightassoc = function
     | Arith.Add -> false
     | Arith.Sub -> false
     | Arith.Mult -> false
+    | Arith.Div -> false
+    | Arith.Mod -> false
   let of_pred = fun _ -> eq
 end
 
@@ -85,6 +91,8 @@ let op : Arith.op t =
     | Add  -> Fmt.string ppf "+"
     | Sub  -> Fmt.string ppf "-"
     | Mult -> Fmt.string ppf "*"
+    | Div -> Fmt.string ppf "/"
+    | Mod -> Fmt.string ppf "%"
 let op_ : Arith.op t_with_prec =
   ignore_prec op
 
