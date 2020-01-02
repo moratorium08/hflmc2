@@ -29,7 +29,6 @@ open Raw_hflz
 %left PLUS MINUS
 %left STAR
 %nonassoc NEG
-%right FORALL
 
 %type <Raw_hflz.hes> hes
 %type <(string * Type.abstraction_ty) list> env

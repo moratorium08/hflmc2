@@ -9,4 +9,4 @@ Repeat f n s r =v
     ∀j.
       i != n - 1 \/
       Repeat f i s j \/
-      f j r))).
+      f j r).

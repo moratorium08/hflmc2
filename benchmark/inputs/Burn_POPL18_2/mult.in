@@ -6,4 +6,4 @@ Mult n m r =v
   (n <= 0 \/ m <= 0 \/ ∀x. ∀y.
     (r != x + n) \/
     (y != m - 1) \/
-    Mult n y x))).
+    Mult n y x).

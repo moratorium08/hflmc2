@@ -8,7 +8,7 @@ Make_array n i r =v n != i + r.
 Array_max n i a m r =v
   ((i < n) \/ (r != m)) /\
   ((i >= n) \/
-    (∀x.
-      a i x \/ (∀z.
+    ∀x.
+      a i x \/ ∀z.
         ((x <= m \/ z != x) /\ (x > m \/ z != m)) \/
-        (∀w. w != i + 1 \/ Array_max n w a z r)))).
+        ∀w. w != i + 1 \/ Array_max n w a z r).
