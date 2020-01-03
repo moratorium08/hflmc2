@@ -2,7 +2,7 @@
 from common import *
 ############  Do not change[end]  ############
 
-TARGET = '../_build/default/bin/main.exe '
+TARGET = './_build/default/bin/main.exe '
 cmd_template = TARGET + ' {} {}'  # <option> <filename>
 
 cfg = None
@@ -14,6 +14,7 @@ def pre_cmd():
 
 def config(c):
     global cfg
+    c.root = '../'
     cfg = c
 
 
