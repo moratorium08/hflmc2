@@ -82,3 +82,17 @@ let rec fvs : ('bvar, 'avar) gen_t -> 'bvar list * 'avar list =
         let vss, avss = List.unzip @@ List.map fs' ~f:fvs in
         List.concat vss, List.concat avss
 
+let lift f x y = match (x, y) with
+  | Some(x), Some(y) -> Some(f x y)
+  | _ -> None
+
+let simplify_pred p args = 
+  let int_or_none = List.map ~f:Arith.evaluate_opt args in
+  match p, int_or_none with
+  | Eq, [x; y] -> lift (=) x y
+  | Neq, [x; y] -> lift (<>) x y
+  | Le, [x; y] -> lift (<=) x y
+  | Ge, [x; y] -> lift (>=) x y
+  | Lt, [x; y] -> lift (<) x y
+  | Gt, [x; y] -> lift (>) x y
+  | _ -> failwith "simplify pred"

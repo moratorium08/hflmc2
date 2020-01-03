@@ -110,7 +110,16 @@ let rint2arith = function
 let conjoin x y =
   if x = RTrue then y
   else if y = RTrue then x
+  else if x = RFalse then RFalse
+  else if y = RFalse then RFalse
   else RAnd(x, y)
+
+let disjoin x y =
+  if x = RFalse then y
+  else if y = RFalse then x
+  else if x = RTrue then RTrue
+  else if y = RTrue then RTrue
+  else ROr(x, y)
 
 let subst_ariths id rint l = match rint with 
   | RId id' -> 
@@ -218,3 +227,20 @@ and to_top = function
   | RArrow(x, y) -> RArrow(to_bottom x, to_top y)
   | RBool _ -> RBool RTrue
   | RInt(x) -> RInt(x)
+
+
+let rec simplify x = match x with
+  | RPred(p, l) -> begin match Formula.simplify_pred p l with 
+    | Some(true) -> RTrue
+    | Some(false) -> RFalse
+    | None -> x
+    end
+  | RAnd(x, y) -> 
+    let x' = simplify x in
+    let y' = simplify y in
+    conjoin x' y'
+  | ROr(x, y) -> 
+    let x' = simplify x in
+    let y' = simplify y in
+    disjoin x' y'
+  | x -> x

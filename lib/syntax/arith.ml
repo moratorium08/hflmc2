@@ -28,3 +28,21 @@ let rec fvs : 'var gen_t -> 'var list = function
   | Int _ -> []
   | Var v -> [v]
   | Op (_, as') -> List.concat_map as' ~f:fvs
+
+let lift f x y = match (x, y) with
+  | Some(x), Some(y) -> Some(f x y)
+  | _ -> None
+
+let op_func = function 
+  | Add -> (+)
+  | Sub -> (-)
+  | Mult -> ( * )
+  | Div -> (/)
+  | Mod -> (mod)
+
+let rec evaluate_opt x = match x with
+  | Op(op, x::xs) -> 
+  List.fold ~init:(evaluate_opt x) ~f:(lift @@ op_func op) (List.map ~f:evaluate_opt xs)
+  | Var _ -> None
+  | Int(x) -> Some(x)
+  | _ -> failwith "evaluation error"
