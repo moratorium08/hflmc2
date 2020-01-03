@@ -24,7 +24,8 @@ let selected_cmd = function
   | `Hoice ->
     [|"hoice"|]
   | `Fptprove ->
-    [|"fptprove"; "--synthesizer"; "dt"; "--format"; "clp"; "--problem"; "psat"; "-edq"; "-edrc"; "-epp"; "-fq"; "20"; "--format"; "smt-lib2"|]
+    (* TODO: fix this *)
+    [|"./fptprove/run_fptprove"|]
 
 let prologue = "(set-logic HORN)
 "
@@ -254,7 +255,7 @@ let parse_model model =
     end
   | _ -> Error "failed to parse model"
 
-let check_sat ?(timeout=20.0) chcs solver = 
+let check_sat ?(timeout=100.0) chcs solver = 
   let check_sat_inner timeout solver = 
     let open Hflmc2_util in
     let smt2 = chc2smt2 chcs solver in
