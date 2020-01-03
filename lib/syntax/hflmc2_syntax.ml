@@ -93,6 +93,7 @@ end = struct
             | I.N_list_lambda_             -> "list_lambda_"
             | I.N_list_atom_               -> "list_atom_"
             | I.N_lambda                   -> "lambda"
+            | I.N_lambdas                   -> "lambdas"
             | I.N_hflz_rule                -> "hflz_rule"
             | I.N_hflz                     -> "hflz"
             | I.N_hes                      -> "hes"
