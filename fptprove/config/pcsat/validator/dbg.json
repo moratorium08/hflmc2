@@ -1,0 +1,7 @@
+[
+    "Default",
+    {
+        "verbose": true,
+        "undecided_bool_expansion": true
+    }
+]

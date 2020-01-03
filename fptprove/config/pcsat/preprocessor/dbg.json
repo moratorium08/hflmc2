@@ -1,0 +1,6 @@
+{
+    "preprocess": true,
+    "resolution_threshold": 4,
+    "check_problem": true,
+    "verbose": true
+}

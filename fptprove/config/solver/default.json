@@ -1,0 +1,6 @@
+["MuVal",
+  {"pcsat" : ["Filename", "pcsat_default.json"],
+   "encoding_mode": ["Mu"],
+   "dual" : true,
+   "mode" : ["Parallel"],
+   "check_problem" : false}]

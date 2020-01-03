@@ -1,0 +1,7 @@
+{
+    "verbose": true,
+    "sat_solver": [
+        "Filename",
+        "./config/sat/dim_red.json"
+    ]
+}

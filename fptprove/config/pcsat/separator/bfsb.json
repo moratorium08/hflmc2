@@ -1,0 +1,14 @@
+["BFSB",
+ {"verbose": false,
+  "qualifier_type":
+  ["Height", [
+      ["Filename", "./config/pcsat/qualifier/interval.json"],
+      ["Filename", "./config/pcsat/qualifier/octagon.json"],
+      ["Filename", "./config/pcsat/qualifier/octahedron.json"]
+  ], 20],
+  "bfsynth": ["Instance", ["DTBF", {"verbose": true}]],
+  "rf": ["Filename", "./config/pcsat/wf.json"],
+  "coeff_norm": 1,
+  "coeff_each_upper_bound": 1000,
+  "coeff_lower_bound": 0,
+  "max_rank": false}]
