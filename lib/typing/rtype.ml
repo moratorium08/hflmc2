@@ -112,7 +112,7 @@ let conjoin x y =
   else if y = RTrue then x
   else RAnd(x, y)
 
-let rec subst_ariths id rint l = match rint with 
+let subst_ariths id rint l = match rint with 
   | RId id' -> 
     List.map (Trans.Subst.Arith.arith id (Arith.Var(id'))) l
   | RArith a ->

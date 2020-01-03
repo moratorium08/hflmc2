@@ -193,7 +193,7 @@ let parse_model model =
               let e = 
               match op with 
               | Arith.Add | Arith.Sub -> 0
-              | Arith.Mult -> 1
+              | Arith.Mult | Arith.Div | Arith.Mod -> 1
               in
               Arith.mk_op op [Arith.Int(e); parse_arith x]
             end
