@@ -15,7 +15,7 @@ let generate_top_template args  =
   else
     created := true;
     (id_top, args)
-
+  
 let rec print_ariths = function
   | [] -> ()
   | [x] -> 
@@ -47,6 +47,8 @@ and refinement
    | ROr of refinement * refinement
    | RTemplate of template
 and template = id * Arith.t list (* template prdicate name and its args *)
+
+let generate_rtemplate args = RTemplate(generate_id(), args)
 
 (* clone *)
 let rec clone_type_with_new_pred ints = function
@@ -108,9 +110,18 @@ let rint2arith = function
 let conjoin x y =
   if x = RTrue then y
   else if y = RTrue then x
+  else if x = RFalse then RFalse
+  else if y = RFalse then RFalse
   else RAnd(x, y)
 
-let rec subst_ariths id rint l = match rint with 
+let disjoin x y =
+  if x = RFalse then y
+  else if y = RFalse then x
+  else if x = RTrue then RTrue
+  else if y = RTrue then RTrue
+  else ROr(x, y)
+
+let subst_ariths id rint l = match rint with 
   | RId id' -> 
     List.map (Trans.Subst.Arith.arith id (Arith.Var(id'))) l
   | RArith a ->
@@ -205,4 +216,31 @@ let rec translate_if =
       ROr(RAnd(translate_if a, translate_if b), RAnd(translate_if a', translate_if b'))
   | ROr(x, y) -> ROr(translate_if x, translate_if y)
   | RAnd(x, y) -> RAnd(translate_if x, translate_if y)
+  | x -> x
+
+
+let rec to_bottom = function 
+  | RArrow(x, y) -> RArrow(to_top x, to_bottom y)
+  | RBool _ -> RBool RFalse
+  | RInt(x) -> RInt(x)
+and to_top = function
+  | RArrow(x, y) -> RArrow(to_bottom x, to_top y)
+  | RBool _ -> RBool RTrue
+  | RInt(x) -> RInt(x)
+
+
+let rec simplify x = match x with
+  | RPred(p, l) -> begin match Formula.simplify_pred p l with 
+    | Some(true) -> RTrue
+    | Some(false) -> RFalse
+    | None -> x
+    end
+  | RAnd(x, y) -> 
+    let x' = simplify x in
+    let y' = simplify y in
+    conjoin x' y'
+  | ROr(x, y) -> 
+    let x' = simplify x in
+    let y' = simplify y in
+    disjoin x' y'
   | x -> x

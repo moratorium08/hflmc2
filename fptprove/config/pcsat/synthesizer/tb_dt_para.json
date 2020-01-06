@@ -1,0 +1,3 @@
+["PseudoParallel",
+  {"synthesizer1" : ["Filename", "./config/pcsat/synthesizer/tb.json"],
+   "synthesizer2" : ["Filename", "./config/pcsat/synthesizer/dt.json"]}]

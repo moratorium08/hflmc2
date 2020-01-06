@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+cd `dirname $0`
+fptprove -v -c ./config/solver/pcsat_dt.json -p pcsp $1 | tr ',' '\n'| sed -n 3p

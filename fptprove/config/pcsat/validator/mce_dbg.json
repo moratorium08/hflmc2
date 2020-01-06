@@ -1,0 +1,8 @@
+[
+    "MaximalCounterExample",
+    {
+        "verbose": true,
+        "num_of_examples": 3,
+        "undecided_bool_expansion": true
+    }
+]

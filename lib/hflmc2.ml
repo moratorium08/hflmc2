@@ -54,7 +54,7 @@ let main file =
     Print.(hflz_hes simple_ty_) psi
   end;
   match Typing.main psi with
-  | Typing.Result.(`Sat) ->  `Valid
-  | Typing.Result.(`Unsat) ->  `Invalid
+  | `Sat ->  `Valid
+  | `Unsat ->  `Invalid
   | _ -> `Fail
 

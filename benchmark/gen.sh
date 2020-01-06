@@ -16,5 +16,6 @@ done
 cd ../
 # adhoc
 mv lists/Burn_POPL18 lists/burn
+mv lists/Burn_POPL18_2 lists/burn2
 mv lists/higher_nonterminating lists/nonterminating
 cat lists/mochi lists/mochi2 > lists/mochis

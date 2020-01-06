@@ -86,18 +86,18 @@ let rec split_dnf preds non_preds = function
   | x::xs -> 
     split_dnf preds (x::non_preds) xs
 
-let rec dnf2ref (head:dnf): refinement = match head with
+let dnf2ref (head:dnf): refinement = match head with
   | [] -> RFalse 
   | [x] -> x
   | x::xs -> List.fold_left (fun accum elem -> ROr(accum, elem)) x xs
 
-let rec cnf2ref (head:dnf): refinement = match head with
+let cnf2ref (head:dnf): refinement = match head with
   | [] -> RTrue
   | [x] -> x
   | x::xs -> List.fold_left (fun accum elem -> RAnd(accum, elem)) x xs
 
 (* Move non predicate or-concatted clause to body *)
-let rec expand_head_exact chc = 
+let expand_head_exact chc = 
   let (preds, non_preds) = chc.head |> ref2dnf |> split_dnf [] [] in
   let negated_non_preds = non_preds |> List.map negate_ref |> cnf2ref in
   let preds' = dnf2ref preds in
@@ -119,48 +119,58 @@ let divide_body chc =
 
 let dual chc = {head=Rtype.dual chc.body; body=Rtype.dual chc.head}
 
-let rec normalize chcs = 
-  let rec fmap f = function [] -> [] | x::xs -> f x @ fmap f xs in
-  let rec divide_heads heads = fmap divide_head heads in
-  let rec divide_bodies bodies = fmap divide_body bodies in 
+let normalize chcs = 
+  let rec fmap f = function [] -> [] | x::xs -> 
+    Printf.printf "start - ";
+    print_chc x;
+    let l = f x in 
+    Printf.printf "size: %d\n" (List.length l);
+    l @ fmap f xs in
+  let divide_heads heads = fmap divide_head heads in
+  let divide_bodies bodies = fmap divide_body bodies in 
+  let rec simplify_chcs chcs = match chcs with
+    | [] -> []
+    | x::xs -> {head=simplify x.head; body=simplify x.body} :: simplify_chcs xs
+  in
   (* args: template's arguments 
   current_vars: occurred variable set which is reused
   *)
-let rec rename args current_vars accum = match args with
-  | [] -> [], accum
-  | Arith.Var(n)::xs when not (IdSet.mem current_vars n) -> 
-    let (l, ret) = rename xs (IdSet.add current_vars n) accum in
-    Arith.Var(n) :: l, ret 
-  | x::xs ->
-    let new_id = Id.gen ~name:"tmp" `Int in
-    let accum' = conjoin accum (RPred(Formula.Eq, [Arith.Var(new_id); x])) in
-    let (l, ret) = rename xs current_vars accum' in
-    Arith.Var(new_id) :: l, ret
-in
-let rec rename_rty rty = match rty with
-  | ROr(x, y) -> 
-    let (x, a) = rename_rty x in
-    let (y, b) = rename_rty y in
-    ROr(x, y), (conjoin a b)
-  | RTemplate(p, l) -> 
-      let (l, ret) = rename l IdSet.empty RTrue in
-      RTemplate(p, l), ret
-  | RFalse -> RFalse, RTrue
-  | _ -> failwith "program error(normalize)"
-in
-let rename_head chc = 
-  (*let (h, ret) = match chc.head with
-  | ROr _ -> rename_rty chc.head 
-  | _ -> chc.head, RTrue
-  in*)
-  let h, ret = rename_rty chc.head in
-  {body=conjoin ret chc.body; head=h}
-in
-let divided_chc = divide_heads chcs in
-let divided_chc = divide_bodies divided_chc in
-let simplified' = List.map expand_head_exact divided_chc in
-let renamed = List.map rename_head simplified' in
-renamed
+  let rec rename args current_vars accum = match args with
+    | [] -> [], accum
+    | Arith.Var(n)::xs when not (IdSet.mem current_vars n) -> 
+      let (l, ret) = rename xs (IdSet.add current_vars n) accum in
+      Arith.Var(n) :: l, ret 
+    | x::xs ->
+      let new_id = Id.gen ~name:"tmp" `Int in
+      let accum' = conjoin accum (RPred(Formula.Eq, [Arith.Var(new_id); x])) in
+      let (l, ret) = rename xs current_vars accum' in
+      Arith.Var(new_id) :: l, ret
+  in
+  let rec rename_rty rty = match rty with
+    | ROr(x, y) -> 
+      let (x, a) = rename_rty x in
+      let (y, b) = rename_rty y in
+      ROr(x, y), (conjoin a b)
+    | RTemplate(p, l) -> 
+        let (l, ret) = rename l IdSet.empty RTrue in
+        RTemplate(p, l), ret
+    | RFalse -> RFalse, RTrue
+    | _ -> failwith "program error(normalize)"
+  in
+  let rename_head chc = 
+    (*let (h, ret) = match chc.head with
+    | ROr _ -> rename_rty chc.head 
+    | _ -> chc.head, RTrue
+    in*)
+    let h, ret = rename_rty chc.head in
+    {body=conjoin ret chc.body; head=h}
+  in
+  let chcs = simplify_chcs chcs in
+  let divided_chc = divide_heads chcs in
+  let divided_chc = divide_bodies divided_chc in
+  let simplified' = List.map expand_head_exact divided_chc in
+  let renamed = List.map rename_head simplified' in
+  renamed
 
 let rec underapproximate chcs = 
   (* heuristic........ *)

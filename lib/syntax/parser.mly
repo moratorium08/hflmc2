@@ -63,15 +63,12 @@ hflz:
 | abs_expr { $1 }
 
 abs_expr:
-| lambda* forall_expr { mk_abss $1 $2 }
-
-forall_expr:
-| FORALL lvar "." forall_expr { mk_forall $2 $4 }
-| and_or_expr              { $1 }
+| lambdas and_or_expr { mk_abss $1 $2 }
 
 and_or_expr:
 | and_or_expr "&&" and_or_expr  { mk_ands [$1;$3] }
 | and_or_expr "||" and_or_expr  { mk_ors  [$1;$3] }
+| FORALL lvar "." and_or_expr   { mk_forall $2 $4 }
 | pred_expr                     { $1 }
 
 pred_expr:
@@ -172,8 +169,11 @@ def_fixpoint:
 | "=v" { Fixpoint.Greatest }
 | "=m" { Fixpoint.Least    }
 
+
+lambdas:
+| lambda* { List.concat $1 }
 lambda:
-| LAMBDA lvar "." { $2 }
+| LAMBDA lvar* "." { $2 }
 
 lvar:
 (* Adhoc way. Because hoice complains the use of _ as an identity *)

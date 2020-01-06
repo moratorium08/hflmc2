@@ -15,6 +15,23 @@ Burn_POPL18/mc91-e.in
 Burn_POPL18/mc91.in
 Burn_POPL18/hrec.in
 Burn_POPL18/a-max.in
+Burn_POPL18_2/sum-e.in
+Burn_POPL18_2/r-file.in
+Burn_POPL18_2/ack.in
+Burn_POPL18_2/l-zipunzip.in
+Burn_POPL18_2/r-lock.in
+Burn_POPL18_2/repeat-e.in
+Burn_POPL18_2/max.in
+Burn_POPL18_2/l-zipmap.in
+Burn_POPL18_2/mult-e.in
+Burn_POPL18_2/mult.in
+Burn_POPL18_2/neg.in
+Burn_POPL18_2/sum.in
+Burn_POPL18_2/a-max-e.in
+Burn_POPL18_2/mc91-e.in
+Burn_POPL18_2/mc91.in
+Burn_POPL18_2/hrec.in
+Burn_POPL18_2/a-max.in
 higher_nonterminating/fixpoint_nonterm.in
 higher_nonterminating/unfoldr_nonterm.in
 higher_nonterminating/indirect_e.in
@@ -75,6 +92,7 @@ mochi2/array_init.in
 mochi2/intro2.in
 mochi2/flow.in
 mochi2/enc-zip3.in
+mochi2/flip-e.in
 mochi2/max.in
 mochi2/enc-rev_accum.in
 mochi2/exception.in
@@ -87,7 +105,6 @@ mochi2/sum4.in
 mochi2/enc-zip.in
 mochi2/dotprod2.in
 mochi2/fact_exn.in
-mochi2/kmp.in
 mochi2/gib2.in
 mochi2/a-dotprod.in
 mochi2/enc-zip_map2.in
@@ -112,6 +129,7 @@ mochi2/enc-filter.in
 mochi2/file.in
 mochi2/neg2.in
 mochi2/inc3.in
+mochi2/kmp-e.in
 mochi2/repeat.in
 mochi2/map.in
 mochi2/mc91_generalized.in
@@ -125,7 +143,6 @@ mochi2/a-init.in
 mochi2/id_by_fold.in
 mochi2/bcopy5.in
 mochi2/tarai2.in
-mochi2/flip.in
 mochi2/hors.in
 mochi2/repeat4.in
 mochi2/mc91.in

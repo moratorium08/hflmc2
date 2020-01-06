@@ -24,7 +24,8 @@ let selected_cmd = function
   | `Hoice ->
     [|"hoice"|]
   | `Fptprove ->
-    [|"fptprove"; "--synthesizer"; "dt"; "--format"; "clp"; "--problem"; "psat"; "-edq"; "-edrc"; "-epp"; "-fq"; "20"; "--format"; "smt-lib2"|]
+    (* TODO: fix this *)
+    [|"./fptprove/run_fptprove"|]
 
 let prologue = "(set-logic HORN)
 "
@@ -147,7 +148,7 @@ let gen_assert solver chc =
   let body = ref2smt2 chc.body in
   let head = ref2smt2 chc.head in
   let s = Printf.sprintf "(=> %s %s)" body head in
-  if vars_s = "" && solver == `Spacer then
+  if vars_s = "" && (solver == `Spacer || solver == `Fptprove) then
     Printf.sprintf "(assert %s)\n" s
   else
     Printf.sprintf "(assert (forall (%s) %s))\n" vars_s s
@@ -193,7 +194,7 @@ let parse_model model =
               let e = 
               match op with 
               | Arith.Add | Arith.Sub -> 0
-              | Arith.Mult -> 1
+              | Arith.Mult | Arith.Div | Arith.Mod -> 1
               in
               Arith.mk_op op [Arith.Int(e); parse_arith x]
             end
@@ -254,7 +255,7 @@ let parse_model model =
     end
   | _ -> Error "failed to parse model"
 
-let check_sat ?(timeout=20.0) chcs solver = 
+let check_sat ?(timeout=100.0) chcs solver = 
   let check_sat_inner timeout solver = 
     let open Hflmc2_util in
     let smt2 = chc2smt2 chcs solver in
