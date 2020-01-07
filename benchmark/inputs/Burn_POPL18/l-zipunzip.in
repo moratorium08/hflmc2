@@ -1,5 +1,5 @@
 %HES
-Main =v Unzip n zip r.
+Main =v Unzip n Zip r.
 F g x y r =v g (x+1) (y+1) r.
 Unzip x k r =v
   (x != 0 \/ k 0 0 r) /\
