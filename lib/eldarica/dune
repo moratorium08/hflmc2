@@ -7,6 +7,6 @@
  (library
  (public_name eldarica)
  (libraries
-   MenhirLib
+   menhirLib
  )
  )
