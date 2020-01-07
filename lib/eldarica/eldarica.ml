@@ -1,7 +1,6 @@
 module Parser = Parser
 module Dag = Dag
 
-open Dag
 let parse_file in_name =
   let f = open_in in_name in
   let lexbuf = Lexing.from_channel f in
