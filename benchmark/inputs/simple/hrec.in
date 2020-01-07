@@ -1,9 +1,0 @@
-%HES
-S =v F (\x.\k. k (x+1)) n (\v. v >= 0).
-F g x k =v ((x < 0) \/ g x k) /\ ((x >= 0) \/ g x (\v. F (F g) v k)).
-
-%LTS
-s0 a -> s0.
-
-
-

@@ -1,6 +1,0 @@
-%HES
-S =v (n < 0) \/ X n.
-X z =v [a](z >= 0).
-
-%LTS
-s0 a -> s0.

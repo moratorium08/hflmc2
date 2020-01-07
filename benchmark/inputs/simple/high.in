@@ -1,9 +1,0 @@
-%HES
-S =v Succ One IsPos.
-IsPos z =v z > 0.
-One k =v k 1.
-Succ m k =v m (P k).
-P k v =v k v.
-
-%LTS
-s0 a -> s0.

@@ -1,9 +1,0 @@
-%HES
-S =v F 0.
-F n =v F (n-1) /\ F (n+1) /\ (X n \/ Y n).
-X x =v x <= 0.
-Y y =v y >= 0.
-
-%LTS
-s0 a -> s0.
-

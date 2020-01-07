@@ -1,7 +1,0 @@
-%HES
-S =v X n.
-X z =v Y (z+1) z.
-Y x y =v x > y.
-
-%LTS
-s0 a -> s0.

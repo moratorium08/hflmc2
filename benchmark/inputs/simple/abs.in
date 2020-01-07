@@ -1,3 +1,0 @@
-%HES
-S =v F ((\r s. r < s) n) (n + 10).
-F h x =v h x.

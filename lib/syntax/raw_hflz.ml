@@ -161,7 +161,11 @@ module Typing = struct
           Log.debug begin fun _ -> Print.pr "HERE@." end;
           write r tv;
           unify tv_inner tv
-      | _, _ ->
+      | x, y ->
+          (Print.pr "FAIL %a := %a@."
+            pp_hum_tyvar x
+            pp_hum_tyvar y
+          );
           Fn.fatal @@ Fmt.strf "ill-typed"
 
   type id_env = int StrMap.t   (* name to id *)

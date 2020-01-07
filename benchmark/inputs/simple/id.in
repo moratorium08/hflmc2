@@ -1,6 +1,0 @@
-%HES
-S =v Neg n (\z. Neg z (\y. y = n)).
-Neg x k =v k (-1 * x).
-
-%LTS
-s0 a -> s0.

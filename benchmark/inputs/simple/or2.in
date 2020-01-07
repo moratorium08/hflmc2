@@ -1,9 +1,0 @@
-%HES
-S =v X n \/ Y n.
-X x =v <a> (x <= 0).
-Y y =v <b> (y >= 0).
-
-%LTS
-s0 a -> s1.
-s0 b -> s2.
-

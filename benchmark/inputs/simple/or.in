@@ -1,4 +1,0 @@
-%HES
-S =v X n \/ Y n.
-X x =v x <= 0.
-Y y =v y >= 0.
