@@ -26,6 +26,10 @@ let selected_cmd = function
   | `Fptprove ->
     (* TODO: fix this *)
     [|"./fptprove/run_fptprove"|]
+  
+let selected_cex_cmd = function
+  | `Eldarica -> 
+    [|"eld"; "-cex";  "-hsmt"|]
 
 let prologue = "(set-logic HORN)
 "
@@ -255,9 +259,7 @@ let parse_model model =
     end
   | _ -> Error "failed to parse model"
 
-let check_sat ?(timeout=100.0) chcs solver = 
-  let check_sat_inner timeout solver = 
-    let open Hflmc2_util in
+let save_chc_to_smt2 chcs solver = 
     let smt2 = chc2smt2 chcs solver in
     Random.self_init ();
     let r = Random.int 0x10000000 in
@@ -265,6 +267,12 @@ let check_sat ?(timeout=100.0) chcs solver =
     let oc = open_out file in
     Printf.fprintf oc "%s" smt2;
     close_out oc;
+    file
+
+let check_sat ?(timeout=100.0) chcs solver = 
+  let check_sat_inner timeout solver = 
+    let open Hflmc2_util in
+    let file = save_chc_to_smt2 chcs solver in
     let cmd = selected_cmd solver in
     let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [cmd; [|file|]]) in
     match String.lsplit2 out ~on:'\n' with
@@ -291,3 +299,11 @@ let check_sat ?(timeout=100.0) chcs solver =
         end
     in loop tries
   | `Spacer | `Hoice | `Fptprove as sv -> check_sat_inner timeout sv
+
+let get_unsat_proof ?(timeout=100.0) chcs solver = 
+  let open Hflmc2_util in
+  let file = save_chc_to_smt2 chcs solver in
+  let cmd = selected_cmd solver in
+  let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [cmd; [|file|]]) in
+  let p = Eldarica.parse_string out in
+  failwith "hoge"

@@ -1,7 +1,7 @@
 opam-version: "2.0"
 version: "1.0"
 maintainer: "katsura@kb.is.s.u-tokyo.ac.jp"
-authors: ["Hiroyuki Katsura"]
+authors: ["Hideto Ueno" "Hiroyuki Katsura"]
 build: [
   ["dune" "build" "-p" name "-j" jobs]
 ]

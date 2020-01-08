@@ -192,12 +192,27 @@ let rec dnf_size = function
 
 let simplify = normalize
 
-let infer hes env top = 
+
+let check_feasibility chcs hes = failwith "hoge"
+
+let rec infer hes env top = 
   let call_solver_with_timer hes solver = 
     add_mesure_time "CHC Solver" @@ fun () ->
     Chc_solver.check_sat hes solver
   in
-  let infer_inner hes env top = 
+  (* CHC Size is 1, then it is tractable *)
+  (* size: intersection type size *)
+  let rec try_intersection_type chcs size =
+    match call_solver_with_timer chcs (Chc_solver.selected_solver 1) with
+    | `Unsat -> begin 
+        match check_feasibility chcs hes with
+        | Some(trace) -> (* print_trace *)`Unsat
+        | None -> infer_inner ~size:(size + 1) hes env top
+        end 
+    | `Sat(x) -> `Sat(x)
+    | `Fail -> `Fail
+    | `Unknown -> `Unknown
+  and infer_inner ?(size=1) hes env top = 
     print_hes hes;
     let constraints = infer_hes hes env [] in
     let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
@@ -231,7 +246,7 @@ let infer hes env top =
           if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
           call_solver_with_timer target Chc_solver.(`Fptprove)
         end
-    end else call_solver_with_timer simplified (Chc_solver.selected_solver 1)
+    end else try_intersection_type simplified size
   in 
   let rec gen_name_type_map constraints m = match constraints with
     | [] -> m

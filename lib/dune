@@ -1,8 +1,7 @@
 (library
  (public_name hflmc2)
  (libraries
-    fpat
-    glpk
+    eldarica
     hflmc2_util
     hflmc2_syntax
     hflmc2_typing

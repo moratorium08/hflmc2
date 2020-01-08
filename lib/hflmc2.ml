@@ -2,6 +2,7 @@ module Util        = Hflmc2_util
 module Options     = Hflmc2_options
 module Syntax      = Hflmc2_syntax
 module Typing      = Hflmc2_typing
+module Eldarica    = Eldarica
 
 open Util
 open Syntax
