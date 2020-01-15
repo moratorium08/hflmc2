@@ -11,10 +11,7 @@ def ds_iden(x):
 
 
 def main():
-    if sys.argv[0] == 'python':
-        files = sys.argv[2:]
-    else:
-        files = sys.argv[1:]
+    files = sys.argv[1:]
 
     if len(files) == 0:
         print('input json files as cli arguments')
