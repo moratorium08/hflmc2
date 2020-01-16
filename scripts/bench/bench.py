@@ -70,7 +70,7 @@ def handle(file, parser, callback=p):
         result['time'] = t
     except subprocess.TimeoutExpired:
         result = {'ok': False, 'error': 'timeout'}
-        result['time'] = args.timeout + 1.0
+        result['time'] = args.timeout
     if 'result' not in result:
         result['result'] = 'fail'
     result['file'] = file

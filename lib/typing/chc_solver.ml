@@ -30,6 +30,7 @@ let selected_cmd = function
 let selected_cex_cmd = function
   | `Eldarica -> 
     [|"eld"; "-cex";  "-hsmt"|]
+  | _ -> failwith "you cannot use this"
 
 let prologue = "(set-logic HORN)
 "
@@ -45,7 +46,7 @@ let get_epilogue =
     "\
     (check-sat)
     "
-  | _ ->
+  | `Eldarica | `Hoice ->
     "\
     (check-sat)
     (get-model)
@@ -303,7 +304,7 @@ let check_sat ?(timeout=100.0) chcs solver =
 let get_unsat_proof ?(timeout=100.0) chcs solver = 
   let open Hflmc2_util in
   let file = save_chc_to_smt2 chcs solver in
-  let cmd = selected_cmd solver in
+  let cmd = selected_cex_cmd solver in
   let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [cmd; [|file|]]) in
   let p = Eldarica.parse_string out in
-  failwith "hoge"
+  Eldarica.Dag.debug p
