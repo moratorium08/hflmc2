@@ -28,7 +28,12 @@ def gen_cmd(file):
 
 def parse_stdout(stdout):
     result_data = dict()
-    result = stdout.split('\n')[1]
+    l = stdout.split('\n')
+    if len(l) == 1:
+        result_data['result'] = 'fail'
+        return result_data
+
+    result = l[1]
 
     if result == 'sat':
         result_data['result'] = 'invalid'
