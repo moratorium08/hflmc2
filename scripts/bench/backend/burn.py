@@ -3,6 +3,7 @@ from common import *
 ############  Do not change[end]  ############
 
 TARGET = 'horus -rzs {} | z3 -smt2 -in'
+cmd_template = TARGET + ' {} {}'  # <option> <filename>
 
 cfg = None
 
