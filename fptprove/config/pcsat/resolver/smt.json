@@ -1,0 +1,10 @@
+[
+    "SMT",
+    {
+        "verbose": false,
+        "only_diff": true,
+        "refute": true,
+        "decide": true,
+        "acquire": true
+    }
+]

@@ -1,4 +1,0 @@
-["ClassificationBased",
-  {"verbose": true,
-   "separator": ["Filename", "./config/pcsat/separator/bfsb.json"],
-   "dt_reduction": false}]

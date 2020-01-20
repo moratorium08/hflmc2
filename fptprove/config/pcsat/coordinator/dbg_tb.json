@@ -6,39 +6,39 @@
                             "S",
                             [
                                    "Filename",
-                                   "./config/pcsat/synthesizer/tb.json"
+                                   "./config/pcsat/synthesizer/dbg_tb.json"
                             ]
                      ],
                      [
                             "V",
                             [
                                    "Filename",
-                                   "./config/pcsat/validator/default.json"
+                                   "./config/pcsat/validator/dbg.json"
                             ]
                      ],
                      [
                             "C",
                             [
                                    "Filename",
-                                   "./config/pcsat/classifier/dim_red.json"
+                                   "./config/pcsat/classifier/dbg_dim_red.json"
                             ]
                      ],
                      [
                             "R",
                             [
                                    "Filename",
-                                   "./config/pcsat/resolver/smt.json"
+                                   "./config/pcsat/resolver/dbg_smt.json"
                             ]
                      ],
                      [
                             "C",
                             [
                                    "Filename",
-                                   "./config/pcsat/classifier/dim_red.json"
+                                   "./config/pcsat/classifier/dbg_dim_red.json"
                             ]
                      ]
               ],
-              "verbose": false,
-              "validate_each_candidate": false
+              "verbose": true,
+              "validate_each_candidate": true
        }
 ]

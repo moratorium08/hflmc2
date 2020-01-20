@@ -4,12 +4,12 @@
     "verbose": false,
     "solution_template": {
       "update_strategy": [
-        "Default"
+        "UnsatCore"
       ],
       "default_template": [
         "DefaultQualifier"
       ],
-      "update_threshold": 5,
+      "update_threshold": null,
       "default_seeds": false,
       "predicate_template": [
         "Filename",

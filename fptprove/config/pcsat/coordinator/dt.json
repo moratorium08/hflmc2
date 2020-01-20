@@ -27,7 +27,7 @@
                             "R",
                             [
                                    "Filename",
-                                   "./config/pcsat/resolver/default.json"
+                                   "./config/pcsat/resolver/smt.json"
                             ]
                      ],
                      [

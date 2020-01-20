@@ -1,0 +1,10 @@
+[
+    "TB",
+    {
+        "verbose": false,
+        "wf_predicate_template": [
+            "Filename",
+            "./config/pcsat/template/wf_predicate_template.json"
+        ]
+    }
+]

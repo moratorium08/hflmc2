@@ -6,7 +6,7 @@
                             "S",
                             [
                                    "Filename",
-                                   "./config/pcsat/synthesizer/tb.json"
+                                   "./config/pcsat/synthesizer/tb_interval_domain.json"
                             ]
                      ],
                      [

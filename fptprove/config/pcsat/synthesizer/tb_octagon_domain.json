@@ -4,16 +4,16 @@
     "verbose": false,
     "solution_template": {
       "update_strategy": [
-        "Default"
+        "Disable"
       ],
       "default_template": [
         "DefaultQualifier"
       ],
-      "update_threshold": 5,
+      "update_threshold": null,
       "default_seeds": false,
       "predicate_template": [
         "Filename",
-        "./config/pcsat/template/predicate_template.json"
+        "./config/pcsat/template/predicate_template_octagon_domain.json"
       ],
       "wf_predicate_template": [
         "Filename",

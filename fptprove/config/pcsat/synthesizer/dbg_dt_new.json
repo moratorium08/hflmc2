@@ -1,14 +1,14 @@
 [
   "Classification",
   {
-    "verbose": false,
+    "verbose": true,
     "separator": [
       "Filename",
-      "./config/pcsat/separator/bfsb.json"
+      "./config/pcsat/separator/dbg_bfsb.json"
     ],
     "wf_separator": [
       "Filename",
-      "./config/pcsat/separator/wf_bfsb.json"
+      "./config/pcsat/separator/dbg_wf_bfsb.json"
     ]
   }
 ]

@@ -1,7 +1,0 @@
-["Default",
-  {"phase_list" : [["S", ["Filename",
-                          "./config/pcsat/synthesizer/dt.json"]],
-                   ["V", ["Filename",
-                          "./config/pcsat/validator/default.json"]],
-                   ["R", ["Filename",
-                          "./config/pcsat/resolver/default.json"]]]}]

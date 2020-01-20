@@ -1,4 +1,12 @@
-{"qualifier_domain":
-   ["Flexible", ["Height", 20]],
- "default_qualifier": true,
- "zero_qualifier": false}
+{
+  "qualifier_domain": [
+    "Flexible",
+    [
+      "Height",
+      20
+    ]
+  ],
+  "default_qualifier": true,
+  "zero_qualifier": false,
+  "reduction": false
+}

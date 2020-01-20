@@ -1,7 +1,7 @@
 [
     "BFSB",
     {
-        "verbose": false,
+        "verbose": true,
         "qualifier_type": [
             "Height",
             [
@@ -25,7 +25,7 @@
             [
                 "DTBF",
                 {
-                    "verbose": false
+                    "verbose": true
                 }
             ]
         ]

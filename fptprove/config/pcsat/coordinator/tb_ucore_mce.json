@@ -6,14 +6,14 @@
                             "S",
                             [
                                    "Filename",
-                                   "./config/pcsat/synthesizer/tb.json"
+                                   "./config/pcsat/synthesizer/tb_ucore.json"
                             ]
                      ],
                      [
                             "V",
                             [
                                    "Filename",
-                                   "./config/pcsat/validator/default.json"
+                                   "./config/pcsat/validator/mce.json"
                             ]
                      ],
                      [

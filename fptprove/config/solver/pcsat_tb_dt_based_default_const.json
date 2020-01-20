@@ -1,5 +1,0 @@
-["PCSat",
-  {"preprocess": ["Filename", "./config/pcsat/preprocessor/default.json"],
-   "postprocess": ["Filename", "./config/pcsat/postprocessor/default.json"],
-   "coordinator" : ["Filename", "./config/pcsat/coordinator/tb_dt_based_default_const.json"],
-   "output_iteration": true}]

@@ -9,8 +9,8 @@
       "default_template": [
         "DefaultQualifier"
       ],
-      "update_threshold": 5,
-      "default_seeds": false,
+      "update_threshold": null,
+      "default_seeds": true,
       "predicate_template": [
         "Filename",
         "./config/pcsat/template/predicate_template.json"

@@ -1,0 +1,13 @@
+{
+    "verbose": false,
+
+    "number_of_disj": 8,
+    "number_of_conj": 8,
+    "upper_bound_coeff": 1,
+    "upper_bound_const": null,
+    "seeds": null,
+
+    "bound_each_coeff": 1,
+    "threshold_coeff": null,
+    "threshold_const": null
+}

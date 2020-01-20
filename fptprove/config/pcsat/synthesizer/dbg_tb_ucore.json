@@ -1,23 +1,23 @@
 [
   "Template",
   {
-    "verbose": false,
+    "verbose": true,
     "solution_template": {
       "update_strategy": [
-        "Default"
+        "UnsatCore"
       ],
       "default_template": [
         "DefaultQualifier"
       ],
-      "update_threshold": 5,
+      "update_threshold": null,
       "default_seeds": false,
       "predicate_template": [
         "Filename",
-        "./config/pcsat/template/predicate_template.json"
+        "./config/pcsat/template/dbg_predicate_template.json"
       ],
       "wf_predicate_template": [
         "Filename",
-        "./config/pcsat/template/wf_predicate_template.json"
+        "./config/pcsat/template/dbg_wf_predicate_template.json"
       ]
     }
   }
