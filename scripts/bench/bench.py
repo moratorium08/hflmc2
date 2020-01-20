@@ -34,6 +34,7 @@ cfg = Config()
 cfg.args = args
 cfg.root = './'
 cfg.retry = 0
+cfg.base = 'inputs'
 config(cfg)
 
 def preexec_fn():
@@ -95,7 +96,7 @@ def main():
     with open(os.path.join(args.basedir, 'lists', args.list)) as f:
         files = f.read().strip('\n').split('\n')
     for file in files:
-        handle(os.path.join(args.basedir, 'inputs', file), parse_stdout,
+        handle(os.path.join(args.basedir, cfg.base, file), parse_stdout,
                 callback=callback, retry=cfg.retry)
     stat(results)
     if args.json is not None:
