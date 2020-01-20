@@ -2,6 +2,8 @@
 import sys
 import json
 
+TIMEOUT_T = 10
+FAIL_T = 100
 # dataset identity
 def ds_iden(x):
     l = x.split('/')
@@ -35,9 +37,9 @@ def main():
         for item in data:
             key = ds_iden(item['file'])
             target = 'invalid' if key.endswith('-e.in') else 'valid'
-            t = item['time'] if target == item['result'] else 6
-            if item['time'] == 5:
-                t = 5
+            t = item['time'] if target == item['result'] else FAIL_T
+            if item['time'] == TIMEOUT_T:
+                t = TIMEOUT_T
             table[key].append(t)
 
     for key, row in table.items():
