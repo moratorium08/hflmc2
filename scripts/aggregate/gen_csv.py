@@ -38,7 +38,7 @@ def main():
             key = ds_iden(item['file'])
             target = 'invalid' if key.endswith('-e.in') else 'valid'
             t = item['time'] if target == item['result'] else FAIL_T
-            if item['time'] == TIMEOUT_T:
+            if item['time'] >= TIMEOUT_T - 0.001:
                 t = TIMEOUT_T
             table[key].append(t)
 
