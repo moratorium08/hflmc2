@@ -96,7 +96,7 @@ def main():
         files = f.read().strip('\n').split('\n')
     for file in files:
         handle(os.path.join(args.basedir, 'inputs', file), parse_stdout,
-                callback=callback, cfg.retry)
+                callback=callback, retry=cfg.retry)
     stat(results)
     if args.json is not None:
         save_json(args.json)
