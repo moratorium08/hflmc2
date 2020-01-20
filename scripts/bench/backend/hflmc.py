@@ -14,6 +14,7 @@ def pre_cmd():
 
 def config(c):
     global cfg
+    cfg.retry = 3
     cfg = c
 
 

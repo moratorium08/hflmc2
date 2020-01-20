@@ -35,7 +35,9 @@ def main():
         for item in data:
             key = ds_iden(item['file'])
             target = 'invalid' if key.endswith('-e.in') else 'valid'
-            t = item['time'] if target == item['result'] else 5
+            t = item['time'] if target == item['result'] else 6
+            if item['time'] == 5:
+                t = 5
             table[key].append(t)
 
     for key, row in table.items():

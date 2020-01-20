@@ -16,6 +16,7 @@ from target import cli_arg, gen_cmd, parse_stdout, config, callback, stat, pre_c
 ############  Do not change[end]  ############
 
 TIMEOUT = 5
+RETRY_COOLDOWN = 10
 
 class Config:
     def __init__(self):
@@ -32,6 +33,7 @@ args = parser.parse_args()
 cfg = Config()
 cfg.args = args
 cfg.root = './'
+cfg.retry = 0
 config(cfg)
 
 def preexec_fn():
@@ -61,7 +63,7 @@ def p(file, result):
 
 
 results = []
-def handle(file, parser, callback=p):
+def handle(file, parser, callback=p, retry=0):
     cmd = gen_cmd(file)
     try:
         stdout, t = run(cmd)
@@ -73,9 +75,13 @@ def handle(file, parser, callback=p):
         result['time'] = args.timeout
     if 'result' not in result:
         result['result'] = 'fail'
-    result['file'] = file
-    callback(file, result)
-    results.append(result)
+    if result['result'] == 'fail' and retry > 0:
+        time.sleep(RETRY_COOLDOWN)
+        handle(file, parser, callback, retry - 1)
+    else:
+        result['file'] = file
+        callback(file, result)
+        results.append(result)
 
 
 def save_json(filename):
@@ -89,7 +95,8 @@ def main():
     with open(os.path.join(args.basedir, 'lists', args.list)) as f:
         files = f.read().strip('\n').split('\n')
     for file in files:
-        handle(os.path.join(args.basedir, 'inputs', file), parse_stdout, callback=callback)
+        handle(os.path.join(args.basedir, 'inputs', file), parse_stdout,
+                callback=callback, cfg.retry)
     stat(results)
     if args.json is not None:
         save_json(args.json)
