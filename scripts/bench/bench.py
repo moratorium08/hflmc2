@@ -15,7 +15,7 @@ from common import *
 from target import cli_arg, gen_cmd, parse_stdout, config, callback, stat, pre_cmd
 ############  Do not change[end]  ############
 
-TIMEOUT = 5
+TIMEOUT = 10
 RETRY_COOLDOWN = 10
 
 class Config:
