@@ -5,6 +5,6 @@
 (install
  (package hflmc3)
  (section bin)
- (files (main.exe as hflmc2)))
+ (files (main.exe as hflmc3)))
 
 (env (dev (flags (:standard -warn-error -A))))
