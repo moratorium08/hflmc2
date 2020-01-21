@@ -6,8 +6,8 @@ Iwayama-san.
 ## For reproductivity
 
 '''
-$ ./run_mochi.sh horus > result_1
-$ ./run_mochi.sh horus-cps > result_2
+$ ./run_mochi.sh horus > result_1.csv
+$ ./run_mochi.sh horus-cps > result_2.csv
 '''
 
 We removed the results ended in 'error' in Horus, which indicate
