@@ -10,8 +10,8 @@ $ ./run_mochi.sh horus > result_1.csv
 $ ./run_mochi.sh horus-cps > result_2.csv
 '''
 
-We removed the results ended in 'error' in Horus, which indicate
-that the result is proved to be 'sat'(in Horus, 'sat' is unknown whether it
-is really 'sat' or not), or that in the process of verifying, Horus
-raised an error.
+We removed the results ended in 'error' in Horus, which indicates
+that in the process of verifying, Horus raised an error.
+We also removed the instances, whose answer of verification
+is false, because Horus cannot prove this kind of system correctly.
 
