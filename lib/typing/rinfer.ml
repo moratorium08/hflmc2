@@ -193,7 +193,7 @@ let rec dnf_size = function
 let simplify = normalize
 
 let check_feasibility chcs hes = 
-  (*Chc_solver.get_unsat_proof chcs `Eldarica;*)
+  let proof = Chc_solver.get_unsat_proof chcs `Eldarica in
   Some([])
 
 let rec infer hes env top = 

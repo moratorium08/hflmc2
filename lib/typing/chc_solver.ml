@@ -307,4 +307,4 @@ let get_unsat_proof ?(timeout=100.0) chcs solver =
   let cmd = selected_cex_cmd solver in
   let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [cmd; [|file|]]) in
   let p = Eldarica.parse_string out in
-  Eldarica.Dag.debug p
+  p
