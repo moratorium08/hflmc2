@@ -43,4 +43,6 @@ let eval formula dic =
       end
     | And(p, q) -> failwith "uo"
     | Forall(x, y) -> failwith "uo"
+    | Arith(a) -> failwith "uo"
+    | Pred(a, l) -> failwith "uo"
   in failwith "hoge"

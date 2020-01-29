@@ -123,18 +123,26 @@ let rec infer_formula formula env m ints =
     (template, l'')
   | Pred (f, args) -> (RBool(RPred(f, args)), m)
   | Arith x -> (RInt (RArith x), m)
-  | Or (x, y) | And (x, y) -> 
+  | Or (x, y) ->
     let (x', mx) = infer_formula x env m ints in
     let (y', m') = infer_formula y env mx ints in
     let (rx, ry) = match (x', y') with
       | (RBool(rx), RBool(ry)) -> (rx, ry)
       | _ -> failwith "type is not correct"
-    in begin
-    match formula with 
-    | Or _ -> (RBool(ROr(rx, ry)), m')
-    | And _ -> (RBool(conjoin rx ry), m')
-    | _ -> failwith "program error(1)"
-    end
+    in 
+    RBool(ROr(rx, ry)), m'
+  | And (x, y) -> 
+    let (x', mx) = infer_formula x env m ints in
+    let (y', m') = infer_formula y env mx ints in
+    let rx' = clone_type_with_new_pred ints x' in
+    let ry' = clone_type_with_new_pred ints y' in
+    let m'' = subtype rx' rx' m' in 
+    let m'' = subtype ry' ry' m'' in 
+    let (rx, ry) = match (rx', ry') with
+      | (RBool(rx), RBool(ry)) -> (rx, ry)
+      | _ -> failwith "type is not correct"
+    in 
+    RBool(RAnd(rx, ry)), m''
   | App(x, y) -> 
     let (x', mx) = infer_formula x env m ints in
     let (y', m') = infer_formula y env mx ints in
