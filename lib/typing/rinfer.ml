@@ -72,20 +72,16 @@ let rec _subtype t t' renv m =
    in
    _subtype s s' renv m' 
  | _, _ -> 
-  print_rtype t;
-  Printf.printf "=";
-  print_rtype t';
-  print_newline ();
- failwith "program error(subtype)"
+   print_rtype t;
+   Printf.printf "=";
+   print_rtype t';
+   print_newline ();
+   failwith "program error(subtype)"
 
 let subtype t t' m = _subtype t t' RTrue m
 
 (* track: tracking And/Forall to track counterexample *)
-let rec infer_formula ?(track=false) formula env m ints = 
-  (*
-  print_formula formula;
-  print_newline ();
-  *)
+let rec infer_formula track formula env m ints = 
   match formula with
   | Bool b when b -> (RBool(RTrue), m)
   | Bool _ -> (RBool(RFalse), m)
@@ -105,7 +101,7 @@ let rec infer_formula ?(track=false) formula env m ints =
       | _ -> ints 
       end
     in
-    let (body_t, l) = infer_formula body env' m ints' in
+    let (body_t, l) = infer_formula track body env' m ints' in
     (RArrow(arg.ty, body_t), l)
   | Forall(arg, body, template) ->
     let env' = IdMap.add env arg arg.ty in
@@ -117,31 +113,37 @@ let rec infer_formula ?(track=false) formula env m ints =
       | _ -> ints 
       end
     in
-    let (body_t, l) = infer_formula body env' m ints' in
+    let (body_t, l) = infer_formula track body env' m ints' in
     let template = (RBool(RTemplate template)) in
     let l'' = subtype body_t template l in
     (template, l'')
   | Pred (f, args) -> (RBool(RPred(f, args)), m)
   | Arith x -> (RInt (RArith x), m)
   | Or (x, y) ->
-    let (x', mx) = infer_formula x env m ints in
-    let (y', m') = infer_formula y env mx ints in
+    let (x', mx) = infer_formula track x env m ints in
+    let (y', m') = infer_formula track y env mx ints in
     let (rx, ry) = match (x', y') with
       | (RBool(rx), RBool(ry)) -> (rx, ry)
       | _ -> failwith "type is not correct"
     in 
     RBool(ROr(rx, ry)), m'
-  | And (x, y, _) -> 
-    let (x', mx) = infer_formula x env m ints in
-    let (y', m') = infer_formula y env mx ints in
+  | And (x, y, template) -> 
+    let (x', mx) = infer_formula track x env m ints in
+    let (y', m') = infer_formula track y env mx ints in
     let (rx, ry) = match (x', y') with
       | (RBool(rx), RBool(ry)) -> (rx, ry)
       | _ -> failwith "type is not correct"
     in 
-    RBool(RAnd(rx, ry)), m'
+    if track then
+      let t = RBool(RAnd(rx, ry)) in
+      let t' = RBool(RTemplate(template)) in
+      let m'' = subtype t t' m' in
+      t', m''
+    else
+      RBool(RAnd(rx, ry)), m'
   | App(x, y) -> 
-    let (x', mx) = infer_formula x env m ints in
-    let (y', m') = infer_formula y env mx ints in
+    let (x', mx) = infer_formula track x env m ints in
+    let (y', m') = infer_formula track y env mx ints in
     let (arg, body, tau) = match (x', y') with
       | (RArrow(arg, body), tau) -> (arg, body, tau)
       | _ -> failwith "type is not correct"
@@ -150,33 +152,36 @@ let rec infer_formula ?(track=false) formula env m ints =
        | RInt(RId(id)), RInt m -> 
          (subst id m body, m')
        | _ ->
-        print_string "subtyping...";
         let body' = clone_type_with_new_pred ints body in 
+        (*
+        print_string "subtyping...";
         print_rtype @@ RArrow(arg, body); print_string " =? "; print_rtype @@ RArrow(tau, body'); print_newline();
+        *)
         let m'' = subtype (RArrow(arg, body)) (RArrow(tau, body')) m' in
         (body', m'')
       end
   
-let infer_rule (rule: hes_rule) env (chcs: (refinement, refinement) chc list): (refinement, refinement) chc list = 
+let infer_rule track (rule: hes_rule) env (chcs: (refinement, refinement) chc list): (refinement, refinement) chc list = 
+  (*
   print_newline();
   print_newline();
   print_string "infering new formula: ";
   Printf.printf "%s = " rule.var.name;
   print_formula rule.body;
   print_newline();
-
-  let (t, m) = infer_formula rule.body env chcs [] in
-
+  *)
+  let (t, m) = infer_formula track rule.body env chcs [] in
   let m = subtype t rule.var.ty m in
+  (*
   print_string "[Result]\n";
   print_constraints m;
+  *)
   m
  
-let rec infer_hes (hes: hes) env (accum: (refinement, refinement) chc list): (refinement, refinement) chc list = match hes with
+let rec infer_hes ?(track=false) (hes: hes) env (accum: (refinement, refinement) chc list): (refinement, refinement) chc list = match hes with
   | [] -> accum
   | rule::xs -> 
-    (*Print.printf "uo%d\n" (List.length hes);*)
-    infer_rule rule env accum |> infer_hes xs env 
+    infer_rule track rule env accum |> infer_hes ~track:track xs env 
 
 let rec print_hes = function
   | [] -> ()
@@ -258,6 +263,7 @@ let rec infer hes env top =
   in
   let check_feasibility size = 
     (* 1. generate constraints by using predicates for tracking cex *)
+    let constraints = infer_hes ~track:true hes env [] in
     (* 2. enerate unsat_proof  *)
     (* 3. evaluate HFL formula along the proof*)
     (* 
@@ -286,11 +292,11 @@ let rec infer hes env top =
     | `Unknown -> `Unknown
   and infer_main ?(size=1) hes env top = 
     (* 1. generate constraints *)
-    print_hes hes;
+    (*print_hes hes;*)
     let constraints = infer_hes hes env [] in
     let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
 
-    print_constraints constraints;
+    (*print_constraints constraints;*)
     (* 2. optimize CHC (ECHC) *)
     let constraints = List.map (fun chc -> 
       {chc with head=translate_if chc.head}
