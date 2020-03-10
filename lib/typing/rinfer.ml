@@ -134,15 +134,11 @@ let rec infer_formula ?(track=false) formula env m ints =
   | And (x, y, _) -> 
     let (x', mx) = infer_formula x env m ints in
     let (y', m') = infer_formula y env mx ints in
-    let rx' = clone_type_with_new_pred ints x' in
-    let ry' = clone_type_with_new_pred ints y' in
-    let m'' = subtype rx' rx' m' in 
-    let m'' = subtype ry' ry' m'' in 
-    let (rx, ry) = match (rx', ry') with
+    let (rx, ry) = match (x', y') with
       | (RBool(rx), RBool(ry)) -> (rx, ry)
       | _ -> failwith "type is not correct"
     in 
-    RBool(RAnd(rx, ry)), m''
+    RBool(RAnd(rx, ry)), m'
   | App(x, y) -> 
     let (x', mx) = infer_formula x env m ints in
     let (y', m') = infer_formula y env mx ints in
@@ -200,35 +196,102 @@ let rec dnf_size = function
 
 let simplify = normalize
 
-let check_feasibility chcs hes = 
-  let proof = Chc_solver.get_unsat_proof chcs `Eldarica in
-  Eldarica.Dag.debug proof;
-  Some([])
+let print_derived_refinement_type hes constraints = 
+  let rec gen_name_type_map constraints m = match constraints with
+    | [] -> m
+    | (id, args, body)::xs -> 
+      m |> Rid.M.add id (args, body) |> gen_name_type_map xs
+  in
+  let m = gen_name_type_map constraints Rid.M.empty in
+  let rec subst_ids map t = 
+    match map with 
+    | [] -> t
+    | (src, dst):: xs -> 
+      t |> subst_refinement src (RArith dst) |> subst_ids xs
+  in
+  let rec zip l r = match (l, r) with 
+    | [], [] -> []
+    | [], _ | _ , [] -> failwith "program error(print_derived_refinement_type)"
+    | x::xs, y::ys -> (x, y)::zip xs ys
+  in
+  let rec translate_ty = function 
+    | RArrow (x, y) -> RArrow(translate_ty x, translate_ty y)
+    | RBool(RTemplate(p, l)) -> 
+      let (args, body) = Rid.M.find p m in
+      let map = zip args l in
+      let body' = subst_ids map body in
+      RBool(body')
+    | x -> x
+  in
+  let rec inner = 
+    let open Rhflz in
+    function
+    | [] -> []
+    | rule::hes -> 
+      let rule = {rule with var={rule.var with ty=translate_ty rule.var.ty}} in
+      rule :: inner hes
+  in
+  inner hes
 
+(* Algorithm
+Input: hes(simply typed) env top
+Output: Valid/Invalid/Fail/Unknown
+
+[inference]
+1. generate constraints
+2. optimize CHC (ECHC) 
+3. check satisfiability
+if sat then return Valid
+if unsat then returns check_feasibility
+
+[check_feasibility]
+1. generate constraints by using predicates for tracking cex
+2. generate unsat_proof 
+3. evaluate HFL formula along the proof
+4. if the input is evaluated to false then returns Invalid
+5. otherwise; returns Unknown
+*)
 let rec infer hes env top = 
   let call_solver_with_timer hes solver = 
     add_mesure_time "CHC Solver" @@ fun () ->
     Chc_solver.check_sat hes solver
   in
+  let check_feasibility size = 
+    (* 1. generate constraints by using predicates for tracking cex *)
+    (* 2. enerate unsat_proof  *)
+    (* 3. evaluate HFL formula along the proof*)
+    (* 
+       4. if the input is evaluated to false then returns Invalid
+       5. otherwise; returns Unknown
+    *)
+    (*let proof = Chc_solver.get_unsat_proof chcs `Eldarica in
+    Eldarica.Dag.debug proof;*)
+    Some([])
+  in 
   (* CHC Size is 1, then it is tractable *)
   (* size: intersection type size *)
   let rec try_intersection_type chcs size =
+    (* 
+      if sat then return Valid
+      if unsat then returns check_feasibility
+    *)
     match call_solver_with_timer chcs (Chc_solver.selected_solver 1) with
     | `Unsat -> begin 
-        match check_feasibility chcs hes with
+        match check_feasibility size with
         | Some(trace) -> (* print_trace *)`Unsat
-        | None -> infer_inner ~size:(size + 1) hes env top
+        | None -> infer_main ~size:(size + 1) hes env top
         end 
     | `Sat(x) -> `Sat(x)
     | `Fail -> `Fail
     | `Unknown -> `Unknown
-  and infer_inner ?(size=1) hes env top = 
+  and infer_main ?(size=1) hes env top = 
+    (* 1. generate constraints *)
     print_hes hes;
     let constraints = infer_hes hes env [] in
     let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
 
     print_constraints constraints;
-    (* Preprocess of CHCs *)
+    (* 2. optimize CHC (ECHC) *)
     let constraints = List.map (fun chc -> 
       {chc with head=translate_if chc.head}
     ) constraints in
@@ -247,7 +310,7 @@ let rec infer hes env top =
       let target' = expand target in
       print_string "remove or \n";
       print_constraints target';
-      (*let target' = target in*)
+      (* 3. check satisfiability *)
       match call_solver_with_timer target' (Chc_solver.selected_solver 1) with
       | `Sat(x) -> `Sat(x)
       | `Fail -> failwith "hoge"
@@ -258,44 +321,7 @@ let rec infer hes env top =
         end
     end else try_intersection_type simplified size
   in 
-  let rec gen_name_type_map constraints m = match constraints with
-    | [] -> m
-    | (id, args, body)::xs -> 
-      m |> Rid.M.add id (args, body) |> gen_name_type_map xs
-  in
-  let print_derived_refinement_type constraints = 
-    let m = gen_name_type_map constraints Rid.M.empty in
-    let rec subst_ids map t = 
-      match map with 
-      | [] -> t
-      | (src, dst):: xs -> 
-        t |> subst_refinement src (RArith dst) |> subst_ids xs
-    in
-    let rec zip l r = match (l, r) with 
-      | [], [] -> []
-      | [], _ | _ , [] -> failwith "program error(print_derived_refinement_type)"
-      | x::xs, y::ys -> (x, y)::zip xs ys
-    in
-    let rec translate_ty = function 
-      | RArrow (x, y) -> RArrow(translate_ty x, translate_ty y)
-      | RBool(RTemplate(p, l)) -> 
-        let (args, body) = Rid.M.find p m in
-        let map = zip args l in
-        let body' = subst_ids map body in
-        RBool(body')
-      | x -> x
-    in
-    let rec inner = 
-      let open Rhflz in
-      function
-      | [] -> []
-      | rule::hes -> 
-        let rule = {rule with var={rule.var with ty=translate_ty rule.var.ty}} in
-        rule :: inner hes
-    in
-    inner hes
-  in
-  let x = infer_inner hes env top in
+  let x = infer_main hes env top in
   report_times ();
   match x with
   | `Sat(x) -> 
@@ -303,7 +329,7 @@ let rec infer hes env top =
         match x with 
         | Ok(x) -> 
           let open Hflmc2_options in
-          let hes = print_derived_refinement_type x in
+          let hes = print_derived_refinement_type hes x in
           if !Typing.show_refinement then
             print_hes hes
           else 
