@@ -8,7 +8,7 @@ let parse lexbuf =
   with
     | Parser.Error ->
     failwith @@ Printf.sprintf "Parse error "
-    | Failure _ ->
+  | Failure _ ->
       failwith @@ Printf.sprintf "Lexing error "
 
 let parse_file in_name =

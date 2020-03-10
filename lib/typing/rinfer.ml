@@ -80,8 +80,8 @@ let rec _subtype t t' renv m =
 
 let subtype t t' m = _subtype t t' RTrue m
 
-(* Appで制約を生成 *)
-let rec infer_formula formula env m ints = 
+(* track: tracking And/Forall to track counterexample *)
+let rec infer_formula ?(track=false) formula env m ints = 
   (*
   print_formula formula;
   print_newline ();
@@ -107,7 +107,7 @@ let rec infer_formula formula env m ints =
     in
     let (body_t, l) = infer_formula body env' m ints' in
     (RArrow(arg.ty, body_t), l)
-  | Forall(arg, body) ->
+  | Forall(arg, body, template) ->
     let env' = IdMap.add env arg arg.ty in
     let ints' = 
       begin
@@ -118,7 +118,7 @@ let rec infer_formula formula env m ints =
       end
     in
     let (body_t, l) = infer_formula body env' m ints' in
-    let template = RBool(generate_rtemplate ints) in
+    let template = (RBool(RTemplate template)) in
     let l'' = subtype body_t template l in
     (template, l'')
   | Pred (f, args) -> (RBool(RPred(f, args)), m)
@@ -131,7 +131,7 @@ let rec infer_formula formula env m ints =
       | _ -> failwith "type is not correct"
     in 
     RBool(ROr(rx, ry)), m'
-  | And (x, y) -> 
+  | And (x, y, _) -> 
     let (x', mx) = infer_formula x env m ints in
     let (y', m') = infer_formula y env mx ints in
     let rx' = clone_type_with_new_pred ints x' in
@@ -202,6 +202,7 @@ let simplify = normalize
 
 let check_feasibility chcs hes = 
   let proof = Chc_solver.get_unsat_proof chcs `Eldarica in
+  Eldarica.Dag.debug proof;
   Some([])
 
 let rec infer hes env top = 

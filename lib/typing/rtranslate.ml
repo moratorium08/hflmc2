@@ -42,11 +42,14 @@ let rec translate_body env body =
     let (id, env) = translate_id_arg env arg in
     Abs(id, translate_body env body)
   | Hflz.Forall (arg, body) ->
-    let (id, env) = translate_id_arg env arg in
+    let (id, env') = translate_id_arg env arg in
     let id = {id with ty=Rtype.to_bottom id.ty} in
-    Forall(id, translate_body env body)
+    let template = generate_template env in
+    Forall(id, translate_body env' body, template)
   | Hflz.Or(x, y) -> Or(translate_body env x, translate_body env y)
-  | Hflz.And(x, y) -> And(translate_body env x, translate_body env y)
+  | Hflz.And(x, y) -> 
+    let template = generate_template env in
+    And(translate_body env x, translate_body env y, template)
   | Hflz.App(x, y) -> App(translate_body env x, translate_body env y)
   | Hflz.Bool x -> Bool x
   | Hflz.Arith x -> Arith x

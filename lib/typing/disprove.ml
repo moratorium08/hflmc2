@@ -41,8 +41,8 @@ let eval formula dic =
         f e (M.add id.name v2 env)
       | _ -> failwith "runtime error(Disprove.eval)"
       end
-    | And(p, q) -> failwith "uo"
-    | Forall(x, y) -> failwith "uo"
+    | And(p, q, _) -> failwith "uo"
+    | Forall(x, y, _) -> failwith "uo"
     | Arith(a) -> failwith "uo"
     | Pred(a, l) -> failwith "uo"
   in failwith "hoge"
