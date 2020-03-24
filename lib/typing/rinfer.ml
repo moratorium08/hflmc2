@@ -119,7 +119,7 @@ let rec infer_formula track formula env m ints =
     (template, l'')
   | Pred (f, args) -> (RBool(RPred(f, args)), m)
   | Arith x -> (RInt (RArith x), m)
-  | Or (x, y, _) ->
+  | Or (x, y, _, _) ->
     let (x', mx) = infer_formula track x env m ints in
     let (y', m') = infer_formula track y env mx ints in
     let (rx, ry) = match (x', y') with
@@ -127,7 +127,7 @@ let rec infer_formula track formula env m ints =
       | _ -> failwith "type is not correct"
     in 
     RBool(ROr(rx, ry)), m'
-  | And (x, y, template) -> 
+  | And (x, y, t1, t2) -> 
     let (x', mx) = infer_formula track x env m ints in
     let (y', m') = infer_formula track y env mx ints in
     let (rx, ry) = match (x', y') with
@@ -135,13 +135,14 @@ let rec infer_formula track formula env m ints =
       | _ -> failwith "type is not correct"
     in 
     if track then
-      let t = RBool(RAnd(rx, ry)) in
-      let t' = RBool(RTemplate(template)) in
-      let m'' = subtype t t' m' in
-      t', m''
+      let tx = RBool(RTemplate(t1)) in
+      let mx = subtype (RBool(rx)) tx m' in
+      let ty = RBool(RTemplate(t2)) in
+      let my = subtype (RBool(ry)) ty mx in
+      RBool(RAnd(RTemplate(t1), RTemplate(t2))), my
     else
       RBool(RAnd(rx, ry)), m'
-  | App(x, y) -> 
+  | App(x, y, _) -> 
     let (x', mx) = infer_formula track x env m ints in
     let (y', m') = infer_formula track y env mx ints in
     let (arg, body, tau) = match (x', y') with

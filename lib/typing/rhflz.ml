@@ -7,10 +7,10 @@ type t =
   | Bool   of bool
   | Var    of Rtype.t Id.t
   (* template is used for tracking counterexample. *)
-  | Or     of t * t * template
-  | And    of t * t * template
+  | Or     of t * t * template * template
+  | And    of t * t * template * template
   | Abs    of Rtype.t Id.t * t
-  | App    of t * t
+  | App    of t * t * template
   | Forall of Rtype.t Id.t * t * template
   (* constructers only for hflz *)
   | Arith  of Arith.t
@@ -20,17 +20,21 @@ let rec print_formula = function
   | Bool x when x -> Printf.printf "tt"
   | Bool _ -> Printf.printf "ff"
   | Var x -> Printf.printf "%s" (Id.to_string x)
-  | Or (x, y, _) -> 
+  | Or (x, y, _, _) -> 
     Printf.printf "(";
     print_formula x;
     Printf.printf " || ";
     print_formula y;
     Printf.printf ")";
-  | And (x, y, _) -> 
+  | And (x, y, tx, ty) -> 
     Printf.printf "(";
     print_formula x;
+    print_string ":";
+    print_template tx;
     Printf.printf " && ";
     print_formula y;
+    print_string ":";
+    print_template ty;
     Printf.printf ")";
   | Abs (x, y) -> 
     Printf.printf "(";
@@ -46,7 +50,7 @@ let rec print_formula = function
     Printf.printf ".";
     print_formula y;
     Printf.printf ")"
-  | App (x, y) -> 
+  | App (x, y, template) -> 
     Printf.printf "(";
     print_formula x;
     Printf.printf " ";
@@ -65,36 +69,36 @@ let rec print_formula = function
     Fmt.flush Fmt.stdout () 
 
 let rec is_simple p = match p with
-  | And(x, y, _) | Or(x, y, _) -> (is_simple x && is_simple y)
+  | And(x, y, _, _) | Or(x, y, _, _) -> (is_simple x && is_simple y)
   | Arith(_) | Var(_) | App(_) | Abs(_) | Forall(_) -> false
   | _ -> true
 
 exception TriedToNegateApp
 let rec negate p = match p with
   | Arith(_) | Var(_) | App(_) | Abs(_) | Forall(_) -> raise TriedToNegateApp
-  | Or(x, y, t) -> And(negate x, negate y, t)
-  | And(x, y, t) -> Or(negate x, negate y, t)
+  | Or(x, y, t1, t2) -> And(negate x, negate y, t1, t2)
+  | And(x, y, t1, t2) -> Or(negate x, negate y, t1, t2)
   | Bool x -> Bool (not x)
   | Pred(p, l) -> Pred(Formula.negate_pred p, l)
 
 let rec translate_if hflz = match hflz with
-  | Or(And(a, b, s), And(a', b', s'), t) ->
+  | Or(And(a, b, s1, s2), And(a', b', s1',s2'), t1, t2) ->
     let fa = is_simple a in
     let fa' = is_simple a' in
     let fb = is_simple b in
     let fb' = is_simple b' in
     if fa && fa' && negate a = a' then
-      And(Or(a', translate_if b, s), Or(a, translate_if b', s'), t)
+      And(Or(a', translate_if b, s1, s2), Or(a, translate_if b', s1', s2'), t1, t2)
     else if fa && fb' && negate a = b' then
-      And(Or(b', translate_if b, s), Or(a, translate_if a', s'), t)
+      And(Or(b', translate_if b, s1, s2), Or(a, translate_if a', s1', s2'), t1, t2)
     else if fb && fa' && negate b = a' then
-      And(Or(a', translate_if a, s), Or(b, translate_if b', s'), t)
+      And(Or(a', translate_if a, s1, s2), Or(b, translate_if b', s1', s2'), t1, t2)
    else if fb && fb' && negate b = b' then
-      And(Or(b', translate_if a, s), Or(b, translate_if a', s'), t)
+      And(Or(b', translate_if a, s1, s2), Or(b, translate_if a', s1', s2'), t1, t2)
     else 
-      Or(And(translate_if a, translate_if b, s), And(translate_if a', translate_if b', s'), t)
-  | Or(x, y, t) -> Or(translate_if x, translate_if y, t)
-  | And(x, y, t) -> And(translate_if x, translate_if y, t)
+      Or(And(translate_if a, translate_if b, s1, s2), And(translate_if a', translate_if b', s1', s2'), t1, t2)
+  | Or(x, y, t1, t2) -> Or(translate_if x, translate_if y, t1, t2)
+  | And(x, y, t1, t2) -> And(translate_if x, translate_if y, t1, t2)
   | Abs (x, t) -> Abs(x, translate_if t)
   | x -> x
 

@@ -43,14 +43,14 @@ let eval formula dic =
       | Some(x) -> x
       | None -> failwith "evaluation error"
       end
-    | Or(p, q, _) -> 
+    | Or(p, q, _, _) -> 
       begin
       match f env p , f env q with
         | VBool(false), VBool(false) -> VBool(false)
         | _ -> raise Infeasible
       end
     | Abs(id, e) -> VFun(id, e, env)
-    | App(e1, e2) -> 
+    | App(e1, e2, _) -> 
       let v1 = f env e1 in
       begin
       match v1 with
@@ -59,7 +59,7 @@ let eval formula dic =
         f (IdMap.add env id v2) e
       | _ -> failwith "runtime error(Disprove.eval)"
       end
-    | And(p, q, _) -> failwith "uo"
+    | And(p, q, _, _) -> failwith "uo"
     | Forall(x, y, _) -> failwith "uo"
     | Arith(a) -> VInt(e_arith env a)
     | Pred(a, l) -> failwith "uo"

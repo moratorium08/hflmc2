@@ -47,12 +47,16 @@ let rec translate_body env body =
     let template = generate_template env in
     Forall(id, translate_body env' body, template)
   | Hflz.Or(x, y) -> 
-    let template = generate_template env in
-    Or(translate_body env x, translate_body env y, template)
+    let t1 = generate_template env in
+    let t2 = generate_template env in
+    Or(translate_body env x, translate_body env y, t1, t2)
   | Hflz.And(x, y) -> 
+    let t1 = generate_template env in
+    let t2 = generate_template env in
+    And(translate_body env x, translate_body env y, t1, t2)
+  | Hflz.App(x, y) -> 
     let template = generate_template env in
-    And(translate_body env x, translate_body env y, template)
-  | Hflz.App(x, y) -> App(translate_body env x, translate_body env y)
+    App(translate_body env x, translate_body env y, template)
   | Hflz.Bool x -> Bool x
   | Hflz.Arith x -> Arith x
   | Hflz.Pred (x, y) -> Pred (x, y)
