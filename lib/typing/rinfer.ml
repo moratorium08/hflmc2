@@ -119,7 +119,7 @@ let rec infer_formula track formula env m ints =
     (template, l'')
   | Pred (f, args) -> (RBool(RPred(f, args)), m)
   | Arith x -> (RInt (RArith x), m)
-  | Or (x, y) ->
+  | Or (x, y, _) ->
     let (x', mx) = infer_formula track x env m ints in
     let (y', m') = infer_formula track y env mx ints in
     let (rx, ry) = match (x', y') with
@@ -162,20 +162,16 @@ let rec infer_formula track formula env m ints =
       end
   
 let infer_rule track (rule: hes_rule) env (chcs: (refinement, refinement) chc list): (refinement, refinement) chc list = 
-  (*
   print_newline();
   print_newline();
   print_string "infering new formula: ";
   Printf.printf "%s = " rule.var.name;
   print_formula rule.body;
   print_newline();
-  *)
   let (t, m) = infer_formula track rule.body env chcs [] in
   let m = subtype t rule.var.ty m in
-  (*
   print_string "[Result]\n";
   print_constraints m;
-  *)
   m
  
 let rec infer_hes ?(track=false) (hes: hes) env (accum: (refinement, refinement) chc list): (refinement, refinement) chc list = match hes with
@@ -257,21 +253,26 @@ if unsat then returns check_feasibility
 5. otherwise; returns Unknown
 *)
 let rec infer hes env top = 
+  let hes = List.map (fun x -> 
+    let open Rhflz in 
+     {x with body=Rhflz.translate_if x.body}) hes 
+  in
   let call_solver_with_timer hes solver = 
     add_mesure_time "CHC Solver" @@ fun () ->
     Chc_solver.check_sat hes solver
   in
   let check_feasibility size = 
     (* 1. generate constraints by using predicates for tracking cex *)
-    let constraints = infer_hes ~track:true hes env [] in
-    (* 2. enerate unsat_proof  *)
+    let constraints = infer_hes ~track:true hes env 
+                     [{head=RTemplate(top); body=RTrue}] in
+    (* 2. generate unsat_proof  *)
+    let p = Chc_solver.get_unsat_proof constraints `Eldarica in
+    Eldarica.Dag.debug p;
     (* 3. evaluate HFL formula along the proof*)
     (* 
        4. if the input is evaluated to false then returns Invalid
        5. otherwise; returns Unknown
     *)
-    (*let proof = Chc_solver.get_unsat_proof chcs `Eldarica in
-    Eldarica.Dag.debug proof;*)
     Some([])
   in 
   (* CHC Size is 1, then it is tractable *)
@@ -292,10 +293,8 @@ let rec infer hes env top =
     | `Unknown -> `Unknown
   and infer_main ?(size=1) hes env top = 
     (* 1. generate constraints *)
-    (*print_hes hes;*)
-    let constraints = infer_hes hes env [] in
-    let constraints = {head=RTemplate(top); body=RTrue} :: constraints in
-
+    print_hes hes;
+    let constraints = infer_hes hes env [{head=RTemplate(top); body=RTrue}] in
     (*print_constraints constraints;*)
     (* 2. optimize CHC (ECHC) *)
     let constraints = List.map (fun chc -> 

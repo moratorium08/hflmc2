@@ -4,7 +4,13 @@ open Chc
 open Rtype
 
 
-type solver = [`Spacer | `Hoice | `Fptprove]
+type solver = [`Spacer | `Hoice | `Fptprove | `Eldarica]
+
+let name_of_solver = function
+  | `Spacer -> "spacer"
+  | `Hoice -> "hoice"
+  | `Fptprove -> "fptprove"
+  | `Eldarica -> "eldarica"
 
 let auto = `Auto(`Hoice, [`Hoice; `Spacer])
 
@@ -26,6 +32,7 @@ let selected_cmd = function
   | `Fptprove ->
     (* TODO: fix this *)
     [|"./fptprove/run_fptprove"|]
+  | _ -> failwith "you cannot use this"
   
 let selected_cex_cmd = function
   | `Eldarica -> 
@@ -46,10 +53,14 @@ let get_epilogue =
     "\
     (check-sat)
     "
-  | `Eldarica | `Hoice ->
+  | `Hoice ->
     "\
     (check-sat)
     (get-model)
+    "
+  | `Eldarica ->
+    "\
+    (check-sat)
     "
 
 let rec collect_preds chcs m = 
@@ -153,7 +164,7 @@ let gen_assert solver chc =
   let body = ref2smt2 chc.body in
   let head = ref2smt2 chc.head in
   let s = Printf.sprintf "(=> %s %s)" body head in
-  if vars_s = "" && (solver == `Spacer || solver == `Fptprove) then
+  if vars_s = "" && (solver == `Spacer || solver == `Fptprove || solver == `Eldarica) then
     Printf.sprintf "(assert %s)\n" s
   else
     Printf.sprintf "(assert (forall (%s) %s))\n" vars_s s
@@ -264,7 +275,7 @@ let save_chc_to_smt2 chcs solver =
     let smt2 = chc2smt2 chcs solver in
     Random.self_init ();
     let r = Random.int 0x10000000 in
-    let file = Printf.sprintf "/tmp/%d.smt2" r in
+    let file = Printf.sprintf "/tmp/%s-%d.smt2" (name_of_solver solver) r in
     let oc = open_out file in
     Printf.fprintf oc "%s" smt2;
     close_out oc;

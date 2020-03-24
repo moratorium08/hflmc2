@@ -121,10 +121,7 @@ let dual chc = {head=Rtype.dual chc.body; body=Rtype.dual chc.head}
 
 let normalize chcs = 
   let rec fmap f = function [] -> [] | x::xs -> 
-    Printf.printf "start - ";
-    print_chc x;
     let l = f x in 
-    Printf.printf "size: %d\n" (List.length l);
     l @ fmap f xs in
   let divide_heads heads = fmap divide_head heads in
   let divide_bodies bodies = fmap divide_body bodies in 

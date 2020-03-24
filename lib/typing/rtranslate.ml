@@ -46,7 +46,9 @@ let rec translate_body env body =
     let id = {id with ty=Rtype.to_bottom id.ty} in
     let template = generate_template env in
     Forall(id, translate_body env' body, template)
-  | Hflz.Or(x, y) -> Or(translate_body env x, translate_body env y)
+  | Hflz.Or(x, y) -> 
+    let template = generate_template env in
+    Or(translate_body env x, translate_body env y, template)
   | Hflz.And(x, y) -> 
     let template = generate_template env in
     And(translate_body env x, translate_body env y, template)
