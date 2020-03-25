@@ -1,0 +1,6 @@
+%HES
+MAIN_254  =v ∀x_45812.F_WITHOUT_CHECKING_252 true 0 0 (\x_45802.x_45802 true 0 true (\u_45791.true)).
+FAIL_45768 u_45769 k_45770 =v false.
+F_WITHOUT_CHECKING_252 x_9 x_8 x_7 k_f_without_checking_252 =v
+  ∀x_45807.k_f_without_checking_252 (\set_flag_f_244_45783.\s_f_x_241_45784.\u_45785.\k_app_45786.false).
+Forall p      =v ∀n. p n.

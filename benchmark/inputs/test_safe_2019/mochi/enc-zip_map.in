@@ -1,0 +1,11 @@
+%HES
+MAIN_10  =v
+  ∀arg1_68.
+   ZIP arg1_68 arg1_68
+    (\x_66.MAP x_66 (\x_63.(x_63 < arg1_68 \/ true) /\ (x_63 >= arg1_68 \/ FAIL_31 true (\x_55.true)))).
+FAIL_31 u_32 k_33 =v false.
+MAP x_6 k_map =v (x_6 != 0 \/ k_map 0) /\ (x_6 = 0 \/ MAP (x_6 - 1) (\x_71.k_map (1 + x_71))).
+ZIP x_8 y k_zip =v
+  (x_8 != 0 \/ (y != 0 \/ k_zip 0) /\ (y = 0 \/ false))
+  /\ (x_8 = 0 \/ (y != 0 \/ false) /\ (y = 0 \/ ZIP (x_8 - 1) (y - 1) (\x_75.k_zip (1 + x_75)))).
+Forall p      =v ∀n. p n.

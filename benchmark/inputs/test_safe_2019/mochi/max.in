@@ -1,0 +1,25 @@
+%HES
+MAIN_9  =v
+  ∀arg1_98.
+   ∀arg2_96.
+    ∀arg3_93.
+     (arg1_98 < arg2_96
+      \/ (arg1_98 < arg3_93
+          \/ (arg1_98 < arg1_98 \/ (arg1_98 != arg1_98 \/ true) /\ (arg1_98 = arg1_98 \/ FAIL_42 true (\x_64.true)))
+             /\ (arg1_98 >= arg1_98 \/ (arg1_98 != arg1_98 \/ true) /\ (arg1_98 = arg1_98 \/ FAIL_42 true (\x_64.true))))
+         /\ (arg1_98 >= arg3_93
+             \/ (arg1_98 < arg3_93 \/ (arg1_98 != arg3_93 \/ true) /\ (arg1_98 = arg3_93 \/ FAIL_42 true (\x_64.true)))
+                /\ (arg1_98 >= arg3_93
+                    \/ (arg3_93 != arg3_93 \/ true) /\ (arg3_93 = arg3_93 \/ FAIL_42 true (\x_64.true)))))
+     /\ (arg1_98 >= arg2_96
+         \/ (arg2_96 < arg3_93
+             \/ (arg1_98 < arg2_96 \/ (arg1_98 != arg2_96 \/ true) /\ (arg1_98 = arg2_96 \/ FAIL_42 true (\x_64.true)))
+                /\ (arg1_98 >= arg2_96
+                    \/ (arg2_96 != arg2_96 \/ true) /\ (arg2_96 = arg2_96 \/ FAIL_42 true (\x_64.true))))
+            /\ (arg2_96 >= arg3_93
+                \/ (arg1_98 < arg3_93
+                    \/ (arg1_98 != arg3_93 \/ true) /\ (arg1_98 = arg3_93 \/ FAIL_42 true (\x_64.true)))
+                   /\ (arg1_98 >= arg3_93
+                       \/ (arg3_93 != arg3_93 \/ true) /\ (arg3_93 = arg3_93 \/ FAIL_42 true (\x_64.true))))).
+FAIL_42 u_43 k_44 =v false.
+Forall p      =v ∀n. p n.

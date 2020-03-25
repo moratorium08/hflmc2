@@ -1,0 +1,4 @@
+%HES
+MAIN_109  =v true.
+FAIL_1937 u_1938 k_1939 =v false.
+Forall p      =v ∀n. p n.

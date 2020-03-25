@@ -1,0 +1,14 @@
+%HES
+MAIN_14  =v
+  ∀arg1_81.
+   ∀arg2_69.
+    ∀arg3_61.
+     (arg3_61 > arg2_69
+      \/ F arg1_81 arg3_61 arg2_69 arg3_61
+          (\x_79.(x_79 != arg1_81 \/ true) /\ (x_79 = arg1_81 \/ FAIL_42 true (\x_66.true))))
+     /\ (arg3_61 <= arg2_69 \/ true).
+F k_12 n_10 r_11 n_9 k_mc_k_f =v
+  (n_9 <= r_11 \/ k_mc_k_f (n_9 - ((r_11 - k_12) + 1)))
+  /\ (n_9 > r_11 \/ F k_12 n_10 r_11 ((n_9 + ((r_11 - k_12) + 1)) + 1) (\x_57.F k_12 n_10 r_11 x_57 k_mc_k_f)).
+FAIL_42 u_43 k_44 =v false.
+Forall p      =v ∀n. p n.

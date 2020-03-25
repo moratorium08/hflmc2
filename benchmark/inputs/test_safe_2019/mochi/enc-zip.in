@@ -1,0 +1,10 @@
+%HES
+MAIN_9  =v
+  ∀arg1_67.ZIP arg1_67 arg1_67 (\x_62.(x_62 != arg1_67 \/ true) /\ (x_62 = arg1_67 \/ FAIL_36 true (\x_59.true))).
+FAIL_30 u_31 k_32 =v false.
+FAIL_33 u_34 k_35 =v false.
+FAIL_36 u_37 k_38 =v false.
+ZIP x_7 y k_zip =v
+  (x_7 != 0 \/ (y != 0 \/ k_zip 0) /\ (y = 0 \/ FAIL_30 true (\x_70.true)))
+  /\ (x_7 = 0 \/ (y != 0 \/ FAIL_33 true (\x_73.true)) /\ (y = 0 \/ ZIP (x_7 - 1) (y - 1) (\x_77.k_zip (1 + x_77)))).
+Forall p      =v ∀n. p n.

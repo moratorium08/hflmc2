@@ -1,0 +1,19 @@
+%HES
+MAIN_95  =v
+  ∀m_20714.
+   ∀n_20701.
+    ((n_20701 <= 0 \/ m_20714 <= 0) \/ ACK_WITHOUT_CHECKING_93 true 0 0 m_20714 true 0 0 n_20701 (\u_20674.true))
+    /\ (n_20701 > 0 /\ m_20714 > 0 \/ true).
+ACK_WITHOUT_CHECKING_93 x_15 x_14 x_13 m_12 x_11 x_10 x_9 n_8 k_ack_without_checking_93 =v
+  (m_12 != 0 \/ k_ack_without_checking_93 (n_8 + 1))
+  /\ (m_12 = 0
+      \/ (n_8 != 0
+          \/ ((m_12 <= m_12 - 1 \/ m_12 - 1 < 0) /\ (m_12 < m_12 - 1 \/ (n_8 <= 1 \/ 1 < 0))
+              \/ ACK_WITHOUT_CHECKING_93 true 0 0 (m_12 - 1) true 0 0 1 k_ack_without_checking_93)
+             /\ ((m_12 > m_12 - 1 /\ m_12 - 1 >= 0 \/ m_12 >= m_12 - 1 /\ (n_8 > 1 /\ 1 >= 0))
+                 \/ FAIL_20622 true (\x_20723.true)))
+         /\ (n_8 = 0
+             \/ ACK_WITHOUT_CHECKING_93 true 0 0 m_12 true 0 0 (n_8 - 1)
+                 (\x_20694.ACK_WITHOUT_CHECKING_93 true 0 0 (m_12 - 1) true 0 0 x_20694 k_ack_without_checking_93))).
+FAIL_20622 u_20623 k_20624 =v false.
+Forall p      =v ∀n. p n.

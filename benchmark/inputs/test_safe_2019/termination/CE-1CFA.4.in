@@ -1,0 +1,5 @@
+%HES
+MAIN_145  =v true.
+FAIL_4612 u_4613 k_4614 =v false.
+OMEGA_WITHOUT_CHECKING_143 x_16 x_15 x_14 k_omega_without_checking_143 =v FAIL_4612 true (\x_4640.true).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,7 @@
+%HES
+MAIN_8  =v
+  ∀arg1_46.
+   COPY arg1_46 (\x_44.COPY x_44 (\x_41.(x_41 != arg1_46 \/ true) /\ (x_41 = arg1_46 \/ FAIL_22 true (\x_33.true)))).
+COPY x_6 k_copy =v (x_6 != 0 \/ k_copy 0) /\ (x_6 = 0 \/ COPY (x_6 - 1) (\x_29.k_copy (1 + x_29))).
+FAIL_22 u_23 k_24 =v false.
+Forall p      =v ∀n. p n.

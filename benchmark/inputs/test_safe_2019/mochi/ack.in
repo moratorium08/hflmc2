@@ -1,0 +1,12 @@
+%HES
+MAIN_11  =v
+  ∀arg1_64.
+   ∀arg2_54.
+    ((arg1_64 < 0 \/ arg2_54 < 0)
+     \/ ACK arg1_64 arg2_54 (\x_62.(x_62 < arg2_54 \/ true) /\ (x_62 >= arg2_54 \/ FAIL_29 true (\x_51.true))))
+    /\ (arg1_64 >= 0 /\ arg2_54 >= 0 \/ true).
+ACK m_9 n_8 k_ack =v
+  (m_9 != 0 \/ k_ack (n_8 + 1))
+  /\ (m_9 = 0 \/ (n_8 != 0 \/ ACK (m_9 - 1) 1 k_ack) /\ (n_8 = 0 \/ ACK m_9 (n_8 - 1) (\x_47.ACK (m_9 - 1) x_47 k_ack))).
+FAIL_29 u_30 k_31 =v false.
+Forall p      =v ∀n. p n.

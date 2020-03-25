@@ -1,0 +1,5 @@
+%HES
+MAIN_5041  =v ∀x_5097.LOOP2_WITHOUT_CHECKING_82 true 0 0 (\u_5079.true).
+FAIL_5066 u_5067 k_5068 =v false.
+LOOP2_WITHOUT_CHECKING_82 x_8 x_7 n2_6 k_loop2_without_checking_82 =v false.
+Forall p      =v ∀n. p n.

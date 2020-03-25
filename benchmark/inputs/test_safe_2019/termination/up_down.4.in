@@ -1,0 +1,14 @@
+%HES
+MAIN_114  =v
+  ∀t1_4657.
+   ∀t2_4646.
+    (t1_4657 <= 0 \/ true)
+    /\ (t1_4657 > 0 \/ (t2_4646 >= 0 \/ UP_WITHOUT_CHECKING_112 true 0 t2_4646 (\u_4640.true)) /\ (t2_4646 < 0 \/ true)).
+FAIL_4599 u_4600 k_4601 =v false.
+UP_WITHOUT_CHECKING_112 x_19 x_18 x_17 k_up_without_checking_112 =v
+  (x_17 != 0 \/ k_up_without_checking_112 true)
+  /\ (x_17 = 0
+      \/ ((0 - x_17 <= 0 - (x_17 + 1) \/ 0 - (x_17 + 1) < 0)
+          \/ UP_WITHOUT_CHECKING_112 true 0 (x_17 + 1) k_up_without_checking_112)
+         /\ (0 - x_17 > 0 - (x_17 + 1) /\ 0 - (x_17 + 1) >= 0 \/ FAIL_4599 true (\x_4661.true))).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,6 @@
+%HES
+MAIN_6  =v
+  ∀arg1_32.MULT arg1_32 arg1_32 (\x_27.(arg1_32 > x_27 \/ true) /\ (arg1_32 <= x_27 \/ FAIL_17 true (\x_24.true))).
+FAIL_17 u_18 k_19 =v false.
+MULT n m k_mult =v (n > 0 /\ m > 0 \/ k_mult 0) /\ ((n <= 0 \/ m <= 0) \/ MULT n (m - 1) (\x_36.k_mult (n + x_36))).
+Forall p      =v ∀n. p n.

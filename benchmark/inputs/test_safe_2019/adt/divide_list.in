@@ -1,0 +1,70 @@
+%HES
+MAIN_54  =v
+  MAKE_INTLIST true
+   (\arg10_543.
+     \arg11_544.
+      DIVIDE arg10_543 arg11_544
+       (\r_divide00_526.
+         \r_divide01_527.
+          \r_divide10_528.
+           \r_divide11_529.
+            LENGTH arg10_543 arg11_544
+             (\x_506.
+               LENGTH r_divide00_526 r_divide01_527
+                (\x_461.
+                  (x_506 < x_461
+                   \/ LENGTH arg10_543 arg11_544
+                       (\x_439.
+                         LENGTH r_divide10_528 r_divide11_529
+                          (\x_423.(x_439 < x_423 \/ true) /\ (x_439 >= x_423 \/ FAIL_237 true (\x_415.true)))))
+                  /\ (x_506 >= x_461 \/ FAIL_234 true (\x_445.true)))))).
+DIVIDE l0_44 l1_43 k_divide_42 =v
+  (l0_44 > 0 \/ k_divide_42 0 (\x_251.\k_divide_252.false) 0 (\x_254.\k_divide_255.false))
+  /\ (l0_44 <= 0
+      \/ l1_43 0
+          (\n_259.
+            ((l0_44 <= 0 \/ l0_44 - 1 > 0)
+             \/ (l0_44 - 1 > 0 \/ k_divide_42 1 (\i_340.\k_divide_341.k_divide_341 0) 0 (\x_346.\k_divide_347.false))
+                /\ (l0_44 - 1 <= 0 \/ false))
+            /\ (l0_44 > 0 /\ l0_44 - 1 <= 0
+                \/ ((l0_44 <= 0 \/ l0_44 - 1 <= 0)
+                    \/ (l0_44 - 1 <= 0
+                        \/ l1_43 (0 + 1)
+                            (\y_355.
+                              DIVIDE ((l0_44 - 1) - 1) (\x_372.\k_divide_l_373.l1_43 ((x_372 + 1) + 1) k_divide_l_373)
+                               (\r_divide00_382.
+                                 \r_divide01_383.
+                                  \r_divide10_384.
+                                   \r_divide11_385.
+                                    k_divide_42 (1 + r_divide00_382) (\i_395.\k_divide_396.k_divide_396 0)
+                                     (1 + r_divide10_384) (\i_406.\k_divide_407.k_divide_407 0))))
+                       /\ (l0_44 - 1 > 0 \/ false))
+                   /\ (l0_44 > 0 /\ l0_44 - 1 > 0 \/ false)))).
+FAIL_234 u_235 k_236 =v false.
+FAIL_237 u_238 k_239 =v false.
+LENGTH l0_52 l1_51 k_length_50 =v
+  (l0_52 > 0 \/ k_length_50 0)
+  /\ (l0_52 <= 0
+      \/ (l0_52 <= 0
+          \/ l1_51 0
+              (\u_541.
+                LENGTH (1 + (l0_52 - 1))
+                 (\i_486.
+                   \k_length_487.(i_486 != 0 \/ k_length_487 0) /\ (i_486 = 0 \/ l1_51 ((i_486 - 1) + 1) k_length_487))
+                 (\x_498.k_length_50 (1 + x_498))))
+         /\ (l0_52 > 0 \/ false)).
+MAKE_INTLIST x_13 k_main_arg1_make_intlist_12 =v
+  ∀x_550.
+   (x_550 != 0 \/ k_main_arg1_make_intlist_12 0 (\x_532.\k_main_arg1_make_intlist_533.false))
+   /\ (x_550 = 0
+       \/ (∀n_537.
+            MAKE_INTLIST true
+             (\p0_511.
+               \p1_512.
+                k_main_arg1_make_intlist_12 (1 + p0_511)
+                 (\i_480.
+                   \k_main_arg1_make_intlist_481.
+                    (i_480 != 0 \/ k_main_arg1_make_intlist_481 0)
+                    /\ (i_480 = 0
+                        \/ MAKE_INTLIST true (\p0_452.\p1_453.p1_453 (i_480 - 1) k_main_arg1_make_intlist_481)))))).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,47 @@
+%HES
+MAIN_24  =v
+  MAKE_UNITLIST true
+   (\arg10_293.\arg11_294.COMBINE arg10_293 arg11_294 arg10_293 arg11_294 (\main0_162.\main1_163.true)).
+COMBINE xs0_22 xs1_21 ys0_20 ys1_19 k_combine_18 =v
+  ((xs0_22 > 0 \/ ys0_20 > 0)
+   \/ (xs0_22 > 0 \/ (ys0_20 > 0 \/ k_combine_18 0 (\x_166.\k_combine_167.false)) /\ (ys0_20 <= 0 \/ false))
+      /\ (xs0_22 <= 0 \/ false))
+  /\ (xs0_22 <= 0 /\ ys0_20 <= 0
+      \/ ((xs0_22 <= 0 \/ ys0_20 <= 0)
+          \/ (xs0_22 <= 0
+              \/ xs1_21 0
+                  (\x_173.
+                    (ys0_20 <= 0
+                     \/ ys1_19 0
+                         (\y_204.
+                           COMBINE (xs0_22 - 1) (\x_195.\k_combine_xs_196.xs1_21 (x_195 + 1) k_combine_xs_196)
+                            (ys0_20 - 1) (\x_220.\k_combine_ys_221.ys1_19 (x_220 + 1) k_combine_ys_221)
+                            (\p0_231.
+                              \p1_232.
+                               k_combine_18 (1 + p0_231)
+                                (\i_253.
+                                  \k_combine_254.
+                                   (i_253 != 0 \/ k_combine_254 true true)
+                                   /\ (i_253 = 0
+                                       \/ COMBINE (xs0_22 - 1)
+                                           (\x_195.\k_combine_xs_196.xs1_21 (x_195 + 1) k_combine_xs_196) (
+                                           ys0_20 - 1) (\x_220.\k_combine_ys_221.ys1_19 (x_220 + 1) k_combine_ys_221)
+                                           (\p0_264.\p1_265.p1_265 (i_253 - 1) k_combine_254))))))
+                    /\ (ys0_20 > 0 \/ false)))
+             /\ (xs0_22 > 0 \/ false))
+         /\ (xs0_22 > 0 /\ ys0_20 > 0 \/ FAIL_110 true (\x_176.true))).
+FAIL_110 u_111 k_112 =v false.
+MAKE_UNITLIST x_6 k_main_arg1_make_unitlist_5 =v
+  ∀x_300.
+   (x_300 != 0 \/ k_main_arg1_make_unitlist_5 0 (\x_285.\k_main_arg1_make_unitlist_286.false))
+   /\ (x_300 = 0
+       \/ MAKE_UNITLIST true
+           (\p0_290.
+             \p1_291.
+              k_main_arg1_make_unitlist_5 (1 + p0_290)
+               (\i_276.
+                 \k_main_arg1_make_unitlist_277.
+                  (i_276 != 0 \/ k_main_arg1_make_unitlist_277 true)
+                  /\ (i_276 = 0
+                      \/ MAKE_UNITLIST true (\p0_271.\p1_272.p1_272 (i_276 - 1) k_main_arg1_make_unitlist_277))))).
+Forall p      =v ∀n. p n.

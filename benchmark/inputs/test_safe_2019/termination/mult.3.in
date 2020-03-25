@@ -1,0 +1,8 @@
+%HES
+MAIN_2208  =v
+  ∀m_2269.
+   ∀n_2271.(m_2269 <= 0 \/ MULT_WITHOUT_CHECKING_63 true 0 0 0 true 0 0 0 (\u_2274.true)) /\ (m_2269 > 0 \/ true).
+FAIL_2246 u_2247 k_2248 =v false.
+MULT_WITHOUT_CHECKING_63 x_14 x_13 x_12 m_11 x_10 x_9 x_8 n_7 k_mult_without_checking_63 =v
+  MULT_WITHOUT_CHECKING_63 true 0 0 0 true 0 0 0 k_mult_without_checking_63.
+Forall p      =v ∀n. p n.

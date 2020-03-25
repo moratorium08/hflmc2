@@ -1,0 +1,7 @@
+%HES
+MAIN_6  =v ∀arg1_32.F arg1_32 (\q_26.\k_c_27.k_c_27 true) 0 (\main_28.true).
+F n x q k_f =v
+  (n > 0 \/ k_f true)
+  /\ (n <= 0 \/ (q != 0 \/ F (n - 1) (\q_24.\k_b_25.k_b_25 true) 0 k_f) /\ (q = 0 \/ FAIL_11 true (\x_30.true))).
+FAIL_11 u_12 k_13 =v false.
+Forall p      =v ∀n. p n.

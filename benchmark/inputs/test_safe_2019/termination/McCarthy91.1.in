@@ -1,0 +1,4 @@
+%HES
+MAIN_50  =v ∀x_133.true.
+FAIL_125 u_126 k_127 =v false.
+Forall p      =v ∀n. p n.

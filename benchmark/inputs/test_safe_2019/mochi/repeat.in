@@ -1,0 +1,8 @@
+%HES
+MAIN_7  =v
+  ∀arg1_33.
+   REPEAT (\x_40.\k_succ_41.k_succ_41 (x_40 + 1)) arg1_33 0
+    (\x_28.(x_28 != arg1_33 \/ true) /\ (x_28 = arg1_33 \/ FAIL_18 true (\x_25.true))).
+FAIL_18 u_19 k_20 =v false.
+REPEAT f n s k_repeat =v (n != 0 \/ k_repeat s) /\ (n = 0 \/ REPEAT f (n - 1) s (\x_38.f x_38 k_repeat)).
+Forall p      =v ∀n. p n.

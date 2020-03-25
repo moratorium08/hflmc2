@@ -1,0 +1,12 @@
+%HES
+MAIN_9  =v
+  ∀arg1_51.
+   FILTER (\n_27.\k_f_28.k_f_28 true) arg1_51
+    (\x_38.(x_38 > arg1_51 \/ true) /\ (x_38 <= arg1_51 \/ FAIL_22 true (\x_31.true))).
+FAIL_22 u_23 k_24 =v false.
+FILTER f n k_filter =v
+  (n != 0 \/ k_filter 0)
+  /\ (n = 0
+      \/ (∀x_49.
+           (x_49 != 0 \/ FILTER f (n - 1) (\x_35.k_filter (1 + x_35))) /\ (x_49 = 0 \/ FILTER f (n - 1) k_filter))).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,28 @@
+%HES
+MAIN_18  =v
+  ∀arg1_139.
+   ∀arg2_132.
+    ∀arg3_129.
+     (arg3_129 != 0
+      \/ DOTPROD arg1_139
+          (\i_157.
+            \k_make_array_158.
+             ((0 > i_157 \/ i_157 >= arg1_139) \/ k_make_array_158 0)
+             /\ (0 <= i_157 /\ i_157 < arg1_139 \/ FAIL_71 true (\x_146.true)))
+          (\i_157.
+            \k_make_array_158.
+             ((0 > i_157 \/ i_157 >= arg1_139) \/ k_make_array_158 0)
+             /\ (0 <= i_157 /\ i_157 < arg1_139 \/ FAIL_71 true (\x_146.true)))
+          arg3_129 arg3_129 (\u_137.true))
+     /\ (arg3_129 = 0 \/ true).
+DOTPROD n_11 v1 v2 i sum k_dotprod =v
+  (i < n_11 \/ k_dotprod 0)
+  /\ (i >= n_11
+      \/ v1 i
+          (\x_87.
+            v2 i
+             (\x_95.
+               DOTPROD n_11 v1 v2 (i + 1) ((sum + x_87) + x_95)
+                (\u_104.v1 i (\x_114.v2 i (\x_125.DOTPROD n_11 v1 v2 (i + 1) ((sum + x_114) + x_125) k_dotprod)))))).
+FAIL_71 u_72 k_73 =v false.
+Forall p      =v ∀n. p n.

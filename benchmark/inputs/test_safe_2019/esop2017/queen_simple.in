@@ -1,0 +1,35 @@
+%HES
+MAIN_18  =v
+  ∀arg1_193.
+   (arg1_193 <= 0
+    \/ LOOP 0 arg1_193 0
+        (\i_213.
+          \k_main_make_vect_214.
+           ((0 > i_213 \/ i_213 >= arg1_193) \/ k_main_make_vect_214 0)
+           /\ (0 <= i_213 /\ i_213 < arg1_193 \/ FAIL_83 true (\x_204.true)))
+        (\main_105.true))
+   /\ (arg1_193 > 0 \/ true).
+ASSIGN n_15 row size_16 n_13 queenArray_12 i_11 j_10 k_loop_assign =v
+  queenArray_12 i_11
+   (\u_114.
+     k_loop_assign
+      (\j_133.
+        \k_loop_assign_update_134.
+         (i_11 != j_133 \/ k_loop_assign_update_134 j_133)
+         /\ (i_11 = j_133 \/ queenArray_12 j_133 k_loop_assign_update_134))).
+FAIL_83 u_84 k_85 =v false.
+LOOP row size_16 n_15 queenArray_14 k_loop =v
+  queenArray_14 row
+   (\x_191.
+     (x_191 + 1 <= size_16
+      \/ ASSIGN n_15 row size_16 0 queenArray_14 row 0
+          (\queenArray_157.(row != 0 \/ k_loop true) /\ (row = 0 \/ LOOP (row - 1) size_16 0 queenArray_157 k_loop)))
+     /\ (x_191 + 1 > size_16
+         \/ ASSIGN n_15 row size_16 0 queenArray_14 row (x_191 + 1)
+             (\queenArray_171.
+               ∀x_150.
+                (x_150 != 0
+                 \/ (row + 1 != size_16 \/ LOOP row size_16 0 queenArray_171 k_loop)
+                    /\ (row + 1 = size_16 \/ LOOP (row + 1) size_16 0 queenArray_171 k_loop))
+                /\ (x_150 = 0 \/ LOOP row size_16 0 queenArray_171 k_loop)))).
+Forall p      =v ∀n. p n.

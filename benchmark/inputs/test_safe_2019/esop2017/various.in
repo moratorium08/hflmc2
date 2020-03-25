@@ -1,0 +1,18 @@
+%HES
+MAIN_17  =v
+  ∀arg1_65.
+   (arg1_65 > 101
+    \/ MC91 arg1_65 arg1_65
+        (\x_79.
+          (x_79 != 91
+           \/ SUM arg1_65 arg1_65 (\x_60.(arg1_65 > x_60 \/ true) /\ (arg1_65 <= x_60 \/ FAIL_41 true (\x_51.true))))
+          /\ (x_79 = 91 \/ FAIL_44 true (\x_54.true))))
+   /\ (arg1_65 <= 101
+       \/ SUM arg1_65 arg1_65 (\x_60.(arg1_65 > x_60 \/ true) /\ (arg1_65 <= x_60 \/ FAIL_41 true (\x_51.true)))).
+FAIL_41 u_42 k_43 =v false.
+FAIL_44 u_45 k_46 =v false.
+MC91 n x_6 k_main_mc91 =v
+  (x_6 <= 100 \/ k_main_mc91 (x_6 - 10)) /\ (x_6 > 100 \/ MC91 n (x_6 + 11) (\x_69.MC91 n x_69 k_main_mc91)).
+SUM n_14 n_12 k_main_sum =v
+  (n_12 > 0 \/ k_main_sum 0) /\ (n_12 <= 0 \/ SUM n_14 (n_12 - 1) (\x_73.k_main_sum (n_12 + x_73))).
+Forall p      =v ∀n. p n.

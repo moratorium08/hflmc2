@@ -1,0 +1,15 @@
+%HES
+MAIN_11  =v
+  ∀arg1_83.
+   ∀arg2_81.
+    REV arg1_83
+     (\x_78.
+       (x_78 != arg1_83
+        \/ APPEND arg1_83 arg2_81
+            (\x_61.(x_61 != arg1_83 + arg2_81 \/ true) /\ (x_61 = arg1_83 + arg2_81 \/ FAIL_41 true (\x_56.true))))
+       /\ (x_78 = arg1_83 \/ FAIL_38 true (\x_70.true))).
+APPEND x_9 y k_append =v (x_9 != 0 \/ k_append y) /\ (x_9 = 0 \/ APPEND (x_9 - 1) y (\x_51.k_append (1 + x_51))).
+FAIL_38 u_39 k_40 =v false.
+FAIL_41 u_42 k_43 =v false.
+REV n k_rev =v (n != 0 \/ k_rev 0) /\ (n = 0 \/ REV (n - 1) (\x_86.APPEND x_86 1 k_rev)).
+Forall p      =v ∀n. p n.

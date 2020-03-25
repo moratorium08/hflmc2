@@ -1,0 +1,22 @@
+%HES
+MAIN_99  =v
+  ∀n_9399.
+   ∀k_9386.
+    ((n_9399 < 0 \/ k_9386 < 0) \/ BIN_WITHOUT_CHECKING_97 true 0 0 n_9399 true 0 0 k_9386 (\u_9348.true))
+    /\ (n_9399 >= 0 /\ k_9386 >= 0 \/ true).
+BIN_WITHOUT_CHECKING_97 x_16 x_15 x_14 n_13 x_12 x_11 x_10 k_9 k_bin_without_checking_97 =v
+  (n_13 != 0 \/ k_bin_without_checking_97 1)
+  /\ (n_13 = 0
+      \/ (k_9 > 0 /\ k_9 < n_13 \/ k_bin_without_checking_97 1)
+         /\ ((k_9 <= 0 \/ k_9 >= n_13)
+             \/ BIN_WITHOUT_CHECKING_97 true 0 0 (n_13 - 1) true 0 0 (k_9 - 1)
+                 (\x_9368.
+                   ((k_9 <= k_9 \/ k_9 < 0)
+                    /\ (k_9 < k_9 \/ (n_13 + (0 - k_9) <= (n_13 - 1) + (0 - k_9) \/ (n_13 - 1) + (0 - k_9) < 0))
+                    \/ BIN_WITHOUT_CHECKING_97 true 0 0 (n_13 - 1) true 0 0 k_9
+                        (\x_9379.k_bin_without_checking_97 (x_9368 + x_9379)))
+                   /\ ((k_9 > k_9 /\ k_9 >= 0
+                        \/ k_9 >= k_9 /\ (n_13 + (0 - k_9) > (n_13 - 1) + (0 - k_9) /\ (n_13 - 1) + (0 - k_9) >= 0))
+                       \/ FAIL_9296 true (\x_9408.true))))).
+FAIL_9296 u_9297 k_9298 =v false.
+Forall p      =v ∀n. p n.

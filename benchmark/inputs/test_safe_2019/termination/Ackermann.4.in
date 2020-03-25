@@ -1,0 +1,17 @@
+%HES
+MAIN_95  =v
+  ∀m_4979.
+   ∀n_4966.
+    ((n_4966 <= 0 \/ m_4979 <= 0) \/ ACK_WITHOUT_CHECKING_93 true 0 0 m_4979 true 0 0 n_4966 (\u_4939.true))
+    /\ (n_4966 > 0 /\ m_4979 > 0 \/ true).
+ACK_WITHOUT_CHECKING_93 x_15 x_14 x_13 m_12 x_11 x_10 x_9 n_8 k_ack_without_checking_93 =v
+  (m_12 != 0 \/ k_ack_without_checking_93 (n_8 + 1))
+  /\ (m_12 = 0
+      \/ (n_8 != 0 \/ ACK_WITHOUT_CHECKING_93 true 0 0 (m_12 - 1) true 0 0 1 k_ack_without_checking_93)
+         /\ (n_8 = 0
+             \/ ((n_8 <= n_8 - 1 \/ n_8 - 1 < 0)
+                 \/ ACK_WITHOUT_CHECKING_93 true 0 0 m_12 true 0 0 (n_8 - 1)
+                     (\x_4959.ACK_WITHOUT_CHECKING_93 true 0 0 (m_12 - 1) true 0 0 x_4959 k_ack_without_checking_93))
+                /\ (n_8 > n_8 - 1 /\ n_8 - 1 >= 0 \/ FAIL_4887 true (\x_4988.true)))).
+FAIL_4887 u_4888 k_4889 =v false.
+Forall p      =v ∀n. p n.

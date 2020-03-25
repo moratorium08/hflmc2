@@ -1,0 +1,20 @@
+%HES
+MAIN_13  =v
+  ∀arg1_58.
+   ∀arg2_56.
+    ((arg1_58 > arg2_56 \/ arg1_58 <= 0)
+     \/ BCOPY_AUX arg1_58
+         (\i_74.
+           \k_make_array_75.
+            ((0 > i_74 \/ i_74 >= arg1_58) \/ k_make_array_75 0)
+            /\ (0 <= i_74 /\ i_74 < arg1_58 \/ FAIL_34 true (\x_65.true)))
+         (\i_74.
+           \k_make_array_75.
+            ((0 > i_74 \/ i_74 >= arg2_56) \/ k_make_array_75 0)
+            /\ (0 <= i_74 /\ i_74 < arg2_56 \/ FAIL_34 true (\x_65.true)))
+         0 (\main_40.true))
+    /\ (arg1_58 <= arg2_56 /\ arg1_58 > 0 \/ true).
+BCOPY_AUX m_6 src des i k_bcopy_aux =v
+  (i < m_6 \/ k_bcopy_aux true) /\ (i >= m_6 \/ src i (\x_46.des i (\u_53.BCOPY_AUX m_6 src des (i + 1) k_bcopy_aux))).
+FAIL_34 u_35 k_36 =v false.
+Forall p      =v ∀n. p n.

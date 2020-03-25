@@ -89,7 +89,9 @@ let rec infer_formula track formula env m ints =
     begin
     match IdMap.find env id with
     | Some(t) -> (t, m)
-    | None -> failwith "no var(infer_formula)"
+    | None ->
+    Printf.printf "not found: %s" id.name;
+    failwith "no var(infer_formula)"
     end
   | Abs (arg, body) -> 
     let env' = IdMap.add env arg arg.ty in

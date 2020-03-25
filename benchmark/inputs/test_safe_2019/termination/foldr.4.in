@@ -1,0 +1,20 @@
+%HES
+MAIN_133  =v
+  ∀l_11773.
+   (l_11773 < 0
+    \/ (∀x_11715.
+         FOLDR_WITHOUT_CHECKING_131 true 0 0 0 0 true 0 0 0
+          (\x_11827.
+            \x_11828.\x_11829.\x_11830.\m_11831.\x_11832.\x_11833.\x_11834.\x_11835.\n_11836.\k_sum_11837.k_sum_11837 0)
+          true 0 0 0 x_11715 true 0 0 0 l_11773 (\u_11684.true)))
+   /\ (l_11773 >= 0 \/ true).
+FAIL_11639 u_11640 k_11641 =v false.
+FOLDR_WITHOUT_CHECKING_131 x_35 x_34 x_33 x_32 h_EXPARAM_92_31 x_30 x_29 x_28 x_27 h_26 x_25 x_24 x_23 x_22 e_21 x_20 x_19 x_18 x_17 l_16 k_foldr_without_checking_131
+  =v
+  (l_16 != 0 \/ k_foldr_without_checking_131 0)
+  /\ (l_16 = 0
+      \/ ((l_16 <= l_16 - 1 \/ l_16 - 1 < 0)
+          \/ FOLDR_WITHOUT_CHECKING_131 true 0 0 0 0 true 0 0 0 h_26 true 0 0 0 0 true 0 0 0 (l_16 - 1)
+              (\x_11759.∀x_11707.h_26 true 0 0 0 x_11707 true 0 0 0 x_11759 k_foldr_without_checking_131))
+         /\ (l_16 > l_16 - 1 /\ l_16 - 1 >= 0 \/ FAIL_11639 true (\x_11793.true))).
+Forall p      =v ∀n. p n.

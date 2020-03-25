@@ -1,0 +1,15 @@
+%HES
+MAIN_8  =v
+  ∀arg1_73.
+   LOOP 3 arg1_73
+    (\x_68.
+      (x_68 < 3 \/ LOOP 1 arg1_73 (\x_62.(x_62 < 0 \/ true) /\ (x_62 >= 0 \/ FAIL_30 true (\x_54.true))))
+      /\ (x_68 >= 3 \/ FAIL_27 true (\x_65.true))).
+FAIL_27 u_28 k_29 =v false.
+FAIL_30 u_31 k_32 =v false.
+LOOP x_6 i k_loop =v
+  (i >= 0 \/ k_loop x_6)
+  /\ (i < 0
+      \/ (x_6 >= 1 \/ LOOP (x_6 - 1) (i - 1) k_loop)
+         /\ (x_6 < 1 \/ (x_6 <= 2 \/ LOOP x_6 (i - 1) k_loop) /\ (x_6 > 2 \/ LOOP (3 - x_6) (i - 1) k_loop))).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,16 @@
+%HES
+MAIN_9  =v
+  ∀arg1_99.
+   ∀arg2_97.
+    ((0 > arg1_99 \/ arg1_99 != arg2_97) \/ BS_AUX arg1_99 arg2_97 0 (arg2_97 - 1) (\u_80.true))
+    /\ (0 <= arg1_99 /\ arg1_99 = arg2_97 \/ true).
+BS_AUX key vec l u_4 k_bs_aux =v
+  (u_4 >= l \/ k_bs_aux 0)
+  /\ (u_4 < l
+      \/ ((0 > l + (u_4 - l) / 2 \/ l + (u_4 - l) / 2 >= vec)
+          \/ (0 >= key \/ BS_AUX key vec ((l + (u_4 - l) / 2) + 1) u_4 k_bs_aux)
+             /\ (0 < key
+                 \/ (0 <= key \/ BS_AUX key vec l ((l + (u_4 - l) / 2) - 1) k_bs_aux) /\ (0 > key \/ k_bs_aux 0)))
+         /\ (0 <= l + (u_4 - l) / 2 /\ l + (u_4 - l) / 2 < vec \/ FAIL_42 true (\x_106.true))).
+FAIL_42 u_43 k_44 =v false.
+Forall p      =v ∀n. p n.

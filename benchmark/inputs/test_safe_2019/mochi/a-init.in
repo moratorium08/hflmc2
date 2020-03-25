@@ -1,0 +1,28 @@
+%HES
+MAIN_19  =v
+  ∀arg1_97.
+   ∀arg2_85.
+    ∀arg3_72.
+     ((arg1_97 < 0 \/ arg1_97 > 0)
+      \/ INIT arg1_97 arg2_85
+          (\i_115.
+            \k_make_array_116.
+             ((0 > i_115 \/ i_115 >= arg2_85) \/ k_make_array_116 0)
+             /\ (0 <= i_115 /\ i_115 < arg2_85 \/ FAIL_51 true (\x_104.true)))
+          (\x_95.
+            ((0 > arg3_72 \/ arg3_72 >= arg2_85)
+             \/ x_95 arg3_72 (\x_82.(x_82 < 1 \/ true) /\ (x_82 >= 1 \/ FAIL_54 true (\x_68.true))))
+            /\ (0 <= arg3_72 /\ arg3_72 < arg2_85 \/ true)))
+     /\ (arg1_97 >= 0 /\ arg1_97 <= 0 \/ true).
+FAIL_51 u_52 k_53 =v false.
+FAIL_54 u_55 k_56 =v false.
+INIT i_10 n_9 a k_init =v
+  (i_10 < n_9 \/ k_init a)
+  /\ (i_10 >= n_9
+      \/ INIT (i_10 + 1) n_9
+          (\j_126.
+            \k_update_127.
+             ((j_126 <= i_10 - 1 \/ j_126 > i_10) \/ k_update_127 1)
+             /\ (j_126 > i_10 - 1 /\ j_126 <= i_10 \/ a j_126 k_update_127))
+          k_init).
+Forall p      =v ∀n. p n.

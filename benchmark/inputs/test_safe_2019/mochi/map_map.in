@@ -1,0 +1,7 @@
+%HES
+MAIN_8  =v
+  ∀arg1_43.
+   MAP arg1_43 (\x_41.MAP x_41 (\x_38.(x_38 != arg1_43 \/ true) /\ (x_38 = arg1_43 \/ FAIL_22 true (\x_30.true)))).
+FAIL_22 u_23 k_24 =v false.
+MAP x_6 k_map =v (x_6 != 0 \/ k_map x_6) /\ (x_6 = 0 \/ MAP (x_6 - 1) (\x_46.k_map (1 + x_46))).
+Forall p      =v ∀n. p n.

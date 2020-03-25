@@ -1,0 +1,5 @@
+%HES
+MAIN_5  =v
+  ∀arg1_24.(arg1_24 < 0 \/ true) /\ (arg1_24 >= 0 \/ (0 != 0 \/ true) /\ (0 = 0 \/ FAIL_10 true (\x_22.true))).
+FAIL_10 u_11 k_12 =v false.
+Forall p      =v ∀n. p n.

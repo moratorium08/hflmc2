@@ -1,0 +1,7 @@
+%HES
+MAIN_6  =v ∀arg1_45.F 3 (\x_40.(x_40 < 0 \/ true) /\ (x_40 >= 0 \/ FAIL_18 true (\x_37.true))).
+F x_4 k_f =v
+  (x_4 >= (-1) \/ F (-2) k_f)
+  /\ (x_4 < (-1) \/ (x_4 > 0 \/ k_f (-1)) /\ (x_4 <= 0 \/ (x_4 > 2 \/ k_f (3 - x_4)) /\ (x_4 <= 2 \/ k_f x_4))).
+FAIL_18 u_19 k_20 =v false.
+Forall p      =v ∀n. p n.

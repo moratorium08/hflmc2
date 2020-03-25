@@ -1,0 +1,6 @@
+%HES
+MAIN_1338  =v ∀x_1390.F_WITHOUT_CHECKING_53 true 0 0 (\u_1378.true).
+FAIL_1361 u_1362 k_1363 =v false.
+F_WITHOUT_CHECKING_53 x_7 x_6 n_5 k_f_without_checking_53 =v
+  ∀r_1388.F_WITHOUT_CHECKING_53 true 0 0 k_f_without_checking_53.
+Forall p      =v ∀n. p n.

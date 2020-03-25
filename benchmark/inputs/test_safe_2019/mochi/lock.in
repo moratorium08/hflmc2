@@ -1,0 +1,19 @@
+%HES
+MAIN_15  =v
+  ∀arg1_73.
+   (arg1_73 <= 0
+    \/ (0 != 0
+        \/ (arg1_73 <= 0
+            \/ (1 != 1 \/ (0 != 0 \/ true) /\ (0 = 0 \/ FAIL_43 true (\x_57.true)))
+               /\ (1 = 1 \/ FAIL_40 true (\x_77.true)))
+           /\ (arg1_73 > 0 \/ (1 != 0 \/ true) /\ (1 = 0 \/ FAIL_43 true (\x_57.true))))
+       /\ (0 = 0 \/ FAIL_37 true (\x_75.true)))
+   /\ (arg1_73 > 0
+       \/ (arg1_73 <= 0
+           \/ (0 != 1 \/ (0 != 0 \/ true) /\ (0 = 0 \/ FAIL_43 true (\x_57.true)))
+              /\ (0 = 1 \/ FAIL_40 true (\x_77.true)))
+          /\ (arg1_73 > 0 \/ (0 != 0 \/ true) /\ (0 = 0 \/ FAIL_43 true (\x_57.true)))).
+FAIL_37 u_38 k_39 =v false.
+FAIL_40 u_41 k_42 =v false.
+FAIL_43 u_44 k_45 =v false.
+Forall p      =v ∀n. p n.

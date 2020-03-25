@@ -1,0 +1,13 @@
+%HES
+MAIN_8  =v
+  ∀arg1_56.
+   ∀arg2_49.
+    TARAI2 arg1_56 arg2_49
+     (\z_46.
+       (z_46 > arg1_56 /\ z_46 > arg2_49 \/ true)
+       /\ ((z_46 <= arg1_56 \/ z_46 <= arg2_49) \/ FAIL_28 true (\x_38.true))).
+FAIL_28 u_29 k_30 =v false.
+TARAI2 x_6 y k_tarai2 =v
+  (x_6 > y \/ k_tarai2 y)
+  /\ (x_6 <= y \/ TARAI2 (y - 1) x_6 (\x_60.TARAI2 (x_6 - 1) y (\x_54.TARAI2 x_54 x_60 k_tarai2))).
+Forall p      =v ∀n. p n.

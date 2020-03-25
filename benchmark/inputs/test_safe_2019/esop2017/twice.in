@@ -1,0 +1,15 @@
+%HES
+MAIN_13  =v
+  ∀arg1_77.
+   ∀arg2_71.
+    ((arg1_77 >= 0 \/ arg2_71 <= 0)
+     \/ MULT arg1_77 arg2_71
+         (\x_75.MULT arg1_77 x_75 (\x_63.(0 > x_63 \/ true) /\ (0 <= x_63 \/ FAIL_39 true (\x_58.true)))))
+    /\ (arg1_77 < 0 /\ arg2_71 > 0 \/ true).
+FAIL_39 u_40 k_41 =v false.
+MULT n_11 m_10 k_mult =v
+  (m_10 != 0 \/ k_mult 0)
+  /\ (m_10 = 0
+      \/ (m_10 >= 0 \/ MULT n_11 (m_10 + 1) (\x_81.k_mult ((0 - n_11) + x_81)))
+         /\ (m_10 < 0 \/ MULT n_11 (m_10 - 1) (\x_85.k_mult (n_11 + x_85)))).
+Forall p      =v ∀n. p n.

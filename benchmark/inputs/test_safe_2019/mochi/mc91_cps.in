@@ -1,0 +1,13 @@
+%HES
+MAIN_9  =v
+  ∀arg1_40.
+   M arg1_40
+    (\r_45.
+      \k_main_k_46.
+       (arg1_40 > 101 \/ (r_45 != 91 \/ k_main_k_46 true) /\ (r_45 = 91 \/ FAIL_19 true (\x_38.true)))
+       /\ (arg1_40 <= 101 \/ k_main_k_46 true))
+    (\main_35.true).
+FAIL_19 u_20 k_21 =v false.
+M x_7 k_6 k_m =v
+  (x_7 <= 100 \/ k_6 (x_7 - 10) k_m) /\ (x_7 > 100 \/ M (x_7 + 11) (\r_33.\k_m_f_34.M r_33 k_6 k_m_f_34) k_m).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,19 @@
+%HES
+MAIN_1981  =v ∀x_2064.F_WITHOUT_CHECKING_53 true 0 x_2064 (\u_2040.true).
+FAIL_2013 u_2014 k_2015 =v false.
+F_WITHOUT_CHECKING_53 x_8 x_7 n_6 k_f_without_checking_53 =v
+  ∀r_2062.
+   (r_2062 <= 0
+    \/ (n_6 - r_2062 <= 0
+        \/ (((-1) + n_6 <= (-1) + (n_6 - r_2062) \/ (-1) + (n_6 - r_2062) < 0)
+            \/ F_WITHOUT_CHECKING_53 true 0 (n_6 - r_2062) k_f_without_checking_53)
+           /\ ((-1) + n_6 > (-1) + (n_6 - r_2062) /\ (-1) + (n_6 - r_2062) >= 0 \/ FAIL_2013 true (\x_2068.true)))
+       /\ (n_6 - r_2062 > 0 \/ k_f_without_checking_53 true))
+   /\ (r_2062 > 0
+       \/ (n_6 - (1 - r_2062) <= 0
+           \/ (((-1) + n_6 <= (-1) + (n_6 - (1 - r_2062)) \/ (-1) + (n_6 - (1 - r_2062)) < 0)
+               \/ F_WITHOUT_CHECKING_53 true 0 (n_6 - (1 - r_2062)) k_f_without_checking_53)
+              /\ ((-1) + n_6 > (-1) + (n_6 - (1 - r_2062)) /\ (-1) + (n_6 - (1 - r_2062)) >= 0
+                  \/ FAIL_2013 true (\x_2068.true)))
+          /\ (n_6 - (1 - r_2062) > 0 \/ k_f_without_checking_53 true)).
+Forall p      =v ∀n. p n.

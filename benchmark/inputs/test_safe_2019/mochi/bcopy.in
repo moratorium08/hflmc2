@@ -1,0 +1,15 @@
+%HES
+MAIN_14  =v
+  ∀arg1_91.
+   ∀arg2_89.
+    (arg1_91 > arg2_89 \/ BCOPY_AUX arg1_91 arg2_89 0 arg1_91 (\main_59.true)) /\ (arg1_91 <= arg2_89 \/ true).
+BCOPY_AUX src des i m k_bcopy_aux =v
+  (i < m \/ k_bcopy_aux true)
+  /\ (i >= m
+      \/ ((0 > i \/ i >= src)
+          \/ ((0 > i \/ i >= des) \/ BCOPY_AUX src des (i + 1) m k_bcopy_aux)
+             /\ (0 <= i /\ i < des \/ FAIL_50 true (\x_102.true)))
+         /\ (0 <= i /\ i < src \/ FAIL_53 true (\x_98.true))).
+FAIL_50 u_51 k_52 =v false.
+FAIL_53 u_54 k_55 =v false.
+Forall p      =v ∀n. p n.

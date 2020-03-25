@@ -1,0 +1,7 @@
+%HES
+MAIN_6  =v
+  ∀arg1_31.
+   SUM arg1_31 (\x_26.(2 * arg1_31 - 1 > x_26 \/ true) /\ (2 * arg1_31 - 1 <= x_26 \/ FAIL_16 true (\x_23.true))).
+FAIL_16 u_17 k_18 =v false.
+SUM n k_sum =v (n > 0 \/ k_sum 0) /\ (n <= 0 \/ SUM (n - 1) (\x_34.k_sum (n + x_34))).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,7 @@
+%HES
+MAIN_7  =v
+  ∀arg1_38.
+   (3 <= 0 \/ (3 - 1 <= 0 \/ true) /\ (3 - 1 > 0 \/ FAIL_15 true (\x_30.true)))
+   /\ (3 > 0 \/ (1 <= 0 \/ true) /\ (1 > 0 \/ FAIL_15 true (\x_30.true))).
+FAIL_15 u_16 k_17 =v false.
+Forall p      =v ∀n. p n.

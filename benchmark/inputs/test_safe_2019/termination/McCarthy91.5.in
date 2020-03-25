@@ -1,0 +1,12 @@
+%HES
+MAIN_50  =v ∀x_2885.MC91_WITHOUT_CHECKING_48 true 0 x_2885 (\u_2880.true).
+FAIL_2867 u_2868 k_2869 =v false.
+MC91_WITHOUT_CHECKING_48 x_7 x_6 n_5 k_mc91_without_checking_48 =v
+  (n_5 <= 100 \/ k_mc91_without_checking_48 (n_5 - 10))
+  /\ (n_5 > 100
+      \/ MC91_WITHOUT_CHECKING_48 true 0 (n_5 + 11)
+          (\x_2895.
+            ((111 + (0 - n_5) <= 111 + (0 - x_2895) \/ 111 + (0 - x_2895) < 0)
+             \/ MC91_WITHOUT_CHECKING_48 true 0 x_2895 k_mc91_without_checking_48)
+            /\ (111 + (0 - n_5) > 111 + (0 - x_2895) /\ 111 + (0 - x_2895) >= 0 \/ FAIL_2867 true (\x_2899.true)))).
+Forall p      =v ∀n. p n.

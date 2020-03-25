@@ -1,0 +1,7 @@
+%HES
+MAIN_9  =v
+  ∀arg1_43.SIGMA SUM arg1_43 (\x_34.(x_34 < arg1_43 \/ true) /\ (x_34 >= arg1_43 \/ FAIL_24 true (\x_31.true))).
+FAIL_24 u_25 k_26 =v false.
+SIGMA f n k_sigma =v (n > 0 \/ k_sigma 0) /\ (n <= 0 \/ f n (\x_47.SIGMA f (n - 1) (\x_41.k_sigma (x_47 + x_41)))).
+SUM n_7 k_sum =v (n_7 > 0 \/ k_sum 0) /\ (n_7 <= 0 \/ SUM (n_7 - 1) (\x_50.k_sum (n_7 + x_50))).
+Forall p      =v ∀n. p n.

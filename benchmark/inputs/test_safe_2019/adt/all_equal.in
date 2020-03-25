@@ -1,0 +1,27 @@
+%HES
+MAIN_14  =v
+  ∀arg1_132.
+   ∀arg2_120.REPLICATE arg1_132 arg2_120 (\x0_109.\x1_110.ALL_EQUAL arg1_132 x0_109 x1_110 (\main_81.true)).
+ALL_EQUAL x_6 l0 l1 k_all_equal =v
+  (l0 > 0 \/ k_all_equal true)
+  /\ (l0 <= 0
+      \/ (l0 <= 0
+          \/ l1 0
+              (\y_86.
+                (x_6 != y_86
+                 \/ ALL_EQUAL y_86 (l0 - 1) (\x_97.\k_all_equal_ys_98.l1 (x_97 + 1) k_all_equal_ys_98) k_all_equal)
+                /\ (x_6 = y_86 \/ FAIL_65 true (\x_146.true))))
+         /\ (l0 > 0 \/ false)).
+FAIL_65 u_66 k_67 =v false.
+REPLICATE x_12 n k_replicate_11 =v
+  (n > 0 \/ k_replicate_11 0 (\x_135.\k_replicate_136.false))
+  /\ (n <= 0
+      \/ REPLICATE x_12 (n - 1)
+          (\p0_140.
+            \p1_141.
+             k_replicate_11 (1 + p0_140)
+              (\i_129.
+                \k_replicate_130.
+                 (i_129 != 0 \/ k_replicate_130 x_12)
+                 /\ (i_129 = 0 \/ REPLICATE x_12 (n - 1) (\p0_116.\p1_117.p1_117 (i_129 - 1) k_replicate_130))))).
+Forall p      =v ∀n. p n.

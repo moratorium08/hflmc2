@@ -1,0 +1,8 @@
+%HES
+MAIN_9  =v
+  ∀arg1_37.
+   (arg1_37 > 98 \/ M arg1_37 (\x_35.(x_35 != 91 \/ true) /\ (x_35 = 91 \/ FAIL_19 true (\x_26.true))))
+   /\ (arg1_37 <= 98 \/ true).
+FAIL_19 u_20 k_21 =v false.
+M x_7 k_m =v (x_7 <= 100 \/ k_m (x_7 - 10)) /\ (x_7 > 100 \/ M (x_7 + 11) (\x_29.M x_29 k_m)).
+Forall p      =v ∀n. p n.

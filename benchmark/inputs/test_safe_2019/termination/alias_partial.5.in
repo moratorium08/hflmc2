@@ -1,0 +1,9 @@
+%HES
+MAIN_91  =v F_WITHOUT_CHECKING_89 true 0 1 (\g_123.true).
+FAIL_106 u_107 k_108 =v false.
+F_WITHOUT_CHECKING_89 x_5 x_4 x_3 k_f_without_checking_89 =v
+  (x_3 <= 0
+   \/ ((x_3 <= x_3 - 1 \/ x_3 - 1 < 0) \/ F_WITHOUT_CHECKING_89 true 0 (x_3 - 1) k_f_without_checking_89)
+      /\ (x_3 > x_3 - 1 /\ x_3 - 1 >= 0 \/ FAIL_106 true (\x_132.true)))
+  /\ (x_3 > 0 \/ k_f_without_checking_89 (\x_133.\x_134.\x_135.\k_lambda_136.k_lambda_136 0)).
+Forall p      =v ∀n. p n.

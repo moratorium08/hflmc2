@@ -1,0 +1,14 @@
+%HES
+MAIN_5763  =v ∀x_5819.LOOP2_WITHOUT_CHECKING_82 true 0 x_5819 (\u_5801.true).
+FAIL_5788 u_5789 k_5790 =v false.
+LOOP1 set_flag_loop2_75 s_loop2_n2_72 n1 k_loop1 =v
+  (n1 <= 0 \/ LOOP1 true 0 (n1 - 1) k_loop1) /\ (n1 > 0 \/ k_loop1 0).
+LOOP2_WITHOUT_CHECKING_82 x_8 x_7 n2_6 k_loop2_without_checking_82 =v
+  (n2_6 <= 0
+   \/ LOOP1 true 0 n2_6
+       (\x_5817.
+         ((n2_6 <= n2_6 - 1 \/ n2_6 - 1 < 0)
+          \/ LOOP2_WITHOUT_CHECKING_82 true 0 (n2_6 - 1) (\x_5807.k_loop2_without_checking_82 (x_5817 + x_5807)))
+         /\ (n2_6 > n2_6 - 1 /\ n2_6 - 1 >= 0 \/ FAIL_5788 true (\x_5823.true))))
+  /\ (n2_6 > 0 \/ k_loop2_without_checking_82 0).
+Forall p      =v ∀n. p n.

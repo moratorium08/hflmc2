@@ -1,0 +1,5 @@
+%HES
+MAIN_4  =v ∀arg1_24.K 0 (\main_16.true).
+FAIL_12 u_13 k_14 =v false.
+K n k_k =v (n != n \/ K (n + 1) k_k) /\ (n = n \/ FAIL_12 true (\x_19.true)).
+Forall p      =v ∀n. p n.

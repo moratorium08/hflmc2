@@ -1,0 +1,7 @@
+%HES
+MAIN_6  =v
+  ∀arg1_19.
+   (arg1_19 < 0 \/ (arg1_19 + 1 <= 0 \/ true) /\ (arg1_19 + 1 > 0 \/ FAIL_11 true (\x_17.true)))
+   /\ (arg1_19 >= 0 \/ true).
+FAIL_11 u_12 k_13 =v false.
+Forall p      =v ∀n. p n.

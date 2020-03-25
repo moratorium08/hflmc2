@@ -1,0 +1,9 @@
+%HES
+MAIN_7250  =v
+  ∀x_7348.
+   F_WITHOUT_CHECKING_126 true 0 0 0 true 0 0 0 true 0 0 (\x_7365.\x_7366.\x_7367.\n_7368.\k_gt_7369.k_gt_7369 true)
+    (\u_7332.true).
+FAIL_7290 u_7291 k_7292 =v false.
+F_WITHOUT_CHECKING_126 x_16 x_15 x_14 x_13 x_12 x_11 x_10 p_EXPARAM_61_9 x_8 x_7 x_6 p_5 k_f_without_checking_126 =v
+  F_WITHOUT_CHECKING_126 true 0 0 0 true 0 0 0 true 0 0 p_5 k_f_without_checking_126.
+Forall p      =v ∀n. p n.

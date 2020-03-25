@@ -1,0 +1,27 @@
+%HES
+MAIN_15  =v
+  ∀arg1_99.
+   (arg1_99 <= 0 \/ MAKE_LIST arg1_99 (\x0_96.\x1_97.NTH (arg1_99 - 1) x0_96 x1_97 (\main_61.true)))
+   /\ (arg1_99 > 0 \/ true).
+FAIL_47 u_48 k_49 =v false.
+MAKE_LIST n_9 k_make_list_8 =v
+  (n_9 >= 0 \/ k_make_list_8 0 (\x_101.\k_make_list_102.false))
+  /\ (n_9 < 0
+      \/ MAKE_LIST (n_9 - 1)
+          (\p0_105.
+            \p1_106.
+             k_make_list_8 (1 + p0_105)
+              (\i_74.
+                \k_make_list_75.
+                 (i_74 != 0 \/ k_make_list_75 0)
+                 /\ (i_74 = 0 \/ MAKE_LIST (n_9 - 1) (\p0_66.\p1_67.p1_67 (i_74 - 1) k_make_list_75))))).
+NTH n_13 xs0 xs1 k_nth =v
+  (xs0 > 0 \/ FAIL_47 true (\x_109.true))
+  /\ (xs0 <= 0
+      \/ (xs0 <= 0
+          \/ xs1 0
+              (\x_114.
+                (n_13 != 0 \/ k_nth 0)
+                /\ (n_13 = 0 \/ NTH (n_13 - 1) (xs0 - 1) (\x_92.\k_nth_xs__93.xs1 (x_92 + 1) k_nth_xs__93) k_nth)))
+         /\ (xs0 > 0 \/ false)).
+Forall p      =v ∀n. p n.

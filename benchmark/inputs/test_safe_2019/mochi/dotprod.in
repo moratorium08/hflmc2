@@ -1,0 +1,13 @@
+%HES
+MAIN_13  =v
+  ∀arg1_98.
+   ∀arg2_96.
+    ((0 > arg1_98 \/ arg1_98 != arg2_96) \/ DOTPROD_AUX arg1_98 arg1_98 arg2_96 0 0 (\u_79.true))
+    /\ (0 <= arg1_98 /\ arg1_98 = arg2_96 \/ true).
+DOTPROD_AUX n v1_6 v2_5 i sum k_dotprod_aux =v
+  (i != n \/ k_dotprod_aux 0)
+  /\ (i = n \/ SUB v1_6 i (\x_65.SUB v2_5 i (\x_73.DOTPROD_AUX n v1_6 v2_5 (i + 1) (sum + x_65 * x_73) k_dotprod_aux))).
+FAIL_52 u_53 k_54 =v false.
+SUB src i_10 k_sub =v
+  ((0 > i_10 \/ i_10 >= src) \/ k_sub 0) /\ (0 <= i_10 /\ i_10 < src \/ FAIL_52 true (\x_105.true)).
+Forall p      =v ∀n. p n.

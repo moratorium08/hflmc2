@@ -1,0 +1,4 @@
+%HES
+MAIN_184  =v ∀t1_15281.∀t2_15268.(t1_15281 <= 0 \/ true) /\ (t1_15281 > 0 \/ true).
+FAIL_15213 u_15214 k_15215 =v false.
+Forall p      =v ∀n. p n.

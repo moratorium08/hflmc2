@@ -1,0 +1,11 @@
+%HES
+MAIN_54  =v ∀x_2918.FIB_WITHOUT_CHECKING_52 true 0 x_2918 (\u_2897.true).
+FAIL_2884 u_2885 k_2886 =v false.
+FIB_WITHOUT_CHECKING_52 x_8 x_7 n_6 k_fib_without_checking_52 =v
+  (n_6 >= 2 \/ k_fib_without_checking_52 1)
+  /\ (n_6 < 2
+      \/ ((n_6 <= n_6 - 1 \/ n_6 - 1 < 0)
+          \/ FIB_WITHOUT_CHECKING_52 true 0 (n_6 - 1)
+              (\x_2913.FIB_WITHOUT_CHECKING_52 true 0 (n_6 - 2) (\x_2903.k_fib_without_checking_52 (x_2913 + x_2903))))
+         /\ (n_6 > n_6 - 1 /\ n_6 - 1 >= 0 \/ FAIL_2884 true (\x_2922.true))).
+Forall p      =v ∀n. p n.

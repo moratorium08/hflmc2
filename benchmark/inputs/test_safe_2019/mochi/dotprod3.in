@@ -1,0 +1,17 @@
+%HES
+MAIN_10  =v
+  ∀arg1_56.
+   DOTPROD arg1_56
+    (\i_66.
+      \k_make_array_67.
+       ((0 > i_66 \/ i_66 >= arg1_56) \/ k_make_array_67 0)
+       /\ (0 <= i_66 /\ i_66 < arg1_56 \/ FAIL_32 true (\x_63.true)))
+    (\i_66.
+      \k_make_array_67.
+       ((0 > i_66 \/ i_66 >= arg1_56) \/ k_make_array_67 0)
+       /\ (0 <= i_66 /\ i_66 < arg1_56 \/ FAIL_32 true (\x_63.true)))
+    0 0 (\u_54.true).
+DOTPROD n v1 v2 i sum k_dotprod =v
+  (i < n \/ k_dotprod 0) /\ (i >= n \/ v1 i (\x_43.v2 i (\x_51.DOTPROD n v1 v2 (i + 1) (sum + x_43 * x_51) k_dotprod))).
+FAIL_32 u_33 k_34 =v false.
+Forall p      =v ∀n. p n.

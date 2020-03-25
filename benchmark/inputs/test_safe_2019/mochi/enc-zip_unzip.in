@@ -1,0 +1,11 @@
+%HES
+MAIN_11  =v ∀arg1_61.UNZIP arg1_61 ZIP (\x_59.true).
+FAIL_29 u_30 k_31 =v false.
+FAIL_32 u_33 k_34 =v false.
+UNZIP x_7 k k_unzip =v
+  (x_7 != 0 \/ k 0 0 k_unzip)
+  /\ (x_7 = 0 \/ UNZIP (x_7 - 1) (\x_53.\y_54.\k_f_55.k (x_53 + 1) (y_54 + 1) k_f_55) k_unzip).
+ZIP x_6 y k_zip =v
+  (x_6 != 0 \/ (y != 0 \/ k_zip 0) /\ (y = 0 \/ FAIL_29 true (\x_64.true)))
+  /\ (x_6 = 0 \/ (y != 0 \/ FAIL_32 true (\x_67.true)) /\ (y = 0 \/ ZIP (x_6 - 1) (y - 1) (\x_71.k_zip (1 + x_71)))).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,4 @@
+%HES
+MAIN_99  =v ∀n_382.∀k_369.((n_382 < 0 \/ k_369 < 0) \/ true) /\ (n_382 >= 0 /\ k_369 >= 0 \/ true).
+FAIL_331 u_332 k_333 =v false.
+Forall p      =v ∀n. p n.

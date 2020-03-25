@@ -1,0 +1,62 @@
+%HES
+MAIN_35  =v
+  ∀arg1_388.
+   MAKE_INTLIST arg1_388 true
+    (\arg20_367.
+      \arg21_368.
+       DIVIDE arg1_388 arg20_367 arg21_368
+        (\r_divide00_350.
+          \r_divide01_351.
+           \r_divide10_352.
+            \r_divide11_353.
+             LENGTH arg20_367 arg21_368
+              (\x_331.
+                LENGTH r_divide00_350 r_divide01_351
+                 (\x_313.
+                   (x_331 < x_313
+                    \/ LENGTH arg20_367 arg21_368
+                        (\x_288.
+                          LENGTH r_divide10_352 r_divide11_353
+                           (\x_279.(x_288 < x_279 \/ true) /\ (x_288 >= x_279 \/ FAIL_169 true (\x_261.true)))))
+                   /\ (x_331 >= x_313 \/ FAIL_166 true (\x_295.true)))))).
+DIVIDE x_29 l0 l1 k_divide_28 =v
+  (l0 > 0 \/ k_divide_28 0 (\x_196.\k_divide_197.false) 0 (\x_200.\k_divide_201.false))
+  /\ (l0 <= 0
+      \/ (l0 <= 0
+          \/ l1 0
+              (\y_206.
+                DIVIDE x_29 (l0 - 1) (\x_217.\k_divide_l__218.l1 (x_217 + 1) k_divide_l__218)
+                 (\r_divide00_233.
+                   \r_divide01_234.
+                    \r_divide10_235.
+                     \r_divide11_236.
+                      (x_29 > y_206
+                       \/ k_divide_28 (1 + r_divide00_233) (\i_243.\k_divide_244.k_divide_244 0) r_divide10_235
+                           r_divide11_236)
+                      /\ (x_29 <= y_206
+                          \/ k_divide_28 r_divide00_233 r_divide01_234 (1 + r_divide10_235)
+                              (\i_251.\k_divide_252.k_divide_252 0)))))
+         /\ (l0 > 0 \/ false)).
+FAIL_166 u_167 k_168 =v false.
+FAIL_169 u_170 k_171 =v false.
+LENGTH x0 x1 k_length =v
+  (x0 > 0 \/ k_length 0)
+  /\ (x0 <= 0
+      \/ (x0 <= 0
+          \/ LENGTH (x0 - 1) (\x_385.\k_length_l_386.x1 (x_385 + 1) k_length_l_386) (\x_364.k_length (1 + x_364)))
+         /\ (x0 > 0 \/ false)).
+MAKE_INTLIST arg1 x_13 k_main_arg2_make_intlist_12 =v
+  ∀x_396.
+   (x_396 != 0 \/ k_main_arg2_make_intlist_12 0 (\x_372.\k_main_arg2_make_intlist_373.false))
+   /\ (x_396 = 0
+       \/ (∀n_378.
+            MAKE_INTLIST arg1 true
+             (\p0_359.
+               \p1_360.
+                k_main_arg2_make_intlist_12 (1 + p0_359)
+                 (\i_344.
+                   \k_main_arg2_make_intlist_345.
+                    (i_344 != 0 \/ k_main_arg2_make_intlist_345 n_378)
+                    /\ (i_344 = 0
+                        \/ MAKE_INTLIST arg1 true (\p0_321.\p1_322.p1_322 (i_344 - 1) k_main_arg2_make_intlist_345)))))).
+Forall p      =v ∀n. p n.

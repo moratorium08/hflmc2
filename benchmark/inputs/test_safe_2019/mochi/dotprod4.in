@@ -1,0 +1,21 @@
+%HES
+MAIN_14  =v
+  ∀arg1_70.
+   ∀arg2_64.
+    (arg2_64 != 0
+     \/ DOTPROD arg1_70
+         (\i_86.
+           \k_make_array_87.
+            ((0 > i_86 \/ i_86 >= arg1_70) \/ k_make_array_87 0)
+            /\ (0 <= i_86 /\ i_86 < arg1_70 \/ FAIL_40 true (\x_77.true)))
+         (\i_86.
+           \k_make_array_87.
+            ((0 > i_86 \/ i_86 >= arg1_70) \/ k_make_array_87 0)
+            /\ (0 <= i_86 /\ i_86 < arg1_70 \/ FAIL_40 true (\x_77.true)))
+         arg2_64 arg2_64 (\u_68.true))
+    /\ (arg2_64 = 0 \/ true).
+DOTPROD n_7 v1 v2 i sum k_dotprod =v
+  (i < n_7 \/ k_dotprod 0)
+  /\ (i >= n_7 \/ v1 i (\x_53.v2 i (\x_61.DOTPROD n_7 v1 v2 (i + 1) (sum + x_53 * x_61) k_dotprod))).
+FAIL_40 u_41 k_42 =v false.
+Forall p      =v ∀n. p n.

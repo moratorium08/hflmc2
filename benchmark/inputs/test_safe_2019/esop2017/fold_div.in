@@ -1,0 +1,39 @@
+%HES
+MAIN_28  =v
+  ∀arg1_183.
+   ∀arg2_159.
+    MAKE_LIST arg1_183
+     (\xs0_180.
+       \xs1_181.
+        FOLD_LEFT
+         (\x_104.\y_105.\k_main_div_106.\h_107.(y_105 != 0 \/ h_107 0) /\ (y_105 = 0 \/ Forall k_main_div_106)) 0
+         xs0_180 xs1_181 (\main_114.true) (H arg1_183 arg2_159)).
+FOLD_LEFT f acc xs0_26 xs1_25 k_fold_left h_24 =v
+  (xs0_26 > 0 \/ k_fold_left 0)
+  /\ (xs0_26 <= 0
+      \/ (xs0_26 <= 0
+          \/ xs1_25 0
+              (\x_171.
+                f 0 x_171
+                 (\x_132.
+                   FOLD_LEFT f x_132 (xs0_26 - 1) (\x_155.\k_fold_left_xs__156.xs1_25 (x_155 + 1) k_fold_left_xs__156)
+                    k_fold_left h_24)
+                 h_24))
+         /\ (xs0_26 > 0 \/ false)).
+F_80 e =v false.
+H arg1 arg2 e_2 =v false.
+MAKE_LIST n_17 k_make_list_16 =v
+  (n_17 > 0 \/ k_make_list_16 0 (\x_185.\k_make_list_186.false))
+  /\ (n_17 <= 0
+      \/ RANDPOS true
+          (\r_randpos_189.
+            MAKE_LIST (n_17 - 1)
+             (\p0_163.
+               \p1_164.
+                k_make_list_16 (1 + p0_163)
+                 (\i_136.
+                   \k_make_list_137.
+                    (i_136 != 0 \/ k_make_list_137 r_randpos_189)
+                    /\ (i_136 = 0 \/ MAKE_LIST (n_17 - 1) (\p0_122.\p1_123.p1_123 (i_136 - 1) k_make_list_137)))))).
+RANDPOS x_20 k_randpos =v ∀n_192.(n_192 <= 0 \/ k_randpos n_192) /\ (n_192 > 0 \/ RANDPOS true k_randpos).
+Forall p      =v ∀n. p n.
