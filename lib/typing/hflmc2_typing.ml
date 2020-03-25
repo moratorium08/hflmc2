@@ -29,4 +29,4 @@ let main x =
   let env = generate_env y in
   match top with
   | Some(top) -> Infer.infer y env top
-  | None -> `Fail
+  | None -> (print_string "[error]no_top\n"; `Fail)

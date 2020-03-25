@@ -97,4 +97,7 @@ let rec translate_hes = function
     in
     (rule :: l, y)
 
-let translate = translate_hes
+let translate x = match translate_hes x with
+  | x, Some(y) -> x, Some(y)
+  | x::xs, None -> x::xs, Some(get_top x.var.ty)
+  | x -> x
