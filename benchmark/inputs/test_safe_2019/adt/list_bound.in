@@ -12,10 +12,10 @@ ASSERT_BOUNDED x_14 x0_13 x1_12 k_assert_bounded =v
                  \/ ASSERT_BOUNDED x_14 (x0_13 - 1)
                      (\x_99.\k_assert_bounded_l_100.x1_12 (x_99 + 1) k_assert_bounded_l_100) k_assert_bounded)
                 /\ (x_14 >= y_88 \/ FAIL_67 true (\x_148.true))))
-         /\ (x0_13 > 0 \/ false)).
+         /\ (x0_13 > 0 \/ true)).
 FAIL_67 u_68 k_69 =v false.
 REPLICATE x_8 n k_replicate_7 =v
-  (n > 0 \/ k_replicate_7 0 (\x_137.\k_replicate_138.false))
+  (n > 0 \/ k_replicate_7 0 (\x_137.\k_replicate_138.true))
   /\ (n <= 0
       \/ REPLICATE x_8 (n - 1)
           (\p0_142.

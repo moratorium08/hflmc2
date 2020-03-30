@@ -6,6 +6,6 @@ MAIN_10  =v
 FAIL_31 u_32 k_33 =v false.
 MAP x_6 k_map =v (x_6 != 0 \/ k_map 0) /\ (x_6 = 0 \/ MAP (x_6 - 1) (\x_71.k_map (1 + x_71))).
 ZIP x_8 y k_zip =v
-  (x_8 != 0 \/ (y != 0 \/ k_zip 0) /\ (y = 0 \/ false))
-  /\ (x_8 = 0 \/ (y != 0 \/ false) /\ (y = 0 \/ ZIP (x_8 - 1) (y - 1) (\x_75.k_zip (1 + x_75)))).
+  (x_8 != 0 \/ (y != 0 \/ k_zip 0) /\ (y = 0 \/ true))
+  /\ (x_8 = 0 \/ (y != 0 \/ true) /\ (y = 0 \/ ZIP (x_8 - 1) (y - 1) (\x_75.k_zip (1 + x_75)))).
 Forall p      =v ∀n. p n.

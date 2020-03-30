@@ -97,8 +97,8 @@ WHEELS v k_wheels =v
                                                              - ((theta_631 * 255) / 24 * 6) / 255 * 255))
                                                          / 255))
                                                    / 255)))))))
-          /\ (0 <= theta_631 /\ theta_631 <= 23 \/ false)))
-   /\ (1 <= r_634 /\ r_634 <= 8 \/ false).
+          /\ (0 <= theta_631 /\ theta_631 <= 23 \/ true)))
+   /\ (1 <= r_634 /\ r_634 <= 8 \/ true).
 WHILE arg1 arg2 u_16 x_15 k_main_while h_14 =v
   ∀x_426.
    ∀x_435.

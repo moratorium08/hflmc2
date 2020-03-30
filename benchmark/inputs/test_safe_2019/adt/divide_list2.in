@@ -20,7 +20,7 @@ MAIN_35  =v
                            (\x_279.(x_288 < x_279 \/ true) /\ (x_288 >= x_279 \/ FAIL_169 true (\x_261.true)))))
                    /\ (x_331 >= x_313 \/ FAIL_166 true (\x_295.true)))))).
 DIVIDE x_29 l0 l1 k_divide_28 =v
-  (l0 > 0 \/ k_divide_28 0 (\x_196.\k_divide_197.false) 0 (\x_200.\k_divide_201.false))
+  (l0 > 0 \/ k_divide_28 0 (\x_196.\k_divide_197.true) 0 (\x_200.\k_divide_201.true))
   /\ (l0 <= 0
       \/ (l0 <= 0
           \/ l1 0
@@ -36,7 +36,7 @@ DIVIDE x_29 l0 l1 k_divide_28 =v
                       /\ (x_29 <= y_206
                           \/ k_divide_28 r_divide00_233 r_divide01_234 (1 + r_divide10_235)
                               (\i_251.\k_divide_252.k_divide_252 0)))))
-         /\ (l0 > 0 \/ false)).
+         /\ (l0 > 0 \/ true)).
 FAIL_166 u_167 k_168 =v false.
 FAIL_169 u_170 k_171 =v false.
 LENGTH x0 x1 k_length =v
@@ -44,10 +44,10 @@ LENGTH x0 x1 k_length =v
   /\ (x0 <= 0
       \/ (x0 <= 0
           \/ LENGTH (x0 - 1) (\x_385.\k_length_l_386.x1 (x_385 + 1) k_length_l_386) (\x_364.k_length (1 + x_364)))
-         /\ (x0 > 0 \/ false)).
+         /\ (x0 > 0 \/ true)).
 MAKE_INTLIST arg1 x_13 k_main_arg2_make_intlist_12 =v
   ∀x_396.
-   (x_396 != 0 \/ k_main_arg2_make_intlist_12 0 (\x_372.\k_main_arg2_make_intlist_373.false))
+   (x_396 != 0 \/ k_main_arg2_make_intlist_12 0 (\x_372.\k_main_arg2_make_intlist_373.true))
    /\ (x_396 = 0
        \/ (∀n_378.
             MAKE_INTLIST arg1 true

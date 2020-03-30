@@ -4,8 +4,8 @@ MAIN_24  =v
    (\arg10_293.\arg11_294.COMBINE arg10_293 arg11_294 arg10_293 arg11_294 (\main0_162.\main1_163.true)).
 COMBINE xs0_22 xs1_21 ys0_20 ys1_19 k_combine_18 =v
   ((xs0_22 > 0 \/ ys0_20 > 0)
-   \/ (xs0_22 > 0 \/ (ys0_20 > 0 \/ k_combine_18 0 (\x_166.\k_combine_167.false)) /\ (ys0_20 <= 0 \/ false))
-      /\ (xs0_22 <= 0 \/ false))
+   \/ (xs0_22 > 0 \/ (ys0_20 > 0 \/ k_combine_18 0 (\x_166.\k_combine_167.true)) /\ (ys0_20 <= 0 \/ true))
+      /\ (xs0_22 <= 0 \/ true))
   /\ (xs0_22 <= 0 /\ ys0_20 <= 0
       \/ ((xs0_22 <= 0 \/ ys0_20 <= 0)
           \/ (xs0_22 <= 0
@@ -27,13 +27,13 @@ COMBINE xs0_22 xs1_21 ys0_20 ys1_19 k_combine_18 =v
                                            (\x_195.\k_combine_xs_196.xs1_21 (x_195 + 1) k_combine_xs_196) (
                                            ys0_20 - 1) (\x_220.\k_combine_ys_221.ys1_19 (x_220 + 1) k_combine_ys_221)
                                            (\p0_264.\p1_265.p1_265 (i_253 - 1) k_combine_254))))))
-                    /\ (ys0_20 > 0 \/ false)))
-             /\ (xs0_22 > 0 \/ false))
+                    /\ (ys0_20 > 0 \/ true)))
+             /\ (xs0_22 > 0 \/ true))
          /\ (xs0_22 > 0 /\ ys0_20 > 0 \/ FAIL_110 true (\x_176.true))).
 FAIL_110 u_111 k_112 =v false.
 MAKE_UNITLIST x_6 k_main_arg1_make_unitlist_5 =v
   ∀x_300.
-   (x_300 != 0 \/ k_main_arg1_make_unitlist_5 0 (\x_285.\k_main_arg1_make_unitlist_286.false))
+   (x_300 != 0 \/ k_main_arg1_make_unitlist_5 0 (\x_285.\k_main_arg1_make_unitlist_286.true))
    /\ (x_300 = 0
        \/ MAKE_UNITLIST true
            (\p0_290.

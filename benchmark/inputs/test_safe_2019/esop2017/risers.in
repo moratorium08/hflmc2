@@ -3,7 +3,7 @@ MAIN_57  =v ∀arg1_582.MAKE_LIST arg1_582 (\x0_529.\x1_530.RISERS x0_529 x1_530
 FAIL_260 u_261 k_262 =v false.
 FAIL_263 u_264 k_265 =v false.
 MAKE_LIST m k_make_list_55 =v
-  (m > 0 \/ k_make_list_55 0 (\x_584.\k_make_list_585.false))
+  (m > 0 \/ k_make_list_55 0 (\x_584.\k_make_list_585.true))
   /\ (m <= 0
       \/ (∀n_588.
            MAKE_LIST (m - 1)
@@ -15,14 +15,14 @@ MAKE_LIST m k_make_list_55 =v
                    (i_454 != 0 \/ k_make_list_455 n_588)
                    /\ (i_454 = 0 \/ MAKE_LIST (m - 1) (\p0_400.\p1_401.p1_401 (i_454 - 1) k_make_list_455)))))).
 RISERS xs0_47 xs1_46 k_risers_45 =v
-  (xs0_47 > 0 \/ k_risers_45 0 (\x_612.\k_risers_613.false))
+  (xs0_47 > 0 \/ k_risers_45 0 (\x_612.\k_risers_613.true))
   /\ (xs0_47 <= 0
       \/ xs1_46 0
           (\n_617.
             ((xs0_47 <= 0 \/ xs0_47 - 1 > 0)
              \/ (xs0_47 - 1 > 0
                  \/ k_risers_45 1 (\i_385.\k_risers_386.k_risers_386 0 (\i_428.\k_risers_n__f_429.k_risers_n__f_429 0)))
-                /\ (xs0_47 - 1 <= 0 \/ false))
+                /\ (xs0_47 - 1 <= 0 \/ true))
             /\ (xs0_47 > 0 /\ xs0_47 - 1 <= 0
                 \/ ((xs0_47 <= 0 \/ xs0_47 - 1 <= 0)
                     \/ (xs0_47 - 1 <= 0
@@ -49,7 +49,7 @@ RISERS xs0_47 xs1_46 k_risers_45 =v
                                                           (\i_487.
                                                             \k_risers_risersThen_n__f_488.
                                                              k_risers_risersThen_n__f_488 0))))
-                                             /\ (x0_321 > 0 \/ false))))
+                                             /\ (x0_321 > 0 \/ true))))
                               /\ (n_617 < y_394
                                   \/ RISERS (1 + ((xs0_47 - 1) - 1))
                                       (\i_331.
@@ -71,7 +71,7 @@ RISERS xs0_47 xs1_46 k_risers_45 =v
                                                              (\i_466.
                                                                \k_risers_risersElse_n__f_467.
                                                                 k_risers_risersElse_n__f_467 0))))
-                                                /\ (x0_351 > 0 \/ false))))))
-                       /\ (xs0_47 - 1 > 0 \/ false))
-                   /\ (xs0_47 > 0 /\ xs0_47 - 1 > 0 \/ false)))).
+                                                /\ (x0_351 > 0 \/ true))))))
+                       /\ (xs0_47 - 1 > 0 \/ true))
+                   /\ (xs0_47 > 0 /\ xs0_47 - 1 > 0 \/ true)))).
 Forall p      =v ∀n. p n.

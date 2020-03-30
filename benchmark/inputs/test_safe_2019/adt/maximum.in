@@ -11,10 +11,10 @@ LENGTH x0 x1 k_length =v
   /\ (x0 <= 0
       \/ (x0 <= 0
           \/ LENGTH (x0 - 1) (\x_219.\k_length_l_220.x1 (x_219 + 1) k_length_l_220) (\x_178.k_length (1 + x_178)))
-         /\ (x0 > 0 \/ false)).
+         /\ (x0 > 0 \/ true)).
 MAKE_UNITLIST x_7 k_main_arg1_make_unitlist_6 =v
   ∀x_229.
-   (x_229 != 0 \/ k_main_arg1_make_unitlist_6 0 (\x_189.\k_main_arg1_make_unitlist_190.false))
+   (x_229 != 0 \/ k_main_arg1_make_unitlist_6 0 (\x_189.\k_main_arg1_make_unitlist_190.true))
    /\ (x_229 = 0
        \/ MAKE_UNITLIST true
            (\p0_194.
@@ -30,10 +30,10 @@ MAXIMUM x0_22 x1_21 k_maximum =v
   /\ (x0_22 <= 0
       \/ x1_21 0
           (\u_235.
-            ((x0_22 <= 0 \/ x0_22 - 1 > 0) \/ (x0_22 - 1 > 0 \/ k_maximum true) /\ (x0_22 - 1 <= 0 \/ false))
+            ((x0_22 <= 0 \/ x0_22 - 1 > 0) \/ (x0_22 - 1 > 0 \/ k_maximum true) /\ (x0_22 - 1 <= 0 \/ true))
             /\ (x0_22 > 0 /\ x0_22 - 1 <= 0
                 \/ (x0_22 <= 0
                     \/ MAXIMUM (x0_22 - 1) (\x_173.\k_maximum_l_174.x1_21 (x_173 + 1) k_maximum_l_174)
                         (\y_130.k_maximum true))
-                   /\ (x0_22 > 0 \/ false)))).
+                   /\ (x0_22 > 0 \/ true)))).
 Forall p      =v ∀n. p n.

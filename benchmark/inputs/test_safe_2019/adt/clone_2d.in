@@ -13,7 +13,7 @@ MAIN_40  =v
                \x1_326.
                 \k_head_327.
                  (x0_325 > 0 \/ FAIL_140 true (\x_313.true))
-                 /\ (x0_325 <= 0 \/ (x0_325 <= 0 \/ x1_326 0 k_head_327) /\ (x0_325 > 0 \/ false)))
+                 /\ (x0_325 <= 0 \/ (x0_325 <= 0 \/ x1_326 0 k_head_327) /\ (x0_325 > 0 \/ true)))
              x0_288 x1_289 (\main0_167.\main1_168.true))).
 CLONE n x_39 x0_26 x1_25 m k_clone_2d_clone_24 =v
   (m <= 0
@@ -26,7 +26,7 @@ CLONE n x_39 x0_26 x1_25 m k_clone_2d_clone_24 =v
               (i_229 != 0 \/ k_clone_2d_clone_230 x0_26 x1_25)
               /\ (i_229 = 0
                   \/ CLONE n x_39 x0_26 x1_25 (m - 1) (\p0_247.\p1_248.p1_248 (i_229 - 1) k_clone_2d_clone_230)))))
-  /\ (m > 0 \/ k_clone_2d_clone_24 0 (\x_199.\k_clone_2d_clone_200.false)).
+  /\ (m > 0 \/ k_clone_2d_clone_24 0 (\x_199.\k_clone_2d_clone_200.true)).
 CLONE_38 n x_39 x_37 m_36 k_clone_2d_clone_35 =v
   (m_36 <= 0
    \/ CLONE_38 n x_39 0 (m_36 - 1)
@@ -37,10 +37,10 @@ CLONE_38 n x_39 x_37 m_36 k_clone_2d_clone_35 =v
              \k_clone_2d_clone_214.
               (i_213 != 0 \/ k_clone_2d_clone_214 0)
               /\ (i_213 = 0 \/ CLONE_38 n x_39 0 (m_36 - 1) (\p0_238.\p1_239.p1_239 (i_213 - 1) k_clone_2d_clone_214)))))
-  /\ (m_36 > 0 \/ k_clone_2d_clone_35 0 (\x_185.\k_clone_2d_clone_186.false)).
+  /\ (m_36 > 0 \/ k_clone_2d_clone_35 0 (\x_185.\k_clone_2d_clone_186.true)).
 FAIL_140 u_141 k_142 =v false.
 MAP f x0_11 x1_10 k_map_9 =v
-  (x0_11 > 0 \/ k_map_9 0 (\x_317.\k_map_318.false))
+  (x0_11 > 0 \/ k_map_9 0 (\x_317.\k_map_318.true))
   /\ (x0_11 <= 0
       \/ (x0_11 <= 0
           \/ x1_10 0
@@ -58,5 +58,5 @@ MAP f x0_11 x1_10 k_map_9 =v
                             /\ (i_274 = 0
                                 \/ MAP f (x0_11 - 1) (\x_310.\k_map_l_311.x1_10 (x_310 + 1) k_map_l_311)
                                     (\p0_256.\p1_257.p1_257 (i_274 - 1) k_map_275)))))))
-         /\ (x0_11 > 0 \/ false)).
+         /\ (x0_11 > 0 \/ true)).
 Forall p      =v ∀n. p n.

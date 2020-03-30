@@ -4,7 +4,7 @@ MAIN_15  =v
    MAKE_LIST arg1_112 (\xs0_83.\xs1_84.(xs0_83 > 0 \/ true) /\ (xs0_83 <= 0 \/ NTH 0 xs0_83 xs1_84 (\main_64.true))).
 FAIL_50 u_51 k_52 =v false.
 MAKE_LIST n k_make_list_7 =v
-  (n >= 0 \/ k_make_list_7 0 (\x_114.\k_make_list_115.false))
+  (n >= 0 \/ k_make_list_7 0 (\x_114.\k_make_list_115.true))
   /\ (n < 0
       \/ MAKE_LIST (n - 1)
           (\p0_118.
@@ -23,5 +23,5 @@ NTH n_13 xs0_12 xs1_11 k_nth =v
                 (n_13 != 0 \/ k_nth 0)
                 /\ (n_13 = 0
                     \/ NTH (n_13 - 1) (xs0_12 - 1) (\x_109.\k_nth_xs__110.xs1_11 (x_109 + 1) k_nth_xs__110) k_nth)))
-         /\ (xs0_12 > 0 \/ false)).
+         /\ (xs0_12 > 0 \/ true)).
 Forall p      =v ∀n. p n.

@@ -19,13 +19,13 @@ MAIN_54  =v
                           (\x_423.(x_439 < x_423 \/ true) /\ (x_439 >= x_423 \/ FAIL_237 true (\x_415.true)))))
                   /\ (x_506 >= x_461 \/ FAIL_234 true (\x_445.true)))))).
 DIVIDE l0_44 l1_43 k_divide_42 =v
-  (l0_44 > 0 \/ k_divide_42 0 (\x_251.\k_divide_252.false) 0 (\x_254.\k_divide_255.false))
+  (l0_44 > 0 \/ k_divide_42 0 (\x_251.\k_divide_252.true) 0 (\x_254.\k_divide_255.true))
   /\ (l0_44 <= 0
       \/ l1_43 0
           (\n_259.
             ((l0_44 <= 0 \/ l0_44 - 1 > 0)
-             \/ (l0_44 - 1 > 0 \/ k_divide_42 1 (\i_340.\k_divide_341.k_divide_341 0) 0 (\x_346.\k_divide_347.false))
-                /\ (l0_44 - 1 <= 0 \/ false))
+             \/ (l0_44 - 1 > 0 \/ k_divide_42 1 (\i_340.\k_divide_341.k_divide_341 0) 0 (\x_346.\k_divide_347.true))
+                /\ (l0_44 - 1 <= 0 \/ true))
             /\ (l0_44 > 0 /\ l0_44 - 1 <= 0
                 \/ ((l0_44 <= 0 \/ l0_44 - 1 <= 0)
                     \/ (l0_44 - 1 <= 0
@@ -38,8 +38,8 @@ DIVIDE l0_44 l1_43 k_divide_42 =v
                                    \r_divide11_385.
                                     k_divide_42 (1 + r_divide00_382) (\i_395.\k_divide_396.k_divide_396 0)
                                      (1 + r_divide10_384) (\i_406.\k_divide_407.k_divide_407 0))))
-                       /\ (l0_44 - 1 > 0 \/ false))
-                   /\ (l0_44 > 0 /\ l0_44 - 1 > 0 \/ false)))).
+                       /\ (l0_44 - 1 > 0 \/ true))
+                   /\ (l0_44 > 0 /\ l0_44 - 1 > 0 \/ true)))).
 FAIL_234 u_235 k_236 =v false.
 FAIL_237 u_238 k_239 =v false.
 LENGTH l0_52 l1_51 k_length_50 =v
@@ -52,10 +52,10 @@ LENGTH l0_52 l1_51 k_length_50 =v
                  (\i_486.
                    \k_length_487.(i_486 != 0 \/ k_length_487 0) /\ (i_486 = 0 \/ l1_51 ((i_486 - 1) + 1) k_length_487))
                  (\x_498.k_length_50 (1 + x_498))))
-         /\ (l0_52 > 0 \/ false)).
+         /\ (l0_52 > 0 \/ true)).
 MAKE_INTLIST x_13 k_main_arg1_make_intlist_12 =v
   ∀x_550.
-   (x_550 != 0 \/ k_main_arg1_make_intlist_12 0 (\x_532.\k_main_arg1_make_intlist_533.false))
+   (x_550 != 0 \/ k_main_arg1_make_intlist_12 0 (\x_532.\k_main_arg1_make_intlist_533.true))
    /\ (x_550 = 0
        \/ (∀n_537.
             MAKE_INTLIST true

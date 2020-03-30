@@ -14,7 +14,7 @@ MAIN_61  =v
            x0_474 x1_475 (\main0_272.\main1_273.true))).
 FAIL_232 u_233 k_234 =v false.
 GROUP xs0_37 xs1_36 k_group_35 =v
-  (xs0_37 > 0 \/ k_group_35 0 (\x_521.\k_group_522.false))
+  (xs0_37 > 0 \/ k_group_35 0 (\x_521.\k_group_522.true))
   /\ (xs0_37 <= 0
       \/ (xs0_37 <= 0
           \/ xs1_36 0
@@ -39,10 +39,10 @@ GROUP xs0_37 xs1_36 k_group_35 =v
                               /\ (i_307 = 0
                                   \/ GROUP r_span_eq10_418 r_span_eq11_419
                                       (\p0_285.\p1_286.p1_286 (i_307 - 1) k_group_308)))))))
-         /\ (xs0_37 > 0 \/ false)).
+         /\ (xs0_37 > 0 \/ true)).
 MAKE_INTLIST x_7 k_main_arg1_make_intlist_6 =v
   ∀x_532.
-   (x_532 != 0 \/ k_main_arg1_make_intlist_6 0 (\x_478.\k_main_arg1_make_intlist_479.false))
+   (x_532 != 0 \/ k_main_arg1_make_intlist_6 0 (\x_478.\k_main_arg1_make_intlist_479.true))
    /\ (x_532 = 0
        \/ (∀n_483.
             MAKE_INTLIST true
@@ -55,7 +55,7 @@ MAKE_INTLIST x_7 k_main_arg1_make_intlist_6 =v
                     /\ (i_381 = 0
                         \/ MAKE_INTLIST true (\p0_335.\p1_336.p1_336 (i_381 - 1) k_main_arg1_make_intlist_382)))))).
 MAP f x0_20 x1_19 k_map_18 =v
-  (x0_20 > 0 \/ k_map_18 0 (\x_537.\k_map_538.false))
+  (x0_20 > 0 \/ k_map_18 0 (\x_537.\k_map_538.true))
   /\ (x0_20 <= 0
       \/ (x0_20 <= 0
           \/ x1_19 0
@@ -73,9 +73,9 @@ MAP f x0_20 x1_19 k_map_18 =v
                             /\ (i_353 = 0
                                 \/ MAP f (x0_20 - 1) (\x_494.\k_map_l_495.x1_19 (x_494 + 1) k_map_l_495)
                                     (\p0_316.\p1_317.p1_317 (i_353 - 1) k_map_354)))))))
-         /\ (x0_20 > 0 \/ false)).
+         /\ (x0_20 > 0 \/ true)).
 SPAN_EQ p xs0_59 xs1_58 k_span_eq_57 =v
-  (xs0_59 > 0 \/ k_span_eq_57 0 (\x_547.\k_span_eq_548.false) 0 (\x_551.\k_span_eq_552.false))
+  (xs0_59 > 0 \/ k_span_eq_57 0 (\x_547.\k_span_eq_548.true) 0 (\x_551.\k_span_eq_552.true))
   /\ (xs0_59 <= 0
       \/ xs1_58 0
           (\n_557.
@@ -89,9 +89,9 @@ SPAN_EQ p xs0_59 xs1_58 k_span_eq_57 =v
                        r_span_eq11_455))
             /\ (xs0_59 > 0 /\ p = n_557
                 \/ (xs0_59 <= 0
-                    \/ k_span_eq_57 0 (\x_460.\k_span_eq_461.false) (1 + (xs0_59 - 1))
+                    \/ k_span_eq_57 0 (\x_460.\k_span_eq_461.true) (1 + (xs0_59 - 1))
                         (\i_445.
                           \k_span_eq_446.
                            (i_445 != 0 \/ k_span_eq_446 n_557) /\ (i_445 = 0 \/ xs1_58 ((i_445 - 1) + 1) k_span_eq_446)))
-                   /\ (xs0_59 > 0 \/ false)))).
+                   /\ (xs0_59 > 0 \/ true)))).
 Forall p      =v ∀n. p n.

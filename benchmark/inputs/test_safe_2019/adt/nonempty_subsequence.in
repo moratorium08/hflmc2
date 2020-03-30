@@ -26,7 +26,7 @@ FOLD_RIGHT f_58 l0_57 l1_56 accu0 accu1 k_fold_right_55 =v
                      (i_455 != 0 \/ k_fold_right_456 a0_558 a1_559)
                      /\ (i_455 = 0 \/ l1_56 ((i_455 - 1) + 1) k_fold_right_456))
                   accu0 accu1 (\x0_472.\x1_473.f_58 a0_558 a1_559 x0_472 x1_473 k_fold_right_55)))
-         /\ (l0_57 > 0 \/ false)).
+         /\ (l0_57 > 0 \/ true)).
 F_42 l0_48 x_43 xs0 ys0 ys1 r0 r1 k_nonempty_subsequences_f_41 =v
   k_nonempty_subsequences_f_41 (2 + r0)
    (\i_335.
@@ -39,7 +39,7 @@ F_42 l0_48 x_43 xs0 ys0 ys1 r0 r1 k_nonempty_subsequences_f_41 =v
              /\ (i_335 = 1 \/ r1 (i_335 - 2) k_nonempty_subsequences_f_336))).
 MAKE_UNITLIST x_6 k_main_arg1_make_unitlist_5 =v
   ∀x_565.
-   (x_565 != 0 \/ k_main_arg1_make_unitlist_5 0 (\x_523.\k_main_arg1_make_unitlist_524.false))
+   (x_565 != 0 \/ k_main_arg1_make_unitlist_5 0 (\x_523.\k_main_arg1_make_unitlist_524.true))
    /\ (x_565 = 0
        \/ MAKE_UNITLIST true
            (\p0_528.
@@ -51,7 +51,7 @@ MAKE_UNITLIST x_6 k_main_arg1_make_unitlist_5 =v
                   /\ (i_477 = 0
                       \/ MAKE_UNITLIST true (\p0_430.\p1_431.p1_431 (i_477 - 1) k_main_arg1_make_unitlist_478))))).
 MAP f x0_19 x1_18 k_map_17 =v
-  (x0_19 > 0 \/ k_map_17 0 (\x_570.\k_map_571.false))
+  (x0_19 > 0 \/ k_map_17 0 (\x_570.\k_map_571.true))
   /\ (x0_19 <= 0
       \/ (x0_19 <= 0
           \/ x1_18 0
@@ -69,9 +69,9 @@ MAP f x0_19 x1_18 k_map_17 =v
                             /\ (i_408 = 0
                                 \/ MAP f (x0_19 - 1) (\x_540.\k_map_l_541.x1_18 (x_540 + 1) k_map_l_541)
                                     (\p0_372.\p1_373.p1_373 (i_408 - 1) k_map_409)))))))
-         /\ (x0_19 > 0 \/ false)).
+         /\ (x0_19 > 0 \/ true)).
 NONEMPTY_SUBSEQUENCES l0_48 l1_47 k_nonempty_subsequences_46 =v
-  (l0_48 > 0 \/ k_nonempty_subsequences_46 0 (\x_579.\k_nonempty_subsequences_580.false))
+  (l0_48 > 0 \/ k_nonempty_subsequences_46 0 (\x_579.\k_nonempty_subsequences_580.true))
   /\ (l0_48 <= 0
       \/ (l0_48 <= 0
           \/ l1_47 0
@@ -80,7 +80,7 @@ NONEMPTY_SUBSEQUENCES l0_48 l1_47 k_nonempty_subsequences_46 =v
                  (\x_545.\k_nonempty_subsequences_xs_546.l1_47 (x_545 + 1) k_nonempty_subsequences_xs_546)
                  (\x0_447.
                    \x1_448.
-                    FOLD_RIGHT (F_42 l0_48 x_584 (l0_48 - 1)) 0 (\x_414.\k_nonempty_subsequences_415.false) x0_447
+                    FOLD_RIGHT (F_42 l0_48 x_584 (l0_48 - 1)) 0 (\x_414.\k_nonempty_subsequences_415.true) x0_447
                      x1_448
                      (\p0_423.
                        \p1_424.
@@ -97,7 +97,7 @@ NONEMPTY_SUBSEQUENCES l0_48 l1_47 k_nonempty_subsequences_46 =v
                                     (\x0_363.
                                       \x1_364.
                                        FOLD_RIGHT (F_42 l0_48 x_584 (l0_48 - 1)) 0
-                                        (\x_344.\k_nonempty_subsequences_345.false) x0_363 x1_364
+                                        (\x_344.\k_nonempty_subsequences_345.true) x0_363 x1_364
                                         (\p0_354.\p1_355.p1_355 (i_390 - 1) k_nonempty_subsequences_391))))))))
-         /\ (l0_48 > 0 \/ false)).
+         /\ (l0_48 > 0 \/ true)).
 Forall p      =v ∀n. p n.

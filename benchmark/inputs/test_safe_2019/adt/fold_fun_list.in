@@ -16,9 +16,9 @@ FOLD_RIGHT f_13 xs0_12 xs1_11 init k_fold_right =v
               (\x_151.
                 FOLD_RIGHT f_13 (xs0_12 - 1) (\x_132.\k_fold_right_xs__133.xs1_11 (x_132 + 1) k_fold_right_xs__133)
                  init (\x_108.k_fold_right (f_13 x_151 x_108))))
-         /\ (xs0_12 > 0 \/ false)).
+         /\ (xs0_12 > 0 \/ true)).
 MAKE_LIST n k_make_list_19 =v
-  (n > 0 \/ k_make_list_19 0 (\x_155.\k_make_list_156.false))
+  (n > 0 \/ k_make_list_19 0 (\x_155.\k_make_list_156.true))
   /\ (n <= 0
       \/ MAKE_LIST (n - 1)
           (\p0_159.

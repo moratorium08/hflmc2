@@ -19,11 +19,11 @@ FOLD_LEFT f acc xs0_26 xs1_25 k_fold_left h_24 =v
                    FOLD_LEFT f x_132 (xs0_26 - 1) (\x_155.\k_fold_left_xs__156.xs1_25 (x_155 + 1) k_fold_left_xs__156)
                     k_fold_left h_24)
                  h_24))
-         /\ (xs0_26 > 0 \/ false)).
+         /\ (xs0_26 > 0 \/ true)).
 F_80 e =v false.
 H arg1 arg2 e_2 =v false.
 MAKE_LIST n_17 k_make_list_16 =v
-  (n_17 > 0 \/ k_make_list_16 0 (\x_185.\k_make_list_186.false))
+  (n_17 > 0 \/ k_make_list_16 0 (\x_185.\k_make_list_186.true))
   /\ (n_17 <= 0
       \/ RANDPOS true
           (\r_randpos_189.

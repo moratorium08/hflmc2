@@ -20,9 +20,9 @@ FOLD_LEFT f acc xs0 xs1 k_fold_left =v
                  (\x_111.
                    FOLD_LEFT f x_111 (xs0 - 1) (\x_128.\k_fold_left_xs__129.xs1 (x_128 + 1) k_fold_left_xs__129)
                     k_fold_left)))
-         /\ (xs0 > 0 \/ false)).
+         /\ (xs0 > 0 \/ true)).
 RANGE i_6 j k_range_5 =v
-  (i_6 <= j \/ k_range_5 0 (\x_156.\k_range_157.false))
+  (i_6 <= j \/ k_range_5 0 (\x_156.\k_range_157.true))
   /\ (i_6 > j
       \/ RANGE (i_6 + 1) j
           (\is0_161.

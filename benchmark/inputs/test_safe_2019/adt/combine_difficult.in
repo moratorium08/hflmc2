@@ -14,8 +14,8 @@ MAIN_44  =v
                 /\ (x_429 = x_390 \/ true))))).
 COMBINE xs0_42 xs1_41 ys0_40 ys1_39 k_combine_38 =v
   ((xs0_42 > 0 \/ ys0_40 > 0)
-   \/ (xs0_42 > 0 \/ (ys0_40 > 0 \/ k_combine_38 0 (\x_264.\k_combine_265.false)) /\ (ys0_40 <= 0 \/ false))
-      /\ (xs0_42 <= 0 \/ false))
+   \/ (xs0_42 > 0 \/ (ys0_40 > 0 \/ k_combine_38 0 (\x_264.\k_combine_265.true)) /\ (ys0_40 <= 0 \/ true))
+      /\ (xs0_42 <= 0 \/ true))
   /\ (xs0_42 <= 0 /\ ys0_40 <= 0
       \/ ((xs0_42 <= 0 \/ ys0_40 <= 0)
           \/ (xs0_42 <= 0
@@ -37,8 +37,8 @@ COMBINE xs0_42 xs1_41 ys0_40 ys1_39 k_combine_38 =v
                                            (\x_290.\k_combine_xs_291.xs1_41 (x_290 + 1) k_combine_xs_291) (
                                            ys0_40 - 1) (\x_315.\k_combine_ys_316.ys1_39 (x_315 + 1) k_combine_ys_316)
                                            (\p0_359.\p1_360.p1_360 (i_348 - 1) k_combine_349))))))
-                    /\ (ys0_40 > 0 \/ false)))
-             /\ (xs0_42 > 0 \/ false))
+                    /\ (ys0_40 > 0 \/ true)))
+             /\ (xs0_42 > 0 \/ true))
          /\ (xs0_42 > 0 /\ ys0_40 > 0 \/ FAIL_195 true (\x_261.true))).
 FAIL_195 u_196 k_197 =v false.
 LENGTH x0 x1 k_length =v
@@ -46,10 +46,10 @@ LENGTH x0 x1 k_length =v
   /\ (x0 <= 0
       \/ (x0 <= 0
           \/ LENGTH (x0 - 1) (\x_476.\k_length_l_477.x1 (x_476 + 1) k_length_l_477) (\x_446.k_length (1 + x_446)))
-         /\ (x0 > 0 \/ false)).
+         /\ (x0 > 0 \/ true)).
 MAKE_INTLIST arg10 x_10 k_main_arg2_make_intlist_9 =v
   ∀x_494.
-   (x_494 != 0 \/ k_main_arg2_make_intlist_9 0 (\x_463.\k_main_arg2_make_intlist_464.false))
+   (x_494 != 0 \/ k_main_arg2_make_intlist_9 0 (\x_463.\k_main_arg2_make_intlist_464.true))
    /\ (x_494 = 0
        \/ (∀n_469.
             MAKE_INTLIST arg10 true
@@ -63,7 +63,7 @@ MAKE_INTLIST arg10 x_10 k_main_arg2_make_intlist_9 =v
                         \/ MAKE_INTLIST arg10 true (\p0_382.\p1_383.p1_383 (i_422 - 1) k_main_arg2_make_intlist_423)))))).
 MAKE_INTLIST_23 x_22 k_main_arg1_make_intlist_21 =v
   ∀x_486.
-   (x_486 != 0 \/ k_main_arg1_make_intlist_21 0 (\x_454.\k_main_arg1_make_intlist_455.false))
+   (x_486 != 0 \/ k_main_arg1_make_intlist_21 0 (\x_454.\k_main_arg1_make_intlist_455.true))
    /\ (x_486 = 0
        \/ (∀n_459.
             MAKE_INTLIST_23 true

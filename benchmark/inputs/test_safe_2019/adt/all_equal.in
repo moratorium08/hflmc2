@@ -11,10 +11,10 @@ ALL_EQUAL x_6 l0 l1 k_all_equal =v
                 (x_6 != y_86
                  \/ ALL_EQUAL y_86 (l0 - 1) (\x_97.\k_all_equal_ys_98.l1 (x_97 + 1) k_all_equal_ys_98) k_all_equal)
                 /\ (x_6 = y_86 \/ FAIL_65 true (\x_146.true))))
-         /\ (l0 > 0 \/ false)).
+         /\ (l0 > 0 \/ true)).
 FAIL_65 u_66 k_67 =v false.
 REPLICATE x_12 n k_replicate_11 =v
-  (n > 0 \/ k_replicate_11 0 (\x_135.\k_replicate_136.false))
+  (n > 0 \/ k_replicate_11 0 (\x_135.\k_replicate_136.true))
   /\ (n <= 0
       \/ REPLICATE x_12 (n - 1)
           (\p0_140.

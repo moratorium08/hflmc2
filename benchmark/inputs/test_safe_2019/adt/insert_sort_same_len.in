@@ -11,7 +11,7 @@ MAIN_42  =v
              LENGTH x0_252 x1_253 (\x_210.(x_305 != x_210 \/ true) /\ (x_305 = x_210 \/ FAIL_143 true (\x_189.true)))))).
 FAIL_143 u_144 k_145 =v false.
 INSERT x_40 l0_39 l1_38 k_insert_37 =v
-  (l0_39 > 0 \/ k_insert_37 1 (\i_321.\k_insert_322.(i_321 != 0 \/ k_insert_322 x_40) /\ (i_321 = 0 \/ false)))
+  (l0_39 > 0 \/ k_insert_37 1 (\i_321.\k_insert_322.(i_321 != 0 \/ k_insert_322 x_40) /\ (i_321 = 0 \/ true)))
   /\ (l0_39 <= 0
       \/ l1_38 0
           (\u_332.
@@ -32,9 +32,9 @@ INSERT x_40 l0_39 l1_38 k_insert_37 =v
                                    \/ INSERT x_40 (l0_39 - 1)
                                        (\x_286.\k_insert_l__287.l1_38 (x_286 + 1) k_insert_l__287)
                                        (\p0_183.\p1_184.p1_184 (i_196 - 1) k_insert_197)))))
-                   /\ (l0_39 > 0 \/ false)))).
+                   /\ (l0_39 > 0 \/ true)))).
 INSERT_SORT l0_24 l1_23 k_insert_sort_22 =v
-  (l0_24 > 0 \/ k_insert_sort_22 0 (\x_334.\k_insert_sort_335.false))
+  (l0_24 > 0 \/ k_insert_sort_22 0 (\x_334.\k_insert_sort_335.true))
   /\ (l0_24 <= 0
       \/ (l0_24 <= 0
           \/ l1_23 0
@@ -44,16 +44,16 @@ INSERT_SORT l0_24 l1_23 k_insert_sort_22 =v
                    \k_insert_sort_236.
                     (i_235 != 0 \/ k_insert_sort_236 x_339) /\ (i_235 = 0 \/ l1_23 ((i_235 - 1) + 1) k_insert_sort_236))
                  (\x0_247.\x1_248.INSERT x_339 x0_247 x1_248 k_insert_sort_22)))
-         /\ (l0_24 > 0 \/ false)).
+         /\ (l0_24 > 0 \/ true)).
 LENGTH x0_14 x1_13 k_length =v
   (x0_14 > 0 \/ k_length 0)
   /\ (x0_14 <= 0
       \/ (x0_14 <= 0
           \/ LENGTH (x0_14 - 1) (\x_342.\k_length_l_343.x1_13 (x_342 + 1) k_length_l_343) (\x_301.k_length (1 + x_301)))
-         /\ (x0_14 > 0 \/ false)).
+         /\ (x0_14 > 0 \/ true)).
 MAKE_UNITLIST x_9 k_main_arg1_make_unitlist_8 =v
   ∀x_356.
-   (x_356 != 0 \/ k_main_arg1_make_unitlist_8 0 (\x_308.\k_main_arg1_make_unitlist_309.false))
+   (x_356 != 0 \/ k_main_arg1_make_unitlist_8 0 (\x_308.\k_main_arg1_make_unitlist_309.true))
    /\ (x_356 = 0
        \/ MAKE_UNITLIST true
            (\p0_313.

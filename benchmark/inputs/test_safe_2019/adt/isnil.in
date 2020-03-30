@@ -7,7 +7,7 @@ MAIN_10  =v
        (arg1_73 <= 0 \/ (xs0_58 <= 0 \/ true) /\ (xs0_58 > 0 \/ FAIL_33 true (\x_41.true))) /\ (arg1_73 > 0 \/ true)).
 FAIL_33 u_34 k_35 =v false.
 MAKE_LIST n k_make_list_8 =v
-  (n != 0 \/ k_make_list_8 0 (\x_75.\k_make_list_76.false))
+  (n != 0 \/ k_make_list_8 0 (\x_75.\k_make_list_76.true))
   /\ (n = 0
       \/ MAKE_LIST (n - 1)
           (\p0_79.

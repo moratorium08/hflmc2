@@ -11,10 +11,10 @@ ASSERT_BOUNDED x_13 x0_12 x1_11 k_assert_bounded =v
                  \/ ASSERT_BOUNDED x_13 (x0_12 - 1)
                      (\x_94.\k_assert_bounded_l_95.x1_11 (x_94 + 1) k_assert_bounded_l_95) k_assert_bounded)
                 /\ (x_13 >= y_83 \/ FAIL_62 true (\x_138.true))))
-         /\ (x0_12 > 0 \/ false)).
+         /\ (x0_12 > 0 \/ true)).
 FAIL_62 u_63 k_64 =v false.
 MAKE_LIST n k_make_list_7 =v
-  (n > 0 \/ k_make_list_7 0 (\x_128.\k_make_list_129.false))
+  (n > 0 \/ k_make_list_7 0 (\x_128.\k_make_list_129.true))
   /\ (n <= 0
       \/ MAKE_LIST (n - 1)
           (\p0_132.
