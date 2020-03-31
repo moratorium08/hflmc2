@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -eu
-
 cd inputs
 
 LISTS=`ls  | grep -E "[^n]$"`
@@ -14,7 +12,6 @@ do
     find $l -depth 1 | grep -E ".*in$" > ../lists/$l
     find $l -depth 1 | grep -E ".*in$" >> ../lists/all
 done
-
 
 l="test_safe_2019"
 find $l -depth 2 | grep -E ".*in$" > ../lists/$l
@@ -44,5 +41,7 @@ cd ../
 
 
 ############ ML ##################
+cd ml
 l="test_safe_2019"
-find $l -depth 2 | grep -E ".*ml$" >> ../lists/ml
+find $l -depth 2 | grep -E ".*ml$" > ../lists/ml
+cd ../
