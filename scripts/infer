@@ -1,0 +1,9 @@
+#!/bin/sh
+
+FILENAME=/tmp/ml2hfl_tmp.in
+
+ml2hfl $1 > $FILENAME
+
+shift
+
+hflmc3 $FILENAME $@
