@@ -12,7 +12,7 @@ let name_of_solver = function
   | `Fptprove -> "fptprove"
   | `Eldarica -> "eldarica"
 
-let auto = `Auto(`Hoice, [`Hoice; `Spacer])
+let auto = `Auto(`Hoice, [])
 
 let selected_solver size = 
   let sv = !Typing.solver in
