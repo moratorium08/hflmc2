@@ -41,3 +41,8 @@ do
     find $l -depth 1 | grep -E ".*inp$" >> ../lists/horusall
 done
 cd ../
+
+
+############ ML ##################
+l="test_safe_2019"
+find $l -depth 2 | grep -E ".*ml$" >> ../lists/ml

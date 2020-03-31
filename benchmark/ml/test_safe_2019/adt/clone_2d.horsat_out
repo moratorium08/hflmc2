@@ -1,0 +1,8 @@
+HorSat2 0.94: Saturation-based model checker for higher-order recursion schemes
+analyzing /home/hogeyama/kenkyu-code/hflmc2/benchmark/inputs/ml/test_safe_2019/adt/clone_2d.hors...
+The number of rewrite rules: 196
+The size of recursion scheme: 1905
+The number of states: 1
+size of ACG: 1355
+The property is satisfied.
+Elapsed Time: 0.026737sec

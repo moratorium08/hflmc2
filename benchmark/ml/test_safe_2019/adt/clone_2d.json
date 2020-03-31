@@ -1,0 +1,1 @@
+{"filename":"/home/hogeyama/kenkyu-code/hflmc2/benchmark/inputs/ml/test_safe_2019/adt/clone_2d.ml","result":"Safe","cycles":5,"total":140.913971,"pre":0.022892999999999997,"abst":131.56178999999997,"mc":1.012652999999994,"refine":8.099983999999992}

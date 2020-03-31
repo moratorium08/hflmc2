@@ -1,0 +1,48 @@
+%BEGING
+Main_14  -> Replicate F_4_1758  .
+Bottom0  -> Bottom0 .
+All_equal l1___ k_all_equal___  -> br (All_equal_1818 l1___  k_all_equal___  ) (All_equal_1817 l1___  k_all_equal___  ) .
+All_equal_1817 l1___ k_all_equal___  -> l0 k_all_equal___  .
+All_equal_1818 l1___ k_all_equal___  -> l1 (l0 (l1___ True  (F_4_1766 l1___  k_all_equal___  ) ) ) .
+F_1761 x__1702_1709 x__1_1703_1710 x__2_1703_1711 b_1731  -> F_1763 x__1702_1709  x__2_1703_1711  x__1_1703_1710  b_1731  .
+F_1762 x__1702_1709 b_1727 x_1813  -> b_1727 (x__1702_1709 True  x_1813  ) (F_4_1816 x__1702_1709  x_1813  ) .
+F_1763 x__1702_1709 x__2_1703_1711 b_1729 x_1812  -> b_1729 (F_1762 x__1702_1709  True  x_1812  ) (F_1762 x__1702_1709  x__2_1703_1711  x_1812  ) .
+F_1764 x__1702_1709 x__1_1703_1710 x__2_1703_1711 b_1733  -> b_1733 (F_1761 x__1702_1709  x__1_1703_1710  x__2_1703_1711  True  ) (br (F_1761 x__1702_1709  x__1_1703_1710  x__2_1703_1711  True  ) (F_1761 x__1702_1709  x__1_1703_1710  x__2_1703_1711  False  ) ) .
+F_1765 x__1702_1709 x__1_1703_1710 x__2_1703_1711 b_1735  -> b_1735 (F_1764 x__1702_1709  x__1_1703_1710  x__2_1703_1711  True  ) (F_1764 x__1702_1709  x__1_1703_1710  x__2_1703_1711  x__2_1703_1711  ) .
+F_1767 l1___ k_all_equal___ b_1737  -> b_1737 (l0 (All_equal (F_4_1768 l1___  ) k_all_equal___  ) ) (l1 (Fail_65 unit  ) ) .
+F_1770 k_all_equal_ys_98_1715 x__1_1705_1716 b_1742  -> F_1771 k_all_equal_ys_98_1715  x__1_1705_1716  b_1742  .
+F_1771 k_all_equal_ys_98_1715 b_1740 x_1810  -> b_1740 (k_all_equal_ys_98_1715 True  x_1810  ) (F_4_1815 k_all_equal_ys_98_1715  x_1810  ) .
+F_1772 k_all_equal_ys_98_1715 x__1_1705_1716 b_1744  -> b_1744 (F_1770 k_all_equal_ys_98_1715  x__1_1705_1716  True  ) (br (F_1770 k_all_equal_ys_98_1715  x__1_1705_1716  True  ) (F_1770 k_all_equal_ys_98_1715  x__1_1705_1716  False  ) ) .
+F_1773 l1___ k_all_equal___ b_1746  -> b_1746 (F_1767 l1___  k_all_equal___  True  ) (br (F_1767 l1___  k_all_equal___  True  ) (F_1767 l1___  k_all_equal___  False  ) ) .
+F_1774 l1___ k_all_equal___ y_1_86_1712 b_1748  -> b_1748 (F_1773 l1___  k_all_equal___  True  ) (F_1773 l1___  k_all_equal___  y_1_86_1712  ) .
+F_1778 k_replicate_130_1722 b_1750  -> b_1750 (l0 (k_replicate_130_1722 True  True  ) ) (l1 (Replicate (F_4_1779 k_replicate_130_1722  ) ) ) .
+F_1781 k_replicate_130_1722 b_1752  -> k_replicate_130_1722 False  b_1752  .
+F_1782 k_replicate_130_1722 b_1754  -> b_1754 (F_1781 k_replicate_130_1722  True  ) (br (F_1781 k_replicate_130_1722  True  ) (F_1781 k_replicate_130_1722  False  ) ) .
+F_1783 k_replicate_130_1722 x__2_1706_1725 b_1756  -> b_1756 (F_1782 k_replicate_130_1722  True  ) (F_1782 k_replicate_130_1722  x__2_1706_1725  ) .
+F_4_1758 x1_110_1707  -> All_equal (F_4_1759 x1_110_1707  ) unit  .
+F_4_1759 x1_110_1707 x__1701_1708 x__1702_1709  -> x1_110_1707 True  (F_4_1760 x__1702_1709  ) .
+F_4_1760 x__1702_1709 x__1_1703_1710 x__2_1703_1711  -> F_1765 x__1702_1709  x__1_1703_1710  x__2_1703_1711  x__1_1703_1710  .
+F_4_1766 l1___ k_all_equal___ y_1_86_1712 y_2_86_1713  -> F_1774 l1___  k_all_equal___  y_1_86_1712  y_2_86_1713  .
+F_4_1768 l1___ x_97_1714 k_all_equal_ys_98_1715  -> l1___ True  (F_4_1769 k_all_equal_ys_98_1715  ) .
+F_4_1769 k_all_equal_ys_98_1715 x__1_1705_1716 x__2_1705_1717  -> F_1772 k_all_equal_ys_98_1715  x__1_1705_1716  x__1_1705_1716  .
+F_4_1775 x_135_1718 k_replicate_136_1719  -> Bottom0 .
+F_4_1776 k_replicate_11 p1_141_1720  -> k_replicate_11 F_4_1777  .
+F_4_1777 i_129_1721 k_replicate_130_1722  -> br (F_1778 k_replicate_130_1722  True  ) (F_1778 k_replicate_130_1722  False  ) .
+F_4_1779 k_replicate_130_1722 p1_117_1723  -> p1_117_1723 True  (F_4_1780 k_replicate_130_1722  ) .
+F_4_1780 k_replicate_130_1722 x__1_1706_1724 x__2_1706_1725  -> F_1783 k_replicate_130_1722  x__2_1706_1725  x__1_1706_1724  .
+F_4_1815 k_all_equal_ys_98_1715 x_1811  -> br (k_all_equal_ys_98_1715 True  x_1811  ) (k_all_equal_ys_98_1715 False  x_1811  ) .
+F_4_1816 x__1702_1709 x_1814  -> br (x__1702_1709 True  x_1814  ) (x__1702_1709 False  x_1814  ) .
+Fail_65 k_67  -> event_fail k_67  .
+Replicate k_replicate_11  -> br (Replicate_1820 k_replicate_11  ) (Replicate_1819 k_replicate_11  ) .
+Replicate_1819 k_replicate_11  -> l0 (k_replicate_11 F_4_1775  ) .
+Replicate_1820 k_replicate_11  -> l1 (Replicate (F_4_1776 k_replicate_11  ) ) .
+True x y  -> x .
+False x y  -> y .
+%ENDG
+
+%BEGINA
+q0 br -> q0 q0 .
+q0 l0 -> q0 .
+q0 l1 -> q0 .
+q0 unit -> .
+%ENDA

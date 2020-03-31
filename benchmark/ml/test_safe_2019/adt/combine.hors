@@ -1,0 +1,56 @@
+%BEGING
+Main_24  -> Make_unitlist F_3_2739  .
+Bottom0  -> Bottom0 .
+Combine xs1_21 ys0_1_20 ys0_2_20 ys1_19 k_combine_18  -> br (Combine_2851 xs1_21  ys0_1_20  ys0_2_20  ys1_19  k_combine_18  ) (Combine_2850 xs1_21  ys0_1_20  ys0_2_20  ys1_19  k_combine_18  ) .
+Combine_2850 xs1_21 ys0_1_20 ys0_2_20 ys1_19 k_combine_18  -> l0 (l0 (l0 (k_combine_18 F_3_2745  ) ) ) .
+Combine_2851 xs1_21 ys0_1_20 ys0_2_20 ys1_19 k_combine_18  -> F_2746 xs1_21  ys0_2_20  ys1_19  k_combine_18  ys0_1_20  .
+F_2740 arg11_294_2685 b_2708 x_2833 x_2834 x_2835  -> Combine (F_3_2741 arg11_294_2685  ) b_2708  x_2833  x_2834  x_2835  .
+F_2742 arg11_294_2685 b_2710 x_2837 x_2838 x_2839  -> b_2710 (F_2740 arg11_294_2685  True  x_2837  x_2838  x_2839  ) (F_3_2849 arg11_294_2685  x_2837  x_2838  x_2839  ) .
+F_2746 xs1_21 ys0_2_20 ys1_19 k_combine_18 b_2712  -> b_2712 Bottom0  (l1 (F_2763 xs1_21  ys0_2_20  ys1_19  k_combine_18  ys0_2_20  ) ) .
+F_2747 xs1_21 ys0_2_20 ys1_19 k_combine_18 b_2714  -> b_2714 (l0 (l0 (xs1_21 True  (l0 (ys1_19 True  (F_2751 xs1_21  ys0_2_20  (F_3_2752 ys1_19  ) (F_3_2753 xs1_21  ys0_2_20  ys1_19  k_combine_18  ) ) ) ) ) ) ) (l1 (Fail_110 unit  ) ) .
+F_2748 xs1_21 b_2718 x_2806 x_2807  -> F_3_2845 xs1_21  b_2718  x_2806  x_2807  .
+F_2749 xs1_21 b_2716 x_2812 x_2813 x_2814  -> Combine (F_3_2750 xs1_21  ) b_2716  x_2812  x_2813  x_2814  .
+F_2751 xs1_21 b_2720 x_2815 x_2816  -> b_2720 (F_2748 xs1_21  True  x_2815  x_2816  ) (F_3_2846 xs1_21  x_2815  x_2816  ) .
+F_2755 xs1_21 ys0_2_20 ys1_19 k_combine_254_2693 b_2722  -> b_2722 (l0 (k_combine_254_2693 True  ) ) (l1 (F_2759 xs1_21  ys0_2_20  (F_3_2760 ys1_19  ) (F_3_2761 k_combine_254_2693  ) ) ) .
+F_2756 xs1_21 b_2726 x_2820 x_2821  -> F_3_2847 xs1_21  b_2726  x_2820  x_2821  .
+F_2757 xs1_21 b_2724 x_2826 x_2827 x_2828  -> Combine (F_3_2758 xs1_21  ) b_2724  x_2826  x_2827  x_2828  .
+F_2759 xs1_21 b_2728 x_2829 x_2830  -> b_2728 (F_2756 xs1_21  True  x_2829  x_2830  ) (F_3_2848 xs1_21  x_2829  x_2830  ) .
+F_2763 xs1_21 ys0_2_20 ys1_19 k_combine_18 b_2730  -> b_2730 (F_2747 xs1_21  ys0_2_20  ys1_19  k_combine_18  True  ) (br (F_2747 xs1_21  ys0_2_20  ys1_19  k_combine_18  True  ) (F_2747 xs1_21  ys0_2_20  ys1_19  k_combine_18  False  ) ) .
+F_2764 k_main_arg1_make_unitlist_5 b_2732  -> b_2732 (l0 (k_main_arg1_make_unitlist_5 True  F_3_2765  ) ) (l1 (Make_unitlist (F_3_2766 k_main_arg1_make_unitlist_5  ) ) ) .
+F_2767 k_main_arg1_make_unitlist_5 b_2735 x_2803  -> b_2735 (k_main_arg1_make_unitlist_5 False  x_2803  ) (F_3_2844 k_main_arg1_make_unitlist_5  x_2803  ) .
+F_2769 k_main_arg1_make_unitlist_277_2703 b_2737  -> b_2737 (l0 k_main_arg1_make_unitlist_277_2703  ) (l1 (Make_unitlist (F_3_2770 k_main_arg1_make_unitlist_277_2703  ) ) ) .
+F_3_2739 arg10_293_2684 arg11_294_2685  -> F_2742 arg11_294_2685  arg10_293_2684  True  (F_3_2743 arg11_294_2685  ) F_3_2744  .
+F_3_2741 arg11_294_2685 x__2674_2688 x_2836  -> arg11_294_2685 True  x_2836  .
+F_3_2743 arg11_294_2685 x__2671_2687 x_2843  -> arg11_294_2685 True  x_2843  .
+F_3_2744 main1_163_2686  -> unit .
+F_3_2745 x_166_2689 k_combine_167_2690  -> Bottom0 .
+F_3_2750 xs1_21 x_195_2699 x_2811  -> xs1_21 True  x_2811  .
+F_3_2752 ys1_19 x_220_2698 x_2805  -> ys1_19 True  x_2805  .
+F_3_2753 xs1_21 ys0_2_20 ys1_19 k_combine_18 p1_232_2691  -> k_combine_18 (F_3_2754 xs1_21  ys0_2_20  ys1_19  ) .
+F_3_2754 xs1_21 ys0_2_20 ys1_19 i_253_2692 k_combine_254_2693  -> br (F_2755 xs1_21  ys0_2_20  ys1_19  k_combine_254_2693  True  ) (F_2755 xs1_21  ys0_2_20  ys1_19  k_combine_254_2693  False  ) .
+F_3_2758 xs1_21 x_195_2697 x_2825  -> xs1_21 True  x_2825  .
+F_3_2760 ys1_19 x_220_2696 x_2819  -> ys1_19 True  x_2819  .
+F_3_2761 k_combine_254_2693 p1_265_2694  -> p1_265_2694 True  (F_3_2762 k_combine_254_2693  ) .
+F_3_2762 k_combine_254_2693 x__2677_2695  -> k_combine_254_2693 True  .
+F_3_2765 x_285_2706 k_main_arg1_make_unitlist_286_2707  -> Bottom0 .
+F_3_2766 k_main_arg1_make_unitlist_5 p0_290_2700 p1_291_2701  -> F_2767 k_main_arg1_make_unitlist_5  p0_290_2700  F_3_2768  .
+F_3_2768 i_276_2702 k_main_arg1_make_unitlist_277_2703  -> br (F_2769 k_main_arg1_make_unitlist_277_2703  True  ) (F_2769 k_main_arg1_make_unitlist_277_2703  False  ) .
+F_3_2770 k_main_arg1_make_unitlist_277_2703 p0_271_2704 p1_272_2705  -> p1_272_2705 True  k_main_arg1_make_unitlist_277_2703  .
+F_3_2844 k_main_arg1_make_unitlist_5 x_2804  -> br (k_main_arg1_make_unitlist_5 True  x_2804  ) (k_main_arg1_make_unitlist_5 False  x_2804  ) .
+F_3_2845 xs1_21 x_2808 x_2809 x_2810  -> br (F_2749 xs1_21  True  x_2808  x_2809  x_2810  ) (F_2749 xs1_21  False  x_2808  x_2809  x_2810  ) .
+F_3_2846 xs1_21 x_2817 x_2818  -> br (F_2748 xs1_21  True  x_2817  x_2818  ) (F_2748 xs1_21  False  x_2817  x_2818  ) .
+F_3_2847 xs1_21 x_2822 x_2823 x_2824  -> br (F_2757 xs1_21  True  x_2822  x_2823  x_2824  ) (F_2757 xs1_21  False  x_2822  x_2823  x_2824  ) .
+F_3_2848 xs1_21 x_2831 x_2832  -> br (F_2756 xs1_21  True  x_2831  x_2832  ) (F_2756 xs1_21  False  x_2831  x_2832  ) .
+F_3_2849 arg11_294_2685 x_2840 x_2841 x_2842  -> br (F_2740 arg11_294_2685  True  x_2840  x_2841  x_2842  ) (F_2740 arg11_294_2685  False  x_2840  x_2841  x_2842  ) .
+Fail_110 k_112  -> event_fail k_112  .
+Make_unitlist k_main_arg1_make_unitlist_5  -> br (F_2764 k_main_arg1_make_unitlist_5  True  ) (F_2764 k_main_arg1_make_unitlist_5  False  ) .
+True x y  -> x .
+False x y  -> y .
+%ENDG
+
+%BEGINA
+q0 br -> q0 q0 .
+q0 l0 -> q0 .
+q0 l1 -> q0 .
+q0 unit -> .
+%ENDA
