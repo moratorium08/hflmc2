@@ -267,13 +267,10 @@ let rec infer hes env top =
   let check_feasibility chcs = 
     (* 1. generate constraints by using predicates for tracking cex *)
     let p = Chc_solver.get_unsat_proof chcs `Eldarica in
-    Eldarica.Dag.debug p;
-    (* 3. evaluate HFL formula along the proof*)
-    (* 
-       4. if the input is evaluated to false then returns Invalid
-       5. otherwise; returns Unknown
-    *)
-    Some([])
+    let open Disprove in
+    match disprove p hes env top with
+    | `Invalid -> `UnSat
+    | `Unknown -> `Unknown
   in 
   (* CHC Size is 1, then it is tractable *)
   (* size: intersection type size *)
@@ -283,11 +280,7 @@ let rec infer hes env top =
       if unsat then returns check_feasibility
     *)
     match call_solver_with_timer chcs (Chc_solver.selected_solver 1) with
-    | `Unsat -> begin 
-        match check_feasibility chcs with
-        | Some(trace) -> (* print_trace *)`Unsat
-        | None -> infer_main ~size:(size + 1) hes env top
-        end 
+    | `Unsat -> check_feasibility chcs     
     | `Sat(x) -> `Sat(x)
     | `Fail -> `Fail
     | `Unknown -> `Unknown

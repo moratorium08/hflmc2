@@ -6,6 +6,14 @@ open Rtype
 
 type solver = [`Spacer | `Hoice | `Fptprove | `Eldarica]
 
+type unsat_proof_node = 
+  {
+   id: int; 
+   name: Rid.id; 
+   args: int list; 
+   nodes: int list }
+type unsat_proof = unsat_proof_node list
+  
 let name_of_solver = function
   | `Spacer -> "spacer"
   | `Hoice -> "hoice"
@@ -257,7 +265,7 @@ let parse_model model =
     | List [Atom "define-fun"; Atom id; List args; Atom "Bool"; body] ->
         let args = List.map ~f:parse_arg args in
         let body = parse_formula body in
-        let id = Scanf.sscanf id "X%d" (fun x -> x) in
+        let id = Rid.from_string id in
         (id, args, body)
     | s -> fail "parse_def" s
   in
@@ -312,10 +320,22 @@ let check_sat ?(timeout=100.0) chcs solver =
     in loop tries
   | `Spacer | `Hoice | `Fptprove as sv -> check_sat_inner timeout sv
 
+(* usp: unsat proof *)
+let rec unsat_proof_of_eldarica_cex nodes = 
+  let open Eldarica in
+  match nodes with
+  | [] -> []
+  | x::xs -> {id=Dag.(x.id); 
+              name=if x.head="FALSE" then 
+                Rid.false_id 
+               else 
+                Rid.from_string Dag.(x.head);
+              args=Dag.(x.args);
+              nodes=[];}::(unsat_proof_of_eldarica_cex xs) (* TODO *)
 let get_unsat_proof ?(timeout=100.0) chcs solver = 
   let open Hflmc2_util in
   let file = save_chc_to_smt2 chcs solver in
   let cmd = selected_cex_cmd solver in
   let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [cmd; [|file|]]) in
   let p = Eldarica.parse_string out in
-  p
+  unsat_proof_of_eldarica_cex p
