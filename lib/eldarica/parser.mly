@@ -19,6 +19,7 @@ let node :=
   | id = NAT; COLON; head = ID; args = param_list; ARROW; body = int_list; {{id; head; args; body}} 
   | id = NAT; COLON; head = ID; ARROW; body = int_list; {{id; head; args=[]; body}}
   | id = NAT; COLON; head = ID; args = param_list; {{id; head; args; body=[]}}
+  | id = NAT; COLON; head = ID; {{id; head; args=[]; body=[]}}
 
 let param_list :=
   | ~ = delimited(LPAREN, int_list, RPAREN); <>

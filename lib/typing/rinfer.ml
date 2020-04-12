@@ -264,12 +264,9 @@ let rec infer hes env top =
     add_mesure_time "CHC Solver" @@ fun () ->
     Chc_solver.check_sat hes solver
   in
-  let check_feasibility size = 
+  let check_feasibility chcs = 
     (* 1. generate constraints by using predicates for tracking cex *)
-    let constraints = infer_hes ~track:true hes env 
-                     [{head=RTemplate(top); body=RTrue}] in
-    (* 2. generate unsat_proof  *)
-    let p = Chc_solver.get_unsat_proof constraints `Eldarica in
+    let p = Chc_solver.get_unsat_proof chcs `Eldarica in
     Eldarica.Dag.debug p;
     (* 3. evaluate HFL formula along the proof*)
     (* 
@@ -287,7 +284,7 @@ let rec infer hes env top =
     *)
     match call_solver_with_timer chcs (Chc_solver.selected_solver 1) with
     | `Unsat -> begin 
-        match check_feasibility size with
+        match check_feasibility chcs with
         | Some(trace) -> (* print_trace *)`Unsat
         | None -> infer_main ~size:(size + 1) hes env top
         end 
