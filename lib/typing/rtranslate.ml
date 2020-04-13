@@ -93,7 +93,38 @@ let rec translate_hes = function
     in
     (rule :: l, y)
 
-let translate x = match translate_hes x with
-  | x, Some(y) -> x, Some(y)
-  | x::xs, None -> x::xs, Some(x.var)
-  | x -> x
+let explicit_forall_on_top top hes = 
+  let open Id in
+  let is_int = function
+    | RInt(x) -> true
+    | _ -> false
+  in
+  let rec inner env = function
+    | Rhflz.Abs(x, y) -> 
+    let env' = 
+      if is_int(x.ty) then
+        {x with ty=`Int}::env
+      else
+        env
+    in
+    Rhflz.Forall(x, inner env' y, generate_template env)
+    | x -> x
+  in
+  let top_rule = Rhflz.lookup_rule top hes in
+  let body = inner [] top_rule.body in
+  (* remove arguments of the template type *)
+  let id, _ = get_top top_rule.var.ty in
+  let ty = RBool(RTemplate(id, [])) in
+  let var = {top_rule.var with ty} in
+  Rhflz.replace_rule top {top_rule with body; var} hes
+
+
+let translate x = 
+  let inner x = match translate_hes x with
+    | x, Some(y) -> x, Some(y)
+    | x::xs, None -> x::xs, Some(x.var)
+    | x -> x
+  in
+  match inner x with
+    | x, Some(y) -> explicit_forall_on_top y x, Some(y)
+    | x -> x

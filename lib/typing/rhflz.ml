@@ -111,6 +111,12 @@ type hes_rule =
 let lookup_rule f hes =
   List.find_exn hes ~f:(fun r -> Id.eq r.var f)
 
+let rec replace_rule f rule hes = match hes with
+  | [] -> failwith "Not found"
+  | rule'::xs when Id.eq rule'.var rule.var
+    -> rule::xs
+  | rule'::xs -> rule'::replace_rule f rule xs
+
 type hes = hes_rule list
 
 let main_symbol = function
