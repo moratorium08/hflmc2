@@ -20,13 +20,13 @@ let rec print_types = function
     print_newline ();
     print_types xs
 
-let main x = 
-  let (y, top) = Translate.translate x in
+let main x top_old = 
+  let y = Translate.translate x in
+  let top_rule = Rhflz.lookup_rule top_old y in
+  let top = top_rule.var in
   (*
   print_types y;
   print_newline();
   *)
   let env = generate_env y in
-  match top with
-  | Some(top) -> Infer.infer y env top
-  | None -> (print_string "[error]no_top\n"; `Fail)
+  Infer.infer y env top

@@ -54,8 +54,14 @@ let main file =
   Log.app begin fun m -> m ~header:"Simplified" "%a"
     Print.(hflz_hes simple_ty_) psi
   end;
-  match Typing.main psi with
-  | `Sat ->  `Valid
-  | `Unsat ->  `Invalid
-  | _ -> `Fail
+  let psi, top = Syntax.Trans.Preprocess.main psi in
+  match top with
+  | Some(top) -> begin
+    match Typing.main psi top with
+    | `Sat ->  `Valid
+    | `Unsat ->  `Invalid
+    | _ -> `Fail
+    end
+  | None -> print_string "[Warn]input was empty\n";
+      `Valid (* because the input is empty *)
 
