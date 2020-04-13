@@ -34,7 +34,7 @@ let expand unsat_proof hes =
   in
   let count_rule map rule = 
     let id, _ = Rtype.get_top rule.var.ty in
-    List.length @@ M.find id map 
+    List.length @@ (match M.find_opt id map with Some(l) -> l | None -> [])
   in
   let rec subst_rules fml var rules = 
     let rec inner fml' = match fml' with
