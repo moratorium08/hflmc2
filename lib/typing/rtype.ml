@@ -229,6 +229,11 @@ and to_top = function
   | RInt(x) -> RInt(x)
 
 
+let rec get_top = function
+  | RBool(RTemplate(x)) -> x
+  | RArrow(_, s) -> get_top s
+  | _ -> failwith "program error" (* should not occur int *)
+
 let rec simplify x = match x with
   | RPred(p, l) -> begin match Formula.simplify_pred p l with 
     | Some(true) -> RTrue

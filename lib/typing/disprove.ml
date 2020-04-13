@@ -4,8 +4,7 @@ open Hflmc2_syntax
 type r = [`Invalid | `Unknown]
 
 type value = 
-  | VBool of bool
-  | VInt of int
+  | VBool of Fpl.t
   | VFun of Rtype.t Id.t * Rhflz.t * env
 and env = value IdMap.t
 
@@ -17,18 +16,20 @@ let rid_of_arithid id =
 let disprove unsat_proof hes env top = 
   (* no recursive hes *)
   let hes = Expand.expand unsat_proof hes in
-  let eval formula dic = 
+  let fml = (Rhflz.lookup_rule top hes).body in
+  Rhflz.print_formula fml;
+  (*let eval formula dic = 
     (* evaluator *)
     let open Rhflz in
     let rec f env fml = match fml with
-      | Bool x -> VBool(x)
+      | Bool x -> VBool(Fpl.Bool(x))
       | Var x -> begin match IdMap.find env x with 
         | Some(x) -> x
         | None -> failwith "evaluation error"
         end
       | Or(p, q, _, _) -> 
         begin
-        match f env p , f env q with
+        match f env p, f env q with
           | VBool(false), VBool(false) -> VBool(false)
           | _ -> raise Infeasible
         end
@@ -47,5 +48,5 @@ let disprove unsat_proof hes env top =
       | Arith(a) -> VInt(e_arith env a)
       | Pred(a, l) -> failwith "uo"
     in failwith "hoge"
-  in
+in*)
   failwith "not implemented"

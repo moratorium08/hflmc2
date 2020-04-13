@@ -2,6 +2,7 @@ open Chc_solver
 open Rhflz
 open Rtype
 open Rid
+open Hflmc2_syntax
 
 let gen_map nodes = 
   List.fold_left (fun m x -> 
@@ -31,26 +32,37 @@ let expand unsat_proof hes =
       inner rule.body
     end
   in
-  let rec extract_result_type ty = 
-    match ty with
-    | RBool r -> r
-    | RArrow (_, x) -> extract_result_type x
-    | _ -> failwith "program error(extract_result_type)"
-  in
   let count_rule map rule = 
-    let result_type = extract_result_type rule.var.ty in
-    let id = 
-    match result_type with
-    | RTemplate(id, _) -> id
-    | _ -> failwith "program error(result_type)"
-    in
+    let id, _ = Rtype.get_top rule.var.ty in
     List.length @@ M.find id map 
   in
-  let expand_rule rule = 
-    let expand_cnt = count_rule map rule in
-    Printf.printf "%s\n" @@ Hflmc2_syntax.Id.to_string rule.var;
-    print_int expand_cnt;
-    let fml = expand_nu_formula expand_cnt rule in
-    {rule with body=fml}
+  let rec subst_rules fml var rules = 
+    let rec inner fml' = match fml' with
+      | Var(x) when Id.eq x var -> fml
+      | Or(x, y, a, b) -> Or(inner x, inner y, a, b)
+      | And(x, y, a, b) -> And(inner x, inner y, a, b)
+      | Forall(x, t, s) -> Forall(x, inner t, s)
+      | App(x, y, t) -> App(inner x, inner y, t)
+      | Abs(x, y) -> Abs(x, inner y)
+      | x -> x
+    in
+    match rules with
+    | [] -> []
+    | rule::rules when rule.var = var -> 
+      {rule with body=fml}::subst_rules fml var rules
+    | rule::rules -> 
+      Printf.printf "- %s%d " rule.var.name rule.var.id;
+      {rule with body=inner rule.body}::subst_rules fml var rules
   in
-  List.map expand_rule hes
+  let rec expand_rule iters rules = match iters with
+    | [] -> rules
+    | rule::xs -> 
+      let expand_cnt = count_rule map rule in
+      Printf.printf "%s%d %d" rule.var.name rule.var.id expand_cnt;
+      let fml = expand_nu_formula expand_cnt rule in
+      let rules' = subst_rules fml rule.var rules in
+      print_newline ();
+      expand_rule xs rules'
+  in
+  expand_rule hes hes
+

@@ -76,10 +76,6 @@ let translate_rule
   let var = {var with Id.ty=var.ty} in
   {Rhflz.var=var; Rhflz.fix=formula.fix; Rhflz.body = body}
 
-let rec get_top = function
-  | Rtype.RBool(RTemplate(x)) -> x
-  | Rtype.RArrow(_, s) -> get_top s
-  | _ -> failwith "program error" (* should not occur int *)
 
 let rec translate_hes = function
   | [] -> ([], None)
@@ -91,7 +87,7 @@ let rec translate_hes = function
     let y = 
       if flag then 
         let open Rhflz in
-        Some(get_top rule.var.ty)
+        Some(rule.var)
       else 
         y
     in
@@ -99,5 +95,5 @@ let rec translate_hes = function
 
 let translate x = match translate_hes x with
   | x, Some(y) -> x, Some(y)
-  | x::xs, None -> x::xs, Some(get_top x.var.ty)
+  | x::xs, None -> x::xs, Some(x.var)
   | x -> x

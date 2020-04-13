@@ -287,7 +287,8 @@ let rec infer hes env top =
   and infer_main ?(size=1) hes env top = 
     (* 1. generate constraints *)
     print_hes hes;
-    let constraints = infer_hes hes env [{head=RTemplate(top); body=RTrue}] in
+    let top_pred = get_top @@ Hflmc2_syntax.Id.(top.ty) in
+    let constraints = infer_hes hes env [{head=RTemplate(top_pred); body=RTrue}] in
     (*print_constraints constraints;*)
     (* 2. optimize CHC (ECHC) *)
     let constraints = List.map (fun chc -> 
