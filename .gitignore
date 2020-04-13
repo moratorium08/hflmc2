@@ -1,5 +1,10 @@
 _build
 **/Session.vim
 **/.merlin
+**/*.json
+**/*.horsat_out
+**/*.hors
+**/*.annot
+**/*.status
 **/*.install
 TODO
