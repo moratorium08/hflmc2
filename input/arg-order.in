@@ -1,0 +1,4 @@
+%HES
+A n =v B (C n) n.
+B k x =v k x.
+C x y =v x = y.
