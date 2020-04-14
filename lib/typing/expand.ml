@@ -14,6 +14,19 @@ let gen_map nodes =
 
 let expand unsat_proof hes =
   let map = gen_map unsat_proof in
+  let expand_forall rule = 
+    let rec inner fml = match fml with
+      | Or(x, y, a, b) -> Or(inner x, inner y, a, b)
+      | And(x, y, a, b) -> And(inner x, inner y, a, b)
+      | App(x, y, t) -> App(inner x, inner y, t)
+      | Abs(x, y) -> Abs(x, inner y)
+      | Forall(x, t, s) -> 
+      (* replace forall to finite conjunctions *)
+        Forall(x, inner t, s)
+      | x -> x
+    in
+    {rule with body=inner rule.body}
+  in
   let rec expand_nu_formula expand_cnt rule = 
     if expand_cnt <= 0 then
       Bool(true)
@@ -23,7 +36,6 @@ let expand unsat_proof hes =
         | Or(x, y, a, b) -> Or(inner x, inner y, a, b)
         | And(x, y, a, b) -> And(inner x, inner y, a, b)
         | Forall(x, t, s) -> Forall(x, inner t, s)
-        (* recursive `call' of this prediate *)
         | App(x, y, t) -> App(inner x, inner y, t)
         | Abs(x, y) -> Abs(x, inner y)
         | Var(x) when x = rule.var-> expand_nu_formula (expand_cnt - 1) rule 

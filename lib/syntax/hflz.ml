@@ -28,11 +28,6 @@ let lookup_rule f hes =
 type 'ty hes = 'ty hes_rule list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
-let main_symbol = function
-  | [] -> failwith "empty hes"
-  | s::_ -> s.var
-let main hes = Var(main_symbol hes)
-
 (* Construction *)
 let mk_bool b = Bool b
 

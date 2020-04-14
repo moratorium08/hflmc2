@@ -119,7 +119,9 @@ let rec replace_rule f rule hes = match hes with
 
 type hes = hes_rule list
 
-let main_symbol = function
-  | [] -> failwith "empty hes"
-  | s::_ -> s.var
-let main hes = Var(main_symbol hes)
+let rec bottom_hflz = function
+  | Rtype.RBool _ -> Bool(false)
+  | Rtype.RArrow(x, y) -> 
+    Abs(Id.gen x, bottom_hflz y)
+  | Rtype.RInt(RId(x)) -> Var({x with ty=Rtype.(RInt(RId(x)))})
+  | Rtype.RInt(RArith(x)) -> Arith(x)

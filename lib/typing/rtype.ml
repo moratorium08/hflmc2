@@ -228,7 +228,6 @@ and to_top = function
   | RBool _ -> RBool RTrue
   | RInt(x) -> RInt(x)
 
-
 let rec get_top = function
   | RBool(RTemplate(x)) -> x
   | RArrow(_, s) -> get_top s

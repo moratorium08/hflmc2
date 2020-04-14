@@ -5,6 +5,7 @@ type r = [`Invalid | `Unknown]
 
 type value = 
   | VBool of Fpl.t
+  | VInt of Arith.t
   | VFun of Rtype.t Id.t * Rhflz.t * env
 and env = value IdMap.t
 
@@ -18,21 +19,39 @@ let disprove unsat_proof hes env top =
   let hes = Expand.expand unsat_proof hes in
   let fml = (Rhflz.lookup_rule top hes).body in
   Rhflz.print_formula fml;
-  (*let eval formula dic = 
+  let eval fml = 
     (* evaluator *)
     let open Rhflz in
     let rec f env fml = match fml with
       | Bool x -> VBool(Fpl.Bool(x))
+      | Or(p, q, _, _) -> VBool(Fpl.Or(f_bool env p, f_bool env q))
+      | And(p, q, _, _) -> VBool(Fpl.And(f_bool env p, f_bool env q))
+      | Pred(a, l) -> VBool(Fpl.Pred(a, l))
+      | Forall(id, e, _) -> 
+        let v = match id.ty with
+        | Rtype.RInt(RId(x)) -> VInt(Arith.Var(x))
+        | Rtype.RInt(RArith(x)) -> VInt(x)
+        | Rtype.RArrow(_) -> 
+          let f = Rhflz.bottom_hflz id.ty in
+          begin
+          match f with
+          | Abs(id, e) -> VFun(id, e, env)
+          | _ -> failwith "evaluation error(bottom)"
+          end
+        | Rtype.RBool(x) -> VBool(Fpl.Bool(false))
+        in
+        f (IdMap.add env id v) e
       | Var x -> begin match IdMap.find env x with 
         | Some(x) -> x
-        | None -> failwith "evaluation error"
+        | None -> 
+        Printf.printf "\nCurrent Environments\n";
+        IdMap.iter_keys ~f:(fun key -> 
+          Printf.printf "%s\n" @@ Id.to_string key
+        ) env;
+        Printf.printf "but not found %s\n" @@ Id.to_string x;
+         failwith "evaluation error(var not found)"
         end
-      | Or(p, q, _, _) -> 
-        begin
-        match f env p, f env q with
-          | VBool(false), VBool(false) -> VBool(false)
-          | _ -> raise Infeasible
-        end
+      | Arith(a) -> VInt(a)
       | Abs(id, e) -> VFun(id, e, env)
       | App(e1, e2, _) -> 
         let v1 = f env e1 in
@@ -43,10 +62,17 @@ let disprove unsat_proof hes env top =
           f (IdMap.add env id v2) e
         | _ -> failwith "runtime error(Disprove.eval)"
         end
-      | And(p, q, _, _) -> failwith "uo"
-      | Forall(x, y, _) -> failwith "uo"
-      | Arith(a) -> VInt(e_arith env a)
-      | Pred(a, l) -> failwith "uo"
-    in failwith "hoge"
-in*)
-  failwith "not implemented"
+    and f_bool env fml = match f env fml with
+      | VBool(x) -> x
+      | _ -> failwith "runetime error(Disprove f_bool in eval)"
+    in 
+    f IdMap.empty fml
+  in
+  let v = eval fml in
+  let b = begin
+  match v with
+  | VBool(v) -> v
+  | _ -> failwith "evaluation error"
+  end in
+  Fpl.print b;
+  failwith "not_implemented"
