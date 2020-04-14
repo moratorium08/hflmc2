@@ -26,7 +26,8 @@ let disprove unsat_proof hes env top =
       | Bool x -> VBool(Fpl.Bool(x))
       | Or(p, q, _, _) -> VBool(Fpl.Or(f_bool env p, f_bool env q))
       | And(p, q, _, _) -> VBool(Fpl.And(f_bool env p, f_bool env q))
-      | Pred(a, l) -> VBool(Fpl.Pred(a, l))
+      | Pred(a, l) -> VBool(Fpl.Pred(a, List.map (f_arith env) l))
+      | Arith(a) -> VInt(f_arith env a)
       | Forall(id, e, _) -> 
         begin
         match id.ty with
@@ -55,7 +56,6 @@ let disprove unsat_proof hes env top =
         Printf.printf "but not found %s\n" @@ Id.to_string x;
          failwith "evaluation error(var not found)"
         end
-      | Arith(a) -> VInt(a)
       | Abs(id, e) -> VFun(id, e, env)
       | App(e1, e2, _) -> 
         let v1 = f env e1 in
@@ -69,6 +69,16 @@ let disprove unsat_proof hes env top =
     and f_bool env fml = match f env fml with
       | VBool(x) -> x
       | _ -> failwith "runetime error(Disprove f_bool in eval)"
+    and f_arith env e = let open Arith in
+      match e with 
+      | Op(op, l) -> 
+        Op(op, List.map (f_arith env) l)
+      | Var x -> 
+        begin match IdMap.find env x with 
+          | Some(VInt(a)) -> a
+          | _ -> failwith "evaluation error(f_arith)"
+        end
+      | x -> x
     in 
     f IdMap.empty fml
   in
