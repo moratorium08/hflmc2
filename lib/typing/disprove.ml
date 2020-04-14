@@ -88,6 +88,12 @@ let disprove unsat_proof hes env top =
   | VBool(v) -> v
   | _ -> failwith "evaluation error"
   end in
+  (*
+  reduced formula
+  print_newline ();
+  Fpl.print b;
+  print_newline ();
+  *)
   match Smt_solver.check_sat_fpl `Z3 b with
   | `Unsat -> `Invalid
   | _ -> `Unknown

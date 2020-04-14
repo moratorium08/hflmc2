@@ -10,11 +10,12 @@ open Syntax
 let log_src = Logs.Src.create "Main"
 module Log = (val Logs.src_log @@ log_src)
 
-type result = [ `Valid | `Invalid | `Fail]
+type result = [ `Valid | `Invalid | `Unknown | `Fail]
 
 let show_result = function
   | `Valid      -> "Valid"
   | `Invalid    -> "Invalid"
+  | `Unknown    -> "Unknown"
   | `Fail       -> "Fail"
 
 let measure_time f =
@@ -60,6 +61,7 @@ let main file =
     match Typing.main psi top with
     | `Sat ->  `Valid
     | `Unsat ->  `Invalid
+    | `Unknown -> `Unknown
     | _ -> `Fail
     end
   | None -> print_string "[Warn]input was empty\n";
