@@ -269,7 +269,7 @@ let rec infer hes env top =
     let p = Chc_solver.get_unsat_proof chcs `Eldarica in
     let open Disprove in
     match disprove p hes env top with
-    | `Invalid -> `UnSat
+    | `Invalid -> `Unsat
     | `Unknown -> `Unknown
   in 
   (* CHC Size is 1, then it is tractable *)

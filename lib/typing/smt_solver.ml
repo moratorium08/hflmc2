@@ -15,7 +15,10 @@ let gen_assert solver fml =
   let fpl_smt = fpl2smt2 fml in
   Printf.sprintf "(assert %s)" fpl_smt 
 
-let fpl2smt2 = gen_assert
+let fpl2smt2 solver fml = 
+  let s = gen_assert solver fml in
+  Printf.sprintf "%s\n%s" s @@ get_epilogue solver
+
 
 let save_fpl_to_smt2 solver fpl =
     let smt2 = fpl2smt2 solver fpl in
@@ -36,4 +39,5 @@ let check_sat_fpl ?(timeout=100000.0) solver fpl =
   | Some ("unsat", _) -> `Unsat
   | Some ("sat", _) -> `Sat
   | Some ("unknown", _) -> `Unknown
-  | _ -> failwith "failed to handle smt solver result"
+  | _ -> 
+    failwith @@ Printf.sprintf "failed to handle smt solver result: %s" out

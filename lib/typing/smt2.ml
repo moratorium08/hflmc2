@@ -65,6 +65,13 @@ let rec ref2smt2 rt = match rt with
   | RTemplate(p, l) -> template2smt2 (p, l)
   | RPred(p, l) -> pred2smt2(p, l)
 
-let rec fpl2smt2 fml = match fml with
-(* TODO: next *)
-  | _ -> failwith "not_implemented"
+let rec fpl2smt2 fml = 
+  let open Fpl in
+  match fml with
+  | Bool x when x -> "true"
+  | Bool x -> "false"
+  | Or(x, y) -> Printf.sprintf "(or %s %s)" (fpl2smt2 x) (fpl2smt2 y)
+  | And(x, y) -> Printf.sprintf "(and %s %s)" (fpl2smt2 x) (fpl2smt2 y)
+  | Forall(x, y) -> 
+    Printf.sprintf "(forall ((%s Int)) %s)" (Id.to_string x) (fpl2smt2 y)
+  | Pred(p, l) -> pred2smt2(p, l)
