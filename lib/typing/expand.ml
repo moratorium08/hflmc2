@@ -51,7 +51,6 @@ let expand unsat_proof hes =
   let rec subst_rules fml var rules = 
     let rec inner fml' = match fml' with
       | Var(x) when Id.eq x var -> 
-        Printf.printf "replacing %s\n" @@ Id.to_string x;
         fml
       | Or(x, y, a, b) -> Or(inner x, inner y, a, b)
       | And(x, y, a, b) -> And(inner x, inner y, a, b)
@@ -65,17 +64,14 @@ let expand unsat_proof hes =
     | rule::rules when rule.var = var -> 
       {rule with body=fml}::subst_rules fml var rules
     | rule::rules -> 
-      Printf.printf "- %s%d " rule.var.name rule.var.id;
       {rule with body=inner rule.body}::subst_rules fml var rules
   in
   let rec expand_rule iters rules = match iters with
     | [] -> rules
     | rule::xs -> 
       let expand_cnt = count_rule map rule in
-      Printf.printf "%s%d %d" rule.var.name rule.var.id expand_cnt;
       let fml = expand_nu_formula expand_cnt rule in
       let rules' = subst_rules fml rule.var rules in
-      print_newline ();
       expand_rule xs rules'
   in
   expand_rule hes hes

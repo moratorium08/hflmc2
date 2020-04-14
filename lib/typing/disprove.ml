@@ -18,7 +18,6 @@ let disprove unsat_proof hes env top =
   (* no recursive hes *)
   let hes = Expand.expand unsat_proof hes in
   let fml = (Rhflz.lookup_rule top hes).body in
-  Rhflz.print_formula fml;
   let eval fml = 
     (* evaluator *)
     let open Rhflz in
@@ -89,8 +88,6 @@ let disprove unsat_proof hes env top =
   | VBool(v) -> v
   | _ -> failwith "evaluation error"
   end in
-  Printf.printf "\n\n";
-  Fpl.print b;
   match Smt_solver.check_sat_fpl `Z3 b with
   | `Unsat -> `Invalid
   | _ -> `Unknown

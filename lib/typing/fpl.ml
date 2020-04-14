@@ -40,8 +40,3 @@ let rec print = function
   | Pred (x,l) -> 
     Print.pred Fmt.stdout x;
     Fmt.flush Fmt.stdout () 
-
-
-
-(* skolem *)
-(* be aware of alpha renaming *)
