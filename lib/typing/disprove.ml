@@ -59,10 +59,10 @@ let disprove unsat_proof hes env top =
       | Abs(id, e) -> VFun(id, e, env)
       | App(e1, e2, _) -> 
         let v1 = f env e1 in
+        let v2 = f env e2 in
         begin
         match v1 with
         | VFun(id, e, env) -> 
-          let v2 = f env e2 in
           f (IdMap.set env id v2) e
         | _ -> failwith "runtime error(Disprove.eval)"
         end
@@ -76,6 +76,7 @@ let disprove unsat_proof hes env top =
       | Var x -> 
         begin match IdMap.find env x with 
           | Some(VInt(a)) -> a
+          | None -> failwith "evaluation error: var not found(f_arith)"
           | _ -> failwith "evaluation error(f_arith)"
         end
       | x -> x
