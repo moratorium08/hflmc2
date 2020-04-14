@@ -90,4 +90,6 @@ let disprove unsat_proof hes env top =
   end in
   Printf.printf "\n\n";
   Fpl.print b;
-  failwith "not_implemented"
+  match Smt_solver.check_sat_fpl `Z3 b with
+  | `Unsat -> `Invalid
+  | _ -> `Unknown
