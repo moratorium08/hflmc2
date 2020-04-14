@@ -33,18 +33,18 @@ let disprove unsat_proof hes env top =
         match id.ty with
         | Rtype.RInt(RId(x)) -> 
           VBool(Fpl.Forall ({id with ty = `Int},
-            f_bool (IdMap.add env id @@ VInt(Arith.Var(x))) e))
+            f_bool (IdMap.set env id @@ VInt(Arith.Var(x))) e))
         | Rtype.RInt(RArith(x)) -> 
           VBool(Fpl.Forall ({id with ty = `Int},
-            f_bool (IdMap.add env id @@ VInt(x)) e))
+            f_bool (IdMap.set env id @@ VInt(x)) e))
         | Rtype.RArrow(_) -> 
           let g = Rhflz.bottom_hflz id.ty in
           begin
           match g with
-          | Abs(id, e) -> f (IdMap.add env id @@ VFun(id, e, env)) e
+          | Abs(id, e) -> f (IdMap.set env id @@ VFun(id, e, env)) e
           | _ -> failwith "evaluation error(bottom)"
           end
-        | Rtype.RBool(x) -> f (IdMap.add env id @@ VBool(Fpl.Bool(false))) e
+        | Rtype.RBool(x) -> f (IdMap.set env id @@ VBool(Fpl.Bool(false))) e
         end
       | Var x -> begin match IdMap.find env x with 
         | Some(x) -> x
@@ -63,7 +63,7 @@ let disprove unsat_proof hes env top =
         match v1 with
         | VFun(id, e, env) -> 
           let v2 = f env e2 in
-          f (IdMap.add env id v2) e
+          f (IdMap.set env id v2) e
         | _ -> failwith "runtime error(Disprove.eval)"
         end
     and f_bool env fml = match f env fml with

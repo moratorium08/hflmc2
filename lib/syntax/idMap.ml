@@ -8,6 +8,9 @@ let singleton : 'a Id.t -> 'x -> 'x t =
 let add : 'x t -> 'a Id.t -> 'x -> 'x t =
   fun env v data ->
     add_exn env ~key:(Id.remove_ty v) ~data
+let set : 'x t -> 'a Id.t -> 'x -> 'x t =
+  fun env v data ->
+    set env ~key:(Id.remove_ty v) ~data
 let replace : 'x t -> 'a Id.t -> 'x -> 'x t =
   fun env v data ->
     replace env ~key:(Id.remove_ty v) ~data
