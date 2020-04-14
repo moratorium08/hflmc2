@@ -29,7 +29,7 @@ let expand unsat_proof hes =
   in
   let rec expand_nu_formula expand_cnt rule = 
     if expand_cnt <= 0 then
-      Bool(true)
+      Rhflz.top_hflz rule.var.ty
     else begin
       (* inline expand_cnt times *)
       let rec inner fml = match fml with
@@ -38,7 +38,7 @@ let expand unsat_proof hes =
         | Forall(x, t, s) -> Forall(x, inner t, s)
         | App(x, y, t) -> App(inner x, inner y, t)
         | Abs(x, y) -> Abs(x, inner y)
-        | Var(x) when x = rule.var-> expand_nu_formula (expand_cnt - 1) rule 
+        | Var(x) when Id.eq x rule.var -> expand_nu_formula (expand_cnt - 1) rule 
         | x -> x
       in
       inner rule.body
@@ -50,7 +50,9 @@ let expand unsat_proof hes =
   in
   let rec subst_rules fml var rules = 
     let rec inner fml' = match fml' with
-      | Var(x) when Id.eq x var -> fml
+      | Var(x) when Id.eq x var -> 
+        Printf.printf "replacing %s\n" @@ Id.to_string x;
+        fml
       | Or(x, y, a, b) -> Or(inner x, inner y, a, b)
       | And(x, y, a, b) -> And(inner x, inner y, a, b)
       | Forall(x, t, s) -> Forall(x, inner t, s)

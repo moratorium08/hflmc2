@@ -32,7 +32,12 @@ let rec print = function
     Printf.printf ".";
     print y;
     Printf.printf ")"
-  | Pred (x,_) -> 
+  | Pred (x,[f1; f2]) -> 
+    Print.arith Fmt.stdout f1;
+    Print.pred Fmt.stdout x;
+    Print.arith Fmt.stdout f2;
+    Fmt.flush Fmt.stdout () ;
+  | Pred (x,l) -> 
     Print.pred Fmt.stdout x;
     Fmt.flush Fmt.stdout () 
 

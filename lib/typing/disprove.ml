@@ -28,19 +28,23 @@ let disprove unsat_proof hes env top =
       | And(p, q, _, _) -> VBool(Fpl.And(f_bool env p, f_bool env q))
       | Pred(a, l) -> VBool(Fpl.Pred(a, l))
       | Forall(id, e, _) -> 
-        let v = match id.ty with
-        | Rtype.RInt(RId(x)) -> VInt(Arith.Var(x))
-        | Rtype.RInt(RArith(x)) -> VInt(x)
+        begin
+        match id.ty with
+        | Rtype.RInt(RId(x)) -> 
+          VBool(Fpl.Forall ({id with ty = `Int},
+            f_bool (IdMap.add env id @@ VInt(Arith.Var(x))) e))
+        | Rtype.RInt(RArith(x)) -> 
+          VBool(Fpl.Forall ({id with ty = `Int},
+            f_bool (IdMap.add env id @@ VInt(x)) e))
         | Rtype.RArrow(_) -> 
-          let f = Rhflz.bottom_hflz id.ty in
+          let g = Rhflz.bottom_hflz id.ty in
           begin
-          match f with
-          | Abs(id, e) -> VFun(id, e, env)
+          match g with
+          | Abs(id, e) -> f (IdMap.add env id @@ VFun(id, e, env)) e
           | _ -> failwith "evaluation error(bottom)"
           end
-        | Rtype.RBool(x) -> VBool(Fpl.Bool(false))
-        in
-        f (IdMap.add env id v) e
+        | Rtype.RBool(x) -> f (IdMap.add env id @@ VBool(Fpl.Bool(false))) e
+        end
       | Var x -> begin match IdMap.find env x with 
         | Some(x) -> x
         | None -> 
@@ -74,5 +78,6 @@ let disprove unsat_proof hes env top =
   | VBool(v) -> v
   | _ -> failwith "evaluation error"
   end in
+  Printf.printf "\n\n";
   Fpl.print b;
   failwith "not_implemented"

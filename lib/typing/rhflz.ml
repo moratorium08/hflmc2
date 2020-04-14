@@ -125,3 +125,10 @@ let rec bottom_hflz = function
     Abs(Id.gen x, bottom_hflz y)
   | Rtype.RInt(RId(x)) -> Var({x with ty=Rtype.(RInt(RId(x)))})
   | Rtype.RInt(RArith(x)) -> Arith(x)
+
+let rec top_hflz = function
+  | Rtype.RBool _ -> Bool(true)
+  | Rtype.RArrow(x, y) -> 
+    Abs(Id.gen x, top_hflz y)
+  | Rtype.RInt(RId(x)) -> Var({x with ty=Rtype.(RInt(RId(x)))})
+  | Rtype.RInt(RArith(x)) -> Arith(x)
