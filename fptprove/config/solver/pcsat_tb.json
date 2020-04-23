@@ -1,5 +1,19 @@
-["PCSat",
-  {"preprocess": ["Filename", "./config/pcsat/preprocessor/default.json"],
-   "postprocess": ["Filename", "./config/pcsat/postprocessor/default.json"],
-   "coordinator" : ["Filename", "./config/pcsat/coordinator/tb.json"],
-   "output_iteration": true}]
+[
+  "PCSat",
+  {
+    "preprocess": [
+      "Filename",
+      "./config/pcsat/preprocessor/default.json"
+    ],
+    "postprocess": [
+      "Filename",
+      "./config/pcsat/postprocessor/default.json"
+    ],
+    "coordinator": [
+      "Filename",
+      "./config/pcsat/coordinator/tb.json"
+    ],
+    "solve_each_query": false,
+    "output_iteration": true
+  }
+]

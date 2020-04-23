@@ -1,10 +1,10 @@
 %BEGING
-Main_44  -> Make_intlist_23 F_6_11839  .
+Main_44  -> Make_int_list_23 F_6_11839  .
 Bottom0  -> Bottom0 .
 Combine xs1_41 ys0_1_40 ys0_2_40 ys0_3_40 ys0_4_40 ys0_5_40 ys1_39 k_combine_38  -> br (Combine_12948 xs1_41  ys0_1_40  ys0_2_40  ys0_3_40  ys0_4_40  ys0_5_40  ys1_39  k_combine_38  ) (Combine_12947 xs1_41  ys0_1_40  ys0_2_40  ys0_3_40  ys0_4_40  ys0_5_40  ys1_39  k_combine_38  ) .
 Combine_12947 xs1_41 ys0_1_40 ys0_2_40 ys0_3_40 ys0_4_40 ys0_5_40 ys1_39 k_combine_38  -> l0 (l0 (l0 (k_combine_38 F_6_12021  ) ) ) .
 Combine_12948 xs1_41 ys0_1_40 ys0_2_40 ys0_3_40 ys0_4_40 ys0_5_40 ys1_39 k_combine_38  -> F_12052 xs1_41  ys0_1_40  ys0_2_40  ys0_3_40  ys0_4_40  ys0_5_40  ys1_39  k_combine_38  ys0_4_40  .
-F_11840 b_11397 x_12921  -> Make_intlist True  b_11397  x_12921  .
+F_11840 b_11397 x_12921  -> Make_int_list True  b_11397  x_12921  .
 F_11841 b_11399 x_12922  -> b_11399 (F_11840 True  x_12922  ) (F_6_12946 x_12922  ) .
 F_11847 arg10_479_11348 arg11_480_11349 arg20_1_450_11350 arg20_2_450_11351 arg21_451_11352 x_1_429_11353 x_2_429_11354 x_3_429_11355 x_1_390_11356 x_2_390_11357 x_3_390_11358 b_11401  -> b_11401 (l0 (F_11980 arg10_479_11348  arg11_480_11349  arg20_1_450_11350  arg20_2_450_11351  x_1_429_11353  x_2_429_11354  x_3_429_11355  x_1_390_11356  x_2_390_11357  x_3_390_11358  x_1_429_11353  (F_6_11981 arg21_451_11352  ) F_6_11982  ) ) (l1 unit  ) .
 F_11848 arg10_479_11348 arg11_480_11349 arg20_1_450_11350 arg20_2_450_11351 x_1_429_11353 x_2_429_11354 x_3_429_11355 x_1_390_11356 x_2_390_11357 x_3_390_11358 b_11591 x_12456 x_12457  -> F_11943 arg10_479_11348  arg11_480_11349  arg20_1_450_11350  arg20_2_450_11351  x_1_429_11353  x_2_429_11354  x_3_429_11355  x_1_390_11356  x_2_390_11357  x_3_390_11358  x_1_429_11353  b_11591  x_12456  x_12457  .
@@ -207,22 +207,22 @@ F_12058 k_length x_2_446_11376 x_3_446_11377 b_11794 x_12358 x_12359  -> b_11794
 F_12059 k_length x_1_446_11375 x_2_446_11376 x_3_446_11377 b_11798  -> b_11798 (F_12055 k_length  x_1_446_11375  x_2_446_11376  x_3_446_11377  True  ) (br (F_12055 k_length  x_1_446_11375  x_2_446_11376  x_3_446_11377  True  ) (F_12055 k_length  x_1_446_11375  x_2_446_11376  x_3_446_11377  False  ) ) .
 F_12060 k_length x_1_446_11375 x_2_446_11376 x_3_446_11377 b_11800  -> b_11800 (F_12059 k_length  x_1_446_11375  x_2_446_11376  x_3_446_11377  True  ) (F_12059 k_length  x_1_446_11375  x_2_446_11376  x_3_446_11377  x_2_446_11376  ) .
 F_12061 k_length x_1_446_11375 x_2_446_11376 x_3_446_11377 b_11802  -> b_11802 (F_12060 k_length  x_1_446_11375  x_2_446_11376  x_3_446_11377  True  ) (F_12060 k_length  x_1_446_11375  x_2_446_11376  x_3_446_11377  x_3_446_11377  ) .
-F_12062 x_10 k_main_arg2_make_intlist_9 b_11804  -> b_11804 (l0 (F_12063 k_main_arg2_make_intlist_9  x_10  True  F_6_12064  ) ) (l1 (F_12066 x_10  (F_6_12067 x_10  k_main_arg2_make_intlist_9  ) ) ) .
-F_12063 k_main_arg2_make_intlist_9 b_11807 x_12354 x_12355  -> b_11807 (k_main_arg2_make_intlist_9 True  x_12354  x_12355  ) (F_6_12929 k_main_arg2_make_intlist_9  x_12354  x_12355  ) .
-F_12065 b_11809 x_12351  -> Make_intlist True  b_11809  x_12351  .
+F_12062 x_10 k_main_arg2_make_int_list_9 b_11804  -> b_11804 (l0 (F_12063 k_main_arg2_make_int_list_9  x_10  True  F_6_12064  ) ) (l1 (F_12066 x_10  (F_6_12067 x_10  k_main_arg2_make_int_list_9  ) ) ) .
+F_12063 k_main_arg2_make_int_list_9 b_11807 x_12354 x_12355  -> b_11807 (k_main_arg2_make_int_list_9 True  x_12354  x_12355  ) (F_6_12929 k_main_arg2_make_int_list_9  x_12354  x_12355  ) .
+F_12065 b_11809 x_12351  -> Make_int_list True  b_11809  x_12351  .
 F_12066 b_11811 x_12352  -> b_11811 (F_12065 True  x_12352  ) (F_6_12928 x_12352  ) .
-F_12068 k_main_arg2_make_intlist_9 p0_1_441_11379 p0_2_441_11380 b_11818 x_12341  -> F_12070 k_main_arg2_make_intlist_9  p0_2_441_11380  p0_1_441_11379  b_11818  x_12341  .
-F_12069 k_main_arg2_make_intlist_9 b_11814 x_12344 x_12345  -> b_11814 (k_main_arg2_make_intlist_9 False  x_12344  x_12345  ) (F_6_12926 k_main_arg2_make_intlist_9  x_12344  x_12345  ) .
-F_12070 k_main_arg2_make_intlist_9 p0_2_441_11380 b_11816 x_12342 x_12343  -> b_11816 (F_12069 k_main_arg2_make_intlist_9  True  x_12342  x_12343  ) (F_12069 k_main_arg2_make_intlist_9  p0_2_441_11380  x_12342  x_12343  ) .
-F_12071 k_main_arg2_make_intlist_9 p0_1_441_11379 p0_2_441_11380 b_11820 x_12348  -> b_11820 (F_12068 k_main_arg2_make_intlist_9  p0_1_441_11379  p0_2_441_11380  False  x_12348  ) (F_6_12927 k_main_arg2_make_intlist_9  p0_1_441_11379  p0_2_441_11380  x_12348  ) .
-F_12072 k_main_arg2_make_intlist_9 p0_1_441_11379 p0_2_441_11380 b_11822 x_12350  -> b_11822 (F_12071 k_main_arg2_make_intlist_9  p0_1_441_11379  p0_2_441_11380  True  x_12350  ) (F_12071 k_main_arg2_make_intlist_9  p0_1_441_11379  p0_2_441_11380  p0_2_441_11380  x_12350  ) .
-F_12074 x_10 p0_1_441_11379 k_main_arg2_make_intlist_423_11383 b_11824  -> b_11824 (l0 k_main_arg2_make_intlist_423_11383  ) (l1 (F_12077 p0_1_441_11379  x_10  (F_6_12078 k_main_arg2_make_intlist_423_11383  ) ) ) .
-F_12075 b_11826 x_12337  -> Make_intlist True  b_11826  x_12337  .
+F_12068 k_main_arg2_make_int_list_9 p0_1_441_11379 p0_2_441_11380 b_11818 x_12341  -> F_12070 k_main_arg2_make_int_list_9  p0_2_441_11380  p0_1_441_11379  b_11818  x_12341  .
+F_12069 k_main_arg2_make_int_list_9 b_11814 x_12344 x_12345  -> b_11814 (k_main_arg2_make_int_list_9 False  x_12344  x_12345  ) (F_6_12926 k_main_arg2_make_int_list_9  x_12344  x_12345  ) .
+F_12070 k_main_arg2_make_int_list_9 p0_2_441_11380 b_11816 x_12342 x_12343  -> b_11816 (F_12069 k_main_arg2_make_int_list_9  True  x_12342  x_12343  ) (F_12069 k_main_arg2_make_int_list_9  p0_2_441_11380  x_12342  x_12343  ) .
+F_12071 k_main_arg2_make_int_list_9 p0_1_441_11379 p0_2_441_11380 b_11820 x_12348  -> b_11820 (F_12068 k_main_arg2_make_int_list_9  p0_1_441_11379  p0_2_441_11380  False  x_12348  ) (F_6_12927 k_main_arg2_make_int_list_9  p0_1_441_11379  p0_2_441_11380  x_12348  ) .
+F_12072 k_main_arg2_make_int_list_9 p0_1_441_11379 p0_2_441_11380 b_11822 x_12350  -> b_11822 (F_12071 k_main_arg2_make_int_list_9  p0_1_441_11379  p0_2_441_11380  True  x_12350  ) (F_12071 k_main_arg2_make_int_list_9  p0_1_441_11379  p0_2_441_11380  p0_2_441_11380  x_12350  ) .
+F_12074 x_10 p0_1_441_11379 k_main_arg2_make_int_list_423_11383 b_11824  -> b_11824 (l0 k_main_arg2_make_int_list_423_11383  ) (l1 (F_12077 p0_1_441_11379  x_10  (F_6_12078 k_main_arg2_make_int_list_423_11383  ) ) ) .
+F_12075 b_11826 x_12337  -> Make_int_list True  b_11826  x_12337  .
 F_12076 b_11828 x_12338  -> b_11828 (F_12075 True  x_12338  ) (F_6_12925 x_12338  ) .
 F_12077 p0_1_441_11379 b_11830 x_12340  -> b_11830 (F_12076 True  x_12340  ) (F_12076 p0_1_441_11379  x_12340  ) .
-F_12079 k_main_arg1_make_intlist_21 b_11832  -> b_11832 (l0 (k_main_arg1_make_intlist_21 True  F_6_12080  ) ) (l1 (Make_intlist_23 (F_6_12081 k_main_arg1_make_intlist_21  ) ) ) .
-F_12082 k_main_arg1_make_intlist_21 b_11835 x_12335  -> b_11835 (k_main_arg1_make_intlist_21 False  x_12335  ) (F_6_12924 k_main_arg1_make_intlist_21  x_12335  ) .
-F_12084 k_main_arg1_make_intlist_409_11392 b_11837  -> b_11837 (l0 k_main_arg1_make_intlist_409_11392  ) (l1 (Make_intlist_23 (F_6_12085 k_main_arg1_make_intlist_409_11392  ) ) ) .
+F_12079 k_main_arg1_make_int_list_21 b_11832  -> b_11832 (l0 (k_main_arg1_make_int_list_21 True  F_6_12080  ) ) (l1 (Make_int_list_23 (F_6_12081 k_main_arg1_make_int_list_21  ) ) ) .
+F_12082 k_main_arg1_make_int_list_21 b_11835 x_12335  -> b_11835 (k_main_arg1_make_int_list_21 False  x_12335  ) (F_6_12924 k_main_arg1_make_int_list_21  x_12335  ) .
+F_12084 k_main_arg1_make_int_list_409_11392 b_11837  -> b_11837 (l0 k_main_arg1_make_int_list_409_11392  ) (l1 (Make_int_list_23 (F_6_12085 k_main_arg1_make_int_list_409_11392  ) ) ) .
 F_6_11839 arg10_479_11348 arg11_480_11349  -> F_11841 arg10_479_11348  (F_6_11842 arg10_479_11348  arg11_480_11349  ) .
 F_6_11842 arg10_479_11348 arg11_480_11349 arg20_1_450_11350 arg20_2_450_11351 arg21_451_11352  -> Length (F_6_11843 arg11_480_11349  ) (F_6_11844 arg10_479_11348  arg11_480_11349  arg20_1_450_11350  arg20_2_450_11351  arg21_451_11352  ) .
 F_6_11843 arg11_480_11349 x__11336_11363 x_12920  -> arg11_480_11349 True  x_12920  .
@@ -243,20 +243,20 @@ F_6_12043 k_combine_349_11368 p1_360_11369  -> p1_360_11369 True  (F_6_12044 k_c
 F_6_12044 k_combine_349_11368 x__11339_11370  -> k_combine_349_11368 True  .
 F_6_12053 x1 x_476_11378 x_12366  -> x1 True  x_12366  .
 F_6_12054 k_length x_1_446_11375 x_2_446_11376 x_3_446_11377  -> F_12061 k_length  x_1_446_11375  x_2_446_11376  x_3_446_11377  x_1_446_11375  .
-F_6_12064 x_463_11387 k_main_arg2_make_intlist_464_11388  -> Bottom0 .
-F_6_12067 x_10 k_main_arg2_make_intlist_9 p0_1_441_11379 p0_2_441_11380 p1_442_11381  -> F_12072 k_main_arg2_make_intlist_9  p0_1_441_11379  p0_2_441_11380  p0_1_441_11379  (F_6_12073 x_10  p0_1_441_11379  ) .
-F_6_12073 x_10 p0_1_441_11379 i_422_11382 k_main_arg2_make_intlist_423_11383  -> br (F_12074 x_10  p0_1_441_11379  k_main_arg2_make_intlist_423_11383  True  ) (F_12074 x_10  p0_1_441_11379  k_main_arg2_make_intlist_423_11383  False  ) .
-F_6_12078 k_main_arg2_make_intlist_423_11383 p0_1_382_11384 p0_2_382_11385 p1_383_11386  -> p1_383_11386 True  k_main_arg2_make_intlist_423_11383  .
-F_6_12080 x_454_11395 k_main_arg1_make_intlist_455_11396  -> Bottom0 .
-F_6_12081 k_main_arg1_make_intlist_21 p0_434_11389 p1_435_11390  -> F_12082 k_main_arg1_make_intlist_21  p0_434_11389  F_6_12083  .
-F_6_12083 i_408_11391 k_main_arg1_make_intlist_409_11392  -> br (F_12084 k_main_arg1_make_intlist_409_11392  True  ) (F_12084 k_main_arg1_make_intlist_409_11392  False  ) .
-F_6_12085 k_main_arg1_make_intlist_409_11392 p0_373_11393 p1_374_11394  -> p1_374_11394 True  k_main_arg1_make_intlist_409_11392  .
-F_6_12924 k_main_arg1_make_intlist_21 x_12336  -> br (k_main_arg1_make_intlist_21 True  x_12336  ) (k_main_arg1_make_intlist_21 False  x_12336  ) .
+F_6_12064 x_463_11387 k_main_arg2_make_int_list_464_11388  -> Bottom0 .
+F_6_12067 x_10 k_main_arg2_make_int_list_9 p0_1_441_11379 p0_2_441_11380 p1_442_11381  -> F_12072 k_main_arg2_make_int_list_9  p0_1_441_11379  p0_2_441_11380  p0_1_441_11379  (F_6_12073 x_10  p0_1_441_11379  ) .
+F_6_12073 x_10 p0_1_441_11379 i_422_11382 k_main_arg2_make_int_list_423_11383  -> br (F_12074 x_10  p0_1_441_11379  k_main_arg2_make_int_list_423_11383  True  ) (F_12074 x_10  p0_1_441_11379  k_main_arg2_make_int_list_423_11383  False  ) .
+F_6_12078 k_main_arg2_make_int_list_423_11383 p0_1_382_11384 p0_2_382_11385 p1_383_11386  -> p1_383_11386 True  k_main_arg2_make_int_list_423_11383  .
+F_6_12080 x_454_11395 k_main_arg1_make_int_list_455_11396  -> Bottom0 .
+F_6_12081 k_main_arg1_make_int_list_21 p0_434_11389 p1_435_11390  -> F_12082 k_main_arg1_make_int_list_21  p0_434_11389  F_6_12083  .
+F_6_12083 i_408_11391 k_main_arg1_make_int_list_409_11392  -> br (F_12084 k_main_arg1_make_int_list_409_11392  True  ) (F_12084 k_main_arg1_make_int_list_409_11392  False  ) .
+F_6_12085 k_main_arg1_make_int_list_409_11392 p0_373_11393 p1_374_11394  -> p1_374_11394 True  k_main_arg1_make_int_list_409_11392  .
+F_6_12924 k_main_arg1_make_int_list_21 x_12336  -> br (k_main_arg1_make_int_list_21 True  x_12336  ) (k_main_arg1_make_int_list_21 False  x_12336  ) .
 F_6_12925 x_12339  -> br (F_12075 True  x_12339  ) (F_12075 False  x_12339  ) .
-F_6_12926 k_main_arg2_make_intlist_9 x_12346 x_12347  -> br (k_main_arg2_make_intlist_9 True  x_12346  x_12347  ) (k_main_arg2_make_intlist_9 False  x_12346  x_12347  ) .
-F_6_12927 k_main_arg2_make_intlist_9 p0_1_441_11379 p0_2_441_11380 x_12349  -> br (F_12068 k_main_arg2_make_intlist_9  p0_1_441_11379  p0_2_441_11380  True  x_12349  ) (F_12068 k_main_arg2_make_intlist_9  p0_1_441_11379  p0_2_441_11380  False  x_12349  ) .
+F_6_12926 k_main_arg2_make_int_list_9 x_12346 x_12347  -> br (k_main_arg2_make_int_list_9 True  x_12346  x_12347  ) (k_main_arg2_make_int_list_9 False  x_12346  x_12347  ) .
+F_6_12927 k_main_arg2_make_int_list_9 p0_1_441_11379 p0_2_441_11380 x_12349  -> br (F_12068 k_main_arg2_make_int_list_9  p0_1_441_11379  p0_2_441_11380  True  x_12349  ) (F_12068 k_main_arg2_make_int_list_9  p0_1_441_11379  p0_2_441_11380  False  x_12349  ) .
 F_6_12928 x_12353  -> br (F_12065 True  x_12353  ) (F_12065 False  x_12353  ) .
-F_6_12929 k_main_arg2_make_intlist_9 x_12356 x_12357  -> br (k_main_arg2_make_intlist_9 True  x_12356  x_12357  ) (k_main_arg2_make_intlist_9 False  x_12356  x_12357  ) .
+F_6_12929 k_main_arg2_make_int_list_9 x_12356 x_12357  -> br (k_main_arg2_make_int_list_9 True  x_12356  x_12357  ) (k_main_arg2_make_int_list_9 False  x_12356  x_12357  ) .
 F_6_12930 k_length x_12364 x_12365  -> br (k_length True  x_12364  x_12365  ) (k_length False  x_12364  x_12365  ) .
 F_6_12931 xs1_41 x_12370 x_12371 x_12372  -> br (F_12025 xs1_41  True  x_12370  x_12371  x_12372  ) (F_12025 xs1_41  False  x_12370  x_12371  x_12372  ) .
 F_6_12932 xs1_41 x_12377 x_12378 x_12379 x_12380 x_12381  -> br (F_12027 xs1_41  True  x_12377  x_12378  x_12379  x_12380  x_12381  ) (F_12027 xs1_41  False  x_12377  x_12378  x_12379  x_12380  x_12381  ) .
@@ -278,8 +278,8 @@ Fail_195 k_197  -> event_fail k_197  .
 Length x1 k_length  -> br (Length_12950 x1  k_length  ) (Length_12949 x1  k_length  ) .
 Length_12949 x1 k_length  -> l0 (k_length True  True  True  ) .
 Length_12950 x1 k_length  -> l1 (l0 (Length (F_6_12053 x1  ) (F_6_12054 k_length  ) ) ) .
-Make_intlist arg10 x_10 k_main_arg2_make_intlist_9  -> br (F_12062 x_10  k_main_arg2_make_intlist_9  True  ) (F_12062 x_10  k_main_arg2_make_intlist_9  False  ) .
-Make_intlist_23 k_main_arg1_make_intlist_21  -> br (F_12079 k_main_arg1_make_intlist_21  True  ) (F_12079 k_main_arg1_make_intlist_21  False  ) .
+Make_int_list arg10 x_10 k_main_arg2_make_int_list_9  -> br (F_12062 x_10  k_main_arg2_make_int_list_9  True  ) (F_12062 x_10  k_main_arg2_make_int_list_9  False  ) .
+Make_int_list_23 k_main_arg1_make_int_list_21  -> br (F_12079 k_main_arg1_make_int_list_21  True  ) (F_12079 k_main_arg1_make_int_list_21  False  ) .
 True x y  -> x .
 False x y  -> y .
 %ENDG

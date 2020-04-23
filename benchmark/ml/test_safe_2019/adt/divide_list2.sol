@@ -12,17 +12,17 @@ sat
     ( (v_0 Int) ) Bool
     false
   )
-  (define-fun |make_intlist[0:1]|
+  (define-fun |make_int_list[0:1]|
     ( (v_0 Int) (v_1 Int) ) Bool
     true
   )
-  (define-fun |make_intlist[0:2][0:0]|
+  (define-fun |make_int_list[0:2][0:0]|
     ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
     (= v_2 0)
   )
   (define-fun |divide[0:1]|
     ( (v_0 Int) (v_1 Int) ) Bool
-    (|make_intlist[0:2][0:0]| v_0 0 v_1)
+    (|make_int_list[0:2][0:0]| v_0 0 v_1)
   )
   (define-fun |divide[0:3][0:2]|
     ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool

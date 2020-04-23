@@ -18,6 +18,10 @@
       "wf_predicate_template": [
         "Filename",
         "./config/pcsat/template/dbg_wf_predicate_template.json"
+      ],
+      "fn_predicate_template": [
+        "Filename",
+        "./config/pcsat/template/dbg_fn_predicate_template.json"
       ]
     }
   }

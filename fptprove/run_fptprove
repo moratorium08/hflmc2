@@ -2,4 +2,4 @@
 set -eu
 
 cd `dirname $0`
-fptprove -v -c ./config/solver/pcsat_dt.json -p pcsp $1 | tr ',' '\n'| sed -n 3p
+fptprove  -c ./config/solver/dbg_pcsat_tb_ucore.json -p pcsp $1 | tail -n 1 | tr ',' '\n' | head -n 1

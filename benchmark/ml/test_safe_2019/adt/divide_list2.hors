@@ -1,5 +1,5 @@
 %BEGING
-Main_35  -> Make_intlist True  F_4_4719  .
+Main_35  -> Make_int_list True  F_4_4719  .
 Bottom0  -> Bottom0 .
 Divide l0___ l1___ k_divide_28___  -> br (Divide_5054 l0___  l1___  k_divide_28___  ) (Divide_5053 l0___  l1___  k_divide_28___  ) .
 Divide_5053 l0___ l1___ k_divide_28___  -> l0 (F_4822 k_divide_28___  l0___  True  F_4_4823  ) .
@@ -104,9 +104,9 @@ F_4844 k_length x_3_364_4545 b_4710  -> b_4710 (F_4843 k_length  True  ) (F_4843
 F_4847 k_length b_4706  -> k_length False  True  b_4706  .
 F_4848 k_length b_4708  -> b_4708 (F_4847 k_length  False  ) (br (F_4847 k_length  True  ) (F_4847 k_length  False  ) ) .
 F_4849 k_length x_3_364_4545 b_4710  -> b_4710 (F_4848 k_length  True  ) (F_4848 k_length  x_3_364_4545  ) .
-F_4850 k_main_arg2_make_intlist_12 b_4712  -> b_4712 (l0 (k_main_arg2_make_intlist_12 True  F_4_4851  ) ) (l1 (Make_intlist True  (F_4_4852 k_main_arg2_make_intlist_12  ) ) ) .
-F_4853 k_main_arg2_make_intlist_12 b_4715 x_4997  -> b_4715 (k_main_arg2_make_intlist_12 False  x_4997  ) (F_4_5047 k_main_arg2_make_intlist_12  x_4997  ) .
-F_4855 k_main_arg2_make_intlist_345_4550 b_4717  -> b_4717 (l0 k_main_arg2_make_intlist_345_4550  ) (l1 (Make_intlist True  (F_4_4856 k_main_arg2_make_intlist_345_4550  ) ) ) .
+F_4850 k_main_arg2_make_int_list_12 b_4712  -> b_4712 (l0 (k_main_arg2_make_int_list_12 True  F_4_4851  ) ) (l1 (Make_int_list True  (F_4_4852 k_main_arg2_make_int_list_12  ) ) ) .
+F_4853 k_main_arg2_make_int_list_12 b_4715 x_4997  -> b_4715 (k_main_arg2_make_int_list_12 False  x_4997  ) (F_4_5047 k_main_arg2_make_int_list_12  x_4997  ) .
+F_4855 k_main_arg2_make_int_list_345_4550 b_4717  -> b_4717 (l0 k_main_arg2_make_int_list_345_4550  ) (l1 (Make_int_list True  (F_4_4856 k_main_arg2_make_int_list_345_4550  ) ) ) .
 F_4_4719 arg20_367_4505 arg21_368_4506  -> F_4720 arg20_367_4505  (F_4_4721 arg21_368_4506  ) (F_4_4722 arg20_367_4505  arg21_368_4506  ) .
 F_4_4721 arg21_368_4506 x__4493_4527 x_5046  -> arg21_368_4506 True  x_5046  .
 F_4_4722 arg20_367_4505 arg21_368_4506 r_divide01_351_4507 r_divide10_1_352_4508 r_divide10_2_352_4509 r_divide11_353_4510  -> F_4725 r_divide10_1_352_4508  r_divide10_2_352_4509  arg20_367_4505  (F_4_4726 arg21_368_4506  ) (F_4_4727 arg20_367_4505  arg21_368_4506  r_divide01_351_4507  r_divide10_1_352_4508  r_divide10_2_352_4509  r_divide11_353_4510  ) .
@@ -138,11 +138,11 @@ F_4_4840 x1 x_385_4546 x_5000  -> x1 True  x_5000  .
 F_4_4841 k_length x_1_364_4543 x_2_364_4544 x_3_364_4545  -> F_4844 k_length  x_3_364_4545  x_1_364_4543  .
 F_4_4845 x1 x_385_4546 x_4999  -> x1 True  x_4999  .
 F_4_4846 k_length x_1_364_4543 x_2_364_4544 x_3_364_4545  -> F_4849 k_length  x_3_364_4545  x_1_364_4543  .
-F_4_4851 x_372_4553 k_main_arg2_make_intlist_373_4554  -> Bottom0 .
-F_4_4852 k_main_arg2_make_intlist_12 p0_359_4547 p1_360_4548  -> F_4853 k_main_arg2_make_intlist_12  p0_359_4547  F_4_4854  .
-F_4_4854 i_344_4549 k_main_arg2_make_intlist_345_4550  -> br (F_4855 k_main_arg2_make_intlist_345_4550  True  ) (F_4855 k_main_arg2_make_intlist_345_4550  False  ) .
-F_4_4856 k_main_arg2_make_intlist_345_4550 p0_321_4551 p1_322_4552  -> p1_322_4552 True  k_main_arg2_make_intlist_345_4550  .
-F_4_5047 k_main_arg2_make_intlist_12 x_4998  -> br (k_main_arg2_make_intlist_12 True  x_4998  ) (k_main_arg2_make_intlist_12 False  x_4998  ) .
+F_4_4851 x_372_4553 k_main_arg2_make_int_list_373_4554  -> Bottom0 .
+F_4_4852 k_main_arg2_make_int_list_12 p0_359_4547 p1_360_4548  -> F_4853 k_main_arg2_make_int_list_12  p0_359_4547  F_4_4854  .
+F_4_4854 i_344_4549 k_main_arg2_make_int_list_345_4550  -> br (F_4855 k_main_arg2_make_int_list_345_4550  True  ) (F_4855 k_main_arg2_make_int_list_345_4550  False  ) .
+F_4_4856 k_main_arg2_make_int_list_345_4550 p0_321_4551 p1_322_4552  -> p1_322_4552 True  k_main_arg2_make_int_list_345_4550  .
+F_4_5047 k_main_arg2_make_int_list_12 x_4998  -> br (k_main_arg2_make_int_list_12 True  x_4998  ) (k_main_arg2_make_int_list_12 False  x_4998  ) .
 F_4_5048 k_divide_28___ x_5009 x_5010  -> br (F_4820 k_divide_28___  True  x_5009  x_5010  ) (F_4820 k_divide_28___  False  x_5009  x_5010  ) .
 F_4_5049 x_5016 x_5017  -> br (Length True  x_5016  x_5017  ) (Length False  x_5016  x_5017  ) .
 F_4_5050 x_5030 x_5031  -> br (Length True  x_5030  x_5031  ) (Length False  x_5030  x_5031  ) .
@@ -153,7 +153,7 @@ Fail_169 k_171  -> event_fail k_171  .
 Length x0 x1 k_length  -> br (Length_5056 x0  x1  k_length  ) (Length_5055 x0  x1  k_length  ) .
 Length_5055 x0 x1 k_length  -> l0 (k_length True  True  True  ) .
 Length_5056 x0 x1 k_length  -> F_4839 x1  k_length  x0  .
-Make_intlist arg1 k_main_arg2_make_intlist_12  -> br (F_4850 k_main_arg2_make_intlist_12  True  ) (F_4850 k_main_arg2_make_intlist_12  False  ) .
+Make_int_list arg1 k_main_arg2_make_int_list_12  -> br (F_4850 k_main_arg2_make_int_list_12  True  ) (F_4850 k_main_arg2_make_int_list_12  False  ) .
 True x y  -> x .
 False x y  -> y .
 %ENDG

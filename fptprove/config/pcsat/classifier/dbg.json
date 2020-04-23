@@ -2,6 +2,6 @@
     "verbose": true,
     "sat_solver": [
         "Filename",
-        "./config/sat/default.json"
+        "./config/solver/minisat_default.json"
     ]
 }
