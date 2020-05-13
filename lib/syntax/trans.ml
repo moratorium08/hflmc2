@@ -276,7 +276,7 @@ module Reduce = struct
         in
         let module Scc = Scc(Id.Key) in
         let dep_graph : Scc.graph =
-          IdMap.of_alist_exn @@ List.map rules ~f:begin fun rule ->
+          IdMap.of_alist_exn @@ List.map (main::rules) ~f:begin fun rule ->
             let id = rule.var in
             let dep =
               Hflz.fvs rule.body
@@ -296,20 +296,46 @@ module Reduce = struct
         let rules, inlinables =
           List.partition_tf rules ~f:begin fun rule ->
             IdSet.mem mutual_recursives rule.var ||
-            IdSet.mem (Hflz.fvs rule.body) rule.var
+            IdSet.mem (Hflz.fvs rule.body) rule.var ||
+            Id.eq rule.var main.var
           end
         in
-        Log.debug begin fun m -> m ~header:"Inline" "%a"
+        let inlinables = (* topologically sort *)
+          let topological_ord =
+            Scc.rdfs dep_graph (Id.remove_ty main.var) []
+            |> snd
+            |> List.rev
+            |> List.enumurate
+            |> IdMap.of_alist_exn
+          in
+          List.sort inlinables ~compare:begin fun x y ->
+            let value (z : 'a Hflz.hes_rule) =
+              (* Not found when [z] is unused non-terminal *)
+              Option.value ~default:0 @@ IdMap.find topological_ord z.var
+            in
+            Int.compare (value x) (value y)
+          end
+        in
+        Log.info begin fun m -> m ~header:"Inline" "%a"
           Print.(list_comma id) (List.map inlinables ~f:(fun x -> x.var))
         end;
-        let inline_map = (* TODO ちゃんとtopological sortする *)
-          let map =
+        let inline_map =
+          let rules_in_map =
             IdMap.of_alist_exn @@ List.map inlinables ~f:begin fun rule ->
               Id.remove_ty rule.var, rule.body
             end
           in
-          IdMap.fold map ~init:map ~f:begin fun ~key ~data map ->
-            IdMap.map map ~f:(Subst.Hflz.hflz (IdMap.singleton key data))
+          List.fold_left inlinables ~init:rules_in_map ~f:begin fun map rule ->
+            let var  = rule.var in
+            let body = IdMap.lookup map var in
+            let map = IdMap.map map ~f:(Subst.Hflz.hflz (IdMap.singleton var body)) in
+            Log.debug begin fun m ->
+              let pp ppf (x,psi) = Print.(pf ppf "    %a = %a" id x (hflz simple_ty_) psi) in
+              m ~header:"Inline" "%a inlined:@.@[<v>%a@]"
+                Print.id rule.var
+                Print.(list pp) (IdMap.to_alist map)
+            end;
+            map
           end
         in
         List.map (main::rules) ~f:begin fun rule ->
@@ -352,7 +378,7 @@ module Simplify = struct
     in go
   let hflz_hes_rule : 'a Hflz.hes_rule -> 'a Hflz.hes_rule =
     fun rule -> { rule with body = hflz rule.body }
-  let hflz_hes : 'a Hflz.hes -> 'a Hflz.hes =
+  let hflz_hes : simple_ty Hflz.hes -> simple_ty Hflz.hes =
     fun rules ->
       rules
       |> begin
