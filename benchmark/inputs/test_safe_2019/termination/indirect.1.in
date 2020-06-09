@@ -1,0 +1,13 @@
+%HES
+MAIN_572  =v ∀x_631.F 1 x_631 (\x_623.x_623 0 true (\u_395_609.true)).
+F set_flag_id_83_2 x_1 k_f_198 =v
+  (x_1 <= 0
+   \/ k_f_198 (\set_flag_id_83_606.\u_607.\k_app_608.F 1 (x_1 - 1) (\x_618.x_618 set_flag_id_83_606 true k_app_608)))
+  /\ (x_1 > 0
+      \/ k_f_198
+          (\prev_set_flag_id_635.
+            \x_636.
+             \k_id_637.
+              (prev_set_flag_id_635 = 0 \/ FAIL_597 true (\x_634.true)) /\ (prev_set_flag_id_635 != 0 \/ k_id_637 true))).
+FAIL_597 u_598 k_599 =v false.
+Forall p      =v ∀n. p n.

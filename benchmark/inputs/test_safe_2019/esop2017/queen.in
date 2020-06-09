@@ -1,0 +1,56 @@
+%HES
+MAIN_1667  =v
+  ∀arg1_2049.
+   (arg1_2049 <= 0 \/ LOOP 0 arg1_2049 0 (\i_2102.\k_main_make_vect_2103.k_main_make_vect_2103 0) (\main_1878.true))
+   /\ (arg1_2049 > 0 \/ true).
+ASSIGN n_25 row size_26 n_7 queenArray_6 i_5 j k_loop_assign_428 =v
+  k_loop_assign_428
+   (\j_2168.
+     \k_loop_update_2169.
+      (i_5 != j_2168 \/ k_loop_update_2169 j) /\ (i_5 = j_2168 \/ queenArray_6 j_2168 k_loop_update_2169)).
+AUX j_23 n_22 n_25 qj_344 row size_26 u_345 queenArray_21 i_15 k_loop_test_aux_249 =v
+  (i_15 >= j_23
+   \/ (0 > i_15
+       \/ queenArray_21 i_15
+           (\qi_1924.
+             (qi_1924 != qj_344 \/ k_loop_test_aux_249 0)
+             /\ (qi_1924 = qj_344
+                 \/ (∀x_1957.
+                      (x_1957 != 0 \/ k_loop_test_aux_249 0)
+                      /\ (x_1957 = 0
+                          \/ AUX j_23 n_22 n_25 qj_344 row size_26 u_345 queenArray_21 (i_15 + 1) k_loop_test_aux_249)))))
+      /\ (0 <= i_15 \/ FAIL_1849 true (\x_2080.true)))
+  /\ (i_15 < j_23 \/ k_loop_test_aux_249 1).
+AUX_32 n_38 size_39 row_31 k_queenPrint_aux_73 =v
+  (row_31 != size_39 \/ k_queenPrint_aux_73 true)
+  /\ (row_31 = size_39
+      \/ (0 > row_31 \/ AUX_32 n_38 size_39 (row_31 + 1) k_queenPrint_aux_73)
+         /\ (0 <= row_31 \/ FAIL_1843 true (\x_2065.true))).
+FAIL_1843 u_1844 k_1845 =v false.
+FAIL_1846 u_1847 k_1848 =v false.
+FAIL_1849 u_1850 k_1851 =v false.
+FAIL_1852 u_1853 k_1854 =v false.
+LOOP row size_26 n_25 queenArray_24 k_loop_174 =v
+  (0 > row
+   \/ queenArray_24 row
+       (\x_2032.
+         (x_2032 + 1 <= size_26
+          \/ ASSIGN n_25 row size_26 0 queenArray_24 row 0
+              (\queenArray_2001.
+                (row != 0 \/ k_loop_174 true) /\ (row = 0 \/ LOOP (row - 1) size_26 0 queenArray_2001 k_loop_174)))
+         /\ (x_2032 + 1 > size_26
+             \/ ASSIGN n_25 row size_26 0 queenArray_24 row (x_2032 + 1)
+                 (\queenArray_2009.
+                   (0 > row
+                    \/ queenArray_2009 row
+                        (\qj_2041.
+                          AUX row 0 n_25 qj_2041 row size_26 true queenArray_2009 0
+                           (\x_1976.
+                             (x_1976 = 0
+                              \/ (row + 1 != size_26
+                                  \/ AUX_32 0 size_26 0 (\u_2053.LOOP row size_26 0 queenArray_2009 k_loop_174))
+                                 /\ (row + 1 = size_26 \/ LOOP (row + 1) size_26 0 queenArray_2009 k_loop_174))
+                             /\ (x_1976 != 0 \/ LOOP row size_26 0 queenArray_2009 k_loop_174))))
+                   /\ (0 <= row \/ FAIL_1846 true (\x_2071.true))))))
+  /\ (0 <= row \/ FAIL_1852 true (\x_2084.true)).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,26 @@
+%HES
+MAIN_1117  =v
+  ∀x_1216.
+   (x_1216 < 0
+    \/ TOCHURCH 1 0 x_1216 1 0 0 1 0
+        (\prev_set_flag_succ_1245.
+          \s_prev_succ_x_1246.
+           \x_1247.
+            \k_succ_1248.
+             (prev_set_flag_succ_1245 = 0 \/ FAIL_1165 true (\x_1236.true))
+             /\ (prev_set_flag_succ_1245 != 0 \/ k_succ_1248 0))
+        (\tos_1206.true))
+   /\ (x_1216 >= 0 \/ true).
+FAIL_1165 u_1166 k_1167 =v false.
+TOCHURCH x_7 x_6 n x_5 x_4 f_EXPARAM_114 set_flag_succ_289_3 s_succ_x_286_2 f k_toChurch_416 =v
+  (n != 0 \/ k_toChurch_416 (\x_1237.\x_1238.\x_1239.\k_id_1240.k_id_1240 0))
+  /\ (n = 0
+      \/ TOCHURCH 1 0 (n - 1) 1 0 0 1 0 f
+          (\x_1232.
+            k_toChurch_416
+             (\set_flag_succ_289_1180.
+               \s_succ_x_286_1181.
+                \x_1182.
+                 \k_compose_1183.
+                  x_1232 set_flag_succ_289_1180 0 0 (\x_1200.f set_flag_succ_289_1180 0 x_1200 k_compose_1183)))).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,27 @@
+%HES
+MAIN_1027  =v
+  ∀l_1162.
+   (l_1162 < 0
+    \/ (∀x_1132.
+         FOLDR 1 0 0 0 1 0 0
+          (\x_DO_NOT_CARE_1192.
+            \x_DO_NOT_CARE_1193.
+             \x_DO_NOT_CARE_1194.
+              \m_1195.
+               \prev_set_flag_sum_1196.
+                \s_prev_sum_m_1197.
+                 \s_prev_sum_n_1198.
+                  \n_1199.
+                   \k_sum_1200.
+                    (prev_set_flag_sum_1196 = 0 \/ FAIL_1103 true (\x_1181.true))
+                    /\ (prev_set_flag_sum_1196 != 0 \/ k_sum_1200 0))
+          1 0 0 x_1132 0 0 0 l_1162 (\u_15503_1106.true)))
+   /\ (l_1162 >= 0 \/ true).
+FAIL_1103 u_1104 k_1105 =v false.
+FOLDR x_22 x_21 x_20 h_EXPARAM_92 x_19 x_18 x_17 h x_16 x_15 x_14 e set_flag_sum_167_13 s_sum_m_162_12 s_sum_n_163_11 l_10 k_foldr_182
+  =v
+  (l_10 != 0 \/ k_foldr_182 0)
+  /\ (l_10 = 0
+      \/ FOLDR 1 0 0 0 1 0 0 h 1 0 0 0 set_flag_sum_167_13 0 0 (l_10 - 1)
+          (\x_1150.∀x_1125.h 1 0 0 x_1125 set_flag_sum_167_13 0 0 x_1150 k_foldr_182)).
+Forall p      =v ∀n. p n.

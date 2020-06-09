@@ -1,0 +1,88 @@
+%HES
+MAIN_1938  =v
+  ∀arg1_2429.
+   MAKE_LIST (\x_2179.\k_const0_2180.k_const0_2180 0) arg1_2429
+    (\zero0_2393.
+      \zero1_2394.
+       MAKE_LIST RAND_POS arg1_2429
+        (\pos0_2357.
+          \pos1_2358.
+           MAKE_LIST RAND_NEG arg1_2429
+            (\neg0_2312.
+              \neg1_2313.
+               MAP2 (\x_2109.\y_2110.\k_add_2111.k_add_2111 (x_2109 + y_2110)) zero0_2393 zero1_2394 pos0_2357
+                pos1_2358
+                (\xs0_2287.
+                  \xs1_2288.
+                   MAP2 (\x_2478.\y_2479.\k_sub_2480.k_sub_2480 (x_2478 - y_2479)) xs0_2287 xs1_2288 neg0_2312
+                    neg1_2313
+                    (\ys0_2266.
+                      \ys1_2267.
+                       FOR_ALL (\y_2216.\k_main_2217.(y_2216 <= 0 \/ k_main_2217 1) /\ (y_2216 > 0 \/ k_main_2217 0))
+                        ys0_2266 ys1_2267
+                        (\x_2233.(x_2233 = 0 \/ true) /\ (x_2233 != 0 \/ FAIL_2106 true (\x_2189.true)))))))).
+FAIL_2103 u_2104 k_2105 =v false.
+FAIL_2106 u_2107 k_2108 =v false.
+FOR_ALL f xs0_3 xs1_3 k_for_all_710 =v
+  (xs0_3 > 0 \/ k_for_all_710 1)
+  /\ (xs0_3 <= 0
+      \/ (xs0_3 <= 0
+          \/ xs1_3 0
+              (\x_2427.
+                f x_2427
+                 (\x_2345.
+                   (x_2345 = 0
+                    \/ FOR_ALL f (xs0_3 - 1) (\x_2389.\k_for_all_xs__2390.xs1_3 (x_2389 + 1) k_for_all_xs__2390)
+                        (\x_2305.(x_2305 = 0 \/ k_for_all_710 1) /\ (x_2305 != 0 \/ k_for_all_710 0)))
+                   /\ (x_2345 != 0 \/ k_for_all_710 0))))
+         /\ (xs0_3 > 0 \/ true)).
+MAKE_LIST f_10 n_9 k_make_list_539 =v
+  (n_9 != 0 \/ k_make_list_539 0 (\x_2431.\k_make_list_2432.true))
+  /\ (n_9 = 0
+      \/ f_10 true
+          (\r_f_2436.
+            MAKE_LIST f_10 (n_9 - 1)
+             (\p0_2399.
+               \p1_2400.
+                k_make_list_539 (1 + p0_2399)
+                 (\i_2363.
+                   \k_make_list_2364.
+                    (i_2363 != 0 \/ k_make_list_2364 r_f_2436)
+                    /\ (i_2363 = 0
+                        \/ MAKE_LIST f_10 (n_9 - 1) (\p0_2319.\p1_2320.p1_2320 (i_2363 - 1) k_make_list_2364)))))).
+MAP2 f_26 xs0_25 xs1_25 ys0_24 ys1_24 k_map2_51 =v
+  ((xs0_25 > 0 \/ ys0_24 > 0)
+   \/ (xs0_25 > 0 \/ (ys0_24 > 0 \/ k_map2_51 0 (\x_2439.\k_map2_2440.true)) /\ (ys0_24 <= 0 \/ true))
+      /\ (xs0_25 <= 0 \/ true))
+  /\ (xs0_25 <= 0 /\ ys0_24 <= 0
+      \/ ((xs0_25 <= 0 \/ ys0_24 <= 0)
+          \/ (xs0_25 <= 0
+              \/ xs1_25 0
+                  (\x_2447.
+                    (ys0_24 <= 0
+                     \/ ys1_24 0
+                         (\y_2379.
+                           f_26 x_2447 y_2379
+                            (\r_f_2299.
+                              MAP2 f_26 (xs0_25 - 1) (\x_2421.\k_map2_xs__2422.xs1_25 (x_2421 + 1) k_map2_xs__2422)
+                               (ys0_24 - 1) (\x_2337.\k_map2_ys__2338.ys1_24 (x_2337 + 1) k_map2_ys__2338)
+                               (\p0_2279.
+                                 \p1_2280.
+                                  k_map2_51 (1 + p0_2279)
+                                   (\i_2245.
+                                     \k_map2_2246.
+                                      (i_2245 != 0 \/ k_map2_2246 r_f_2299)
+                                      /\ (i_2245 = 0
+                                          \/ MAP2 f_26 (xs0_25 - 1)
+                                              (\x_2421.\k_map2_xs__2422.xs1_25 (x_2421 + 1) k_map2_xs__2422)
+                                              (ys0_24 - 1)
+                                              (\x_2337.\k_map2_ys__2338.ys1_24 (x_2337 + 1) k_map2_ys__2338)
+                                              (\p0_2200.\p1_2201.p1_2201 (i_2245 - 1) k_map2_2246)))))))
+                    /\ (ys0_24 > 0 \/ true)))
+             /\ (xs0_25 > 0 \/ true))
+         /\ (xs0_25 > 0 /\ ys0_24 > 0 \/ FAIL_2103 true (\x_2450.true))).
+RAND_NEG x_13 k_rand_neg_492 =v
+  ∀n_2453.(n_2453 >= 0 \/ k_rand_neg_492 n_2453) /\ (n_2453 < 0 \/ RAND_NEG true k_rand_neg_492).
+RAND_POS x_15 k_rand_pos_458 =v
+  ∀n_2459.(n_2459 <= 0 \/ k_rand_pos_458 n_2459) /\ (n_2459 > 0 \/ RAND_POS true k_rand_pos_458).
+Forall p      =v ∀n. p n.

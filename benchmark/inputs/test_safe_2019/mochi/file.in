@@ -1,0 +1,14 @@
+%HES
+MAIN_723  =v
+  ∀arg1_819.
+   ∀arg2_808.(arg1_819 <= 0 \/ G arg2_808 1 1 (\u_817.true)) /\ (arg1_819 > 0 \/ G arg2_808 0 0 (\u_817.true)).
+F x_6 y st_5 k_f_101 =v READ_ x_6 st_5 (\x_797.READ_ y x_797 (\x_805.F x_6 y x_805 k_f_101)).
+FAIL_764 u_765 k_766 =v false.
+G b3_2 x st k_g_180 =v
+  (b3_2 <= 0 \/ (st != 0 \/ F x 1 1 k_g_180) /\ (st = 0 \/ F x 1 3 k_g_180)) /\ (b3_2 > 0 \/ F x 0 st k_g_180).
+READ_ x_11 st_10 k_read__54 =v
+  (x_11 = 0
+   \/ (st_10 != 1 \/ k_read__54 1)
+      /\ (st_10 = 1 \/ (st_10 != 3 \/ k_read__54 st_10) /\ (st_10 = 3 \/ FAIL_764 true (\x_821.true))))
+  /\ (x_11 != 0 \/ k_read__54 st_10).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,49 @@
+%HES
+MAIN_1311  =v
+  ∀arg1_1567.
+   (arg1_1567 <= 0 \/ LOOP arg1_1567 0 (\i_1581.\k_make_array_1582.k_make_array_1582 0) (\u_1565.true))
+   /\ (arg1_1567 > 0 \/ true).
+ASSIGN size i_16 j_15 queenArray_14 k_queen_assign_105 =v
+  k_queen_assign_105
+   (\j_1441.
+     \k_update_1442.(i_16 != j_1441 \/ k_update_1442 j_15) /\ (i_16 = j_1441 \/ queenArray_14 j_1441 k_update_1442)).
+AUX1 size row_11 k_queen_queenPrint_aux1_162 =v
+  (row_11 != size \/ k_queen_queenPrint_aux1_162 true)
+  /\ (row_11 = size
+      \/ ((0 > row_11 \/ row_11 > size) \/ AUX1 size (row_11 + 1) k_queen_queenPrint_aux1_162)
+         /\ (0 <= row_11 /\ row_11 <= size \/ FAIL_1401 true (\x_1573.true))).
+AUX2 next_613 qj_335 row size x_354 queenArray_608 i k_queen_test_aux2_268 =v
+  (i >= row
+   \/ queenArray_608 i
+       (\qi_1464.
+         (qi_1464 != qj_335 \/ k_queen_test_aux2_268 0)
+         /\ (qi_1464 = qj_335
+             \/ (qj_335 - qi_1464 >= 0
+                 \/ (0 - (qj_335 - qi_1464) != row - i \/ k_queen_test_aux2_268 0)
+                    /\ (0 - (qj_335 - qi_1464) = row - i
+                        \/ AUX2 next_613 qj_335 row size x_354 queenArray_608 (i + 1) k_queen_test_aux2_268))
+                /\ (qj_335 - qi_1464 < 0
+                    \/ (qj_335 - qi_1464 != row - i \/ k_queen_test_aux2_268 0)
+                       /\ (qj_335 - qi_1464 = row - i
+                           \/ AUX2 next_613 qj_335 row size x_354 queenArray_608 (i + 1) k_queen_test_aux2_268)))))
+  /\ (i < row \/ k_queen_test_aux2_268 1).
+FAIL_1401 u_1402 k_1403 =v false.
+LOOP size row queenArray_4 k_queen_loop_349 =v
+  queenArray_4 row
+   (\x_1562.
+     (x_1562 + 1 <= size
+      \/ ASSIGN size row 0 queenArray_4
+          (\queenArray_1533.
+            (row != 0 \/ k_queen_loop_349 true) /\ (row = 0 \/ LOOP size (row - 1) queenArray_1533 k_queen_loop_349)))
+     /\ (x_1562 + 1 > size
+         \/ ASSIGN size row (x_1562 + 1) queenArray_4
+             (\queenArray_1545.
+               queenArray_1545 row
+                (\qj_1527.
+                  AUX2 (x_1562 + 1) qj_1527 row size x_1562 queenArray_1545 0
+                   (\x_1512.
+                     (x_1512 = 0
+                      \/ (row + 1 != size \/ AUX1 size 0 (\u_1570.LOOP size row queenArray_1545 k_queen_loop_349))
+                         /\ (row + 1 = size \/ LOOP size (row + 1) queenArray_1545 k_queen_loop_349))
+                     /\ (x_1512 != 0 \/ LOOP size row queenArray_1545 k_queen_loop_349)))))).
+Forall p      =v ∀n. p n.

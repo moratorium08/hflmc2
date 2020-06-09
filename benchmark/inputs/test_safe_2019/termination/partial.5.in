@@ -1,0 +1,18 @@
+%HES
+MAIN_1088  =v
+  ∀x_9480.
+   F_WITHOUT_CHECKING_126 1 0 0 x_9480 1 0 0 0 1 0 0
+    (\x_9485.\x_9486.\x_9487.\n_9488.\k_gt_9489.(n_9488 <= 0 \/ k_gt_9489 1) /\ (n_9488 > 0 \/ k_gt_9489 0))
+    (\u_9381_9424.true).
+FAIL_9382 u_9383 k_9384 =v false.
+F_WITHOUT_CHECKING_126 x_13 x_12 x_11 x_10 x_9 x_8 x_7 p_EXPARAM_61_6 x_5 x_4 x_3 p_2 k_f_without_checking_126_251 =v
+  p_2 1 0 0 x_10
+   (\x_9452.
+     (x_9452 = 0
+      \/ (1 = 0
+          \/ ((x_10 <= x_10 - 1 \/ x_10 - 1 < 0)
+              \/ F_WITHOUT_CHECKING_126 1 0 0 (x_10 - 1) 1 0 0 0 1 0 0 p_2 k_f_without_checking_126_251)
+             /\ (x_10 > x_10 - 1 /\ x_10 - 1 >= 0 \/ FAIL_9382 true (\x_9478.true)))
+         /\ (1 != 0 \/ F_WITHOUT_CHECKING_126 1 0 0 (x_10 - 1) 1 0 0 0 1 0 0 p_2 k_f_without_checking_126_251))
+     /\ (x_9452 != 0 \/ k_f_without_checking_126_251 true)).
+Forall p      =v ∀n. p n.

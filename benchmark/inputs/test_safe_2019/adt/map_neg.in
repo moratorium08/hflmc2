@@ -1,0 +1,64 @@
+%HES
+MAIN_1367  =v
+  ∀arg1_1653.
+   MAKE_POS_LIST arg1_1653
+    (\xs0_1629.
+      \xs1_1630.
+       MAP (\x_1687.\k_neg_1688.k_neg_1688 (0 - x_1687)) xs0_1629 xs1_1630
+        (\ys0_1597.
+          \ys1_1598.
+           MAP (\x_1687.\k_neg_1688.k_neg_1688 (0 - x_1687)) ys0_1597 ys1_1598
+            (\zs0_1562.
+              \zs1_1563.
+               FOR_ALL (\z_1520.\k_main_1521.(z_1520 <= 0 \/ k_main_1521 1) /\ (z_1520 > 0 \/ k_main_1521 0)) zs0_1562
+                zs1_1563 (\x_1533.(x_1533 = 0 \/ true) /\ (x_1533 != 0 \/ FAIL_1470 true (\x_1500.true)))))).
+FAIL_1470 u_1471 k_1472 =v false.
+FOR_ALL f xs0_4 xs1_4 k_for_all_455 =v
+  (xs0_4 > 0 \/ k_for_all_455 1)
+  /\ (xs0_4 <= 0
+      \/ (xs0_4 <= 0
+          \/ xs1_4 0
+              (\x_1651.
+                f x_1651
+                 (\x_1586.
+                   (x_1586 = 0
+                    \/ FOR_ALL f (xs0_4 - 1) (\x_1625.\k_for_all_xs__1626.xs1_4 (x_1625 + 1) k_for_all_xs__1626)
+                        (\x_1557.(x_1557 = 0 \/ k_for_all_455 1) /\ (x_1557 != 0 \/ k_for_all_455 0)))
+                   /\ (x_1586 != 0 \/ k_for_all_455 0))))
+         /\ (xs0_4 > 0 \/ true)).
+MAKE_POS_LIST n_6 k_make_pos_list_318 =v
+  (n_6 > 0 \/ k_make_pos_list_318 0 (\x_1655.\k_make_pos_list_1656.true))
+  /\ (n_6 <= 0
+      \/ RAND_POS true
+          (\r_rand_pos_1659.
+            MAKE_POS_LIST (n_6 - 1)
+             (\p0_1634.
+               \p1_1635.
+                k_make_pos_list_318 (1 + p0_1634)
+                 (\i_1602.
+                   \k_make_pos_list_1603.
+                    (i_1602 != 0 \/ k_make_pos_list_1603 r_rand_pos_1659)
+                    /\ (i_1602 = 0
+                        \/ MAKE_POS_LIST (n_6 - 1) (\p0_1569.\p1_1570.p1_1570 (i_1602 - 1) k_make_pos_list_1603)))))).
+MAP f_15 xs0_14 xs1_14 k_map_32 =v
+  (xs0_14 > 0 \/ k_map_32 0 (\x_1661.\k_map_1662.true))
+  /\ (xs0_14 <= 0
+      \/ (xs0_14 <= 0
+          \/ xs1_14 0
+              (\x_1667.
+                f_15 x_1667
+                 (\r_f_1615.
+                   MAP f_15 (xs0_14 - 1) (\x_1645.\k_map_xs__1646.xs1_14 (x_1645 + 1) k_map_xs__1646)
+                    (\p0_1578.
+                      \p1_1579.
+                       k_map_32 (1 + p0_1578)
+                        (\i_1550.
+                          \k_map_1551.
+                           (i_1550 != 0 \/ k_map_1551 r_f_1615)
+                           /\ (i_1550 = 0
+                               \/ MAP f_15 (xs0_14 - 1) (\x_1645.\k_map_xs__1646.xs1_14 (x_1645 + 1) k_map_xs__1646)
+                                   (\p0_1508.\p1_1509.p1_1509 (i_1550 - 1) k_map_1551)))))))
+         /\ (xs0_14 > 0 \/ true)).
+RAND_POS x_8 k_rand_pos_281 =v
+  ∀n_1670.(n_1670 <= 0 \/ k_rand_pos_281 n_1670) /\ (n_1670 > 0 \/ RAND_POS true k_rand_pos_281).
+Forall p      =v ∀n. p n.

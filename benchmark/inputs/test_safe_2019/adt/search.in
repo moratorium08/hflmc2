@@ -1,0 +1,77 @@
+%HES
+MAIN_865  =v
+  ∀arg1_1157.
+   ∀arg2_1130.
+    EXISTS
+     (\x_1170.
+       \k_main_test_1171.(x_1170 != arg2_1130 \/ k_main_test_1171 1) /\ (x_1170 = arg2_1130 \/ k_main_test_1171 0))
+     (\n_1162.\k_mult3_1163.k_mult3_1163 (3 * n_1162)) 0 arg1_1157
+     (\r_exists00_1152.
+       \r_exists01_1153.
+        \r_exists10_1154.
+         \r_exists11_1155.
+          (r_exists00_1152 != 1
+           \/ K_MAIN_229 arg2_1130 arg1_1157 r_exists00_1152 r_exists01_1153 r_exists10_1154 r_exists11_1155
+               (\main_1103.true) 1)
+          /\ (r_exists00_1152 = 1
+              \/ K_MAIN_229 arg2_1130 arg1_1157 r_exists00_1152 r_exists01_1153 r_exists10_1154 r_exists11_1155
+                  (\main_1103.true) 0)).
+EXISTS test_20 f n_19 m_18 k_exists_31 =v
+  (n_19 >= m_18
+   \/ f n_19
+       (\x_1109.
+         test_20 x_1109
+          (\x_1127.
+            (x_1127 = 0 \/ k_exists_31 0 true 1 n_19) /\ (x_1127 != 0 \/ EXISTS test_20 f (n_19 + 1) m_18 k_exists_31))))
+  /\ (n_19 < m_18 \/ (∀x_1113.k_exists_31 1 true 0 x_1113)).
+FAIL_967 u_968 k_969 =v false.
+K_MAIN_229 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 k_main_164 x_223 =v
+  (r_exists10_389 != 0 \/ K_MAIN_243 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_223 k_main_164 1)
+  /\ (r_exists10_389 = 0
+      \/ K_MAIN_243 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_223 k_main_164 0).
+K_MAIN_243 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_223 k_main_164 x_237 =v
+  ((x_223 = 0 \/ x_237 = 0) \/ K_MAIN_248 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 k_main_164 1)
+  /\ (x_223 != 0 /\ x_237 != 0
+      \/ K_MAIN_248 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 k_main_164 0).
+K_MAIN_248 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 k_main_164 x_208 =v
+  (x_208 = 0 \/ k_main_164 true)
+  /\ (x_208 != 0
+      \/ (r_exists00_389 != 0
+          \/ K_MAIN_278 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 k_main_164 1)
+         /\ (r_exists00_389 = 0
+             \/ K_MAIN_278 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 k_main_164 0)).
+K_MAIN_278 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 k_main_164 x_272 =v
+  (r_exists10_389 != 1
+   \/ K_MAIN_292 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_272 k_main_164 1)
+  /\ (r_exists10_389 = 1
+      \/ K_MAIN_292 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_272 k_main_164 0).
+K_MAIN_292 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_272 k_main_164 x_286 =v
+  ((x_272 = 0 \/ x_286 = 0)
+   \/ K_MAIN_297 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 k_main_164 1)
+  /\ (x_272 != 0 /\ x_286 != 0
+      \/ K_MAIN_297 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 k_main_164 0).
+K_MAIN_297 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 k_main_164 x_257 =v
+  (x_257 = 0
+   \/ (r_exists00_389 != 0
+       \/ K_MAIN_316 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_257 k_main_164 1)
+      /\ (r_exists00_389 = 0
+          \/ K_MAIN_316 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_257 k_main_164 0))
+  /\ (x_257 != 0 \/ true).
+K_MAIN_316 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_257 k_main_164 x_310 =v
+  (x_310 = 0
+   \/ (r_exists00_389 != 0
+       \/ (r_exists10_389 != 1
+           \/ K_MAIN_332 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_257 x_310 k_main_164 1)
+          /\ (r_exists10_389 = 1
+              \/ K_MAIN_332 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_257 x_310
+                  k_main_164 0))
+      /\ (r_exists00_389 = 0 \/ true))
+  /\ (x_310 != 0 \/ true).
+K_MAIN_332 m n r_exists00_389 r_exists01_389 r_exists10_389 r_exists11_389 x_208 x_257 x_310 k_main_164 x_326 =v
+  (x_326 = 0
+   \/ (r_exists10_389 != 1
+       \/ ((0 > r_exists11_389 \/ r_exists11_389 >= n) \/ k_main_164 true)
+          /\ (0 <= r_exists11_389 /\ r_exists11_389 < n \/ FAIL_967 true (\x_1141.true)))
+      /\ (r_exists10_389 = 1 \/ true))
+  /\ (x_326 != 0 \/ true).
+Forall p      =v ∀n. p n.

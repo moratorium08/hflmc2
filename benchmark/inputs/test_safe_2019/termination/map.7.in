@@ -1,0 +1,22 @@
+%HES
+MAIN_1317  =v
+  ∀l_1527.
+   (l_1527 < 0
+    \/ MAP 1 0 0 0 1 0 0
+        (\set_flag_add_282_1449.
+          \s_add_x_277_1450.
+           \s_add_y_278_1451.
+            \x_1452.
+             \k_compose_1453.
+              (set_flag_add_282_1449 = 0 \/ FAIL_1412 true (\x_1550.true))
+              /\ (set_flag_add_282_1449 != 0 \/ k_compose_1453 (1 + (2 + x_1452))))
+        0 0 0 l_1527 (\u_24061_1454.true))
+   /\ (l_1527 >= 0 \/ true).
+FAIL_1412 u_1413 k_1414 =v false.
+MAP x_38 x_37 x_36 f_EXPARAM_121 x_35 x_34 x_33 f_32 set_flag_add_282_31 s_add_x_277_30 s_add_y_278_29 xs k_map_304 =v
+  (xs != 0 \/ k_map_304 0)
+  /\ (xs = 0
+      \/ (∀x_1541.
+           f_32 set_flag_add_282_31 0 0 x_1541
+            (\x_1515.MAP 1 0 0 0 1 0 0 f_32 set_flag_add_282_31 0 0 (xs - 1) (\x_1500.k_map_304 (x_1515 + x_1500))))).
+Forall p      =v ∀n. p n.

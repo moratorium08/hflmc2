@@ -1,0 +1,17 @@
+%HES
+MAIN_965  =v
+  ∀x_1049.
+   F 1 0 0 x_1049 1 0 0 0 0 0 0
+    (\prev_set_flag_gt_1063.
+      \s_prev_gt_lb_1064.
+       \s_prev_gt_n_1065.
+        \n_1066.
+         \k_gt_1067.
+          (prev_set_flag_gt_1063 = 0 \/ FAIL_1006 true (\x_1058.true))
+          /\ (prev_set_flag_gt_1063 != 0 \/ (n_1066 <= 0 \/ k_gt_1067 1) /\ (n_1066 > 0 \/ k_gt_1067 0)))
+    (\u_536_1009.true).
+F x_6 x_5 x_4 x_3 x_2 x_1 x p_EXPARAM_61 set_flag_gt_72 s_gt_lb_67 s_gt_n_68 p k_f_168 =v
+  p set_flag_gt_72 0 0 x_3
+   (\x_1037.(x_1037 = 0 \/ F 1 0 0 (x_3 - 1) 1 0 0 0 set_flag_gt_72 0 0 p k_f_168) /\ (x_1037 != 0 \/ k_f_168 true)).
+FAIL_1006 u_1007 k_1008 =v false.
+Forall p      =v ∀n. p n.
