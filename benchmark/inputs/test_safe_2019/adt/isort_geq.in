@@ -1,68 +1,70 @@
 %HES
-MAIN_39  =v
-  ∀arg1_362.
-   MAKE_LIST arg1_362
-    (\xs0_326.
-      \xs1_327.
-       INSERTSORT xs0_326 xs1_327
-        (\x0_280.
-          \x1_281.
-           LENGTH x0_280 x1_281
-            (\x_240.
-              LENGTH xs0_326 xs1_327
-               (\x_218.(x_240 < x_218 \/ true) /\ (x_240 >= x_218 \/ FAIL_145 true (\x_197.true)))))).
-FAIL_145 u_146 k_147 =v false.
-INSERT x_37 ys0 ys1 k_insert_36 =v
-  (ys0 > 0 \/ k_insert_36 1 (\i_335.\k_insert_336.(i_335 != 0 \/ k_insert_336 x_37) /\ (i_335 = 0 \/ true)))
+MAIN_1375  =v
+  ∀arg1_1698.
+   MAKE_LIST arg1_1698
+    (\xs0_1662.
+      \xs1_1663.
+       INSERTSORT xs0_1662 xs1_1663
+        (\x0_1616.
+          \x1_1617.
+           LENGTH x0_1616 x1_1617
+            (\x_1576.
+              LENGTH xs0_1662 xs1_1663
+               (\x_1554.(x_1576 < x_1554 \/ true) /\ (x_1576 >= x_1554 \/ FAIL_1481 true (\x_1533.true)))))).
+FAIL_1481 u_1482 k_1483 =v false.
+INSERT x_16 ys0 ys1 k_insert_33 =v
+  (ys0 > 0 \/ k_insert_33 1 (\i_1671.\k_insert_1672.(i_1671 != 0 \/ k_insert_1672 x_16) /\ (i_1671 = 0 \/ true)))
   /\ (ys0 <= 0
       \/ (ys0 <= 0
           \/ ys1 0
-              (\y_345.
-                (x_37 >= y_345
-                 \/ k_insert_36 (2 + (ys0 - 1))
-                     (\i_253.
-                       \k_insert_254.
-                        (i_253 != 0 \/ k_insert_254 x_37)
-                        /\ (i_253 = 0
-                            \/ (i_253 != 1 \/ k_insert_254 y_345) /\ (i_253 = 1 \/ ys1 ((i_253 - 2) + 1) k_insert_254))))
-                /\ (x_37 < y_345
-                    \/ INSERT x_37 (ys0 - 1) (\x_308.\k_insert_ys__309.ys1 (x_308 + 1) k_insert_ys__309)
-                        (\p0_268.
-                          \p1_269.
-                           k_insert_36 (1 + p0_268)
-                            (\i_233.
-                              \k_insert_234.
-                               (i_233 != 0 \/ k_insert_234 y_345)
-                               /\ (i_233 = 0
-                                   \/ INSERT x_37 (ys0 - 1) (\x_308.\k_insert_ys__309.ys1 (x_308 + 1) k_insert_ys__309)
-                                       (\p0_205.\p1_206.p1_206 (i_233 - 1) k_insert_234)))))))
+              (\y_1681.
+                (x_16 >= y_1681
+                 \/ k_insert_33 (2 + (ys0 - 1))
+                     (\i_1589.
+                       \k_insert_1590.
+                        (i_1589 != 0 \/ k_insert_1590 x_16)
+                        /\ (i_1589 = 0
+                            \/ (i_1589 != 1 \/ k_insert_1590 y_1681)
+                               /\ (i_1589 = 1 \/ ys1 ((i_1589 - 2) + 1) k_insert_1590))))
+                /\ (x_16 < y_1681
+                    \/ INSERT x_16 (ys0 - 1) (\x_1644.\k_insert_ys__1645.ys1 (x_1644 + 1) k_insert_ys__1645)
+                        (\p0_1604.
+                          \p1_1605.
+                           k_insert_33 (1 + p0_1604)
+                            (\i_1569.
+                              \k_insert_1570.
+                               (i_1569 != 0 \/ k_insert_1570 y_1681)
+                               /\ (i_1569 = 0
+                                   \/ INSERT x_16 (ys0 - 1)
+                                       (\x_1644.\k_insert_ys__1645.ys1 (x_1644 + 1) k_insert_ys__1645)
+                                       (\p0_1541.\p1_1542.p1_1542 (i_1569 - 1) k_insert_1570)))))))
          /\ (ys0 > 0 \/ true)).
-INSERTSORT xs0_25 xs1_24 k_insertsort_23 =v
-  (xs0_25 > 0 \/ k_insertsort_23 0 (\x_347.\k_insertsort_348.true))
-  /\ (xs0_25 <= 0
-      \/ (xs0_25 <= 0
-          \/ xs1_24 0
-              (\x_352.
-                INSERTSORT (xs0_25 - 1) (\x_318.\k_insertsort_xs__319.xs1_24 (x_318 + 1) k_insertsort_xs__319)
-                 (\x0_274.\x1_275.INSERT x_352 x0_274 x1_275 k_insertsort_23)))
-         /\ (xs0_25 > 0 \/ true)).
-LENGTH xs0_8 xs1_7 k_length =v
-  (xs0_8 > 0 \/ k_length 0)
-  /\ (xs0_8 <= 0
-      \/ (xs0_8 <= 0
-          \/ LENGTH (xs0_8 - 1) (\x_359.\k_length_xs__360.xs1_7 (x_359 + 1) k_length_xs__360)
-              (\x_323.k_length (1 + x_323)))
-         /\ (xs0_8 > 0 \/ true)).
-MAKE_LIST n_15 k_make_list_14 =v
-  (n_15 != 0 \/ k_make_list_14 0 (\x_364.\k_make_list_365.true))
-  /\ (n_15 = 0
-      \/ (∀n_368.
-           MAKE_LIST (n_15 - 1)
-            (\p0_331.
-              \p1_332.
-               k_make_list_14 (1 + p0_331)
-                (\i_285.
-                  \k_make_list_286.
-                   (i_285 != 0 \/ k_make_list_286 n_368)
-                   /\ (i_285 = 0 \/ MAKE_LIST (n_15 - 1) (\p0_246.\p1_247.p1_247 (i_285 - 1) k_make_list_286)))))).
+INSERTSORT xs0_10 xs1_10 k_insertsort_312 =v
+  (xs0_10 > 0 \/ k_insertsort_312 0 (\x_1683.\k_insertsort_1684.true))
+  /\ (xs0_10 <= 0
+      \/ (xs0_10 <= 0
+          \/ xs1_10 0
+              (\x_1688.
+                INSERTSORT (xs0_10 - 1) (\x_1654.\k_insertsort_xs__1655.xs1_10 (x_1654 + 1) k_insertsort_xs__1655)
+                 (\x0_1610.\x1_1611.INSERT x_1688 x0_1610 x1_1611 k_insertsort_312)))
+         /\ (xs0_10 > 0 \/ true)).
+LENGTH xs0_2 xs1_2 k_length_618 =v
+  (xs0_2 > 0 \/ k_length_618 0)
+  /\ (xs0_2 <= 0
+      \/ (xs0_2 <= 0
+          \/ LENGTH (xs0_2 - 1) (\x_1695.\k_length_xs__1696.xs1_2 (x_1695 + 1) k_length_xs__1696)
+              (\x_1659.k_length_618 (1 + x_1659)))
+         /\ (xs0_2 > 0 \/ true)).
+MAKE_LIST n_5 k_make_list_484 =v
+  (n_5 != 0 \/ k_make_list_484 0 (\x_1700.\k_make_list_1701.true))
+  /\ (n_5 = 0
+      \/ (∀n_1704.
+           MAKE_LIST (n_5 - 1)
+            (\p0_1667.
+              \p1_1668.
+               k_make_list_484 (1 + p0_1667)
+                (\i_1621.
+                  \k_make_list_1622.
+                   (i_1621 != 0 \/ k_make_list_1622 n_1704)
+                   /\ (i_1621 = 0 \/ MAKE_LIST (n_5 - 1) (\p0_1582.\p1_1583.p1_1583 (i_1621 - 1) k_make_list_1622)))))).
 Forall p      =v ∀n. p n.

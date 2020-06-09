@@ -1,10 +1,12 @@
 %HES
-MAIN_1605  =v ∀x_1650.SUM_WITHOUT_CHECKING_44 true 0 x_1650 (\u_1638.true).
-FAIL_1625 u_1626 k_1627 =v false.
-SUM_WITHOUT_CHECKING_44 x_7 x_6 n_5 k_sum_without_checking_44 =v
-  (n_5 > 0 \/ k_sum_without_checking_44 0)
-  /\ (n_5 <= 0
-      \/ ((n_5 <= n_5 - 1 \/ n_5 - 1 < 0)
-          \/ SUM_WITHOUT_CHECKING_44 true 0 (n_5 - 1) (\x_1648.k_sum_without_checking_44 (n_5 + x_1648)))
-         /\ (n_5 > n_5 - 1 /\ n_5 - 1 >= 0 \/ FAIL_1625 true (\x_1654.true))).
+MAIN_303  =v ∀x_1629.SUM_WITHOUT_CHECKING_44 1 0 x_1629 (\u_1603_1617.true).
+FAIL_1604 u_1605 k_1606 =v false.
+SUM_WITHOUT_CHECKING_44 x_3 x n_2 k_sum_without_checking_44_91 =v
+  (n_2 > 0 \/ k_sum_without_checking_44_91 0)
+  /\ (n_2 <= 0
+      \/ (1 = 0
+          \/ ((n_2 <= n_2 - 1 \/ n_2 - 1 < 0)
+              \/ SUM_WITHOUT_CHECKING_44 1 0 (n_2 - 1) (\x_1627.k_sum_without_checking_44_91 (n_2 + x_1627)))
+             /\ (n_2 > n_2 - 1 /\ n_2 - 1 >= 0 \/ FAIL_1604 true (\x_1633.true)))
+         /\ (1 != 0 \/ SUM_WITHOUT_CHECKING_44 1 0 (n_2 - 1) (\x_1627.k_sum_without_checking_44_91 (n_2 + x_1627)))).
 Forall p      =v ∀n. p n.

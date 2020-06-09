@@ -1,27 +1,28 @@
 %HES
-MAIN_14  =v
-  ∀arg1_132.
-   ∀arg2_120.REPLICATE arg1_132 arg2_120 (\x0_109.\x1_110.ALL_EQUAL arg1_132 x0_109 x1_110 (\main_81.true)).
-ALL_EQUAL x_6 l0 l1 k_all_equal =v
-  (l0 > 0 \/ k_all_equal true)
+MAIN_626  =v
+  ∀arg1_744.
+   ∀arg2_732.REPLICATE arg1_744 arg2_732 (\x0_721.\x1_722.ALL_EQUAL arg1_744 x0_721 x1_722 (\main_693.true)).
+ALL_EQUAL x_3 l0 l1 k_all_equal_136 =v
+  (l0 > 0 \/ k_all_equal_136 true)
   /\ (l0 <= 0
       \/ (l0 <= 0
           \/ l1 0
-              (\y_86.
-                (x_6 != y_86
-                 \/ ALL_EQUAL y_86 (l0 - 1) (\x_97.\k_all_equal_ys_98.l1 (x_97 + 1) k_all_equal_ys_98) k_all_equal)
-                /\ (x_6 = y_86 \/ FAIL_65 true (\x_146.true))))
+              (\y_698.
+                (x_3 != y_698
+                 \/ ALL_EQUAL y_698 (l0 - 1) (\x_709.\k_all_equal_ys_710.l1 (x_709 + 1) k_all_equal_ys_710)
+                     k_all_equal_136)
+                /\ (x_3 = y_698 \/ FAIL_677 true (\x_758.true))))
          /\ (l0 > 0 \/ true)).
-FAIL_65 u_66 k_67 =v false.
-REPLICATE x_12 n k_replicate_11 =v
-  (n > 0 \/ k_replicate_11 0 (\x_135.\k_replicate_136.true))
-  /\ (n <= 0
-      \/ REPLICATE x_12 (n - 1)
-          (\p0_140.
-            \p1_141.
-             k_replicate_11 (1 + p0_140)
-              (\i_129.
-                \k_replicate_130.
-                 (i_129 != 0 \/ k_replicate_130 x_12)
-                 /\ (i_129 = 0 \/ REPLICATE x_12 (n - 1) (\p0_116.\p1_117.p1_117 (i_129 - 1) k_replicate_130))))).
+FAIL_677 u_678 k_679 =v false.
+REPLICATE x_6 n_5 k_replicate_15 =v
+  (n_5 > 0 \/ k_replicate_15 0 (\x_747.\k_replicate_748.true))
+  /\ (n_5 <= 0
+      \/ REPLICATE x_6 (n_5 - 1)
+          (\p0_752.
+            \p1_753.
+             k_replicate_15 (1 + p0_752)
+              (\i_741.
+                \k_replicate_742.
+                 (i_741 != 0 \/ k_replicate_742 x_6)
+                 /\ (i_741 = 0 \/ REPLICATE x_6 (n_5 - 1) (\p0_728.\p1_729.p1_729 (i_741 - 1) k_replicate_742))))).
 Forall p      =v ∀n. p n.

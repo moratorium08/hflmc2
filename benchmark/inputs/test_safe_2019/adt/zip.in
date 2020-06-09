@@ -1,42 +1,44 @@
 %HES
-MAIN_22  =v
-  ∀arg1_269.MAKE_LIST arg1_269 (\xs0_238.\xs1_239.ZIP xs0_238 xs1_239 xs0_238 xs1_239 (\main0_154.\main1_155.true)).
-FAIL_107 u_108 k_109 =v false.
-FAIL_110 u_111 k_112 =v false.
-MAKE_LIST n k_make_list_5 =v
-  (n >= 0 \/ k_make_list_5 0 (\x_271.\k_make_list_272.true))
-  /\ (n < 0
-      \/ MAKE_LIST (n - 1)
-          (\p0_275.
-            \p1_276.
-             k_make_list_5 (1 + p0_275)
-              (\i_246.
-                \k_make_list_247.
-                 (i_246 != 0 \/ k_make_list_247 0)
-                 /\ (i_246 = 0 \/ MAKE_LIST (n - 1) (\p0_221.\p1_222.p1_222 (i_246 - 1) k_make_list_247))))).
-ZIP xs0_20 xs1_19 ys0 ys1 k_zip_18 =v
-  (xs0_20 > 0 \/ (ys0 > 0 \/ k_zip_18 0 (\x_279.\k_zip_280.true)) /\ (ys0 <= 0 \/ FAIL_107 true (\x_283.true)))
-  /\ (xs0_20 <= 0
-      \/ (xs0_20 <= 0
-          \/ xs1_19 0
-              (\x_289.
-                (ys0 > 0 \/ FAIL_110 true (\x_227.true))
+MAIN_989  =v
+  ∀arg1_1236.
+   MAKE_LIST arg1_1236 (\xs0_1205.\xs1_1206.ZIP xs0_1205 xs1_1206 xs0_1205 xs1_1206 (\main0_1121.\main1_1122.true)).
+FAIL_1074 u_1075 k_1076 =v false.
+FAIL_1077 u_1078 k_1079 =v false.
+MAKE_LIST n_2 k_make_list_397 =v
+  (n_2 >= 0 \/ k_make_list_397 0 (\x_1238.\k_make_list_1239.true))
+  /\ (n_2 < 0
+      \/ MAKE_LIST (n_2 - 1)
+          (\p0_1242.
+            \p1_1243.
+             k_make_list_397 (1 + p0_1242)
+              (\i_1213.
+                \k_make_list_1214.
+                 (i_1213 != 0 \/ k_make_list_1214 0)
+                 /\ (i_1213 = 0 \/ MAKE_LIST (n_2 - 1) (\p0_1188.\p1_1189.p1_1189 (i_1213 - 1) k_make_list_1214))))).
+ZIP xs0_9 xs1_9 ys0 ys1 k_zip_29 =v
+  (xs0_9 > 0 \/ (ys0 > 0 \/ k_zip_29 0 (\x_1246.\k_zip_1247.true)) /\ (ys0 <= 0 \/ FAIL_1074 true (\x_1250.true)))
+  /\ (xs0_9 <= 0
+      \/ (xs0_9 <= 0
+          \/ xs1_9 0
+              (\x_1256.
+                (ys0 > 0 \/ FAIL_1077 true (\x_1194.true))
                 /\ (ys0 <= 0
                     \/ (ys0 <= 0
                         \/ ys1 0
-                            (\y_235.
-                              ZIP (xs0_20 - 1) (\x_266.\k_zip_xs__267.xs1_19 (x_266 + 1) k_zip_xs__267) (ys0 - 1)
-                               (\x_215.\k_zip_ys__216.ys1 (x_215 + 1) k_zip_ys__216)
-                               (\p0_198.
-                                 \p1_199.
-                                  k_zip_18 (1 + p0_198)
-                                   (\i_187.
-                                     \k_zip_188.
-                                      (i_187 != 0 \/ k_zip_188 0 0)
-                                      /\ (i_187 = 0
-                                          \/ ZIP (xs0_20 - 1) (\x_266.\k_zip_xs__267.xs1_19 (x_266 + 1) k_zip_xs__267)
-                                              (ys0 - 1) (\x_215.\k_zip_ys__216.ys1 (x_215 + 1) k_zip_ys__216)
-                                              (\p0_165.\p1_166.p1_166 (i_187 - 1) k_zip_188))))))
+                            (\y_1202.
+                              ZIP (xs0_9 - 1) (\x_1219.\k_zip_xs__1220.xs1_9 (x_1219 + 1) k_zip_xs__1220) (ys0 - 1)
+                               (\x_1182.\k_zip_ys__1183.ys1 (x_1182 + 1) k_zip_ys__1183)
+                               (\p0_1165.
+                                 \p1_1166.
+                                  k_zip_29 (1 + p0_1165)
+                                   (\i_1154.
+                                     \k_zip_1155.
+                                      (i_1154 != 0 \/ k_zip_1155 0 0)
+                                      /\ (i_1154 = 0
+                                          \/ ZIP (xs0_9 - 1)
+                                              (\x_1219.\k_zip_xs__1220.xs1_9 (x_1219 + 1) k_zip_xs__1220) (
+                                              ys0 - 1) (\x_1182.\k_zip_ys__1183.ys1 (x_1182 + 1) k_zip_ys__1183)
+                                              (\p0_1132.\p1_1133.p1_1133 (i_1154 - 1) k_zip_1155))))))
                        /\ (ys0 > 0 \/ true))))
-         /\ (xs0_20 > 0 \/ true)).
+         /\ (xs0_9 > 0 \/ true)).
 Forall p      =v ∀n. p n.

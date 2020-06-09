@@ -1,8 +1,10 @@
 %HES
-MAIN_192  =v ∀x_8876.F_WITHOUT_CHECKING_190 true 0 0 (\x_8871.x_8871 true 0 true (\u_8847.true)).
-FAIL_8827 u_8828 k_8829 =v false.
-F_WITHOUT_CHECKING_190 x_8 x_7 x_6 k_f_without_checking_190 =v
-  k_f_without_checking_190
-   (\set_flag_f_182_8839.
-     \s_f_x_179_8840.\u_8841.\k_app_8842.F_WITHOUT_CHECKING_190 true 0 0 (\x_8860.x_8860 true 0 true k_app_8842)).
+MAIN_841  =v
+  ∀x_924.
+   (0 = 0 \/ FAIL_875 true (\x_928.true))
+   /\ (0 != 0 \/ F_WITHOUT_CHECKING_190 1 0 0 (\x_919.x_919 1 0 true (\u_8826_895.true))).
+FAIL_875 u_876 k_877 =v false.
+F_WITHOUT_CHECKING_190 x_5 x_4 x_3 k_f_without_checking_190_373 =v
+  k_f_without_checking_190_373
+   (\set_flag_f_182_887.\s_f_x_179_888.\u_889.\k_app_890.F_WITHOUT_CHECKING_190 1 0 0 (\x_908.x_908 1 0 true k_app_890)).
 Forall p      =v ∀n. p n.

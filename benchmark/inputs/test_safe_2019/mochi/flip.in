@@ -1,8 +1,8 @@
 %HES
-MAIN_9  =v
-  ∀arg1_45.
-   ∀arg2_43.
-    (arg1_45 - arg2_43 != arg1_45 - arg2_43 \/ true)
-    /\ (arg1_45 - arg2_43 = arg1_45 - arg2_43 \/ FAIL_22 true (\x_32.true)).
-FAIL_22 u_23 k_24 =v false.
+MAIN_302  =v
+  ∀arg1_338.
+   ∀arg2_336.
+    (arg1_338 - arg2_336 != arg1_338 - arg2_336 \/ true)
+    /\ (arg1_338 - arg2_336 = arg1_338 - arg2_336 \/ FAIL_315 true (\x_325.true)).
+FAIL_315 u_316 k_317 =v false.
 Forall p      =v ∀n. p n.

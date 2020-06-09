@@ -1,11 +1,16 @@
 %HES
-MAIN_1849  =v ∀x_1894.MC91_WITHOUT_CHECKING_46 true 0 x_1894 (\u_1882.true).
-FAIL_1869 u_1870 k_1871 =v false.
-MC91_WITHOUT_CHECKING_46 x_7 x_6 n_5 k_mc91_without_checking_46 =v
-  (n_5 <= 100 \/ k_mc91_without_checking_46 (n_5 - 10))
-  /\ (n_5 > 100
-      \/ ((111 + (0 - n_5) <= 111 + (0 - (n_5 + 11)) \/ 111 + (0 - (n_5 + 11)) < 0)
-          \/ MC91_WITHOUT_CHECKING_46 true 0 (n_5 + 11)
-              (\x_1892.MC91_WITHOUT_CHECKING_46 true 0 x_1892 k_mc91_without_checking_46))
-         /\ (111 + (0 - n_5) > 111 + (0 - (n_5 + 11)) /\ 111 + (0 - (n_5 + 11)) >= 0 \/ FAIL_1869 true (\x_1898.true))).
+MAIN_331  =v ∀x_1873.MC91_WITHOUT_CHECKING_46 1 0 x_1873 (\u_1847_1861.true).
+FAIL_1848 u_1849 k_1850 =v false.
+MC91_WITHOUT_CHECKING_46 x_3 x n_2 k_mc91_without_checking_46_93 =v
+  (n_2 <= 100 \/ k_mc91_without_checking_46_93 (n_2 - 10))
+  /\ (n_2 > 100
+      \/ (1 = 0
+          \/ ((111 + (0 - n_2) <= 111 + (0 - (n_2 + 11)) \/ 111 + (0 - (n_2 + 11)) < 0)
+              \/ MC91_WITHOUT_CHECKING_46 1 0 (n_2 + 11)
+                  (\x_1871.MC91_WITHOUT_CHECKING_46 1 0 x_1871 k_mc91_without_checking_46_93))
+             /\ (111 + (0 - n_2) > 111 + (0 - (n_2 + 11)) /\ 111 + (0 - (n_2 + 11)) >= 0
+                 \/ FAIL_1848 true (\x_1877.true)))
+         /\ (1 != 0
+             \/ MC91_WITHOUT_CHECKING_46 1 0 (n_2 + 11)
+                 (\x_1871.MC91_WITHOUT_CHECKING_46 1 0 x_1871 k_mc91_without_checking_46_93))).
 Forall p      =v ∀n. p n.

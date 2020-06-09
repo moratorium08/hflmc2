@@ -1,7 +1,7 @@
 %HES
-MAIN_6  =v
-  ∀arg1_21.
-   (arg1_21 < 0 \/ (arg1_21 + 1 <= arg1_21 \/ true) /\ (arg1_21 + 1 > arg1_21 \/ FAIL_12 true (\x_19.true)))
-   /\ (arg1_21 >= 0 \/ true).
-FAIL_12 u_13 k_14 =v false.
+MAIN_226  =v
+  ∀arg1_241.
+   (arg1_241 < 0 \/ (arg1_241 + 1 <= arg1_241 \/ true) /\ (arg1_241 + 1 > arg1_241 \/ FAIL_232 true (\x_239.true)))
+   /\ (arg1_241 >= 0 \/ true).
+FAIL_232 u_233 k_234 =v false.
 Forall p      =v ∀n. p n.

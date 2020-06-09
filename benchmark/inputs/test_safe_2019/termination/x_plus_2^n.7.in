@@ -1,16 +1,23 @@
 %HES
-MAIN_13924  =v
-  ∀x_13993.
-   ∀x_13978.
-    ((x_13978 < 0 \/ x_13993 < 0) \/ F_WITHOUT_CHECKING_186 true 0 x_13978 (\x_13991.x_13991 true 0 0 (\u_13970.true)))
-    /\ (x_13978 >= 0 /\ x_13993 >= 0 \/ true).
-FAIL_13953 u_13954 k_13955 =v false.
-F_WITHOUT_CHECKING_186 x_13 x_12 n_11 k_f_without_checking_186 =v
-  (n_11 != 0 \/ k_f_without_checking_186 (\x_14022.\x_14023.\n_14024.\k_succ_14025.k_succ_14025 0))
-  /\ (n_11 = 0
-      \/ ((n_11 <= n_11 - 1 \/ n_11 - 1 < 0)
-          \/ F_WITHOUT_CHECKING_186 true 0 (n_11 - 1)
-              (\x_13983.
-                k_f_without_checking_186 (\set_flag_f_178_14004.\s_f_n_175_14005.\a_14006.\k_g_14007.k_g_14007 0)))
-         /\ (n_11 > n_11 - 1 /\ n_11 - 1 >= 0 \/ FAIL_13953 true (\x_13997.true))).
+MAIN_903  =v
+  ∀x_13963.
+   ∀x_13948.
+    ((x_13948 < 0 \/ x_13963 < 0) \/ F_WITHOUT_CHECKING_186 1 0 x_13948 (\x_13961.x_13961 1 0 0 (\u_13922_13940.true)))
+    /\ (x_13948 >= 0 /\ x_13963 >= 0 \/ true).
+FAIL_13923 u_13924 k_13925 =v false.
+F_WITHOUT_CHECKING_186 x_7 x_6 n_5 k_f_without_checking_186_305 =v
+  (n_5 != 0 \/ k_f_without_checking_186_305 (\x_13992.\x_13993.\n_13994.\k_succ_13995.k_succ_13995 0))
+  /\ (n_5 = 0
+      \/ (1 = 0
+          \/ ((n_5 <= n_5 - 1 \/ n_5 - 1 < 0)
+              \/ F_WITHOUT_CHECKING_186 1 0 (n_5 - 1)
+                  (\x_13953.
+                    k_f_without_checking_186_305
+                     (\set_flag_f_178_13974.\s_f_n_175_13975.\a_13976.\k_g_13977.k_g_13977 0)))
+             /\ (n_5 > n_5 - 1 /\ n_5 - 1 >= 0 \/ FAIL_13923 true (\x_13967.true)))
+         /\ (1 != 0
+             \/ F_WITHOUT_CHECKING_186 1 0 (n_5 - 1)
+                 (\x_13953.
+                   k_f_without_checking_186_305
+                    (\set_flag_f_178_13974.\s_f_n_175_13975.\a_13976.\k_g_13977.k_g_13977 0)))).
 Forall p      =v ∀n. p n.

@@ -1,14 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 
 cd inputs
 
-LISTS=`ls  | grep -E "[^n]$"`
+LISTS=`ls | grep -E "[^n]$"`
+echo $LISTS
 
 mkdir -p ../lists
 rm -f ../lists/all
 
 for l in $LISTS
 do
+
+    echo $l
     find $l -depth 1 | grep -E ".*in$" > ../lists/$l
     find $l -depth 1 | grep -E ".*in$" >> ../lists/all
 done

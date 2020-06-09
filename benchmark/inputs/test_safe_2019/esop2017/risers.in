@@ -1,77 +1,80 @@
 %HES
-MAIN_57  =v ∀arg1_582.MAKE_LIST arg1_582 (\x0_529.\x1_530.RISERS x0_529 x1_530 (\main0_291.\main1_292.true)).
-FAIL_260 u_261 k_262 =v false.
-FAIL_263 u_264 k_265 =v false.
-MAKE_LIST m k_make_list_55 =v
-  (m > 0 \/ k_make_list_55 0 (\x_584.\k_make_list_585.true))
-  /\ (m <= 0
-      \/ (∀n_588.
-           MAKE_LIST (m - 1)
-            (\p0_534.
-              \p1_535.
-               k_make_list_55 (1 + p0_534)
-                (\i_454.
-                  \k_make_list_455.
-                   (i_454 != 0 \/ k_make_list_455 n_588)
-                   /\ (i_454 = 0 \/ MAKE_LIST (m - 1) (\p0_400.\p1_401.p1_401 (i_454 - 1) k_make_list_455)))))).
-RISERS xs0_47 xs1_46 k_risers_45 =v
-  (xs0_47 > 0 \/ k_risers_45 0 (\x_612.\k_risers_613.true))
-  /\ (xs0_47 <= 0
-      \/ xs1_46 0
-          (\n_617.
-            ((xs0_47 <= 0 \/ xs0_47 - 1 > 0)
-             \/ (xs0_47 - 1 > 0
-                 \/ k_risers_45 1 (\i_385.\k_risers_386.k_risers_386 0 (\i_428.\k_risers_n__f_429.k_risers_n__f_429 0)))
-                /\ (xs0_47 - 1 <= 0 \/ true))
-            /\ (xs0_47 > 0 /\ xs0_47 - 1 <= 0
-                \/ ((xs0_47 <= 0 \/ xs0_47 - 1 <= 0)
-                    \/ (xs0_47 - 1 <= 0
-                        \/ xs1_46 (0 + 1)
-                            (\y_394.
-                              (n_617 >= y_394
-                               \/ RISERS (1 + ((xs0_47 - 1) - 1))
-                                   (\i_301.
-                                     \k_risers_302.
-                                      (i_301 != 0 \/ k_risers_302 y_394)
-                                      /\ (i_301 = 0 \/ xs1_46 (((i_301 - 1) + 1) + 1) k_risers_302))
-                                   (\x0_321.
-                                     \x1_322.
-                                      (x0_321 > 0 \/ FAIL_263 true (\x_603.true))
-                                      /\ (x0_321 <= 0
-                                          \/ (x0_321 <= 0
-                                              \/ x1_322 0
-                                                  (\s0_609.
-                                                    \s1_610.
-                                                     k_risers_45 (1 + (x0_321 - 1))
-                                                      (\i_416.
-                                                        \k_risers_risersThen_417.
-                                                         k_risers_risersThen_417 0
-                                                          (\i_487.
-                                                            \k_risers_risersThen_n__f_488.
-                                                             k_risers_risersThen_n__f_488 0))))
-                                             /\ (x0_321 > 0 \/ true))))
-                              /\ (n_617 < y_394
-                                  \/ RISERS (1 + ((xs0_47 - 1) - 1))
-                                      (\i_331.
-                                        \k_risers_332.
-                                         (i_331 != 0 \/ k_risers_332 y_394)
-                                         /\ (i_331 = 0 \/ xs1_46 (((i_331 - 1) + 1) + 1) k_risers_332))
-                                      (\x0_351.
-                                        \x1_352.
-                                         (x0_351 > 0 \/ FAIL_260 true (\x_592.true))
-                                         /\ (x0_351 <= 0
-                                             \/ (x0_351 <= 0
-                                                 \/ x1_352 0
-                                                     (\s0_598.
-                                                       \s1_599.
-                                                        k_risers_45 (2 + (x0_351 - 1))
-                                                         (\i_408.
-                                                           \k_risers_risersElse_409.
-                                                            k_risers_risersElse_409 0
-                                                             (\i_466.
-                                                               \k_risers_risersElse_n__f_467.
-                                                                k_risers_risersElse_n__f_467 0))))
-                                                /\ (x0_351 > 0 \/ true))))))
-                       /\ (xs0_47 - 1 > 0 \/ true))
-                   /\ (xs0_47 > 0 /\ xs0_47 - 1 > 0 \/ true)))).
+MAIN_2293  =v
+  ∀arg1_2886.MAKE_LIST arg1_2886 (\x0_2762.\x1_2763.RISERS x0_2762 x1_2763 (\main0_2560.\main1_2561.true)).
+FAIL_2529 u_2530 k_2531 =v false.
+FAIL_2532 u_2533 k_2534 =v false.
+K_RISERS_1019 n_1426 nil0_840 x_796 xs0_1024 xs0_29 k_risers_202 xs1_29 x_980 =v
+  ((xs0_29 <= 0 \/ x_980 = 0)
+   \/ (xs0_29 - 1 <= 0
+       \/ xs1_29 (0 + 1)
+           (\y_2759.
+             (n_1426 >= y_2759
+              \/ RISERS (1 + ((xs0_29 - 1) - 1))
+                  (\i_2584.
+                    \k_risers_2585.
+                     (i_2584 != 0 \/ k_risers_2585 y_2759)
+                     /\ (i_2584 = 0 \/ xs1_29 (((i_2584 - 1) + 1) + 1) k_risers_2585))
+                  (\x0_2596.
+                    \x1_2597.
+                     (x0_2596 > 0 \/ FAIL_2532 true (\x_2907.true))
+                     /\ (x0_2596 <= 0
+                         \/ (x0_2596 <= 0
+                             \/ x1_2597 0
+                                 (\s0_2913.
+                                   \s1_2914.
+                                    k_risers_202 (1 + (x0_2596 - 1))
+                                     (\i_2655.
+                                       \k_risers_risersThen_2656.
+                                        k_risers_risersThen_2656 0
+                                         (\i_2734.\k_risers_risersThen_n__f_2735.k_risers_risersThen_n__f_2735 0))))
+                            /\ (x0_2596 > 0 \/ true))))
+             /\ (n_1426 < y_2759
+                 \/ RISERS (1 + ((xs0_29 - 1) - 1))
+                     (\i_2620.
+                       \k_risers_2621.
+                        (i_2620 != 0 \/ k_risers_2621 y_2759)
+                        /\ (i_2620 = 0 \/ xs1_29 (((i_2620 - 1) + 1) + 1) k_risers_2621))
+                     (\x0_2632.
+                       \x1_2633.
+                        (x0_2632 > 0 \/ FAIL_2529 true (\x_2896.true))
+                        /\ (x0_2632 <= 0
+                            \/ (x0_2632 <= 0
+                                \/ x1_2633 0
+                                    (\s0_2902.
+                                      \s1_2903.
+                                       k_risers_202 (2 + (x0_2632 - 1))
+                                        (\i_2647.
+                                          \k_risers_risersElse_2648.
+                                           k_risers_risersElse_2648 0
+                                            (\i_2720.\k_risers_risersElse_n__f_2721.k_risers_risersElse_n__f_2721 0))))
+                               /\ (x0_2632 > 0 \/ true))))))
+      /\ (xs0_29 - 1 > 0 \/ true))
+  /\ (xs0_29 > 0 /\ x_980 != 0 \/ true).
+K_RISERS_835 n_1426 nil0_840 xs0_29 k_risers_202 xs1_29 x_796 =v
+  ((xs0_29 <= 0 \/ x_796 = 0)
+   \/ (xs0_29 - 1 > 0
+       \/ k_risers_202 1 (\i_2663.\k_risers_2664.k_risers_2664 0 (\i_2748.\k_risers_n__f_2749.k_risers_n__f_2749 0)))
+      /\ (xs0_29 - 1 <= 0 \/ true))
+  /\ (xs0_29 > 0 /\ x_796 != 0
+      \/ (xs0_29 - 1 <= 0 \/ K_RISERS_1019 n_1426 nil0_840 x_796 (xs0_29 - 1) xs0_29 k_risers_202 xs1_29 1)
+         /\ (xs0_29 - 1 > 0 \/ K_RISERS_1019 n_1426 nil0_840 x_796 (xs0_29 - 1) xs0_29 k_risers_202 xs1_29 0)).
+MAKE_LIST m_33 k_make_list_62 =v
+  (m_33 > 0 \/ k_make_list_62 0 (\x_2888.\k_make_list_2889.true))
+  /\ (m_33 <= 0
+      \/ (∀n_2892.
+           MAKE_LIST (m_33 - 1)
+            (\p0_2767.
+              \p1_2768.
+               k_make_list_62 (1 + p0_2767)
+                (\i_2701.
+                  \k_make_list_2702.
+                   (i_2701 != 0 \/ k_make_list_2702 n_2892)
+                   /\ (i_2701 = 0 \/ MAKE_LIST (m_33 - 1) (\p0_2639.\p1_2640.p1_2640 (i_2701 - 1) k_make_list_2702)))))).
+RISERS xs0_29 xs1_29 k_risers_202 =v
+  (xs0_29 > 0 \/ k_risers_202 0 (\x_2916.\k_risers_2917.true))
+  /\ (xs0_29 <= 0
+      \/ xs1_29 0
+          (\n_2921.
+            (xs0_29 - 1 > 0 \/ K_RISERS_835 n_2921 (xs0_29 - 1) xs0_29 k_risers_202 xs1_29 1)
+            /\ (xs0_29 - 1 <= 0 \/ K_RISERS_835 n_2921 (xs0_29 - 1) xs0_29 k_risers_202 xs1_29 0))).
 Forall p      =v ∀n. p n.

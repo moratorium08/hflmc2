@@ -1,5 +1,5 @@
 %HES
-MAIN_6  =v ∀arg1_37.F 3 (\x_32.(x_32 < 0 \/ true) /\ (x_32 >= 0 \/ FAIL_16 true (\x_29.true))).
-F x_4 k_f =v (x_4 >= (-1) \/ F (-2) k_f) /\ (x_4 < (-1) \/ (x_4 > 1 \/ k_f (2 * x_4 - 1)) /\ (x_4 <= 1 \/ k_f x_4)).
-FAIL_16 u_17 k_18 =v false.
+MAIN_194  =v ∀arg1_225.F 3 (\x_220.(x_220 < 0 \/ true) /\ (x_220 >= 0 \/ FAIL_204 true (\x_217.true))).
+F x k_f_6 =v (x >= (-1) \/ F (-2) k_f_6) /\ (x < (-1) \/ (x > 1 \/ k_f_6 (2 * x - 1)) /\ (x <= 1 \/ k_f_6 x)).
+FAIL_204 u_205 k_206 =v false.
 Forall p      =v ∀n. p n.

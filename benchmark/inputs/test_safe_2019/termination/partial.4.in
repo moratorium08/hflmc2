@@ -1,9 +1,15 @@
 %HES
-MAIN_7250  =v
-  ∀x_7348.
-   F_WITHOUT_CHECKING_126 true 0 0 0 true 0 0 0 true 0 0 (\x_7365.\x_7366.\x_7367.\n_7368.\k_gt_7369.k_gt_7369 true)
-    (\u_7332.true).
-FAIL_7290 u_7291 k_7292 =v false.
-F_WITHOUT_CHECKING_126 x_16 x_15 x_14 x_13 x_12 x_11 x_10 p_EXPARAM_61_9 x_8 x_7 x_6 p_5 k_f_without_checking_126 =v
-  F_WITHOUT_CHECKING_126 true 0 0 0 true 0 0 0 true 0 0 p_5 k_f_without_checking_126.
+MAIN_1014  =v
+  ∀x_7319.
+   (0 = 0
+    \/ ((0 <= x_7319 \/ x_7319 < 0)
+        \/ F_WITHOUT_CHECKING_126 1 0 0 0 1 0 0 0 1 0 0 (\x_7324.\x_7325.\x_7326.\n_7327.\k_gt_7328.k_gt_7328 1)
+            (\u_7248_7291.true))
+       /\ (0 > x_7319 /\ x_7319 >= 0 \/ FAIL_7249 true (\x_7317.true)))
+   /\ (0 != 0
+       \/ F_WITHOUT_CHECKING_126 1 0 0 0 1 0 0 0 1 0 0 (\x_7324.\x_7325.\x_7326.\n_7327.\k_gt_7328.k_gt_7328 1)
+           (\u_7248_7291.true)).
+FAIL_7249 u_7250 k_7251 =v false.
+F_WITHOUT_CHECKING_126 x_13 x_12 x_11 x_10 x_9 x_8 x_7 p_EXPARAM_61_6 x_5 x_4 x_3 p_2 k_f_without_checking_126_247 =v
+  F_WITHOUT_CHECKING_126 1 0 0 0 1 0 0 0 1 0 0 p_2 k_f_without_checking_126_247.
 Forall p      =v ∀n. p n.

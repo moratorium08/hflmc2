@@ -1,8 +1,8 @@
 %HES
-MAIN_8  =v
-  ∀arg1_37.
-   F (\x_39.\k_succ_40.k_succ_40 (x_39 + 1)) arg1_37
-    (\x_32.(x_32 < 0 \/ true) /\ (x_32 >= 0 \/ FAIL_18 true (\x_29.true))).
-F g x_6 k_f =v (x_6 < 0 \/ g x_6 k_f) /\ (x_6 >= 0 \/ g x_6 (\x_26.F (F g) x_26 k_f)).
-FAIL_18 u_19 k_20 =v false.
+MAIN_291  =v
+  ∀arg1_320.
+   F (\x_322.\k_succ_323.k_succ_323 (x_322 + 1)) arg1_320
+    (\x_315.(x_315 < 0 \/ true) /\ (x_315 >= 0 \/ FAIL_301 true (\x_312.true))).
+F g x_2 k_f_10 =v (x_2 < 0 \/ g x_2 k_f_10) /\ (x_2 >= 0 \/ g x_2 (\x_309.F (F g) x_309 k_f_10)).
+FAIL_301 u_302 k_303 =v false.
 Forall p      =v ∀n. p n.

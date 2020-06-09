@@ -1,13 +1,13 @@
 %HES
-MAIN_17  =v
-  ∀arg1_91.
-   ∀arg2_85.
-    DOTPROD (\i_110.\k_main_v1_111.k_main_v1_111 0) (\i_114.\k_main_v2_115.k_main_v2_115 0) arg2_85 0 0 (\u_89.true).
-DOTPROD v1_15 v2_14 n_13 i_12 sum k_dotprod =v
-  (i_12 <= n_13 \/ k_dotprod 0)
-  /\ (i_12 > n_13
-      \/ ((0 > i_12 \/ i_12 > n_13)
-          \/ v1_15 0 (\x_73.v2_14 0 (\x_82.DOTPROD v1_15 v2_14 n_13 (i_12 + 1) (sum + x_73 * x_82) k_dotprod)))
-         /\ (0 <= i_12 /\ i_12 <= n_13 \/ FAIL_52 true (\x_95.true))).
-FAIL_52 u_53 k_54 =v false.
+MAIN_459  =v
+  ∀arg1_533.
+   ∀arg2_527.
+    DOTPROD (\i_552.\k_main_v1_553.k_main_v1_553 0) (\i_556.\k_main_v2_557.k_main_v2_557 0) arg2_527 0 0 (\u_531.true).
+DOTPROD v1_8 v2_7 n_6 i_5 sum k_dotprod_19 =v
+  (i_5 <= n_6 \/ k_dotprod_19 0)
+  /\ (i_5 > n_6
+      \/ ((0 > i_5 \/ i_5 > n_6)
+          \/ v1_8 0 (\x_515.v2_7 0 (\x_524.DOTPROD v1_8 v2_7 n_6 (i_5 + 1) (sum + x_515 * x_524) k_dotprod_19)))
+         /\ (0 <= i_5 /\ i_5 <= n_6 \/ FAIL_494 true (\x_537.true))).
+FAIL_494 u_495 k_496 =v false.
 Forall p      =v ∀n. p n.

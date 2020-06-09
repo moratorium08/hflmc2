@@ -1,10 +1,10 @@
 %HES
-MAIN_12  =v ∀arg1_41.(arg1_41 <= 0 \/ FACT arg1_41 EXN (\u_39.true)) /\ (arg1_41 > 0 \/ true).
-EXN n_5 k_exn =v false.
-FACT n_10 exn_9 k_fact =v
-  (n_10 > 0 \/ exn_9 0 k_fact)
-  /\ (n_10 <= 0
-      \/ FACT (n_10 - 1)
-          (\n_29.\k_fact_exn_30.(n_29 != 0 \/ k_fact_exn_30 1) /\ (n_29 = 0 \/ exn_9 n_29 k_fact_exn_30))
-          (\x_36.k_fact (n_10 * x_36))).
+MAIN_342  =v ∀arg1_371.(arg1_371 <= 0 \/ FACT arg1_371 EXN (\u_369.true)) /\ (arg1_371 > 0 \/ true).
+EXN n_3 k_exn_92 =v false.
+FACT n_7 exn_6 k_fact_15 =v
+  (n_7 > 0 \/ exn_6 0 k_fact_15)
+  /\ (n_7 <= 0
+      \/ FACT (n_7 - 1)
+          (\n_359.\k_fact_exn_360.(n_359 != 0 \/ k_fact_exn_360 1) /\ (n_359 = 0 \/ exn_6 n_359 k_fact_exn_360))
+          (\x_366.k_fact_15 (n_7 * x_366))).
 Forall p      =v ∀n. p n.

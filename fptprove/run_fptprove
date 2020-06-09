@@ -2,4 +2,6 @@
 set -eu
 
 cd `dirname $0`
-fptprove -v -c ./config/solver/pcsat_dt.json -p pcsp $1 | tr ',' '\n'| sed -n 3p
+#fptprove  -c ./config/solver/dbg_pcsat_tb_ucore.json -p pcsp $1 | tail -n 1 | tr ',' '\n' | head -n 1
+cd /home/katsura/bitbucket.org/uhiro/fptprove
+timeout=500 options='-p pcsp' ./script/hflmc3.sh $1 2> /dev/null | tail -n 1 | tr ',' '\n' | head -n 2 | tail -n 1

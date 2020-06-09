@@ -1,1 +1,1 @@
-{"filename":"/home/hogeyama/kenkyu-code/hflmc2/benchmark/inputs/ml/test_safe_2019/adt/combine_difficult.ml","result":"Safe","cycles":6,"total":67.77174600000001,"pre":0.043876,"abst":59.305996,"mc":1.7541880000000158,"refine":6.145627999999995}
+{"filename":"/home/katsura/hflmc2/benchmark/ml/test_safe_2019/adt/combine_difficult.ml","result":"Safe","cycles":6,"total":56.686176,"pre":0.026839000000000002,"abst":49.412409,"mc":0.8829870000000157,"refine":6.054169999999992}

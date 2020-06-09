@@ -1,4 +1,4 @@
 %HES
-MAIN_109  =v true.
-FAIL_1937 u_1938 k_1939 =v false.
+MAIN_576  =v (0 = 0 \/ FAIL_589 true (\x_617.true)) /\ (0 != 0 \/ true).
+FAIL_589 u_590 k_591 =v false.
 Forall p      =v ∀n. p n.

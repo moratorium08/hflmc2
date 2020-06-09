@@ -1,5 +1,10 @@
 %HES
-MAIN_91  =v F_WITHOUT_CHECKING_89 true 0 0 (\g_123.true).
-FAIL_106 u_107 k_108 =v false.
-F_WITHOUT_CHECKING_89 x_5 x_4 x_3 k_f_without_checking_89 =v F_WITHOUT_CHECKING_89 true 0 0 k_f_without_checking_89.
+MAIN_404  =v
+  (0 = 0
+   \/ ((0 <= 1 \/ 1 < 0) \/ F_WITHOUT_CHECKING_89 1 0 0 (\g_436.true))
+      /\ (0 > 1 /\ 1 >= 0 \/ FAIL_419 true (\x_445.true)))
+  /\ (0 != 0 \/ F_WITHOUT_CHECKING_89 1 0 0 (\g_436.true)).
+FAIL_419 u_420 k_421 =v false.
+F_WITHOUT_CHECKING_89 x_4 x_3 x_2 k_f_without_checking_89_171 =v
+  F_WITHOUT_CHECKING_89 1 0 0 k_f_without_checking_89_171.
 Forall p      =v ∀n. p n.

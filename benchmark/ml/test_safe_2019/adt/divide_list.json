@@ -1,1 +1,1 @@
-{"filename":"/home/hogeyama/kenkyu-code/hflmc2/benchmark/inputs/ml/test_safe_2019/adt/divide_list.ml","result":"Safe","cycles":5,"total":184.878464,"pre":0.042439000000000004,"abst":176.46218000000002,"mc":1.5754090000000147,"refine":6.530774000000001}
+{"filename":"/home/katsura/hflmc2/benchmark/ml/test_safe_2019/adt/divide_list.ml","result":"Safe","cycles":5,"total":134.836113,"pre":0.031738999999999996,"abst":128.631155,"mc":0.895729000000008,"refine":5.148086000000003}

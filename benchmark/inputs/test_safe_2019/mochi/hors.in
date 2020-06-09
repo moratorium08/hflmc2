@@ -1,7 +1,8 @@
 %HES
-MAIN_6  =v ∀arg1_32.F arg1_32 (\q_26.\k_c_27.k_c_27 true) 0 (\main_28.true).
-F n x q k_f =v
-  (n > 0 \/ k_f true)
-  /\ (n <= 0 \/ (q != 0 \/ F (n - 1) (\q_24.\k_b_25.k_b_25 true) 0 k_f) /\ (q = 0 \/ FAIL_11 true (\x_30.true))).
-FAIL_11 u_12 k_13 =v false.
+MAIN_416  =v ∀arg1_442.F arg1_442 (\q_436.\k_c_437.k_c_437 true) 0 (\main_438.true).
+F n_4 x q_3 k_f_85 =v
+  (n_4 > 0 \/ k_f_85 true)
+  /\ (n_4 <= 0
+      \/ (q_3 != 0 \/ F (n_4 - 1) (\q_434.\k_b_435.k_b_435 true) 0 k_f_85) /\ (q_3 = 0 \/ FAIL_421 true (\x_440.true))).
+FAIL_421 u_422 k_423 =v false.
 Forall p      =v ∀n. p n.

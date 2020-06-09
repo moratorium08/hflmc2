@@ -1,21 +1,28 @@
 %HES
-MAIN_370  =v
-  ∀x_20172.
-   (x_20172 < 0
-    \/ TOCHURCH_WITHOUT_CHECKING_368 true 0 0 x_20172 true 0 0 0 true 0 0
-        (\x_20223.\x_20224.\x_20225.\x_20226.\k_succ_20227.k_succ_20227 0) (
-        \tos_20160.true))
-   /\ (x_20172 >= 0 \/ true).
-FAIL_20103 u_20104 k_20105 =v false.
-TOCHURCH_WITHOUT_CHECKING_368 x_17 x_16 x_15 n_14 x_13 x_12 x_11 f_EXPARAM_114_10 x_9 x_8 x_7 f_6 k_toChurch_without_checking_368
+MAIN_1474  =v
+  ∀x_1609.
+   (x_1609 < 0
+    \/ TOCHURCH_WITHOUT_CHECKING_368 1 0 0 x_1609 1 0 0 0 1 0 0
+        (\x_1660.\x_1661.\x_1662.\x_1663.\k_succ_1664.k_succ_1664 0) (
+        \tos_1597.true))
+   /\ (x_1609 >= 0 \/ true).
+FAIL_1540 u_1541 k_1542 =v false.
+TOCHURCH_WITHOUT_CHECKING_368 x_14 x_13 x_12 n_11 x_10 x_9 x_8 f_EXPARAM_114_7 x_6 x_5 x_4 f_3 k_toChurch_without_checking_368_591
   =v
-  (n_14 != 0 \/ k_toChurch_without_checking_368 (\x_20213.\x_20214.\x_20215.\x_20216.\k_id_20217.k_id_20217 0))
-  /\ (n_14 = 0
-      \/ ((n_14 <= n_14 - 1 \/ n_14 - 1 < 0)
-          \/ TOCHURCH_WITHOUT_CHECKING_368 true 0 0 (n_14 - 1) true 0 0 0 true 0 0 f_6
-              (\x_20200.
-                k_toChurch_without_checking_368
-                 (\set_flag_toChurch_354_20148.
-                   \s_toChurch_n_347_20149.\s_toChurch_f_EXPARAM_348_20150.\x_20151.\k_compose_20152.k_compose_20152 0)))
-         /\ (n_14 > n_14 - 1 /\ n_14 - 1 >= 0 \/ FAIL_20103 true (\x_20212.true))).
+  (n_11 != 0 \/ k_toChurch_without_checking_368_591 (\x_1650.\x_1651.\x_1652.\x_1653.\k_id_1654.k_id_1654 0))
+  /\ (n_11 = 0
+      \/ (1 = 0
+          \/ ((n_11 <= n_11 - 1 \/ n_11 - 1 < 0)
+              \/ TOCHURCH_WITHOUT_CHECKING_368 1 0 0 (n_11 - 1) 1 0 0 0 1 0 0 f_3
+                  (\x_1637.
+                    k_toChurch_without_checking_368_591
+                     (\set_flag_toChurch_354_1585.
+                       \s_toChurch_n_347_1586.\s_toChurch_f_EXPARAM_348_1587.\x_1588.\k_compose_1589.k_compose_1589 0)))
+             /\ (n_11 > n_11 - 1 /\ n_11 - 1 >= 0 \/ FAIL_1540 true (\x_1649.true)))
+         /\ (1 != 0
+             \/ TOCHURCH_WITHOUT_CHECKING_368 1 0 0 (n_11 - 1) 1 0 0 0 1 0 0 f_3
+                 (\x_1637.
+                   k_toChurch_without_checking_368_591
+                    (\set_flag_toChurch_354_1585.
+                      \s_toChurch_n_347_1586.\s_toChurch_f_EXPARAM_348_1587.\x_1588.\k_compose_1589.k_compose_1589 0)))).
 Forall p      =v ∀n. p n.

@@ -1,14 +1,14 @@
 %HES
-MAIN_14  =v
-  ∀arg1_81.
-   ∀arg2_69.
-    ∀arg3_61.
-     (arg3_61 > arg2_69
-      \/ F arg1_81 arg3_61 arg2_69 arg3_61
-          (\x_79.(x_79 != arg1_81 \/ true) /\ (x_79 = arg1_81 \/ FAIL_42 true (\x_66.true))))
-     /\ (arg3_61 <= arg2_69 \/ true).
-F k_12 n_10 r_11 n_9 k_mc_k_f =v
-  (n_9 <= r_11 \/ k_mc_k_f (n_9 - ((r_11 - k_12) + 1)))
-  /\ (n_9 > r_11 \/ F k_12 n_10 r_11 ((n_9 + ((r_11 - k_12) + 1)) + 1) (\x_57.F k_12 n_10 r_11 x_57 k_mc_k_f)).
-FAIL_42 u_43 k_44 =v false.
+MAIN_376  =v
+  ∀arg1_443.
+   ∀arg2_431.
+    ∀arg3_423.
+     (arg3_423 > arg2_431
+      \/ F arg1_443 arg3_423 arg2_431 arg3_423
+          (\x_441.(x_441 != arg1_443 \/ true) /\ (x_441 = arg1_443 \/ FAIL_404 true (\x_428.true))))
+     /\ (arg3_423 <= arg2_431 \/ true).
+F k_5 n_3 r_4 n_2 k_mc_k_f_16 =v
+  (n_2 <= r_4 \/ k_mc_k_f_16 (n_2 - ((r_4 - k_5) + 1)))
+  /\ (n_2 > r_4 \/ F k_5 n_3 r_4 ((n_2 + ((r_4 - k_5) + 1)) + 1) (\x_419.F k_5 n_3 r_4 x_419 k_mc_k_f_16)).
+FAIL_404 u_405 k_406 =v false.
 Forall p      =v ∀n. p n.

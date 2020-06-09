@@ -1,7 +1,8 @@
 %HES
-MAIN_6  =v
-  ∀arg1_31.
-   SUM arg1_31 (\x_26.(3 * arg1_31 - 3 > x_26 \/ true) /\ (3 * arg1_31 - 3 <= x_26 \/ FAIL_16 true (\x_23.true))).
-FAIL_16 u_17 k_18 =v false.
-SUM n k_sum =v (n > 0 \/ k_sum 0) /\ (n <= 0 \/ SUM (n - 1) (\x_34.k_sum (n + x_34))).
+MAIN_195  =v
+  ∀arg1_220.
+   SUM arg1_220
+    (\x_215.(3 * arg1_220 - 3 > x_215 \/ true) /\ (3 * arg1_220 - 3 <= x_215 \/ FAIL_205 true (\x_212.true))).
+FAIL_205 u_206 k_207 =v false.
+SUM n_2 k_sum_7 =v (n_2 > 0 \/ k_sum_7 0) /\ (n_2 <= 0 \/ SUM (n_2 - 1) (\x_223.k_sum_7 (n_2 + x_223))).
 Forall p      =v ∀n. p n.

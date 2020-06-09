@@ -1,11 +1,11 @@
 %HES
-MAIN_10  =v
-  ∀arg1_37.
-   CPS_SUM arg1_37
-    (\x_26.\k_main_f_27.(x_26 < arg1_37 \/ k_main_f_27 true) /\ (x_26 >= arg1_37 \/ FAIL_18 true (\x_35.true)))
-    (\main_28.true).
-CPS_SUM n_8 k k_cps_sum =v
-  (n_8 > 0 \/ k 0 k_cps_sum)
-  /\ (n_8 <= 0 \/ CPS_SUM (n_8 - 1) (\x_31.\k_cps_sum_f_32.k (x_31 + n_8) k_cps_sum_f_32) k_cps_sum).
-FAIL_18 u_19 k_20 =v false.
+MAIN_299  =v
+  ∀arg1_326.
+   CPS_SUM arg1_326
+    (\x_315.\k_main_f_316.(x_315 < arg1_326 \/ k_main_f_316 true) /\ (x_315 >= arg1_326 \/ FAIL_307 true (\x_324.true)))
+    (\main_321.true).
+CPS_SUM n_4 k k_cps_sum_12 =v
+  (n_4 > 0 \/ k 0 k_cps_sum_12)
+  /\ (n_4 <= 0 \/ CPS_SUM (n_4 - 1) (\x_319.\k_cps_sum_f_320.k (x_319 + n_4) k_cps_sum_f_320) k_cps_sum_12).
+FAIL_307 u_308 k_309 =v false.
 Forall p      =v ∀n. p n.

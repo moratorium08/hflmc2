@@ -1,13 +1,14 @@
 %HES
-MAIN_12  =v
-  ∀arg1_82.
-   ZIP arg1_82 arg1_82
-    (\x_80.MAP x_80 (\x_77.(x_77 != arg1_82 \/ true) /\ (x_77 = arg1_82 \/ FAIL_45 true (\x_69.true)))).
-FAIL_39 u_40 k_41 =v false.
-FAIL_42 u_43 k_44 =v false.
-FAIL_45 u_46 k_47 =v false.
-MAP x_6 k_map =v (x_6 != 0 \/ k_map x_6) /\ (x_6 = 0 \/ MAP (x_6 - 1) (\x_85.k_map (1 + x_85))).
-ZIP x_10 y k_zip =v
-  (x_10 != 0 \/ (y != 0 \/ k_zip x_10) /\ (y = 0 \/ FAIL_39 true (\x_88.true)))
-  /\ (x_10 = 0 \/ (y != 0 \/ FAIL_42 true (\x_91.true)) /\ (y = 0 \/ ZIP (x_10 - 1) (y - 1) (\x_95.k_zip (1 + x_95)))).
+MAIN_352  =v
+  ∀arg1_422.
+   ZIP arg1_422 arg1_422
+    (\x_420.MAP x_420 (\x_417.(x_417 != arg1_422 \/ true) /\ (x_417 = arg1_422 \/ FAIL_385 true (\x_409.true)))).
+FAIL_379 u_380 k_381 =v false.
+FAIL_382 u_383 k_384 =v false.
+FAIL_385 u_386 k_387 =v false.
+MAP x k_map_67 =v (x != 0 \/ k_map_67 x) /\ (x = 0 \/ MAP (x - 1) (\x_425.k_map_67 (1 + x_425))).
+ZIP x_3 y k_zip_8 =v
+  (x_3 != 0 \/ (y != 0 \/ k_zip_8 x_3) /\ (y = 0 \/ FAIL_379 true (\x_428.true)))
+  /\ (x_3 = 0
+      \/ (y != 0 \/ FAIL_382 true (\x_431.true)) /\ (y = 0 \/ ZIP (x_3 - 1) (y - 1) (\x_435.k_zip_8 (1 + x_435)))).
 Forall p      =v ∀n. p n.

@@ -1,0 +1,1 @@
+{"filename":"/home/katsura/hflmc2/benchmark/ml/test_safe_2019/adt/cat_maybes.ml","result":"Failure(\"undefined enum value\")","cycles":5,"total":21.287166,"pre":0.028031,"abst":16.571224,"mc":0.15893899999999883,"refine":4.434858999999996}

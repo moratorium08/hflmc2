@@ -1,31 +1,31 @@
 %HES
-MAIN_21  =v
-  ∀arg1_153.
-   MAKE_LIST arg1_153
-    (\xs0_136.
-      \xs1_137.
-       FOLD_RIGHT (\f_79.\g_80.\x_81.\k_compose_82.g_80 x_81 (\x_90.f_79 x_90 k_compose_82)) xs0_136 xs1_137
-        (\x_111.\k_main_f_112.k_main_f_112 x_111)
-        (\f_116.f_116 0 (\x_98.(x_98 < 0 \/ true) /\ (x_98 >= 0 \/ FAIL_63 true (\x_94.true))))).
-FAIL_63 u_64 k_65 =v false.
-FOLD_RIGHT f_13 xs0_12 xs1_11 init k_fold_right =v
-  (xs0_12 > 0 \/ k_fold_right init)
-  /\ (xs0_12 <= 0
-      \/ (xs0_12 <= 0
-          \/ xs1_11 0
-              (\x_151.
-                FOLD_RIGHT f_13 (xs0_12 - 1) (\x_132.\k_fold_right_xs__133.xs1_11 (x_132 + 1) k_fold_right_xs__133)
-                 init (\x_108.k_fold_right (f_13 x_151 x_108))))
-         /\ (xs0_12 > 0 \/ true)).
-MAKE_LIST n k_make_list_19 =v
-  (n > 0 \/ k_make_list_19 0 (\x_155.\k_make_list_156.true))
-  /\ (n <= 0
-      \/ MAKE_LIST (n - 1)
-          (\p0_159.
-            \p1_160.
-             k_make_list_19 (1 + p0_159)
-              (\i_144.
-                \k_make_list_145.
-                 (i_144 != 0 \/ k_make_list_145 (\m_84.\k_make_list_f_85.k_make_list_f_85 (n + m_84)))
-                 /\ (i_144 = 0 \/ MAKE_LIST (n - 1) (\p0_121.\p1_122.p1_122 (i_144 - 1) k_make_list_145))))).
+MAIN_1083  =v
+  ∀arg1_1216.
+   MAKE_LIST arg1_1216
+    (\xs0_1199.
+      \xs1_1200.
+       FOLD_RIGHT (\f_1142.\g_1143.\x_1144.\k_compose_1145.g_1143 x_1144 (\x_1153.f_1142 x_1153 k_compose_1145))
+        xs0_1199 xs1_1200 (\x_1174.\k_main_f_1175.k_main_f_1175 x_1174)
+        (\f_1179.f_1179 0 (\x_1161.(x_1161 < 0 \/ true) /\ (x_1161 >= 0 \/ FAIL_1126 true (\x_1157.true))))).
+FAIL_1126 u_1127 k_1128 =v false.
+FOLD_RIGHT f_7 xs0_6 xs1_6 init k_fold_right_247 =v
+  (xs0_6 > 0 \/ k_fold_right_247 init)
+  /\ (xs0_6 <= 0
+      \/ (xs0_6 <= 0
+          \/ xs1_6 0
+              (\x_1214.
+                FOLD_RIGHT f_7 (xs0_6 - 1) (\x_1195.\k_fold_right_xs__1196.xs1_6 (x_1195 + 1) k_fold_right_xs__1196)
+                 init (\x_1171.k_fold_right_247 (f_7 x_1214 x_1171))))
+         /\ (xs0_6 > 0 \/ true)).
+MAKE_LIST n_10 k_make_list_26 =v
+  (n_10 > 0 \/ k_make_list_26 0 (\x_1218.\k_make_list_1219.true))
+  /\ (n_10 <= 0
+      \/ MAKE_LIST (n_10 - 1)
+          (\p0_1222.
+            \p1_1223.
+             k_make_list_26 (1 + p0_1222)
+              (\i_1207.
+                \k_make_list_1208.
+                 (i_1207 != 0 \/ k_make_list_1208 (\m_1148.\k_make_list_f_1149.k_make_list_f_1149 (n_10 + m_1148)))
+                 /\ (i_1207 = 0 \/ MAKE_LIST (n_10 - 1) (\p0_1184.\p1_1185.p1_1185 (i_1207 - 1) k_make_list_1208))))).
 Forall p      =v ∀n. p n.

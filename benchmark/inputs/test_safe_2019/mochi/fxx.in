@@ -1,5 +1,6 @@
 %HES
-MAIN_5  =v
-  ∀arg1_26.(arg1_26 > 0 /\ arg1_26 <= 0 \/ true) /\ ((arg1_26 <= 0 \/ arg1_26 > 0) \/ FAIL_11 true (\x_24.true)).
-FAIL_11 u_12 k_13 =v false.
+MAIN_156  =v
+  ∀arg1_177.
+   (arg1_177 > 0 /\ arg1_177 <= 0 \/ true) /\ ((arg1_177 <= 0 \/ arg1_177 > 0) \/ FAIL_162 true (\x_175.true)).
+FAIL_162 u_163 k_164 =v false.
 Forall p      =v ∀n. p n.

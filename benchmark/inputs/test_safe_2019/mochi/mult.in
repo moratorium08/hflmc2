@@ -1,6 +1,8 @@
 %HES
-MAIN_6  =v
-  ∀arg1_32.MULT arg1_32 arg1_32 (\x_27.(arg1_32 > x_27 \/ true) /\ (arg1_32 <= x_27 \/ FAIL_17 true (\x_24.true))).
-FAIL_17 u_18 k_19 =v false.
-MULT n m k_mult =v (n > 0 /\ m > 0 \/ k_mult 0) /\ ((n <= 0 \/ m <= 0) \/ MULT n (m - 1) (\x_36.k_mult (n + x_36))).
+MAIN_211  =v
+  ∀arg1_237.
+   MULT arg1_237 arg1_237 (\x_232.(arg1_237 > x_232 \/ true) /\ (arg1_237 <= x_232 \/ FAIL_222 true (\x_229.true))).
+FAIL_222 u_223 k_224 =v false.
+MULT n_2 m k_mult_7 =v
+  (n_2 > 0 /\ m > 0 \/ k_mult_7 0) /\ ((n_2 <= 0 \/ m <= 0) \/ MULT n_2 (m - 1) (\x_241.k_mult_7 (n_2 + x_241))).
 Forall p      =v ∀n. p n.

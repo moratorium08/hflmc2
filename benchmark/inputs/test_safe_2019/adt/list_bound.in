@@ -1,28 +1,28 @@
 %HES
-MAIN_16  =v
-  ∀arg1_134.
-   ∀arg2_122.REPLICATE arg1_134 arg2_122 (\x0_111.\x1_112.ASSERT_BOUNDED arg1_134 x0_111 x1_112 (\main_83.true)).
-ASSERT_BOUNDED x_14 x0_13 x1_12 k_assert_bounded =v
-  (x0_13 > 0 \/ k_assert_bounded true)
-  /\ (x0_13 <= 0
-      \/ (x0_13 <= 0
-          \/ x1_12 0
-              (\y_88.
-                (x_14 < y_88
-                 \/ ASSERT_BOUNDED x_14 (x0_13 - 1)
-                     (\x_99.\k_assert_bounded_l_100.x1_12 (x_99 + 1) k_assert_bounded_l_100) k_assert_bounded)
-                /\ (x_14 >= y_88 \/ FAIL_67 true (\x_148.true))))
-         /\ (x0_13 > 0 \/ true)).
-FAIL_67 u_68 k_69 =v false.
-REPLICATE x_8 n k_replicate_7 =v
-  (n > 0 \/ k_replicate_7 0 (\x_137.\k_replicate_138.true))
-  /\ (n <= 0
-      \/ REPLICATE x_8 (n - 1)
-          (\p0_142.
-            \p1_143.
-             k_replicate_7 (1 + p0_142)
-              (\i_131.
-                \k_replicate_132.
-                 (i_131 != 0 \/ k_replicate_132 x_8)
-                 /\ (i_131 = 0 \/ REPLICATE x_8 (n - 1) (\p0_118.\p1_119.p1_119 (i_131 - 1) k_replicate_132))))).
+MAIN_627  =v
+  ∀arg1_745.
+   ∀arg2_733.REPLICATE arg1_745 arg2_733 (\x0_722.\x1_723.ASSERT_BOUNDED arg1_745 x0_722 x1_723 (\main_694.true)).
+ASSERT_BOUNDED x_7 x0_6 x1_6 k_assert_bounded_16 =v
+  (x0_6 > 0 \/ k_assert_bounded_16 true)
+  /\ (x0_6 <= 0
+      \/ (x0_6 <= 0
+          \/ x1_6 0
+              (\y_699.
+                (x_7 < y_699
+                 \/ ASSERT_BOUNDED x_7 (x0_6 - 1)
+                     (\x_710.\k_assert_bounded_l_711.x1_6 (x_710 + 1) k_assert_bounded_l_711) k_assert_bounded_16)
+                /\ (x_7 >= y_699 \/ FAIL_678 true (\x_759.true))))
+         /\ (x0_6 > 0 \/ true)).
+FAIL_678 u_679 k_680 =v false.
+REPLICATE x_4 n_3 k_replicate_132 =v
+  (n_3 > 0 \/ k_replicate_132 0 (\x_748.\k_replicate_749.true))
+  /\ (n_3 <= 0
+      \/ REPLICATE x_4 (n_3 - 1)
+          (\p0_753.
+            \p1_754.
+             k_replicate_132 (1 + p0_753)
+              (\i_742.
+                \k_replicate_743.
+                 (i_742 != 0 \/ k_replicate_743 x_4)
+                 /\ (i_742 = 0 \/ REPLICATE x_4 (n_3 - 1) (\p0_729.\p1_730.p1_730 (i_742 - 1) k_replicate_743))))).
 Forall p      =v ∀n. p n.

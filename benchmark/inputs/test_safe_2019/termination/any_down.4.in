@@ -1,19 +1,23 @@
 %HES
-MAIN_1981  =v ∀x_2064.F_WITHOUT_CHECKING_53 true 0 x_2064 (\u_2040.true).
-FAIL_2013 u_2014 k_2015 =v false.
-F_WITHOUT_CHECKING_53 x_8 x_7 n_6 k_f_without_checking_53 =v
-  ∀r_2062.
-   (r_2062 <= 0
-    \/ (n_6 - r_2062 <= 0
-        \/ (((-1) + n_6 <= (-1) + (n_6 - r_2062) \/ (-1) + (n_6 - r_2062) < 0)
-            \/ F_WITHOUT_CHECKING_53 true 0 (n_6 - r_2062) k_f_without_checking_53)
-           /\ ((-1) + n_6 > (-1) + (n_6 - r_2062) /\ (-1) + (n_6 - r_2062) >= 0 \/ FAIL_2013 true (\x_2068.true)))
-       /\ (n_6 - r_2062 > 0 \/ k_f_without_checking_53 true))
-   /\ (r_2062 > 0
-       \/ (n_6 - (1 - r_2062) <= 0
-           \/ (((-1) + n_6 <= (-1) + (n_6 - (1 - r_2062)) \/ (-1) + (n_6 - (1 - r_2062)) < 0)
-               \/ F_WITHOUT_CHECKING_53 true 0 (n_6 - (1 - r_2062)) k_f_without_checking_53)
-              /\ ((-1) + n_6 > (-1) + (n_6 - (1 - r_2062)) /\ (-1) + (n_6 - (1 - r_2062)) >= 0
-                  \/ FAIL_2013 true (\x_2068.true)))
-          /\ (n_6 - (1 - r_2062) > 0 \/ k_f_without_checking_53 true)).
+MAIN_369  =v ∀x_2031.F_WITHOUT_CHECKING_53 1 0 x_2031 (\u_1979_2007.true).
+FAIL_1980 u_1981 k_1982 =v false.
+F_WITHOUT_CHECKING_53 x_3 x n_2 k_f_without_checking_53_100 =v
+  ∀r_2029.
+   (r_2029 <= 0
+    \/ (n_2 - r_2029 <= 0
+        \/ (1 = 0
+            \/ (((-1) + n_2 <= (-1) + (n_2 - r_2029) \/ (-1) + (n_2 - r_2029) < 0)
+                \/ F_WITHOUT_CHECKING_53 1 0 (n_2 - r_2029) k_f_without_checking_53_100)
+               /\ ((-1) + n_2 > (-1) + (n_2 - r_2029) /\ (-1) + (n_2 - r_2029) >= 0 \/ FAIL_1980 true (\x_2035.true)))
+           /\ (1 != 0 \/ F_WITHOUT_CHECKING_53 1 0 (n_2 - r_2029) k_f_without_checking_53_100))
+       /\ (n_2 - r_2029 > 0 \/ k_f_without_checking_53_100 true))
+   /\ (r_2029 > 0
+       \/ (n_2 - (1 - r_2029) <= 0
+           \/ (1 = 0
+               \/ (((-1) + n_2 <= (-1) + (n_2 - (1 - r_2029)) \/ (-1) + (n_2 - (1 - r_2029)) < 0)
+                   \/ F_WITHOUT_CHECKING_53 1 0 (n_2 - (1 - r_2029)) k_f_without_checking_53_100)
+                  /\ ((-1) + n_2 > (-1) + (n_2 - (1 - r_2029)) /\ (-1) + (n_2 - (1 - r_2029)) >= 0
+                      \/ FAIL_1980 true (\x_2035.true)))
+              /\ (1 != 0 \/ F_WITHOUT_CHECKING_53 1 0 (n_2 - (1 - r_2029)) k_f_without_checking_53_100))
+          /\ (n_2 - (1 - r_2029) > 0 \/ k_f_without_checking_53_100 true)).
 Forall p      =v ∀n. p n.

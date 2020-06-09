@@ -1,13 +1,17 @@
 %HES
-MAIN_3231  =v
-  ∀m_3301.
-   ∀n_3303.
-    (m_3301 <= 0 \/ MULT_WITHOUT_CHECKING_63 true 0 0 m_3301 true 0 0 n_3303 (\u_3306.true)) /\ (m_3301 > 0 \/ true).
-FAIL_3278 u_3279 k_3280 =v false.
-MULT_WITHOUT_CHECKING_63 x_15 x_14 x_13 m_12 x_11 x_10 x_9 n_8 k_mult_without_checking_63 =v
-  (m_12 <= 0
-   \/ ((m_12 <= m_12 - 1 \/ m_12 - 1 < 0)
-       \/ MULT_WITHOUT_CHECKING_63 true 0 0 (m_12 - 1) true 0 0 n_8 (\x_3326.k_mult_without_checking_63 (n_8 + x_3326)))
-      /\ (m_12 > m_12 - 1 /\ m_12 - 1 >= 0 \/ FAIL_3278 true (\x_3335.true)))
-  /\ (m_12 > 0 \/ k_mult_without_checking_63 0).
+MAIN_505  =v
+  ∀m_3253.
+   ∀n_3255.
+    (m_3253 <= 0 \/ MULT_WITHOUT_CHECKING_63 1 0 0 m_3253 1 0 0 n_3255 (\u_3229_3258.true)) /\ (m_3253 > 0 \/ true).
+FAIL_3230 u_3231 k_3232 =v false.
+MULT_WITHOUT_CHECKING_63 x_10 x_9 x_8 m_7 x_6 x_5 x n_4 k_mult_without_checking_63_120 =v
+  (m_7 <= 0
+   \/ (1 = 0
+       \/ ((m_7 <= m_7 - 1 \/ m_7 - 1 < 0)
+           \/ MULT_WITHOUT_CHECKING_63 1 0 0 (m_7 - 1) 1 0 0 n_4
+               (\x_3278.k_mult_without_checking_63_120 (n_4 + x_3278)))
+          /\ (m_7 > m_7 - 1 /\ m_7 - 1 >= 0 \/ FAIL_3230 true (\x_3287.true)))
+      /\ (1 != 0
+          \/ MULT_WITHOUT_CHECKING_63 1 0 0 (m_7 - 1) 1 0 0 n_4 (\x_3278.k_mult_without_checking_63_120 (n_4 + x_3278))))
+  /\ (m_7 > 0 \/ k_mult_without_checking_63_120 0).
 Forall p      =v ∀n. p n.

@@ -1,11 +1,12 @@
 %HES
-MAIN_12  =v
-  ∀arg1_55.
-   (arg1_55 < 0
-    \/ GO (arg1_55 + 1) 0 (\i_45.\x_46.\k_sum_47.k_sum_47 (i_45 + x_46)) 0 0
-        (\x_53.(x_53 < 0 \/ true) /\ (x_53 >= 0 \/ FAIL_29 true (\x_36.true))))
-   /\ (arg1_55 >= 0 \/ true).
-FAIL_29 u_30 k_31 =v false.
-GO n_10 x0 f i_9 x_8 k_fold_nat_go =v
-  (i_9 >= n_10 \/ f i_9 x_8 (\x_43.GO n_10 x0 f (i_9 + 1) x_43 k_fold_nat_go)) /\ (i_9 < n_10 \/ k_fold_nat_go x_8).
+MAIN_353  =v
+  ∀arg1_396.
+   (arg1_396 < 0
+    \/ GO (arg1_396 + 1) 0 (\i_386.\x_387.\k_sum_388.k_sum_388 (i_386 + x_387)) 0 0
+        (\x_394.(x_394 < 0 \/ true) /\ (x_394 >= 0 \/ FAIL_370 true (\x_377.true))))
+   /\ (arg1_396 >= 0 \/ true).
+FAIL_370 u_371 k_372 =v false.
+GO n_5 x0 f i_4 x_3 k_fold_nat_go_18 =v
+  (i_4 >= n_5 \/ f i_4 x_3 (\x_384.GO n_5 x0 f (i_4 + 1) x_384 k_fold_nat_go_18))
+  /\ (i_4 < n_5 \/ k_fold_nat_go_18 x_3).
 Forall p      =v ∀n. p n.

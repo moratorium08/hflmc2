@@ -1,6 +1,7 @@
 %HES
-MAIN_116  =v ∀x_156.F_WITHOUT_CHECKING_53 true 0 0 (\u_144.true).
-FAIL_137 u_138 k_139 =v false.
-F_WITHOUT_CHECKING_53 x_7 x_6 n_5 k_f_without_checking_53 =v
-  ∀r_154.F_WITHOUT_CHECKING_53 true 0 0 k_f_without_checking_53.
+MAIN_326  =v
+  ∀x_366.(0 = 0 \/ FAIL_347 true (\x_370.true)) /\ (0 != 0 \/ F_WITHOUT_CHECKING_53 1 0 0 (\u_114_354.true)).
+FAIL_347 u_348 k_349 =v false.
+F_WITHOUT_CHECKING_53 x_3 x n_2 k_f_without_checking_53_96 =v
+  ∀r_364.F_WITHOUT_CHECKING_53 1 0 0 k_f_without_checking_53_96.
 Forall p      =v ∀n. p n.

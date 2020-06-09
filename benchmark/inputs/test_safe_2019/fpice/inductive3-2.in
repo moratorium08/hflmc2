@@ -1,10 +1,10 @@
 %HES
-MAIN_6  =v
-  ∀arg1_50.
+MAIN_232  =v
+  ∀arg1_276.
    F 0
-    (\v_45.
-      (arg1_50 < 2 \/ F arg1_50 (\x_42.(x_42 < 0 \/ true) /\ (x_42 >= 0 \/ FAIL_20 true (\x_34.true))))
-      /\ (arg1_50 >= 2 \/ true)).
-F x_4 k_f =v (x_4 >= (-1) \/ F (-2) k_f) /\ (x_4 < (-1) \/ (x_4 > 1 \/ k_f (2 * x_4 - 1)) /\ (x_4 <= 1 \/ k_f x_4)).
-FAIL_20 u_21 k_22 =v false.
+    (\v_271.
+      (arg1_276 < 2 \/ F arg1_276 (\x_268.(x_268 < 0 \/ true) /\ (x_268 >= 0 \/ FAIL_246 true (\x_260.true))))
+      /\ (arg1_276 >= 2 \/ true)).
+F x k_f_6 =v (x >= (-1) \/ F (-2) k_f_6) /\ (x < (-1) \/ (x > 1 \/ k_f_6 (2 * x - 1)) /\ (x <= 1 \/ k_f_6 x)).
+FAIL_246 u_247 k_248 =v false.
 Forall p      =v ∀n. p n.

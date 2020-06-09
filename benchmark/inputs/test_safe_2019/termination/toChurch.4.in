@@ -1,4 +1,5 @@
 %HES
-MAIN_370  =v ∀x_10437.(x_10437 < 0 \/ true) /\ (x_10437 >= 0 \/ true).
-FAIL_10415 u_10416 k_10417 =v false.
+MAIN_1134  =v
+  ∀x_1208.(x_1208 < 0 \/ (0 = 0 \/ FAIL_1186 true (\x_1234.true)) /\ (0 != 0 \/ true)) /\ (x_1208 >= 0 \/ true).
+FAIL_1186 u_1187 k_1188 =v false.
 Forall p      =v ∀n. p n.

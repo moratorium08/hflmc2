@@ -1,13 +1,14 @@
 %HES
-MAIN_8  =v
-  ∀arg1_66.
-   ZIP arg1_66 arg1_66
-    (\m_61.
-      ((m_61 < arg1_66 \/ m_61 > arg1_66) \/ true) /\ (m_61 >= arg1_66 /\ m_61 <= arg1_66 \/ FAIL_35 true (\x_58.true))).
-FAIL_29 u_30 k_31 =v false.
-FAIL_32 u_33 k_34 =v false.
-FAIL_35 u_36 k_37 =v false.
-ZIP x_6 y k_zip =v
-  (x_6 != 0 \/ (y != 0 \/ k_zip 0) /\ (y = 0 \/ FAIL_29 true (\x_76.true)))
-  /\ (x_6 = 0 \/ (y != 0 \/ FAIL_32 true (\x_69.true)) /\ (y = 0 \/ ZIP (x_6 - 1) (y - 1) (\x_73.k_zip (1 + x_73)))).
+MAIN_274  =v
+  ∀arg1_332.
+   ZIP arg1_332 arg1_332
+    (\m_327.
+      ((m_327 < arg1_332 \/ m_327 > arg1_332) \/ true)
+      /\ (m_327 >= arg1_332 /\ m_327 <= arg1_332 \/ FAIL_301 true (\x_324.true))).
+FAIL_295 u_296 k_297 =v false.
+FAIL_298 u_299 k_300 =v false.
+FAIL_301 u_302 k_303 =v false.
+ZIP x y k_zip_6 =v
+  (x != 0 \/ (y != 0 \/ k_zip_6 0) /\ (y = 0 \/ FAIL_295 true (\x_335.true)))
+  /\ (x = 0 \/ (y != 0 \/ FAIL_298 true (\x_338.true)) /\ (y = 0 \/ ZIP (x - 1) (y - 1) (\x_342.k_zip_6 (1 + x_342)))).
 Forall p      =v ∀n. p n.

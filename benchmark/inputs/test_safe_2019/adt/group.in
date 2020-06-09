@@ -1,97 +1,100 @@
 %HES
-MAIN_61  =v
+MAIN_2435  =v
   MAKE_INTLIST true
-   (\arg10_528.
-     \arg11_529.
-      GROUP arg10_528 arg11_529
-       (\x0_474.
-         \x1_475.
+   (\arg10_2924.
+     \arg11_2925.
+      GROUP arg10_2924 arg11_2925
+       (\x0_2866.
+         \x1_2867.
           MAP
-           (\x0_239.
-             \x1_240.
-              \k_assert_nonempty_241.
-               (x0_239 > 0 \/ FAIL_232 true (\x_275.true)) /\ (x0_239 <= 0 \/ k_assert_nonempty_241 true))
-           x0_474 x1_475 (\main0_272.\main1_273.true))).
-FAIL_232 u_233 k_234 =v false.
-GROUP xs0_37 xs1_36 k_group_35 =v
-  (xs0_37 > 0 \/ k_group_35 0 (\x_521.\k_group_522.true))
-  /\ (xs0_37 <= 0
-      \/ (xs0_37 <= 0
-          \/ xs1_36 0
-              (\x_526.
-                SPAN_EQ x_526 (1 + (xs0_37 - 1))
-                 (\i_404.
-                   \k_group_r_span_eq_405.
-                    (i_404 != 0 \/ k_group_r_span_eq_405 x_526)
-                    /\ (i_404 = 0 \/ xs1_36 ((i_404 - 1) + 1) k_group_r_span_eq_405))
-                 (\r_span_eq00_416.
-                   \r_span_eq01_417.
-                    \r_span_eq10_418.
-                     \r_span_eq11_419.
-                      GROUP r_span_eq10_418 r_span_eq11_419
-                       (\p0_327.
-                         \p1_328.
-                          k_group_35 (1 + p0_327)
-                           (\i_307.
-                             \k_group_308.
-                              (i_307 != 0
-                               \/ k_group_308 (1 + r_span_eq00_416) (\i_369.\k_group_n__f_370.k_group_n__f_370 0))
-                              /\ (i_307 = 0
-                                  \/ GROUP r_span_eq10_418 r_span_eq11_419
-                                      (\p0_285.\p1_286.p1_286 (i_307 - 1) k_group_308)))))))
-         /\ (xs0_37 > 0 \/ true)).
-MAKE_INTLIST x_7 k_main_arg1_make_intlist_6 =v
-  ∀x_532.
-   (x_532 != 0 \/ k_main_arg1_make_intlist_6 0 (\x_478.\k_main_arg1_make_intlist_479.true))
-   /\ (x_532 = 0
-       \/ (∀n_483.
+           (\x0_2624.
+             \x1_2625.
+              \k_assert_nonempty_2626.
+               (x0_2624 > 0 \/ FAIL_2617 true (\x_2662.true)) /\ (x0_2624 <= 0 \/ k_assert_nonempty_2626 true))
+           x0_2866 x1_2867 (\main0_2659.\main1_2660.true))).
+FAIL_2617 u_2618 k_2619 =v false.
+GROUP xs0_16 xs1_16 k_group_529 =v
+  (xs0_16 > 0 \/ k_group_529 0 (\x_2889.\k_group_2890.true))
+  /\ (xs0_16 <= 0
+      \/ (xs0_16 <= 0
+          \/ xs1_16 0
+              (\x_2894.
+                SPAN_EQ x_2894 (1 + (xs0_16 - 1))
+                 (\i_2783.
+                   \k_group_r_span_eq_2784.
+                    (i_2783 != 0 \/ k_group_r_span_eq_2784 x_2894)
+                    /\ (i_2783 = 0 \/ xs1_16 ((i_2783 - 1) + 1) k_group_r_span_eq_2784))
+                 (\r_span_eq00_2795.
+                   \r_span_eq01_2796.
+                    \r_span_eq10_2797.
+                     \r_span_eq11_2798.
+                      GROUP r_span_eq10_2797 r_span_eq11_2798
+                       (\p0_2714.
+                         \p1_2715.
+                          k_group_529 (1 + p0_2714)
+                           (\i_2694.
+                             \k_group_2695.
+                              (i_2694 != 0
+                               \/ k_group_2695 (1 + r_span_eq00_2795) (\i_2756.\k_group_n__f_2757.k_group_n__f_2757 0))
+                              /\ (i_2694 = 0
+                                  \/ GROUP r_span_eq10_2797 r_span_eq11_2798
+                                      (\p0_2672.\p1_2673.p1_2673 (i_2694 - 1) k_group_2695)))))))
+         /\ (xs0_16 > 0 \/ true)).
+K_SPAN_EQ_150 n_493 p xs0_32 k_span_eq_60 xs1_32 x_144 =v
+  ((xs0_32 <= 0 \/ x_144 = 0)
+   \/ SPAN_EQ p (xs0_32 - 1) (\x_2907.\k_span_eq_xs__2908.xs1_32 (x_2907 + 1) k_span_eq_xs__2908)
+       (\r_span_eq00_2837.
+         \r_span_eq01_2838.
+          \r_span_eq10_2839.
+           \r_span_eq11_2840.
+            k_span_eq_60 (1 + r_span_eq00_2837) (\i_2806.\k_span_eq_2807.k_span_eq_2807 0) r_span_eq10_2839
+             r_span_eq11_2840))
+  /\ (xs0_32 > 0 /\ x_144 != 0
+      \/ (xs0_32 <= 0
+          \/ k_span_eq_60 0 (\x_2846.\k_span_eq_2847.true) (1 + (xs0_32 - 1))
+              (\i_2862.
+                \k_span_eq_2863.
+                 (i_2862 != 0 \/ k_span_eq_2863 n_493) /\ (i_2862 = 0 \/ xs1_32 ((i_2862 - 1) + 1) k_span_eq_2863)))
+         /\ (xs0_32 > 0 \/ true)).
+MAKE_INTLIST x_1 k_main_arg1_make_intlist_1506 =v
+  ∀x_2928.
+   (x_2928 != 0 \/ k_main_arg1_make_intlist_1506 0 (\x_2870.\k_main_arg1_make_intlist_2871.true))
+   /\ (x_2928 = 0
+       \/ (∀n_2875.
             MAKE_INTLIST true
-             (\p0_424.
-               \p1_425.
-                k_main_arg1_make_intlist_6 (1 + p0_424)
-                 (\i_381.
-                   \k_main_arg1_make_intlist_382.
-                    (i_381 != 0 \/ k_main_arg1_make_intlist_382 n_483)
-                    /\ (i_381 = 0
-                        \/ MAKE_INTLIST true (\p0_335.\p1_336.p1_336 (i_381 - 1) k_main_arg1_make_intlist_382)))))).
-MAP f x0_20 x1_19 k_map_18 =v
-  (x0_20 > 0 \/ k_map_18 0 (\x_537.\k_map_538.true))
-  /\ (x0_20 <= 0
-      \/ (x0_20 <= 0
-          \/ x1_19 0
-              (\x0_543.
-                \x1_544.
-                 f x0_543 x1_544
-                  (\r_f_432.
-                    MAP f (x0_20 - 1) (\x_494.\k_map_l_495.x1_19 (x_494 + 1) k_map_l_495)
-                     (\p0_390.
-                       \p1_391.
-                        k_map_18 (1 + p0_390)
-                         (\i_353.
-                           \k_map_354.
-                            (i_353 != 0 \/ k_map_354 true)
-                            /\ (i_353 = 0
-                                \/ MAP f (x0_20 - 1) (\x_494.\k_map_l_495.x1_19 (x_494 + 1) k_map_l_495)
-                                    (\p0_316.\p1_317.p1_317 (i_353 - 1) k_map_354)))))))
-         /\ (x0_20 > 0 \/ true)).
-SPAN_EQ p xs0_59 xs1_58 k_span_eq_57 =v
-  (xs0_59 > 0 \/ k_span_eq_57 0 (\x_547.\k_span_eq_548.true) 0 (\x_551.\k_span_eq_552.true))
-  /\ (xs0_59 <= 0
-      \/ xs1_58 0
-          (\n_557.
-            ((xs0_59 <= 0 \/ p != n_557)
-             \/ SPAN_EQ p (xs0_59 - 1) (\x_512.\k_span_eq_xs__513.xs1_58 (x_512 + 1) k_span_eq_xs__513)
-                 (\r_span_eq00_452.
-                   \r_span_eq01_453.
-                    \r_span_eq10_454.
-                     \r_span_eq11_455.
-                      k_span_eq_57 (1 + r_span_eq00_452) (\i_398.\k_span_eq_399.k_span_eq_399 0) r_span_eq10_454
-                       r_span_eq11_455))
-            /\ (xs0_59 > 0 /\ p = n_557
-                \/ (xs0_59 <= 0
-                    \/ k_span_eq_57 0 (\x_460.\k_span_eq_461.true) (1 + (xs0_59 - 1))
-                        (\i_445.
-                          \k_span_eq_446.
-                           (i_445 != 0 \/ k_span_eq_446 n_557) /\ (i_445 = 0 \/ xs1_58 ((i_445 - 1) + 1) k_span_eq_446)))
-                   /\ (xs0_59 > 0 \/ true)))).
+             (\p0_2812.
+               \p1_2813.
+                k_main_arg1_make_intlist_1506 (1 + p0_2812)
+                 (\i_2768.
+                   \k_main_arg1_make_intlist_2769.
+                    (i_2768 != 0 \/ k_main_arg1_make_intlist_2769 n_2875)
+                    /\ (i_2768 = 0
+                        \/ MAKE_INTLIST true (\p0_2722.\p1_2723.p1_2723 (i_2768 - 1) k_main_arg1_make_intlist_2769)))))).
+MAP f x0_8 x1_8 k_map_1033 =v
+  (x0_8 > 0 \/ k_map_1033 0 (\x_2933.\k_map_2934.true))
+  /\ (x0_8 <= 0
+      \/ (x0_8 <= 0
+          \/ x1_8 0
+              (\x0_2939.
+                \x1_2940.
+                 f x0_2939 x1_2940
+                  (\r_f_2820.
+                    MAP f (x0_8 - 1) (\x_2886.\k_map_l_2887.x1_8 (x_2886 + 1) k_map_l_2887)
+                     (\p0_2777.
+                       \p1_2778.
+                        k_map_1033 (1 + p0_2777)
+                         (\i_2740.
+                           \k_map_2741.
+                            (i_2740 != 0 \/ k_map_2741 true)
+                            /\ (i_2740 = 0
+                                \/ MAP f (x0_8 - 1) (\x_2886.\k_map_l_2887.x1_8 (x_2886 + 1) k_map_l_2887)
+                                    (\p0_2703.\p1_2704.p1_2704 (i_2740 - 1) k_map_2741)))))))
+         /\ (x0_8 > 0 \/ true)).
+SPAN_EQ p xs0_32 xs1_32 k_span_eq_60 =v
+  (xs0_32 > 0 \/ k_span_eq_60 0 (\x_2943.\k_span_eq_2944.true) 0 (\x_2947.\k_span_eq_2948.true))
+  /\ (xs0_32 <= 0
+      \/ xs1_32 0
+          (\n_2953.
+            (p != n_2953 \/ K_SPAN_EQ_150 n_2953 p xs0_32 k_span_eq_60 xs1_32 1)
+            /\ (p = n_2953 \/ K_SPAN_EQ_150 n_2953 p xs0_32 k_span_eq_60 xs1_32 0))).
 Forall p      =v ∀n. p n.

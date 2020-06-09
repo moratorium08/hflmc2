@@ -1,4 +1,4 @@
 %HES
-MAIN_73  =v ∀l1_281.∀l2_275.true.
-FAIL_265 u_266 k_267 =v false.
+MAIN_465  =v ∀l1_529.∀l2_523.(0 = 0 \/ FAIL_513 true (\x_538.true)) /\ (0 != 0 \/ true).
+FAIL_513 u_514 k_515 =v false.
 Forall p      =v ∀n. p n.

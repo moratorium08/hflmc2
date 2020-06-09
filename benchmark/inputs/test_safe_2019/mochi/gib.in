@@ -1,15 +1,15 @@
 %HES
-MAIN_14  =v
-  ∀arg1_99.
-   ∀arg2_82.
-    ∀arg3_68.
-     ((arg2_82 < 0 \/ arg3_68 < 0)
-      \/ GIB 0 1 arg1_99 (\x_97.(x_97 < 0 \/ true) /\ (x_97 >= 0 \/ FAIL_45 true (\x_79.true))))
-     /\ (arg2_82 >= 0 /\ arg3_68 >= 0 \/ true).
-FAIL_45 u_46 k_47 =v false.
-GIB a_12 b_11 n_10 k_gib =v
-  (n_10 != 0 \/ k_gib a_12)
-  /\ (n_10 = 0
-      \/ (n_10 != 1 \/ k_gib b_11)
-         /\ (n_10 = 1 \/ GIB a_12 b_11 (n_10 - 1) (\x_87.GIB a_12 b_11 (n_10 - 2) (\x_74.k_gib (x_87 + x_74))))).
+MAIN_386  =v
+  ∀arg1_471.
+   ∀arg2_454.
+    ∀arg3_440.
+     ((arg2_454 < 0 \/ arg3_440 < 0)
+      \/ GIB 0 1 arg1_471 (\x_469.(x_469 < 0 \/ true) /\ (x_469 >= 0 \/ FAIL_417 true (\x_451.true))))
+     /\ (arg2_454 >= 0 /\ arg3_440 >= 0 \/ true).
+FAIL_417 u_418 k_419 =v false.
+GIB a_4 b_3 n_2 k_gib_9 =v
+  (n_2 != 0 \/ k_gib_9 a_4)
+  /\ (n_2 = 0
+      \/ (n_2 != 1 \/ k_gib_9 b_3)
+         /\ (n_2 = 1 \/ GIB a_4 b_3 (n_2 - 1) (\x_459.GIB a_4 b_3 (n_2 - 2) (\x_446.k_gib_9 (x_459 + x_446))))).
 Forall p      =v ∀n. p n.

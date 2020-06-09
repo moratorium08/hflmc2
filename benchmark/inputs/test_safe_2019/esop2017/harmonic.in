@@ -1,32 +1,32 @@
 %HES
-MAIN_15  =v
-  ∀arg1_153.
-   RANGE 1 arg1_153
-    (\ds0_132.
-      \ds1_133.
-       FOLD_LEFT (\s_114.\k_115.\k_harmonic_116.DIV 10000 k_115 (\x_103.k_harmonic_116 (s_114 + x_103))) 0 ds0_132
-        ds1_133 (\main_84.true)).
-DIV x_13 y k_div =v
-  (y = 0 \/ (x_13 >= y \/ k_div 0) /\ (x_13 < y \/ DIV (x_13 - y) y (\x_97.k_div (1 + x_97))))
-  /\ (y != 0 \/ FAIL_68 true (\x_165.true)).
-FAIL_68 u_69 k_70 =v false.
-FOLD_LEFT f acc xs0 xs1 k_fold_left =v
-  (xs0 > 0 \/ k_fold_left 0)
+MAIN_745  =v
+  ∀arg1_883.
+   RANGE 1 arg1_883
+    (\ds0_862.
+      \ds1_863.
+       FOLD_LEFT (\s_844.\k_845.\k_harmonic_846.DIV 10000 k_845 (\x_833.k_harmonic_846 (s_844 + x_833))) 0 ds0_862
+        ds1_863 (\main_814.true)).
+DIV x_4 y k_div_10 =v
+  (y = 0 \/ (x_4 >= y \/ k_div_10 0) /\ (x_4 < y \/ DIV (x_4 - y) y (\x_827.k_div_10 (1 + x_827))))
+  /\ (y != 0 \/ FAIL_798 true (\x_895.true)).
+FAIL_798 u_799 k_800 =v false.
+FOLD_LEFT f acc xs0 xs1 k_fold_left_58 =v
+  (xs0 > 0 \/ k_fold_left_58 0)
   /\ (xs0 <= 0
       \/ (xs0 <= 0
           \/ xs1 0
-              (\x_151.
-                f acc x_151
-                 (\x_111.
-                   FOLD_LEFT f x_111 (xs0 - 1) (\x_128.\k_fold_left_xs__129.xs1 (x_128 + 1) k_fold_left_xs__129)
-                    k_fold_left)))
+              (\x_881.
+                f acc x_881
+                 (\x_841.
+                   FOLD_LEFT f x_841 (xs0 - 1) (\x_858.\k_fold_left_xs__859.xs1 (x_858 + 1) k_fold_left_xs__859)
+                    k_fold_left_58)))
          /\ (xs0 > 0 \/ true)).
-RANGE i_6 j k_range_5 =v
-  (i_6 <= j \/ k_range_5 0 (\x_156.\k_range_157.true))
-  /\ (i_6 > j
-      \/ RANGE (i_6 + 1) j
-          (\is0_161.
-            \is1_162.
-             k_range_5 (1 + is0_161)
-              (\i_144.\k_range_145.(i_144 != 0 \/ k_range_145 i_6) /\ (i_144 = 0 \/ is1_162 (i_144 - 1) k_range_145)))).
+RANGE i_1 j k_range_202 =v
+  (i_1 <= j \/ k_range_202 0 (\x_886.\k_range_887.true))
+  /\ (i_1 > j
+      \/ RANGE (i_1 + 1) j
+          (\is0_891.
+            \is1_892.
+             k_range_202 (1 + is0_891)
+              (\i_874.\k_range_875.(i_874 != 0 \/ k_range_875 i_1) /\ (i_874 = 0 \/ is1_892 (i_874 - 1) k_range_875)))).
 Forall p      =v ∀n. p n.

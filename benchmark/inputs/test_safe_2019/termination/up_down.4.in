@@ -1,14 +1,16 @@
 %HES
-MAIN_114  =v
-  ∀t1_4657.
-   ∀t2_4646.
-    (t1_4657 <= 0 \/ true)
-    /\ (t1_4657 > 0 \/ (t2_4646 >= 0 \/ UP_WITHOUT_CHECKING_112 true 0 t2_4646 (\u_4640.true)) /\ (t2_4646 < 0 \/ true)).
-FAIL_4599 u_4600 k_4601 =v false.
-UP_WITHOUT_CHECKING_112 x_19 x_18 x_17 k_up_without_checking_112 =v
-  (x_17 != 0 \/ k_up_without_checking_112 true)
-  /\ (x_17 = 0
-      \/ ((0 - x_17 <= 0 - (x_17 + 1) \/ 0 - (x_17 + 1) < 0)
-          \/ UP_WITHOUT_CHECKING_112 true 0 (x_17 + 1) k_up_without_checking_112)
-         /\ (0 - x_17 > 0 - (x_17 + 1) /\ 0 - (x_17 + 1) >= 0 \/ FAIL_4599 true (\x_4661.true))).
+MAIN_706  =v
+  ∀t1_797.
+   ∀t2_786.
+    (t1_797 <= 0 \/ true)
+    /\ (t1_797 > 0 \/ (t2_786 >= 0 \/ UP_WITHOUT_CHECKING_112 1 0 t2_786 (\u_4598_780.true)) /\ (t2_786 < 0 \/ true)).
+FAIL_739 u_740 k_741 =v false.
+UP_WITHOUT_CHECKING_112 x_16 x_15 x_14 k_up_without_checking_112_201 =v
+  (x_14 != 0 \/ k_up_without_checking_112_201 true)
+  /\ (x_14 = 0
+      \/ (1 = 0
+          \/ ((0 - x_14 <= 0 - (x_14 + 1) \/ 0 - (x_14 + 1) < 0)
+              \/ UP_WITHOUT_CHECKING_112 1 0 (x_14 + 1) k_up_without_checking_112_201)
+             /\ (0 - x_14 > 0 - (x_14 + 1) /\ 0 - (x_14 + 1) >= 0 \/ FAIL_739 true (\x_801.true)))
+         /\ (1 != 0 \/ UP_WITHOUT_CHECKING_112 1 0 (x_14 + 1) k_up_without_checking_112_201)).
 Forall p      =v ∀n. p n.

@@ -1,8 +1,10 @@
-HorSat2 0.94: Saturation-based model checker for higher-order recursion schemes
-analyzing /home/hogeyama/kenkyu-code/hflmc2/benchmark/inputs/ml/test_safe_2019/adt/filter_acc_false.hors...
-The number of rewrite rules: 149
-The size of recursion scheme: 1425
+HorSat2 0.95: Saturation-based model checker for higher-order recursion schemes
+analyzing /home/katsura/hflmc2/benchmark/ml/test_safe_2019/adt/filter_acc_false.hors...
+The number of rewrite rules: 81
+The size of recursion scheme: 573
 The number of states: 1
-size of ACG: 524
-The property is satisfied.
-Elapsed Time: 0.012692sec
+size of ACG: 619
+The property is NOT satisfied.
+A counterexample is:
+(br,2)(l1,1)(br,1)(l0,1)(br,2)(br,1)(l1,1)(l0,1)(br,1)(l0,1)(br,1)(l0,1)(br,2)(l0,1)(br,2)(br,2)(br,2)(br,1)(l1,1)(l0,1)(br,2)(br,2)(l0,1)(br,2)(l1,1)(event_fail,0)
+Elapsed Time: 0.005359sec

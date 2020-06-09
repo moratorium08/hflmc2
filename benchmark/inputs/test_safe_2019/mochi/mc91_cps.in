@@ -1,13 +1,13 @@
 %HES
-MAIN_9  =v
-  ∀arg1_40.
-   M arg1_40
-    (\r_45.
-      \k_main_k_46.
-       (arg1_40 > 101 \/ (r_45 != 91 \/ k_main_k_46 true) /\ (r_45 = 91 \/ FAIL_19 true (\x_38.true)))
-       /\ (arg1_40 <= 101 \/ k_main_k_46 true))
-    (\main_35.true).
-FAIL_19 u_20 k_21 =v false.
-M x_7 k_6 k_m =v
-  (x_7 <= 100 \/ k_6 (x_7 - 10) k_m) /\ (x_7 > 100 \/ M (x_7 + 11) (\r_33.\k_m_f_34.M r_33 k_6 k_m_f_34) k_m).
+MAIN_327  =v
+  ∀arg1_358.
+   M arg1_358
+    (\r_363.
+      \k_main_k_364.
+       (arg1_358 > 101 \/ (r_363 != 91 \/ k_main_k_364 true) /\ (r_363 = 91 \/ FAIL_337 true (\x_356.true)))
+       /\ (arg1_358 <= 101 \/ k_main_k_364 true))
+    (\main_353.true).
+FAIL_337 u_338 k_339 =v false.
+M x k_3 k_m_11 =v
+  (x <= 100 \/ k_3 (x - 10) k_m_11) /\ (x > 100 \/ M (x + 11) (\r_351.\k_m_f_352.M r_351 k_3 k_m_f_352) k_m_11).
 Forall p      =v ∀n. p n.

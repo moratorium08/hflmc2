@@ -1,17 +1,17 @@
 %HES
-MAIN_14  =v
-  ∀arg1_76.
-   ∀arg2_66.
-    ((arg1_76 <= 0 \/ (arg2_66 < 0 \/ arg2_66 > 0))
-     \/ ARRAY_MAX arg1_76 arg2_66 (\i_85.\k_make_array_86.k_make_array_86 (arg1_76 - i_85)) (-1)
-         (\m_74.(m_74 < arg1_76 \/ true) /\ (m_74 >= arg1_76 \/ FAIL_40 true (\x_63.true))))
-    /\ (arg1_76 > 0 /\ (arg2_66 >= 0 /\ arg2_66 <= 0) \/ true).
-ARRAY_MAX n_10 i_9 a m_8 k_array_max =v
-  (i_9 < n_10 \/ k_array_max m_8)
-  /\ (i_9 >= n_10
-      \/ a i_9
-          (\x_52.
-            (x_52 <= m_8 \/ ARRAY_MAX n_10 (i_9 + 1) a x_52 k_array_max)
-            /\ (x_52 > m_8 \/ ARRAY_MAX n_10 (i_9 + 1) a m_8 k_array_max))).
-FAIL_40 u_41 k_42 =v false.
+MAIN_403  =v
+  ∀arg1_465.
+   ∀arg2_455.
+    ((arg1_465 <= 0 \/ (arg2_455 < 0 \/ arg2_455 > 0))
+     \/ ARRAY_MAX arg1_465 arg2_455 (\i_474.\k_make_array_475.k_make_array_475 (arg1_465 - i_474)) (-1)
+         (\m_463.(m_463 < arg1_465 \/ true) /\ (m_463 >= arg1_465 \/ FAIL_429 true (\x_452.true))))
+    /\ (arg1_465 > 0 /\ (arg2_455 >= 0 /\ arg2_455 <= 0) \/ true).
+ARRAY_MAX n_4 i_3 a m_2 k_array_max_22 =v
+  (i_3 < n_4 \/ k_array_max_22 m_2)
+  /\ (i_3 >= n_4
+      \/ a i_3
+          (\x_441.
+            (x_441 <= m_2 \/ ARRAY_MAX n_4 (i_3 + 1) a x_441 k_array_max_22)
+            /\ (x_441 > m_2 \/ ARRAY_MAX n_4 (i_3 + 1) a m_2 k_array_max_22))).
+FAIL_429 u_430 k_431 =v false.
 Forall p      =v ∀n. p n.

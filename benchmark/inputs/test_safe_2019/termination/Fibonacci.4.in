@@ -1,12 +1,14 @@
 %HES
-MAIN_54  =v ∀x_2217.FIB_WITHOUT_CHECKING_52 true 0 x_2217 (\u_2196.true).
-FAIL_2183 u_2184 k_2185 =v false.
-FIB_WITHOUT_CHECKING_52 x_8 x_7 n_6 k_fib_without_checking_52 =v
-  (n_6 >= 2 \/ k_fib_without_checking_52 1)
-  /\ (n_6 < 2
-      \/ FIB_WITHOUT_CHECKING_52 true 0 (n_6 - 1)
-          (\x_2212.
-            ((n_6 <= n_6 - 2 \/ n_6 - 2 < 0)
-             \/ FIB_WITHOUT_CHECKING_52 true 0 (n_6 - 2) (\x_2202.k_fib_without_checking_52 (x_2212 + x_2202)))
-            /\ (n_6 > n_6 - 2 /\ n_6 - 2 >= 0 \/ FAIL_2183 true (\x_2221.true)))).
+MAIN_395  =v ∀x_457.FIB_WITHOUT_CHECKING_52 1 0 x_457 (\u_2182_436.true).
+FAIL_423 u_424 k_425 =v false.
+FIB_WITHOUT_CHECKING_52 x_4 x_3 n_2 k_fib_without_checking_52_99 =v
+  (n_2 >= 2 \/ k_fib_without_checking_52_99 1)
+  /\ (n_2 < 2
+      \/ FIB_WITHOUT_CHECKING_52 1 0 (n_2 - 1)
+          (\x_452.
+            (1 = 0
+             \/ ((n_2 <= n_2 - 2 \/ n_2 - 2 < 0)
+                 \/ FIB_WITHOUT_CHECKING_52 1 0 (n_2 - 2) (\x_442.k_fib_without_checking_52_99 (x_452 + x_442)))
+                /\ (n_2 > n_2 - 2 /\ n_2 - 2 >= 0 \/ FAIL_423 true (\x_461.true)))
+            /\ (1 != 0 \/ FIB_WITHOUT_CHECKING_52 1 0 (n_2 - 2) (\x_442.k_fib_without_checking_52_99 (x_452 + x_442))))).
 Forall p      =v ∀n. p n.

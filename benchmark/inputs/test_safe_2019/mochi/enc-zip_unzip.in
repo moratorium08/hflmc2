@@ -1,11 +1,12 @@
 %HES
-MAIN_11  =v ∀arg1_61.UNZIP arg1_61 ZIP (\x_59.true).
-FAIL_29 u_30 k_31 =v false.
-FAIL_32 u_33 k_34 =v false.
-UNZIP x_7 k k_unzip =v
-  (x_7 != 0 \/ k 0 0 k_unzip)
-  /\ (x_7 = 0 \/ UNZIP (x_7 - 1) (\x_53.\y_54.\k_f_55.k (x_53 + 1) (y_54 + 1) k_f_55) k_unzip).
-ZIP x_6 y k_zip =v
-  (x_6 != 0 \/ (y != 0 \/ k_zip 0) /\ (y = 0 \/ FAIL_29 true (\x_64.true)))
-  /\ (x_6 = 0 \/ (y != 0 \/ FAIL_32 true (\x_67.true)) /\ (y = 0 \/ ZIP (x_6 - 1) (y - 1) (\x_71.k_zip (1 + x_71)))).
+MAIN_447  =v ∀arg1_497.UNZIP arg1_497 ZIP (\x_495.true).
+FAIL_465 u_466 k_467 =v false.
+FAIL_468 u_469 k_470 =v false.
+UNZIP x_4 k k_unzip_43 =v
+  (x_4 != 0 \/ k 0 0 k_unzip_43)
+  /\ (x_4 = 0 \/ UNZIP (x_4 - 1) (\x_489.\y_490.\k_f_491.k (x_489 + 1) (y_490 + 1) k_f_491) k_unzip_43).
+ZIP x_3 y k_zip_106 =v
+  (x_3 != 0 \/ (y != 0 \/ k_zip_106 0) /\ (y = 0 \/ FAIL_465 true (\x_500.true)))
+  /\ (x_3 = 0
+      \/ (y != 0 \/ FAIL_468 true (\x_503.true)) /\ (y = 0 \/ ZIP (x_3 - 1) (y - 1) (\x_507.k_zip_106 (1 + x_507)))).
 Forall p      =v ∀n. p n.

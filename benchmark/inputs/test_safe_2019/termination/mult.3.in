@@ -1,8 +1,14 @@
 %HES
-MAIN_2208  =v
-  ∀m_2269.
-   ∀n_2271.(m_2269 <= 0 \/ MULT_WITHOUT_CHECKING_63 true 0 0 0 true 0 0 0 (\u_2274.true)) /\ (m_2269 > 0 \/ true).
-FAIL_2246 u_2247 k_2248 =v false.
-MULT_WITHOUT_CHECKING_63 x_14 x_13 x_12 m_11 x_10 x_9 x_8 n_7 k_mult_without_checking_63 =v
-  MULT_WITHOUT_CHECKING_63 true 0 0 0 true 0 0 0 k_mult_without_checking_63.
+MAIN_485  =v
+  ∀m_2230.
+   ∀n_2232.
+    (m_2230 <= 0
+     \/ (0 = 0
+         \/ ((0 <= m_2230 \/ m_2230 < 0) \/ MULT_WITHOUT_CHECKING_63 1 0 0 0 1 0 0 0 (\u_2206_2235.true))
+            /\ (0 > m_2230 /\ m_2230 >= 0 \/ FAIL_2207 true (\x_2254.true)))
+        /\ (0 != 0 \/ MULT_WITHOUT_CHECKING_63 1 0 0 0 1 0 0 0 (\u_2206_2235.true)))
+    /\ (m_2230 > 0 \/ true).
+FAIL_2207 u_2208 k_2209 =v false.
+MULT_WITHOUT_CHECKING_63 x_10 x_9 x_8 m_7 x_6 x_5 x n_4 k_mult_without_checking_63_120 =v
+  MULT_WITHOUT_CHECKING_63 1 0 0 0 1 0 0 0 k_mult_without_checking_63_120.
 Forall p      =v ∀n. p n.

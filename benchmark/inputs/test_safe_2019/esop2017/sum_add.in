@@ -1,6 +1,6 @@
 %HES
-MAIN_9  =v ∀arg1_41.SUM arg1_41 (\x_36.(0 > x_36 \/ true) /\ (0 <= x_36 \/ FAIL_22 true (\x_33.true))).
-ADD x_7 y k_add =v (y > 0 \/ k_add x_7) /\ (y <= 0 \/ ADD x_7 (y - 1) (\x_30.k_add (1 + x_30))).
-FAIL_22 u_23 k_24 =v false.
-SUM x_5 k_sum =v (x_5 > 0 \/ k_sum 0) /\ (x_5 <= 0 \/ SUM (x_5 - 1) (\x_44.ADD x_5 x_44 k_sum)).
+MAIN_277  =v ∀arg1_309.SUM arg1_309 (\x_304.(0 > x_304 \/ true) /\ (0 <= x_304 \/ FAIL_290 true (\x_301.true))).
+ADD x_2 y k_add_7 =v (y > 0 \/ k_add_7 x_2) /\ (y <= 0 \/ ADD x_2 (y - 1) (\x_298.k_add_7 (1 + x_298))).
+FAIL_290 u_291 k_292 =v false.
+SUM x k_sum_34 =v (x > 0 \/ k_sum_34 0) /\ (x <= 0 \/ SUM (x - 1) (\x_312.ADD x x_312 k_sum_34)).
 Forall p      =v ∀n. p n.

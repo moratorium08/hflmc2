@@ -1,5 +1,9 @@
 %HES
-MAIN_114  =v
-  ∀t1_492.∀t2_481.(t1_492 <= 0 \/ true) /\ (t1_492 > 0 \/ (t2_481 >= 0 \/ true) /\ (t2_481 < 0 \/ true)).
-FAIL_444 u_445 k_446 =v false.
+MAIN_656  =v
+  ∀t1_735.
+   ∀t2_724.
+    (t1_735 <= 0 \/ true)
+    /\ (t1_735 > 0
+        \/ (t2_724 >= 0 \/ (0 = 0 \/ FAIL_687 true (\x_739.true)) /\ (0 != 0 \/ true)) /\ (t2_724 < 0 \/ true)).
+FAIL_687 u_688 k_689 =v false.
 Forall p      =v ∀n. p n.

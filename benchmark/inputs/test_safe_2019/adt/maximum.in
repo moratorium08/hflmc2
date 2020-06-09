@@ -1,39 +1,43 @@
 %HES
-MAIN_24  =v
+MAIN_975  =v
   MAKE_UNITLIST true
-   (\arg10_222.
-     \arg11_223.
-      LENGTH arg10_222 arg11_223
-       (\x_182.(x_182 <= 0 \/ MAXIMUM arg10_222 arg11_223 (\u_134.true)) /\ (x_182 > 0 \/ true))).
-FAIL_91 u_92 k_93 =v false.
-LENGTH x0 x1 k_length =v
-  (x0 > 0 \/ k_length 0)
-  /\ (x0 <= 0
-      \/ (x0 <= 0
-          \/ LENGTH (x0 - 1) (\x_219.\k_length_l_220.x1 (x_219 + 1) k_length_l_220) (\x_178.k_length (1 + x_178)))
-         /\ (x0 > 0 \/ true)).
-MAKE_UNITLIST x_7 k_main_arg1_make_unitlist_6 =v
-  ∀x_229.
-   (x_229 != 0 \/ k_main_arg1_make_unitlist_6 0 (\x_189.\k_main_arg1_make_unitlist_190.true))
-   /\ (x_229 = 0
+   (\arg10_1187.
+     \arg11_1188.
+      LENGTH arg10_1187 arg11_1188
+       (\x_1112.(x_1112 <= 0 \/ MAXIMUM arg10_1187 arg11_1188 (\u_1087.true)) /\ (x_1112 > 0 \/ true))).
+FAIL_1050 u_1051 k_1052 =v false.
+K_MAXIMUM_103 nil0_108 u_234 x0_15 k_maximum_24 x1_15 x_64 =v
+  ((x0_15 <= 0 \/ x_64 = 0) \/ (x0_15 - 1 > 0 \/ k_maximum_24 true) /\ (x0_15 - 1 <= 0 \/ true))
+  /\ (x0_15 > 0 /\ x_64 != 0
+      \/ (x0_15 <= 0
+          \/ MAXIMUM (x0_15 - 1) (\x_1148.\k_maximum_l_1149.x1_15 (x_1148 + 1) k_maximum_l_1149)
+              (\y_1104.k_maximum_24 true))
+         /\ (x0_15 > 0 \/ true)).
+LENGTH x0_5 x1_5 k_length_251 =v
+  (x0_5 > 0 \/ k_length_251 0)
+  /\ (x0_5 <= 0
+      \/ (x0_5 <= 0
+          \/ LENGTH (x0_5 - 1) (\x_1184.\k_length_l_1185.x1_5 (x_1184 + 1) k_length_l_1185)
+              (\x_1108.k_length_251 (1 + x_1108)))
+         /\ (x0_5 > 0 \/ true)).
+MAKE_UNITLIST x_1 k_main_arg1_make_unitlist_417 =v
+  ∀x_1194.
+   (x_1194 != 0 \/ k_main_arg1_make_unitlist_417 0 (\x_1119.\k_main_arg1_make_unitlist_1120.true))
+   /\ (x_1194 = 0
        \/ MAKE_UNITLIST true
-           (\p0_194.
-             \p1_195.
-              k_main_arg1_make_unitlist_6 (1 + p0_194)
-               (\i_138.
-                 \k_main_arg1_make_unitlist_139.
-                  (i_138 != 0 \/ k_main_arg1_make_unitlist_139 true)
-                  /\ (i_138 = 0
-                      \/ MAKE_UNITLIST true (\p0_123.\p1_124.p1_124 (i_138 - 1) k_main_arg1_make_unitlist_139))))).
-MAXIMUM x0_22 x1_21 k_maximum =v
-  (x0_22 > 0 \/ FAIL_91 true (\x_231.true))
-  /\ (x0_22 <= 0
-      \/ x1_21 0
-          (\u_235.
-            ((x0_22 <= 0 \/ x0_22 - 1 > 0) \/ (x0_22 - 1 > 0 \/ k_maximum true) /\ (x0_22 - 1 <= 0 \/ true))
-            /\ (x0_22 > 0 /\ x0_22 - 1 <= 0
-                \/ (x0_22 <= 0
-                    \/ MAXIMUM (x0_22 - 1) (\x_173.\k_maximum_l_174.x1_21 (x_173 + 1) k_maximum_l_174)
-                        (\y_130.k_maximum true))
-                   /\ (x0_22 > 0 \/ true)))).
+           (\p0_1124.
+             \p1_1125.
+              k_main_arg1_make_unitlist_417 (1 + p0_1124)
+               (\i_1091.
+                 \k_main_arg1_make_unitlist_1092.
+                  (i_1091 != 0 \/ k_main_arg1_make_unitlist_1092 true)
+                  /\ (i_1091 = 0
+                      \/ MAKE_UNITLIST true (\p0_1082.\p1_1083.p1_1083 (i_1091 - 1) k_main_arg1_make_unitlist_1092))))).
+MAXIMUM x0_15 x1_15 k_maximum_24 =v
+  (x0_15 > 0 \/ FAIL_1050 true (\x_1196.true))
+  /\ (x0_15 <= 0
+      \/ x1_15 0
+          (\u_1200.
+            (x0_15 - 1 > 0 \/ K_MAXIMUM_103 (x0_15 - 1) u_1200 x0_15 k_maximum_24 x1_15 1)
+            /\ (x0_15 - 1 <= 0 \/ K_MAXIMUM_103 (x0_15 - 1) u_1200 x0_15 k_maximum_24 x1_15 0))).
 Forall p      =v ∀n. p n.
