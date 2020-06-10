@@ -178,7 +178,6 @@ test_safe_2019/adt/length.in
 test_safe_2019/adt/combine_difficult.in
 test_safe_2019/adt/forall_leq.in
 test_safe_2019/adt/nth.in
-test_safe_2019/adt/cat_maybes.in
 test_safe_2019/adt/divide_list2.in
 test_safe_2019/adt/fold_left.in
 test_safe_2019/adt/list_bound2.in
@@ -209,7 +208,6 @@ test_safe_2019/adt/zip.in
 test_safe_2019/adt/isort_geq.in
 test_safe_2019/adt/clone_2d.in
 test_safe_2019/adt/group.in
-test_safe_2019/adt/search.in
 test_safe_2019/adt/divide_list.in
 test_safe_2019/adt/fun_list.in
 test_safe_2019/mochi/intro3.in
