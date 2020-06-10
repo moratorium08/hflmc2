@@ -1,5 +1,7 @@
 %HES
-MAIN_194  =v ∀arg1_225.F 3 (\x_220.(x_220 < 0 \/ true) /\ (x_220 >= 0 \/ FAIL_204 true (\x_217.true))).
-F x k_f_6 =v (x >= (-1) \/ F (-2) k_f_6) /\ (x < (-1) \/ (x > 1 \/ k_f_6 (2 * x - 1)) /\ (x <= 1 \/ k_f_6 x)).
-FAIL_204 u_205 k_206 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v F 3 (\x_1.x_1 >= 0).
+F x_4 k_f =v (x_4 >= (-1) \/ F (-2) k_f) /\ (x_4 < (-1) \/ (x_4 > 1 \/ k_f (2 * x_4 - 1)) /\ (x_4 <= 1 \/ k_f x_4)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

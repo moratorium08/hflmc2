@@ -1,8 +1,6 @@
 %HES
-MAIN_689  =v
-  ∀t1_777.
-   ∀t2_766.
-    (t1_777 <= 0 \/ (0 = 0 \/ FAIL_720 true (\x_781.true)) /\ (0 != 0 \/ true))
-    /\ (t1_777 > 0 \/ (t2_766 >= 0 \/ true) /\ (t2_766 < 0 \/ true)).
-FAIL_720 u_721 k_722 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v true.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

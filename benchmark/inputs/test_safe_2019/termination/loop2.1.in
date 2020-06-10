@@ -1,9 +1,8 @@
 %HES
-MAIN_627  =v
-  ∀x_728.
-   ∀x_712.
-    (0 = 0 \/ FAIL_683 true (\x_737.true)) /\ (0 != 0 \/ F_WITHOUT_CHECKING_86 1 0 0 0 1 0 0 0 (\u_309_695.true)).
-FAIL_683 u_684 k_685 =v false.
-F_WITHOUT_CHECKING_86 x_9 x_8 x_7 m_6 x_5 x_4 x_3 n_2 k_f_without_checking_86_139 =v
-  ∀r_722.F_WITHOUT_CHECKING_86 1 0 0 0 1 0 0 0 k_f_without_checking_86_139.
-Forall p      =v ∀n. p n.
+MAIN  =v F_WITHOUT_CHECKING_86 true 0 0 0 true 0 0 0 (\u_309.true).
+F_WITHOUT_CHECKING_86 x_13 x_12 x_11 m_10 x_9 x_8 x_7 n_6 k_f_without_checking_86 =v
+  Forall (\r.F_WITHOUT_CHECKING_86 true 0 0 0 true 0 0 0 k_f_without_checking_86).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

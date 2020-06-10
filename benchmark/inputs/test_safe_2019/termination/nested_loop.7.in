@@ -1,10 +1,7 @@
 %HES
-MAIN_385  =v
-  ∀x_5075.
-   (0 = 0
-    \/ ((0 <= x_5075 \/ x_5075 < 0) \/ LOOP2_WITHOUT_CHECKING_82 1 0 0 (\u_5039_5053.true))
-       /\ (0 > x_5075 /\ x_5075 >= 0 \/ FAIL_5040 true (\x_5073.true)))
-   /\ (0 != 0 \/ LOOP2_WITHOUT_CHECKING_82 1 0 0 (\u_5039_5053.true)).
-FAIL_5040 u_5041 k_5042 =v false.
-LOOP2_WITHOUT_CHECKING_82 x_3 x n2_2 k_loop2_without_checking_82_140 =v true.
-Forall p      =v ∀n. p n.
+MAIN  =v LOOP2_WITHOUT_CHECKING_82 true 0 0 (\u_5039.true).
+LOOP2_WITHOUT_CHECKING_82 x_8 x_7 n2_6 k_loop2_without_checking_82 =v true.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

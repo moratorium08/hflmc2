@@ -1,11 +1,10 @@
 %HES
-MAIN_458  =v
-  ∀arg1_485.
-   BCOPY_AUX arg1_485 (\i_473.\k_array1_474.k_array1_474 0) (\i_475.\k_array2_476.k_array2_476 0) 0 (\main_477.true).
-BCOPY_AUX m src_4 des_3 i k_bcopy_aux_45 =v
-  (i < m \/ k_bcopy_aux_45 true)
+MAIN  =v BCOPY_AUX arg1 (\i_7.\k_array1.k_array1 0) (\i_6.\k_array2.k_array2 0) 0 (\main.true).
+BCOPY_AUX m src des i k_bcopy_aux =v
+  (i < m \/ k_bcopy_aux true)
   /\ (i >= m
-      \/ ((0 > i \/ i > m) \/ BCOPY_AUX m src_4 (\j_499.\k_update_500.k_update_500 0) (i + 1) k_bcopy_aux_45)
-         /\ (0 <= i /\ i <= m \/ FAIL_469 true (\x_488.true))).
-FAIL_469 u_470 k_471 =v false.
-Forall p      =v ∀n. p n.
+      \/ ((0 > i \/ i > m) \/ BCOPY_AUX m src (\j.\k_update.k_update 0) (i + 1) k_bcopy_aux) /\ (0 <= i /\ i <= m)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,7 +1,6 @@
 %HES
-MAIN_358  =v
-  ∀arg1_383.
-   (arg1_383 < 0 \/ (0 - (0 - arg1_383) < 0 \/ true) /\ (0 - (0 - arg1_383) >= 0 \/ FAIL_368 true (\x_375.true)))
-   /\ (arg1_383 >= 0 \/ true).
-FAIL_368 u_369 k_370 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v arg1 < 0 \/ 0 - (0 - arg1) >= 0.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,9 +1,8 @@
 %HES
-MAIN_309  =v
-  ∀arg1_343.
-   SIGMA SUM arg1_343 (\x_334.(x_334 < arg1_343 \/ true) /\ (x_334 >= arg1_343 \/ FAIL_324 true (\x_331.true))).
-FAIL_324 u_325 k_326 =v false.
-SIGMA f n_2 k_sigma_36 =v
-  (n_2 > 0 \/ k_sigma_36 0) /\ (n_2 <= 0 \/ f n_2 (\x_347.SIGMA f (n_2 - 1) (\x_341.k_sigma_36 (x_347 + x_341)))).
-SUM n_3 k_sum_8 =v (n_3 > 0 \/ k_sum_8 0) /\ (n_3 <= 0 \/ SUM (n_3 - 1) (\x_350.k_sum_8 (n_3 + x_350))).
-Forall p      =v ∀n. p n.
+MAIN  =v SIGMA SUM arg1 (\x_1.x_1 >= arg1).
+SUM n_7 k_sum =v (n_7 > 0 \/ k_sum 0) /\ (n_7 <= 0 \/ SUM (n_7 - 1) (\x_6.k_sum (n_7 + x_6))).
+SIGMA f n k_sigma =v (n > 0 \/ k_sigma 0) /\ (n <= 0 \/ f n (\x_5.SIGMA f (n - 1) (\x_4.k_sigma (x_5 + x_4)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

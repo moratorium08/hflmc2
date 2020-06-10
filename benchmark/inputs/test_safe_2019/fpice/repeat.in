@@ -1,8 +1,7 @@
 %HES
-MAIN_279  =v
-  ∀arg1_305.
-   REPEAT (\x_314.\k_succ_315.k_succ_315 (x_314 + 1)) arg1_305 0
-    (\x_303.(x_303 < arg1_305 \/ true) /\ (x_303 >= arg1_305 \/ FAIL_290 true (\x_297.true))).
-FAIL_290 u_291 k_292 =v false.
-REPEAT f n s k_repeat_15 =v (n != 0 \/ k_repeat_15 s) /\ (n = 0 \/ REPEAT f (n - 1) s (\x_310.f x_310 k_repeat_15)).
-Forall p      =v ∀n. p n.
+MAIN  =v REPEAT (\x.\k_succ.k_succ (x + 1)) arg1 0 (\x_5.x_5 >= arg1).
+REPEAT f n s k_repeat =v (n != 0 \/ k_repeat s) /\ (n = 0 \/ REPEAT f (n - 1) s (\x_3.f x_3 k_repeat)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

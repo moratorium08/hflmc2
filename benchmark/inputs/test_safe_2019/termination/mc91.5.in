@@ -1,14 +1,14 @@
 %HES
-MAIN_331  =v ∀x_2479.MC91_WITHOUT_CHECKING_46 1 0 x_2479 (\u_2453_2467.true).
-FAIL_2454 u_2455 k_2456 =v false.
-MC91_WITHOUT_CHECKING_46 x_3 x n_2 k_mc91_without_checking_46_93 =v
-  (n_2 <= 100 \/ k_mc91_without_checking_46_93 (n_2 - 10))
-  /\ (n_2 > 100
-      \/ MC91_WITHOUT_CHECKING_46 1 0 (n_2 + 11)
-          (\x_2477.
-            (1 = 0
-             \/ ((111 + (0 - n_2) <= 111 + (0 - x_2477) \/ 111 + (0 - x_2477) < 0)
-                 \/ MC91_WITHOUT_CHECKING_46 1 0 x_2477 k_mc91_without_checking_46_93)
-                /\ (111 + (0 - n_2) > 111 + (0 - x_2477) /\ 111 + (0 - x_2477) >= 0 \/ FAIL_2454 true (\x_2483.true)))
-            /\ (1 != 0 \/ MC91_WITHOUT_CHECKING_46 1 0 x_2477 k_mc91_without_checking_46_93))).
-Forall p      =v ∀n. p n.
+MAIN  =v MC91_WITHOUT_CHECKING_46 true 0 x (\u_2453.true).
+MC91_WITHOUT_CHECKING_46 x_7 x_6 n_5 k_mc91_without_checking_46 =v
+  (n_5 <= 100 \/ k_mc91_without_checking_46 (n_5 - 10))
+  /\ (n_5 > 100
+      \/ MC91_WITHOUT_CHECKING_46 true 0 (n_5 + 11)
+          (\x_4.
+            ((111 + (0 - n_5) <= 111 + (0 - x_4) \/ 111 + (0 - x_4) < 0)
+             \/ MC91_WITHOUT_CHECKING_46 true 0 x_4 k_mc91_without_checking_46)
+            /\ (111 + (0 - n_5) > 111 + (0 - x_4) /\ 111 + (0 - x_4) >= 0))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

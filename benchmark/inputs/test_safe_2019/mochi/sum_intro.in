@@ -1,6 +1,7 @@
 %HES
-MAIN_224  =v
-  ∀arg1_249.SUM arg1_249 (\x_244.(arg1_249 > x_244 \/ true) /\ (arg1_249 <= x_244 \/ FAIL_234 true (\x_241.true))).
-FAIL_234 u_235 k_236 =v false.
-SUM n_2 k_sum_15 =v (n_2 > 0 \/ k_sum_15 0) /\ (n_2 <= 0 \/ SUM (n_2 - 1) (\x_252.k_sum_15 (n_2 + x_252))).
-Forall p      =v ∀n. p n.
+MAIN  =v SUM arg1 (\x_1.arg1 <= x_1).
+SUM n k_sum =v (n > 0 \/ k_sum 0) /\ (n <= 0 \/ SUM (n - 1) (\x_4.k_sum (n + x_4))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

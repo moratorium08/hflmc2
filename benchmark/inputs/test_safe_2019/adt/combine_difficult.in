@@ -1,81 +1,70 @@
 %HES
-MAIN_1645  =v
-  MAKE_INTLIST_6 true
-   (\arg10_2080.
-     \arg11_2081.
-      MAKE_INTLIST arg10_2080 true
-       (\arg20_2051.
-         \arg21_2052.
-          LENGTH arg10_2080 arg11_2081
-           (\x_2030.
-             LENGTH arg20_2051 arg21_2052
-              (\x_1991.
-                (x_2030 != x_1991 \/ COMBINE arg10_2080 arg11_2081 arg20_2051 arg21_2052 (\main0_1858.\main1_1859.true))
-                /\ (x_2030 = x_1991 \/ true))))).
-COMBINE xs0_19 xs1_19 ys0_18 ys1_18 k_combine_42 =v
-  ((xs0_19 > 0 \/ ys0_18 > 0)
-   \/ (xs0_19 > 0 \/ (ys0_18 > 0 \/ k_combine_42 0 (\x_1862.\k_combine_1863.true)) /\ (ys0_18 <= 0 \/ true))
-      /\ (xs0_19 <= 0 \/ true))
-  /\ (xs0_19 <= 0 /\ ys0_18 <= 0
-      \/ ((xs0_19 <= 0 \/ ys0_18 <= 0)
-          \/ (xs0_19 <= 0
-              \/ xs1_19 0
-                  (\x_1869.
-                    (ys0_18 <= 0
-                     \/ ys1_18 0
-                         (\y_1900.
-                           COMBINE (xs0_19 - 1) (\x_1891.\k_combine_xs_1892.xs1_19 (x_1891 + 1) k_combine_xs_1892)
-                            (ys0_18 - 1) (\x_1916.\k_combine_ys_1917.ys1_18 (x_1916 + 1) k_combine_ys_1917)
-                            (\p0_1927.
-                              \p1_1928.
-                               k_combine_42 (1 + p0_1927)
-                                (\i_1949.
-                                  \k_combine_1950.
-                                   (i_1949 != 0 \/ k_combine_1950 0 0)
-                                   /\ (i_1949 = 0
-                                       \/ COMBINE (xs0_19 - 1)
-                                           (\x_1891.\k_combine_xs_1892.xs1_19 (x_1891 + 1) k_combine_xs_1892)
-                                           (ys0_18 - 1)
-                                           (\x_1916.\k_combine_ys_1917.ys1_18 (x_1916 + 1) k_combine_ys_1917)
-                                           (\p0_1960.\p1_1961.p1_1961 (i_1949 - 1) k_combine_1950))))))
-                    /\ (ys0_18 > 0 \/ true)))
-             /\ (xs0_19 > 0 \/ true))
-         /\ (xs0_19 > 0 /\ ys0_18 > 0 \/ FAIL_1796 true (\x_1872.true))).
-FAIL_1796 u_1797 k_1798 =v false.
-LENGTH x0_10 x1_10 k_length_418 =v
-  (x0_10 > 0 \/ k_length_418 0)
-  /\ (x0_10 <= 0
-      \/ (x0_10 <= 0
-          \/ LENGTH (x0_10 - 1) (\x_2077.\k_length_l_2078.x1_10 (x_2077 + 1) k_length_l_2078)
-              (\x_2047.k_length_418 (1 + x_2047)))
-         /\ (x0_10 > 0 \/ true)).
-MAKE_INTLIST arg10_1055 x_1 k_main_arg2_make_intlist_839 =v
-  ∀x_2095.
-   (x_2095 != 0 \/ k_main_arg2_make_intlist_839 0 (\x_2064.\k_main_arg2_make_intlist_2065.true))
-   /\ (x_2095 = 0
-       \/ (∀n_2070.
-            MAKE_INTLIST arg10_1055 true
-             (\p0_2042.
-               \p1_2043.
-                k_main_arg2_make_intlist_839 (1 + p0_2042)
-                 (\i_2023.
-                   \k_main_arg2_make_intlist_2024.
-                    (i_2023 != 0 \/ k_main_arg2_make_intlist_2024 0)
-                    /\ (i_2023 = 0
-                        \/ MAKE_INTLIST arg10_1055 true
-                            (\p0_1983.\p1_1984.p1_1984 (i_2023 - 1) k_main_arg2_make_intlist_2024)))))).
-MAKE_INTLIST_6 x_5 k_main_arg1_make_intlist_654 =v
-  ∀x_2087.
-   (x_2087 != 0 \/ k_main_arg1_make_intlist_654 0 (\x_2055.\k_main_arg1_make_intlist_2056.true))
-   /\ (x_2087 = 0
-       \/ (∀n_2060.
-            MAKE_INTLIST_6 true
-             (\p0_2035.
-               \p1_2036.
-                k_main_arg1_make_intlist_654 (1 + p0_2035)
-                 (\i_2009.
-                   \k_main_arg1_make_intlist_2010.
-                    (i_2009 != 0 \/ k_main_arg1_make_intlist_2010 0)
-                    /\ (i_2009 = 0
-                        \/ MAKE_INTLIST_6 true (\p0_1974.\p1_1975.p1_1975 (i_2009 - 1) k_main_arg1_make_intlist_2010)))))).
-Forall p      =v ∀n. p n.
+MAIN  =v
+  MAKE_INTLIST_23 true
+   (\arg10.
+     \arg11.
+      MAKE_INTLIST arg10 true
+       (\arg20.
+         \arg21.
+          LENGTH arg10 arg11
+           (\x_2.LENGTH arg20 arg21 (\x_1.x_2 != x_1 \/ COMBINE arg10 arg11 arg20 arg21 (\main0.\main1.true))))).
+COMBINE xs0 xs1 ys0 ys1 k_combine_42 =v
+  ((xs0 > 0 \/ ys0 > 0) \/ (xs0 > 0 \/ (ys0 > 0 \/ k_combine_42 0 (\x_41.\k_combine_40.true))))
+  /\ (xs0 <= 0 /\ ys0 <= 0
+      \/ ((xs0 <= 0 \/ ys0 <= 0)
+          \/ (xs0 <= 0
+              \/ xs1 0
+                  (\x_39.
+                    ys0 <= 0
+                    \/ ys1 0
+                        (\y.
+                          COMBINE (xs0 - 1) (\x_28.\k_combine_xs.xs1 (x_28 + 1) k_combine_xs) (ys0 - 1)
+                           (\x_29.\k_combine_ys.ys1 (x_29 + 1) k_combine_ys)
+                           (\p0_38.
+                             \p1_37.
+                              k_combine_42 (1 + p0_38)
+                               (\i_36.
+                                 \k_combine.
+                                  (i_36 != 0 \/ k_combine 0 0)
+                                  /\ (i_36 = 0
+                                      \/ COMBINE (xs0 - 1) (\x_31.\k_combine_xs_30.xs1 (x_31 + 1) k_combine_xs_30)
+                                          (ys0 - 1) (\x_33.\k_combine_ys_32.ys1 (x_33 + 1) k_combine_ys_32)
+                                          (\p0_35.\p1_34.p1_34 (i_36 - 1) k_combine))))))))
+         /\ (xs0 > 0 /\ ys0 > 0)).
+LENGTH x0 x1 k_length =v
+  (x0 > 0 \/ k_length 0)
+  /\ (x0 <= 0 \/ (x0 <= 0 \/ LENGTH (x0 - 1) (\x_25.\k_length_l.x1 (x_25 + 1) k_length_l) (\x_26.k_length (1 + x_26)))).
+MAKE_INTLIST_23 x_22 k_main_arg1_make_intlist_21 =v
+  Forall
+   (\x_20.
+     (x_20 != 0 \/ k_main_arg1_make_intlist_21 0 (\x_19.\k_main_arg1_make_intlist_18.true))
+     /\ (x_20 = 0
+         \/ Forall
+             (\n_16.
+               MAKE_INTLIST_23 true
+                (\p0_15.
+                  \p1_14.
+                   k_main_arg1_make_intlist_21 (1 + p0_15)
+                    (\i_13.
+                      \k_main_arg1_make_intlist.
+                       (i_13 != 0 \/ k_main_arg1_make_intlist 0)
+                       /\ (i_13 = 0 \/ MAKE_INTLIST_23 true (\p0_12.\p1_11.p1_11 (i_13 - 1) k_main_arg1_make_intlist))))))).
+MAKE_INTLIST arg10 x_10 k_main_arg2_make_intlist_9 =v
+  Forall
+   (\x_8.
+     (x_8 != 0 \/ k_main_arg2_make_intlist_9 0 (\x_7.\k_main_arg2_make_intlist_6.true))
+     /\ (x_8 = 0
+         \/ Forall
+             (\n.
+               MAKE_INTLIST arg10 true
+                (\p0_4.
+                  \p1_3.
+                   k_main_arg2_make_intlist_9 (1 + p0_4)
+                    (\i.
+                      \k_main_arg2_make_intlist.
+                       (i != 0 \/ k_main_arg2_make_intlist 0)
+                       /\ (i = 0 \/ MAKE_INTLIST arg10 true (\p0.\p1.p1 (i - 1) k_main_arg2_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

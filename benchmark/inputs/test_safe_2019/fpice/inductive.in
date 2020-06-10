@@ -1,15 +1,11 @@
 %HES
-MAIN_337  =v
-  ∀arg1_402.
-   LOOP 3 arg1_402
-    (\x_397.
-      (x_397 < 3 \/ LOOP 1 arg1_402 (\x_391.(x_391 < 0 \/ true) /\ (x_391 >= 0 \/ FAIL_359 true (\x_383.true))))
-      /\ (x_397 >= 3 \/ FAIL_356 true (\x_394.true))).
-FAIL_356 u_357 k_358 =v false.
-FAIL_359 u_360 k_361 =v false.
-LOOP x i k_loop_6 =v
-  (i >= 0 \/ k_loop_6 x)
+MAIN  =v LOOP 3 arg1 (\x_3.(x_3 < 3 \/ LOOP 1 arg1 (\x_2.x_2 >= 0)) /\ x_3 >= 3).
+LOOP x_6 i k_loop =v
+  (i >= 0 \/ k_loop x_6)
   /\ (i < 0
-      \/ (x >= 1 \/ LOOP (x - 1) (i - 1) k_loop_6)
-         /\ (x < 1 \/ (x <= 2 \/ LOOP x (i - 1) k_loop_6) /\ (x > 2 \/ LOOP (3 - x) (i - 1) k_loop_6))).
-Forall p      =v ∀n. p n.
+      \/ (x_6 >= 1 \/ LOOP (x_6 - 1) (i - 1) k_loop)
+         /\ (x_6 < 1 \/ (x_6 <= 2 \/ LOOP x_6 (i - 1) k_loop) /\ (x_6 > 2 \/ LOOP (3 - x_6) (i - 1) k_loop))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

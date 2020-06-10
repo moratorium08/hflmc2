@@ -1,76 +1,31 @@
 %HES
-MAIN_1493  =v
-  MAKE_INTLIST true
-   (\arg10_1948.
-     \arg11_1949.
-      PRIMITIVELIST_EQ arg10_1948 arg11_1949
-       (\x_1893.
-         x_1893 0 (\x_1865.\k_main_1866.true)
-          (\x_1874.
-            (x_1874 != 0
-             \/ F arg10_1948 arg10_1948 arg11_1949
-                 (\r_f0_1958.\r_f1_1959.(r_f0_1958 = 0 \/ true) /\ (r_f0_1958 != 0 \/ FAIL_1656 true (\x_1963.true))))
-            /\ (x_1874 = 0 \/ true)))).
-F xs0_17 x0_16 x1_16 k_mean_f_293 =v
-  (x0_16 > 0 \/ FAIL_1653 true (\x_1737.true))
-  /\ (x0_16 <= 0
-      \/ x1_16 0
-          (\n_1742.
-            (x0_16 - 1 > 0 \/ K_MEAN_F_372 n_1742 (x0_16 - 1) x0_16 xs0_17 k_mean_f_293 x1_16 1)
-            /\ (x0_16 - 1 <= 0 \/ K_MEAN_F_372 n_1742 (x0_16 - 1) x0_16 xs0_17 k_mean_f_293 x1_16 0))).
-FAIL_1653 u_1654 k_1655 =v false.
-FAIL_1656 u_1657 k_1658 =v false.
-K_MEAN_F_372 n_521 nil0_377 x0_16 xs0_17 k_mean_f_293 x1_16 x_333 =v
-  ((x0_16 <= 0 \/ x_333 = 0) \/ (x0_16 - 1 > 0 \/ k_mean_f_293 1 n_521) /\ (x0_16 - 1 <= 0 \/ true))
-  /\ (x0_16 > 0 /\ x_333 != 0
-      \/ (x0_16 <= 0
-          \/ F xs0_17 (x0_16 - 1) (\x_1945.\k_mean_f_ns_1946.x1_16 (x_1945 + 1) k_mean_f_ns_1946)
-              (\r_f0_1888.\r_f1_1889.k_mean_f_293 (r_f0_1888 + 1) (n_521 + r_f1_1889)))
-         /\ (x0_16 > 0 \/ true)).
-MAKE_INTLIST x_1 k_main_arg1_make_intlist_722 =v
-  ∀x_1952.
-   (x_1952 != 0 \/ k_main_arg1_make_intlist_722 0 (\x_1896.\k_main_arg1_make_intlist_1897.true))
-   /\ (x_1952 = 0
-       \/ (∀n_1901.
-            MAKE_INTLIST true
-             (\p0_1879.
-               \p1_1880.
-                k_main_arg1_make_intlist_722 (1 + p0_1879)
-                 (\i_1862.
-                   \k_main_arg1_make_intlist_1863.
-                    (i_1862 != 0 \/ k_main_arg1_make_intlist_1863 n_1901)
-                    /\ (i_1862 = 0
-                        \/ MAKE_INTLIST true (\p0_1846.\p1_1847.p1_1847 (i_1862 - 1) k_main_arg1_make_intlist_1863)))))).
-PRIMITIVELIST_EQ xs_0_22 xs_1_22 k_PrimitiveList_eq_37 =v
-  k_PrimitiveList_eq_37
-   (\ys_0_1727.
-     \ys_1_1728.
-      \k_PrimitiveList_eq_1729.
-       ((xs_0_22 > 0 \/ ys_0_1727 > 0)
-        \/ (xs_0_22 > 0 \/ (ys_0_1727 > 0 \/ k_PrimitiveList_eq_1729 1) /\ (ys_0_1727 <= 0 \/ true))
-           /\ (xs_0_22 <= 0 \/ true))
-       /\ (xs_0_22 <= 0 /\ ys_0_1727 <= 0
-           \/ ((xs_0_22 <= 0 \/ ys_0_1727 <= 0)
-               \/ (xs_0_22 <= 0
-                   \/ xs_1_22 0
-                       (\x_1748.
-                         (ys_0_1727 <= 0
-                          \/ ys_1_1728 0
-                              (\y_1796.
-                                (x_1748 != y_1796
-                                 \/ PRIMITIVELIST_EQ (xs_0_22 - 1)
-                                     (\x_1787.
-                                       \k_PrimitiveList_eq_xs__1788.xs_1_22 (x_1787 + 1) k_PrimitiveList_eq_xs__1788)
-                                     (\x_1831.
-                                       x_1831 (ys_0_1727 - 1)
-                                        (\x_1821.
-                                          \k_PrimitiveList_eq_ys__1822.
-                                           ys_1_1728 (x_1821 + 1) k_PrimitiveList_eq_ys__1822)
-                                        (\x_1839.
-                                          (x_1839 = 0 \/ k_PrimitiveList_eq_1729 1)
-                                          /\ (x_1839 != 0 \/ k_PrimitiveList_eq_1729 0))))
-                                /\ (x_1748 = y_1796 \/ k_PrimitiveList_eq_1729 0)))
-                         /\ (ys_0_1727 > 0 \/ true)))
-                  /\ (xs_0_22 > 0 \/ true))
-              /\ (xs_0_22 > 0 /\ ys_0_1727 > 0 \/ k_PrimitiveList_eq_1729 0))).
-Forall p      =v ∀n. p n.
+MAIN  =v MAKE_INTLIST true (\arg10.\arg11.Forall (\x_9.x_9 != 0 \/ F arg10 arg10 arg11 (\r_f0.\r_f1.r_f0 != 0))).
+F xs0_21 x0 x1 k_mean_f =v
+  x0 > 0
+  /\ (x0 <= 0
+      \/ x1 0
+          (\n_18.
+            ((x0 <= 0 \/ x0 - 1 > 0) \/ (x0 - 1 > 0 \/ k_mean_f 1 n_18))
+            /\ (x0 > 0 /\ x0 - 1 <= 0
+                \/ (x0 <= 0
+                    \/ F xs0_21 (x0 - 1) (\x_15.\k_mean_f_ns.x1 (x_15 + 1) k_mean_f_ns)
+                        (\r_f0_17.\r_f1_16.k_mean_f (r_f0_17 + 1) (n_18 + r_f1_16)))))).
+MAKE_INTLIST x_7 k_main_arg1_make_intlist_6 =v
+  Forall
+   (\x_5.
+     (x_5 != 0 \/ k_main_arg1_make_intlist_6 0 (\x.\k_main_arg1_make_intlist_4.true))
+     /\ (x_5 = 0
+         \/ Forall
+             (\n.
+               MAKE_INTLIST true
+                (\p0_2.
+                  \p1_1.
+                   k_main_arg1_make_intlist_6 (1 + p0_2)
+                    (\i.
+                      \k_main_arg1_make_intlist.
+                       (i != 0 \/ k_main_arg1_make_intlist n)
+                       /\ (i = 0 \/ MAKE_INTLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,13 +1,9 @@
 %HES
-MAIN_327  =v
-  ∀arg1_358.
-   M arg1_358
-    (\r_363.
-      \k_main_k_364.
-       (arg1_358 > 101 \/ (r_363 != 91 \/ k_main_k_364 true) /\ (r_363 = 91 \/ FAIL_337 true (\x_356.true)))
-       /\ (arg1_358 <= 101 \/ k_main_k_364 true))
-    (\main_353.true).
-FAIL_337 u_338 k_339 =v false.
-M x k_3 k_m_11 =v
-  (x <= 100 \/ k_3 (x - 10) k_m_11) /\ (x > 100 \/ M (x + 11) (\r_351.\k_m_f_352.M r_351 k_3 k_m_f_352) k_m_11).
-Forall p      =v ∀n. p n.
+MAIN  =v
+  M arg1 (\r.\k_main_k.(arg1 > 101 \/ (r != 91 \/ k_main_k true) /\ r = 91) /\ (arg1 <= 101 \/ k_main_k true))
+   (\main.true).
+M x_7 k_6 k_m =v (x_7 <= 100 \/ k_6 (x_7 - 10) k_m) /\ (x_7 > 100 \/ M (x_7 + 11) (\r_5.\k_m_f.M r_5 k_6 k_m_f) k_m).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

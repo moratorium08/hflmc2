@@ -1,31 +1,23 @@
 %HES
-MAIN_695  =v
-  ∀arg1_828.
-   ∀arg2_812.
-    MAKE_LIST arg1_828
-     (\xs0_789.
-       \xs1_790.
-        FOLD_RIGHT (\x_745.\y_746.\k_add_747.k_add_747 (x_745 + y_746)) xs0_789 xs1_790 arg2_812
-         (\x_773.(x_773 < arg2_812 \/ true) /\ (x_773 >= arg2_812 \/ FAIL_742 true (\x_768.true)))).
-FAIL_742 u_743 k_744 =v false.
-FOLD_RIGHT f xs0_6 xs1_6 acc k_fold_right_19 =v
-  (xs0_6 > 0 \/ k_fold_right_19 acc)
-  /\ (xs0_6 <= 0
-      \/ (xs0_6 <= 0
-          \/ xs1_6 0
-              (\x_826.
-                FOLD_RIGHT f (xs0_6 - 1) (\x_808.\k_fold_right_xs__809.xs1_6 (x_808 + 1) k_fold_right_xs__809) acc
-                 (\x_785.f x_826 x_785 k_fold_right_19)))
-         /\ (xs0_6 > 0 \/ true)).
-MAKE_LIST n_3 k_make_list_140 =v
-  (n_3 >= 0 \/ k_make_list_140 0 (\x_830.\k_make_list_831.true))
-  /\ (n_3 < 0
-      \/ MAKE_LIST (n_3 - 1)
-          (\p0_834.
-            \p1_835.
-             k_make_list_140 (1 + p0_834)
-              (\i_819.
-                \k_make_list_820.
-                 (i_819 != 0 \/ k_make_list_820 n_3)
-                 /\ (i_819 = 0 \/ MAKE_LIST (n_3 - 1) (\p0_795.\p1_796.p1_796 (i_819 - 1) k_make_list_820))))).
-Forall p      =v ∀n. p n.
+MAIN  =v MAKE_LIST arg1 (\xs0.\xs1.FOLD_RIGHT (\x_5.\y.\k_add.k_add (x_5 + y)) xs0 xs1 arg2 (\x_1.x_1 >= arg2)).
+FOLD_RIGHT f xs0_15 xs1_14 acc k_fold_right =v
+  (xs0_15 > 0 \/ k_fold_right acc)
+  /\ (xs0_15 <= 0
+      \/ (xs0_15 <= 0
+          \/ xs1_14 0
+              (\x_13.
+                FOLD_RIGHT f (xs0_15 - 1) (\x_11.\k_fold_right_xs_.xs1_14 (x_11 + 1) k_fold_right_xs_) acc
+                 (\x_12.f x_13 x_12 k_fold_right)))).
+MAKE_LIST n k_make_list_10 =v
+  (n >= 0 \/ k_make_list_10 0 (\x_9.\k_make_list_8.true))
+  /\ (n < 0
+      \/ MAKE_LIST (n - 1)
+          (\p0_7.
+            \p1_6.
+             k_make_list_10 (1 + p0_7)
+              (\i.
+                \k_make_list.(i != 0 \/ k_make_list n) /\ (i = 0 \/ MAKE_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

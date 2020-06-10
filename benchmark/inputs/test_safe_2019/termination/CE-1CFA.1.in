@@ -1,4 +1,6 @@
 %HES
-MAIN_576  =v true.
-FAIL_589 u_590 k_591 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v true.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

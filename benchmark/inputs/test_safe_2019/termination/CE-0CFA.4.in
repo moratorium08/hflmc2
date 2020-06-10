@@ -1,7 +1,7 @@
 %HES
-MAIN_676  =v true.
-FAIL_689 u_690 k_691 =v false.
-OMEGA_WITHOUT_CHECKING_143 x_15 x_14 x_13 k_omega_without_checking_143_195 =v
-  (1 = 0 \/ FAIL_689 true (\x_717.true))
-  /\ (1 != 0 \/ OMEGA_WITHOUT_CHECKING_143 1 0 0 k_omega_without_checking_143_195).
-Forall p      =v ∀n. p n.
+MAIN  =v true.
+OMEGA_WITHOUT_CHECKING_143 x_16 x_15 x_14 k_omega_without_checking_143 =v false.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

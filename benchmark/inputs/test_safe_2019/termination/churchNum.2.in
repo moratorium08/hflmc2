@@ -1,16 +1,6 @@
 %HES
-MAIN_2830  =v
-  (0 = 0
-   \/ ((1 + 0 <= 1 + 7 \/ 1 + 7 < 0)
-       \/ (1 = 0
-           \/ ((1 + 7 <= 1 + (2 * 7 + (-8)) \/ 1 + (2 * 7 + (-8)) < 0) \/ true)
-              /\ (1 + 7 > 1 + (2 * 7 + (-8)) /\ 1 + (2 * 7 + (-8)) >= 0 \/ FAIL_2906 true (\x_3011.true)))
-          /\ (1 != 0 \/ true))
-      /\ (1 + 0 > 1 + 7 /\ 1 + 7 >= 0 \/ FAIL_2906 true (\x_3011.true)))
-  /\ (0 != 0
-      \/ (1 = 0
-          \/ ((1 + 7 <= 1 + (2 * 7 + (-8)) \/ 1 + (2 * 7 + (-8)) < 0) \/ true)
-             /\ (1 + 7 > 1 + (2 * 7 + (-8)) /\ 1 + (2 * 7 + (-8)) >= 0 \/ FAIL_2906 true (\x_3011.true)))
-         /\ (1 != 0 \/ true)).
-FAIL_2906 u_2907 k_2908 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v true.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

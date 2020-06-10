@@ -1,105 +1,85 @@
 %HES
-MAIN_2683  =v
-  ∀arg1_3223.
-   MAKE_LIST (\x_2941.\k_const0_2942.k_const0_2942 0) arg1_3223
-    (\zero0_3177.
-      \zero1_3178.
-       MAKE_LIST RAND_POS arg1_3223
-        (\pos0_3136.
-          \pos1_3137.
-           MAKE_LIST RAND_NEG arg1_3223
-            (\neg0_3086.
-              \neg1_3087.
-               MAP2 (\x_2861.\y_2862.\k_add_2863.k_add_2863 (x_2861 + y_2862)) zero0_3177 zero1_3178 pos0_3136
-                pos1_3137
-                (\xs0_3054.
-                  \xs1_3055.
-                   MAP2 (\x_3263.\y_3264.\k_sub_3265.k_sub_3265 (x_3263 - y_3264)) xs0_3054 xs1_3055 neg0_3086
-                    neg1_3087
-                    (\ys0_3033.
-                      \ys1_3034.
-                       FOR_ALL (\y_2981.\k_main_2982.(y_2981 <= 0 \/ k_main_2982 1) /\ (y_2981 > 0 \/ k_main_2982 0))
-                        ys0_3033 ys1_3034
-                        (\x_2998.(x_2998 = 0 \/ true) /\ (x_2998 != 0 \/ FAIL_2858 true (\x_2953.true)))
-                        (H_1342 arg1_3223 neg0_3086 pos0_3136 zero0_3177 (\main_2943.true)))
-                    (H_1342 arg1_3223 neg0_3086 pos0_3136 zero0_3177 (\main_2943.true)))
-                (H_1342 arg1_3223 neg0_3086 pos0_3136 zero0_3177 (\main_2943.true))))).
-FAIL_2855 u_2856 k_2857 =v false.
-FAIL_2858 u_2859 k_2860 =v false.
-FOR_ALL f xs0_4 xs1_4 k_for_all_989 h_991 =v
-  (xs0_4 > 0 \/ k_for_all_989 1)
-  /\ (xs0_4 <= 0
-      \/ (xs0_4 <= 0
-          \/ xs1_4 0
-              (\x_3215.
-                f x_3215
-                 (\x_3123.
-                   (x_3123 = 0
-                    \/ FOR_ALL f (xs0_4 - 1)
-                        (\x_3172.\k_for_all_xs__3173.\h_3174.xs1_4 (x_3172 + 1) k_for_all_xs__3173 h_3174)
-                        (\x_3079.(x_3079 = 0 \/ k_for_all_989 1) /\ (x_3079 != 0 \/ k_for_all_989 0)) h_991)
-                   /\ (x_3123 != 0 \/ k_for_all_989 0)))
-              h_991)
-         /\ (xs0_4 > 0 \/ true)).
-F_2842 e_1768 =v false.
-H_1342 arg1_1682 neg0_1591 pos0_1597 zero0_1603 k_main_1630 e_1214 =v
-  (e_1214 != 0 \/ k_main_1630 true) /\ (e_1214 = 0 \/ FAIL_2855 true (\x_3221.true)).
-MAKE_LIST f_11 n_10 k_make_list_766 =v
-  (n_10 != 0 \/ k_make_list_766 0 (\x_3225.\k_make_list_3226.\h_3227.true))
-  /\ (n_10 = 0
-      \/ f_11 true
-          (\r_f_3231.
-            MAKE_LIST f_11 (n_10 - 1)
-             (\p0_3183.
-               \p1_3184.
-                k_make_list_766 (1 + p0_3183)
-                 (\i_3142.
-                   \k_make_list_3143.
-                    \h_3144.
-                     (i_3142 != 0 \/ k_make_list_3143 r_f_3231)
-                     /\ (i_3142 = 0
-                         \/ MAKE_LIST f_11 (n_10 - 1) (\p0_3094.\p1_3095.p1_3095 (i_3142 - 1) k_make_list_3143 h_3144)))))).
-MAP2 f_27 xs0_26 xs1_26 ys0_25 ys1_25 k_map2_60 h_62 =v
-  ((xs0_26 > 0 \/ ys0_25 > 0)
-   \/ (xs0_26 > 0 \/ (ys0_25 > 0 \/ k_map2_60 0 (\x_3234.\k_map2_3235.\h_3236.true)) /\ (ys0_25 <= 0 \/ true))
-      /\ (xs0_26 <= 0 \/ true))
-  /\ (xs0_26 <= 0 /\ ys0_25 <= 0
-      \/ ((xs0_26 <= 0 \/ ys0_25 <= 0)
-          \/ (xs0_26 <= 0
-              \/ xs1_26 0
-                  (\x_3244.
-                    (ys0_25 <= 0
-                     \/ ys1_25 0
-                         (\y_3161.
-                           f_27 x_3244 y_3161
-                            (\r_f_3067.
-                              MAP2 f_27 (xs0_26 - 1)
-                               (\x_3207.\k_map2_xs__3208.\h_3209.xs1_26 (x_3207 + 1) k_map2_xs__3208 h_3209)
-                               (ys0_25 - 1)
-                               (\x_3113.\k_map2_ys__3114.\h_3115.ys1_25 (x_3113 + 1) k_map2_ys__3114 h_3115)
-                               (\p0_3046.
-                                 \p1_3047.
-                                  k_map2_60 (1 + p0_3046)
-                                   (\i_3010.
-                                     \k_map2_3011.
-                                      \h_3012.
-                                       (i_3010 != 0 \/ k_map2_3011 r_f_3067)
-                                       /\ (i_3010 = 0
-                                           \/ MAP2 f_27 (xs0_26 - 1)
-                                               (\x_3207.
-                                                 \k_map2_xs__3208.\h_3209.xs1_26 (x_3207 + 1) k_map2_xs__3208 h_3209)
-                                               (ys0_25 - 1)
-                                               (\x_3113.
-                                                 \k_map2_ys__3114.\h_3115.ys1_25 (x_3113 + 1) k_map2_ys__3114 h_3115)
-                                               (\p0_2965.\p1_2966.p1_2966 (i_3010 - 1) k_map2_3011 h_3012) h_3012)))
-                               h_62))
-                         h_62)
-                    /\ (ys0_25 > 0 \/ true))
-                  h_62)
-             /\ (xs0_26 > 0 \/ true))
-         /\ (xs0_26 > 0 /\ ys0_25 > 0 \/ h_62 0)).
-RAND_NEG x_14 k_rand_neg_713 =v
-  ∀n_3247.(n_3247 >= 0 \/ k_rand_neg_713 n_3247) /\ (n_3247 < 0 \/ RAND_NEG true k_rand_neg_713).
-RAND_POS x_16 k_rand_pos_677 =v
-  ∀n_3253.(n_3253 <= 0 \/ k_rand_pos_677 n_3253) /\ (n_3253 > 0 \/ RAND_POS true k_rand_pos_677).
-Forall p      =v ∀n. p n.
+MAIN  =v
+  MAKE_LIST (\x_28.\k_const0.k_const0 0) arg1
+   (\zero0.
+     \zero1.
+      MAKE_LIST RAND_POS arg1
+       (\pos0.
+         \pos1.
+          MAKE_LIST RAND_NEG arg1
+           (\neg0.
+             \neg1.
+              MAP2 (\x_19.\y_18.\k_add.k_add (x_19 + y_18)) zero0 zero1 pos0 pos1
+               (\xs0.
+                 \xs1.
+                  MAP2 (\x_17.\y_16.\k_sub.k_sub (x_17 - y_16)) xs0 xs1 neg0 neg1
+                   (\ys0.
+                     \ys1.
+                      FOR_ALL (\y.\k_main.k_main (y > 0) (y <= 0)) ys0 ys1 (\x_pos_2.\x_neg_2.x_pos_2) (\e_4.e_4 = 0))
+                   (\e_4.e_4 = 0))
+               (\e_4.e_4 = 0)))).
+MAP2 f_63 xs0_62 xs1_61 ys0_60 ys1_59 k_map2_58 h_57 =v
+  ((xs0_62 > 0 \/ ys0_60 > 0) \/ (xs0_62 > 0 \/ (ys0_60 > 0 \/ k_map2_58 0 (\x_56.\k_map2_55.\h_54.true))))
+  /\ (xs0_62 <= 0 /\ ys0_60 <= 0
+      \/ ((xs0_62 <= 0 \/ ys0_60 <= 0)
+          \/ (xs0_62 <= 0
+              \/ xs1_61 0
+                  (\x_53.
+                    ys0_60 <= 0
+                    \/ ys1_59 0
+                        (\y_52.
+                          f_63 x_53 y_52
+                           (\r_f_51.
+                             MAP2 f_63 (xs0_62 - 1) (\x_36.\k_map2_xs_.\h_35.xs1_61 (x_36 + 1) k_map2_xs_ h_35)
+                              (ys0_60 - 1) (\x_38.\k_map2_ys_.\h_37.ys1_59 (x_38 + 1) k_map2_ys_ h_37)
+                              (\p0_50.
+                                \p1_49.
+                                 k_map2_58 (1 + p0_50)
+                                  (\i_48.
+                                    \k_map2.
+                                     \h_47.
+                                      (i_48 != 0 \/ k_map2 r_f_51)
+                                      /\ (i_48 = 0
+                                          \/ MAP2 f_63 (xs0_62 - 1)
+                                              (\x_41.\k_map2_xs__40.\h_39.xs1_61 (x_41 + 1) k_map2_xs__40 h_39)
+                                              (ys0_60 - 1)
+                                              (\x_44.\k_map2_ys__43.\h_42.ys1_59 (x_44 + 1) k_map2_ys__43 h_42)
+                                              (\p0_46.\p1_45.p1_45 (i_48 - 1) k_map2 h_47) h_47)))
+                              h_57))
+                        h_57)
+                  h_57))
+         /\ (xs0_62 > 0 /\ ys0_60 > 0 \/ h_57 0)).
+RAND_POS x_34 k_rand_pos =v Forall (\n_32.(n_32 <= 0 \/ k_rand_pos n_32) /\ (n_32 > 0 \/ RAND_POS true k_rand_pos)).
+RAND_NEG x_31 k_rand_neg =v Forall (\n_29.(n_29 >= 0 \/ k_rand_neg n_29) /\ (n_29 < 0 \/ RAND_NEG true k_rand_neg)).
+MAKE_LIST f_27 n k_make_list_26 =v
+  (n != 0 \/ k_make_list_26 0 (\x_25.\k_make_list_24.\h_23.true))
+  /\ (n = 0
+      \/ f_27 true
+          (\r_f.
+            MAKE_LIST f_27 (n - 1)
+             (\p0_22.
+               \p1_21.
+                k_make_list_26 (1 + p0_22)
+                 (\i.
+                   \k_make_list.
+                    \h_20.
+                     (i != 0 \/ k_make_list r_f)
+                     /\ (i = 0 \/ MAKE_LIST f_27 (n - 1) (\p0.\p1.p1 (i - 1) k_make_list h_20)))))).
+FOR_ALL f xs0_15 xs1_14 k_for_all h_13 =v
+  (xs0_15 > 0 \/ k_for_all true false)
+  /\ (xs0_15 <= 0
+      \/ (xs0_15 <= 0
+          \/ xs1_14 0
+              (\x_12.
+                f x_12
+                 (\x_pos_11.
+                   \x_neg_11.
+                    (x_neg_11
+                     \/ FOR_ALL f (xs0_15 - 1) (\x_10.\k_for_all_xs_.\h_9.xs1_14 (x_10 + 1) k_for_all_xs_ h_9)
+                         k_for_all h_13)
+                    /\ (x_pos_11 \/ k_for_all false true)))
+              h_13)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

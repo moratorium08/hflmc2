@@ -1,29 +1,12 @@
 %HES
-MAIN_412  =v
-  ∀arg1_501.
-   ∀arg2_499.
-    ∀arg3_496.
-     (arg1_501 < arg2_499
-      \/ (arg1_501 < arg3_496
-          \/ (arg1_501 < arg1_501
-              \/ (arg1_501 != arg1_501 \/ true) /\ (arg1_501 = arg1_501 \/ FAIL_445 true (\x_467.true)))
-             /\ (arg1_501 >= arg1_501
-                 \/ (arg1_501 != arg1_501 \/ true) /\ (arg1_501 = arg1_501 \/ FAIL_445 true (\x_467.true))))
-         /\ (arg1_501 >= arg3_496
-             \/ (arg1_501 < arg3_496
-                 \/ (arg1_501 != arg3_496 \/ true) /\ (arg1_501 = arg3_496 \/ FAIL_445 true (\x_467.true)))
-                /\ (arg1_501 >= arg3_496
-                    \/ (arg3_496 != arg3_496 \/ true) /\ (arg3_496 = arg3_496 \/ FAIL_445 true (\x_467.true)))))
-     /\ (arg1_501 >= arg2_499
-         \/ (arg2_499 < arg3_496
-             \/ (arg1_501 < arg2_499
-                 \/ (arg1_501 != arg2_499 \/ true) /\ (arg1_501 = arg2_499 \/ FAIL_445 true (\x_467.true)))
-                /\ (arg1_501 >= arg2_499
-                    \/ (arg2_499 != arg2_499 \/ true) /\ (arg2_499 = arg2_499 \/ FAIL_445 true (\x_467.true))))
-            /\ (arg2_499 >= arg3_496
-                \/ (arg1_501 < arg3_496
-                    \/ (arg1_501 != arg3_496 \/ true) /\ (arg1_501 = arg3_496 \/ FAIL_445 true (\x_467.true)))
-                   /\ (arg1_501 >= arg3_496
-                       \/ (arg3_496 != arg3_496 \/ true) /\ (arg3_496 = arg3_496 \/ FAIL_445 true (\x_467.true))))).
-FAIL_445 u_446 k_447 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v
+  (arg1 < arg2
+   \/ (arg1 < arg3 \/ (arg1 < arg1 \/ arg1 = arg1) /\ (arg1 >= arg1 \/ arg1 = arg1))
+      /\ (arg1 >= arg3 \/ (arg1 < arg3 \/ arg1 = arg3) /\ (arg1 >= arg3 \/ arg3 = arg3)))
+  /\ (arg1 >= arg2
+      \/ (arg2 < arg3 \/ (arg1 < arg2 \/ arg1 = arg2) /\ (arg1 >= arg2 \/ arg2 = arg2))
+         /\ (arg2 >= arg3 \/ (arg1 < arg3 \/ arg1 = arg3) /\ (arg1 >= arg3 \/ arg3 = arg3))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

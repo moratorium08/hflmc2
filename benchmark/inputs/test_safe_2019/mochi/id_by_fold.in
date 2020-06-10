@@ -1,11 +1,8 @@
 %HES
-MAIN_352  =v
-  ∀arg1_395.
-   (arg1_395 < 0
-    \/ GO arg1_395 0 (\u_i_385.\x_386.\k_id_387.k_id_387 (x_386 + 1)) 0 0
-        (\x_393.(x_393 != arg1_395 \/ true) /\ (x_393 = arg1_395 \/ FAIL_369 true (\x_376.true))))
-   /\ (arg1_395 >= 0 \/ true).
-FAIL_369 u_370 k_371 =v false.
-GO n_4 x0 f i x_3 k_fold_nat_go_17 =v
-  (i >= n_4 \/ f 0 x_3 (\x_383.GO n_4 x0 f (i + 1) x_383 k_fold_nat_go_17)) /\ (i < n_4 \/ k_fold_nat_go_17 x_3).
-Forall p      =v ∀n. p n.
+MAIN  =v arg1 < 0 \/ GO arg1 0 (\u_i.\x.\k_id.k_id (x + 1)) 0 0 (\x_4.x_4 = arg1).
+GO n_9 x0 f i x_8 k_fold_nat_go =v
+  (i >= n_9 \/ f 0 x_8 (\x_7.GO n_9 x0 f (i + 1) x_7 k_fold_nat_go)) /\ (i < n_9 \/ k_fold_nat_go x_8).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

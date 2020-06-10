@@ -1,43 +1,31 @@
 %HES
-MAIN_975  =v
-  MAKE_UNITLIST true
-   (\arg10_1187.
-     \arg11_1188.
-      LENGTH arg10_1187 arg11_1188
-       (\x_1112.(x_1112 <= 0 \/ MAXIMUM arg10_1187 arg11_1188 (\u_1087.true)) /\ (x_1112 > 0 \/ true))).
-FAIL_1050 u_1051 k_1052 =v false.
-K_MAXIMUM_103 nil0_108 u_234 x0_15 k_maximum_24 x1_15 x_64 =v
-  ((x0_15 <= 0 \/ x_64 = 0) \/ (x0_15 - 1 > 0 \/ k_maximum_24 true) /\ (x0_15 - 1 <= 0 \/ true))
-  /\ (x0_15 > 0 /\ x_64 != 0
-      \/ (x0_15 <= 0
-          \/ MAXIMUM (x0_15 - 1) (\x_1148.\k_maximum_l_1149.x1_15 (x_1148 + 1) k_maximum_l_1149)
-              (\y_1104.k_maximum_24 true))
-         /\ (x0_15 > 0 \/ true)).
-LENGTH x0_5 x1_5 k_length_251 =v
-  (x0_5 > 0 \/ k_length_251 0)
-  /\ (x0_5 <= 0
-      \/ (x0_5 <= 0
-          \/ LENGTH (x0_5 - 1) (\x_1184.\k_length_l_1185.x1_5 (x_1184 + 1) k_length_l_1185)
-              (\x_1108.k_length_251 (1 + x_1108)))
-         /\ (x0_5 > 0 \/ true)).
-MAKE_UNITLIST x_1 k_main_arg1_make_unitlist_417 =v
-  ∀x_1194.
-   (x_1194 != 0 \/ k_main_arg1_make_unitlist_417 0 (\x_1119.\k_main_arg1_make_unitlist_1120.true))
-   /\ (x_1194 = 0
-       \/ MAKE_UNITLIST true
-           (\p0_1124.
-             \p1_1125.
-              k_main_arg1_make_unitlist_417 (1 + p0_1124)
-               (\i_1091.
-                 \k_main_arg1_make_unitlist_1092.
-                  (i_1091 != 0 \/ k_main_arg1_make_unitlist_1092 true)
-                  /\ (i_1091 = 0
-                      \/ MAKE_UNITLIST true (\p0_1082.\p1_1083.p1_1083 (i_1091 - 1) k_main_arg1_make_unitlist_1092))))).
-MAXIMUM x0_15 x1_15 k_maximum_24 =v
-  (x0_15 > 0 \/ FAIL_1050 true (\x_1196.true))
+MAIN  =v MAKE_UNITLIST true (\arg10.\arg11.LENGTH arg10 arg11 (\x.x <= 0 \/ MAXIMUM arg10 arg11 (\u.true))).
+MAXIMUM x0_15 x1_14 k_maximum =v
+  x0_15 > 0
   /\ (x0_15 <= 0
-      \/ x1_15 0
-          (\u_1200.
-            (x0_15 - 1 > 0 \/ K_MAXIMUM_103 (x0_15 - 1) u_1200 x0_15 k_maximum_24 x1_15 1)
-            /\ (x0_15 - 1 <= 0 \/ K_MAXIMUM_103 (x0_15 - 1) u_1200 x0_15 k_maximum_24 x1_15 0))).
-Forall p      =v ∀n. p n.
+      \/ x1_14 0
+          (\u_12.
+            ((x0_15 <= 0 \/ x0_15 - 1 > 0) \/ (x0_15 - 1 > 0 \/ k_maximum true))
+            /\ (x0_15 > 0 /\ x0_15 - 1 <= 0
+                \/ (x0_15 <= 0
+                    \/ MAXIMUM (x0_15 - 1) (\x_11.\k_maximum_l.x1_14 (x_11 + 1) k_maximum_l) (\y.k_maximum true))))).
+LENGTH x0 x1 k_length =v
+  (x0 > 0 \/ k_length 0)
+  /\ (x0 <= 0 \/ (x0 <= 0 \/ LENGTH (x0 - 1) (\x_9.\k_length_l.x1 (x_9 + 1) k_length_l) (\x_10.k_length (1 + x_10)))).
+MAKE_UNITLIST x_7 k_main_arg1_make_unitlist_6 =v
+  Forall
+   (\x_5.
+     (x_5 != 0 \/ k_main_arg1_make_unitlist_6 0 (\x_4.\k_main_arg1_make_unitlist_3.true))
+     /\ (x_5 = 0
+         \/ MAKE_UNITLIST true
+             (\p0_2.
+               \p1_1.
+                k_main_arg1_make_unitlist_6 (1 + p0_2)
+                 (\i.
+                   \k_main_arg1_make_unitlist.
+                    (i != 0 \/ k_main_arg1_make_unitlist true)
+                    /\ (i = 0 \/ MAKE_UNITLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_unitlist)))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

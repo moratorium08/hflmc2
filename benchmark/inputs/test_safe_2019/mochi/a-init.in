@@ -1,28 +1,15 @@
 %HES
-MAIN_598  =v
-  ∀arg1_676.
-   ∀arg2_664.
-    ∀arg3_651.
-     ((arg1_676 < 0 \/ arg1_676 > 0)
-      \/ INIT arg1_676 arg2_664
-          (\i_694.
-            \k_make_array_695.
-             ((0 > i_694 \/ i_694 >= arg2_664) \/ k_make_array_695 0)
-             /\ (0 <= i_694 /\ i_694 < arg2_664 \/ FAIL_630 true (\x_683.true)))
-          (\x_674.
-            ((0 > arg3_651 \/ arg3_651 >= arg2_664)
-             \/ x_674 arg3_651 (\x_661.(x_661 < 1 \/ true) /\ (x_661 >= 1 \/ FAIL_633 true (\x_647.true))))
-            /\ (0 <= arg3_651 /\ arg3_651 < arg2_664 \/ true)))
-     /\ (arg1_676 >= 0 /\ arg1_676 <= 0 \/ true).
-FAIL_630 u_631 k_632 =v false.
-FAIL_633 u_634 k_635 =v false.
-INIT i_3 n_2 a k_init_72 =v
-  (i_3 < n_2 \/ k_init_72 a)
-  /\ (i_3 >= n_2
-      \/ INIT (i_3 + 1) n_2
-          (\j_705.
-            \k_update_706.
-             ((j_705 <= i_3 - 1 \/ j_705 > i_3) \/ k_update_706 1)
-             /\ (j_705 > i_3 - 1 /\ j_705 <= i_3 \/ a j_705 k_update_706))
-          k_init_72).
-Forall p      =v ∀n. p n.
+MAIN  =v
+  (arg1 < 0 \/ arg1 > 0)
+  \/ INIT arg1 arg2 (\i_16.\k_make_array.((0 > i_16 \/ i_16 >= arg2) \/ k_make_array 0) /\ (0 <= i_16 /\ i_16 < arg2))
+      (\x_6.(0 > arg3 \/ arg3 >= arg2) \/ x_6 arg3 (\x_5.x_5 >= 1)).
+INIT i_10 n_9 a k_init =v
+  (i_10 < n_9 \/ k_init a)
+  /\ (i_10 >= n_9
+      \/ INIT (i_10 + 1) n_9
+          (\j.\k_update.((j <= i_10 - 1 \/ j > i_10) \/ k_update 1) /\ (j > i_10 - 1 /\ j <= i_10 \/ a j k_update))
+          k_init).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

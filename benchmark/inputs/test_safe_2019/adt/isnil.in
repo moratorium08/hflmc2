@@ -1,23 +1,15 @@
 %HES
-MAIN_437  =v
-  ∀arg1_500.
-   MAKE_LIST arg1_500
-    (\xs0_485.
-      \xs1_486.
-       (arg1_500 <= 0
-        \/ (xs0_485 > 0 \/ (1 != 0 \/ true) /\ (1 = 0 \/ FAIL_460 true (\x_468.true)))
-           /\ (xs0_485 <= 0 \/ (0 != 0 \/ true) /\ (0 = 0 \/ FAIL_460 true (\x_468.true))))
-       /\ (arg1_500 > 0 \/ true)).
-FAIL_460 u_461 k_462 =v false.
-MAKE_LIST n_2 k_make_list_32 =v
-  (n_2 != 0 \/ k_make_list_32 0 (\x_502.\k_make_list_503.true))
-  /\ (n_2 = 0
-      \/ MAKE_LIST (n_2 - 1)
-          (\p0_506.
-            \p1_507.
-             k_make_list_32 (1 + p0_506)
-              (\i_497.
-                \k_make_list_498.
-                 (i_497 != 0 \/ k_make_list_498 0)
-                 /\ (i_497 = 0 \/ MAKE_LIST (n_2 - 1) (\p0_481.\p1_482.p1_482 (i_497 - 1) k_make_list_498))))).
-Forall p      =v ∀n. p n.
+MAIN  =v MAKE_LIST arg1 (\xs0.\xs1.arg1 <= 0 \/ xs0 > 0).
+MAKE_LIST n k_make_list_7 =v
+  (n != 0 \/ k_make_list_7 0 (\x_6.\k_make_list_5.true))
+  /\ (n = 0
+      \/ MAKE_LIST (n - 1)
+          (\p0_4.
+            \p1_3.
+             k_make_list_7 (1 + p0_4)
+              (\i.
+                \k_make_list.(i != 0 \/ k_make_list 0) /\ (i = 0 \/ MAKE_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,15 +1,11 @@
 %HES
-MAIN_392  =v
-  ∀arg1_456.
-   ∀arg2_450.
-    ((arg1_456 >= 0 \/ arg2_450 <= 0)
-     \/ MULT arg1_456 arg2_450
-         (\x_454.MULT arg1_456 x_454 (\x_442.(0 > x_442 \/ true) /\ (0 <= x_442 \/ FAIL_418 true (\x_437.true)))))
-    /\ (arg1_456 < 0 /\ arg2_450 > 0 \/ true).
-FAIL_418 u_419 k_420 =v false.
-MULT n_3 m_2 k_mult_8 =v
-  (m_2 != 0 \/ k_mult_8 0)
-  /\ (m_2 = 0
-      \/ (m_2 >= 0 \/ MULT n_3 (m_2 + 1) (\x_460.k_mult_8 ((0 - n_3) + x_460)))
-         /\ (m_2 < 0 \/ MULT n_3 (m_2 - 1) (\x_464.k_mult_8 (n_3 + x_464)))).
-Forall p      =v ∀n. p n.
+MAIN  =v (arg1 >= 0 \/ arg2 <= 0) \/ MULT arg1 arg2 (\x_5.MULT arg1 x_5 (\x_4.0 <= x_4)).
+MULT n_11 m_10 k_mult =v
+  (m_10 != 0 \/ k_mult 0)
+  /\ (m_10 = 0
+      \/ (m_10 >= 0 \/ MULT n_11 (m_10 + 1) (\x_9.k_mult ((0 - n_11) + x_9)))
+         /\ (m_10 < 0 \/ MULT n_11 (m_10 - 1) (\x_8.k_mult (n_11 + x_8)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

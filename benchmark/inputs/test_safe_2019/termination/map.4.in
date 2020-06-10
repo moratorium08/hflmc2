@@ -1,26 +1,22 @@
 %HES
-MAIN_1269  =v
-  ∀l_1497.
-   (l_1497 < 0
-    \/ MAP_WITHOUT_CHECKING_169 1 0 0 0 1 0 0
-        (\set_flag_map_134_1429.
-          \s_map_f_EXPARAM_127_1430.\s_map_xs_129_1431.\x_1432.\k_compose_1433.k_compose_1433 (1 + (2 + x_1432)))
-        1 0 0 l_1497 (\u_10608_1434.true))
-   /\ (l_1497 >= 0 \/ true).
-FAIL_1375 u_1376 k_1377 =v false.
-MAP_WITHOUT_CHECKING_169 x_39 x_38 x_37 f_EXPARAM_121_36 x_35 x_34 x_33 f_32 x_31 x_30 x_29 xs_28 k_map_without_checking_169_264
+MAIN  =v
+  l < 0
+  \/ MAP_WITHOUT_CHECKING_169 true 0 0 0 true 0 0
+      (\set_flag_map_134_13.\s_map_f_EXPARAM_127_12.\s_map_xs_129_11.\x_10.\k_compose.k_compose (1 + (2 + x_10))) true
+      0 0 l (\u_10608.true).
+MAP_WITHOUT_CHECKING_169 x_45 x_44 x_43 f_EXPARAM_121_42 x_41 x_40 x_39 f_38 x_37 x_36 x_35 xs_34 k_map_without_checking_169
   =v
-  (xs_28 != 0 \/ k_map_without_checking_169_264 0)
-  /\ (xs_28 = 0
-      \/ (∀x_1525.
-           f_32 1 0 0 x_1525
-            (\x_1485.
-              (1 = 0
-               \/ ((xs_28 <= xs_28 - 1 \/ xs_28 - 1 < 0)
-                   \/ MAP_WITHOUT_CHECKING_169 1 0 0 0 1 0 0 f_32 1 0 0 (xs_28 - 1)
-                       (\x_1470.k_map_without_checking_169_264 (x_1485 + x_1470)))
-                  /\ (xs_28 > xs_28 - 1 /\ xs_28 - 1 >= 0 \/ FAIL_1375 true (\x_1537.true)))
-              /\ (1 != 0
-                  \/ MAP_WITHOUT_CHECKING_169 1 0 0 0 1 0 0 f_32 1 0 0 (xs_28 - 1)
-                      (\x_1470.k_map_without_checking_169_264 (x_1485 + x_1470)))))).
-Forall p      =v ∀n. p n.
+  (xs_34 != 0 \/ k_map_without_checking_169 0)
+  /\ (xs_34 = 0
+      \/ Forall
+          (\x_33.
+            f_38 true 0 0 x_33
+             (\x_32.
+               ((xs_34 <= xs_34 - 1 \/ xs_34 - 1 < 0)
+                \/ MAP_WITHOUT_CHECKING_169 true 0 0 0 true 0 0 f_38 true 0 0 (xs_34 - 1)
+                    (\x_31.k_map_without_checking_169 (x_32 + x_31)))
+               /\ (xs_34 > xs_34 - 1 /\ xs_34 - 1 >= 0)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

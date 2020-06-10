@@ -1,49 +1,74 @@
 %HES
-MAIN_1311  =v
-  ∀arg1_1567.
-   (arg1_1567 <= 0 \/ LOOP arg1_1567 0 (\i_1581.\k_make_array_1582.k_make_array_1582 0) (\u_1565.true))
-   /\ (arg1_1567 > 0 \/ true).
-ASSIGN size i_16 j_15 queenArray_14 k_queen_assign_105 =v
-  k_queen_assign_105
-   (\j_1441.
-     \k_update_1442.(i_16 != j_1441 \/ k_update_1442 j_15) /\ (i_16 = j_1441 \/ queenArray_14 j_1441 k_update_1442)).
-AUX1 size row_11 k_queen_queenPrint_aux1_162 =v
-  (row_11 != size \/ k_queen_queenPrint_aux1_162 true)
-  /\ (row_11 = size
-      \/ ((0 > row_11 \/ row_11 > size) \/ AUX1 size (row_11 + 1) k_queen_queenPrint_aux1_162)
-         /\ (0 <= row_11 /\ row_11 <= size \/ FAIL_1401 true (\x_1573.true))).
-AUX2 next_613 qj_335 row size x_354 queenArray_608 i k_queen_test_aux2_268 =v
+MAIN  =v arg1 <= 0 \/ LOOP arg1 0 (\i_23.\k_make_array.k_make_array 0) (\u.true).
+AUX1 size row_16 k_queen_queenPrint_aux1 =v
+  (row_16 != size \/ k_queen_queenPrint_aux1 true)
+  /\ (row_16 = size
+      \/ ((0 > row_16 \/ row_16 > size) \/ AUX1 size (row_16 + 1) k_queen_queenPrint_aux1)
+         /\ (0 <= row_16 /\ row_16 <= size)).
+LOOP size row queenArray_9 k_queen_loop =v
+  queenArray_9 row
+   (\x_8.
+     (x_8 + 1 <= size
+      \/ (row != 0 \/ k_queen_loop true)
+         /\ (row = 0
+             \/ LOOP size (row - 1) (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update))
+                 k_queen_loop))
+     /\ (x_8 + 1 > size
+         \/ (row != row
+             \/ AUX2 row row size x_8 (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update)) 0
+                 (\x_pos.
+                   \x_neg.
+                    (x_neg
+                     \/ (row + 1 != size
+                         \/ AUX1 size 0
+                             (\u_10.
+                               LOOP size row
+                                (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update))
+                                k_queen_loop))
+                        /\ (row + 1 = size
+                            \/ LOOP size (row + 1)
+                                (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update))
+                                k_queen_loop))
+                    /\ (x_pos
+                        \/ LOOP size row
+                            (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update))
+                            k_queen_loop)))
+            /\ (row = row
+                \/ queenArray_9 row
+                    (\qj.
+                      AUX2 qj row size x_8
+                       (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update)) 0
+                       (\x_pos.
+                         \x_neg.
+                          (x_neg
+                           \/ (row + 1 != size
+                               \/ AUX1 size 0
+                                   (\u_10.
+                                     LOOP size row
+                                      (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update))
+                                      k_queen_loop))
+                              /\ (row + 1 = size
+                                  \/ LOOP size (row + 1)
+                                      (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update))
+                                      k_queen_loop))
+                          /\ (x_pos
+                              \/ LOOP size row
+                                  (\j.\k_update.(row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update))
+                                  k_queen_loop)))))).
+AUX2 qj row size x_8 queenArray i k_queen_test_aux2 =v
   (i >= row
-   \/ queenArray_608 i
-       (\qi_1464.
-         (qi_1464 != qj_335 \/ k_queen_test_aux2_268 0)
-         /\ (qi_1464 = qj_335
-             \/ (qj_335 - qi_1464 >= 0
-                 \/ (0 - (qj_335 - qi_1464) != row - i \/ k_queen_test_aux2_268 0)
-                    /\ (0 - (qj_335 - qi_1464) = row - i
-                        \/ AUX2 next_613 qj_335 row size x_354 queenArray_608 (i + 1) k_queen_test_aux2_268))
-                /\ (qj_335 - qi_1464 < 0
-                    \/ (qj_335 - qi_1464 != row - i \/ k_queen_test_aux2_268 0)
-                       /\ (qj_335 - qi_1464 = row - i
-                           \/ AUX2 next_613 qj_335 row size x_354 queenArray_608 (i + 1) k_queen_test_aux2_268)))))
-  /\ (i < row \/ k_queen_test_aux2_268 1).
-FAIL_1401 u_1402 k_1403 =v false.
-LOOP size row queenArray_4 k_queen_loop_349 =v
-  queenArray_4 row
-   (\x_1562.
-     (x_1562 + 1 <= size
-      \/ ASSIGN size row 0 queenArray_4
-          (\queenArray_1533.
-            (row != 0 \/ k_queen_loop_349 true) /\ (row = 0 \/ LOOP size (row - 1) queenArray_1533 k_queen_loop_349)))
-     /\ (x_1562 + 1 > size
-         \/ ASSIGN size row (x_1562 + 1) queenArray_4
-             (\queenArray_1545.
-               queenArray_1545 row
-                (\qj_1527.
-                  AUX2 (x_1562 + 1) qj_1527 row size x_1562 queenArray_1545 0
-                   (\x_1512.
-                     (x_1512 = 0
-                      \/ (row + 1 != size \/ AUX1 size 0 (\u_1570.LOOP size row queenArray_1545 k_queen_loop_349))
-                         /\ (row + 1 = size \/ LOOP size (row + 1) queenArray_1545 k_queen_loop_349))
-                     /\ (x_1512 != 0 \/ LOOP size row queenArray_1545 k_queen_loop_349)))))).
-Forall p      =v ∀n. p n.
+   \/ queenArray i
+       (\qi.
+         (qi != qj \/ k_queen_test_aux2 false true)
+         /\ (qi = qj
+             \/ (qj - qi >= 0
+                 \/ (0 - (qj - qi) != row - i \/ k_queen_test_aux2 false true)
+                    /\ (0 - (qj - qi) = row - i \/ AUX2 qj row size x_8 queenArray (i + 1) k_queen_test_aux2))
+                /\ (qj - qi < 0
+                    \/ (qj - qi != row - i \/ k_queen_test_aux2 false true)
+                       /\ (qj - qi = row - i \/ AUX2 qj row size x_8 queenArray (i + 1) k_queen_test_aux2)))))
+  /\ (i < row \/ k_queen_test_aux2 true false).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

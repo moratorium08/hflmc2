@@ -1,77 +1,62 @@
 %HES
-MAIN_1879  =v
+MAIN  =v
   MAKE_INTLIST true
-   (\arg10_2424.
-     \arg11_2425.
-      DIVIDE arg10_2424 arg11_2425
-       (\r_divide00_2336.
-         \r_divide01_2337.
-          \r_divide10_2338.
-           \r_divide11_2339.
-            LENGTH arg10_2424 arg11_2425
-             (\x_2292.
-               LENGTH r_divide00_2336 r_divide01_2337
-                (\x_2225.
-                  (x_2292 < x_2225
-                   \/ LENGTH arg10_2424 arg11_2425
-                       (\x_2189.
-                         LENGTH r_divide10_2338 r_divide11_2339
-                          (\x_2147.(x_2189 < x_2147 \/ true) /\ (x_2189 >= x_2147 \/ FAIL_2092 true (\x_2139.true)))))
-                  /\ (x_2292 >= x_2225 \/ FAIL_2089 true (\x_2195.true)))))).
-DIVIDE l0_23 l1_23 k_divide_185 =v
-  (l0_23 > 0 \/ k_divide_185 0 (\x_2106.\k_divide_2107.true) 0 (\x_2109.\k_divide_2110.true))
-  /\ (l0_23 <= 0
-      \/ l1_23 0
-          (\n_2114.
-            (l0_23 - 1 > 0 \/ K_DIVIDE_308 l0_23 n_2114 (l0_23 - 1) k_divide_185 l1_23 1)
-            /\ (l0_23 - 1 <= 0 \/ K_DIVIDE_308 l0_23 n_2114 (l0_23 - 1) k_divide_185 l1_23 0))).
-FAIL_2089 u_2090 k_2091 =v false.
-FAIL_2092 u_2093 k_2094 =v false.
-K_DIVIDE_308 l0_23 n_807 nil0_313 k_divide_185 l1_23 x_269 =v
-  ((l0_23 <= 0 \/ x_269 = 0)
-   \/ (l0_23 - 1 > 0 \/ k_divide_185 1 (\i_2304.\k_divide_2305.k_divide_2305 0) 0 (\x_2311.\k_divide_2312.true))
-      /\ (l0_23 - 1 <= 0 \/ true))
-  /\ (l0_23 > 0 /\ x_269 != 0
-      \/ (l0_23 - 1 <= 0 \/ K_DIVIDE_485 l0_23 n_807 nil0_313 x_269 (l0_23 - 1) k_divide_185 l1_23 1)
-         /\ (l0_23 - 1 > 0 \/ K_DIVIDE_485 l0_23 n_807 nil0_313 x_269 (l0_23 - 1) k_divide_185 l1_23 0)).
-K_DIVIDE_485 l0_23 n_807 nil0_313 x_269 xs0_490 k_divide_185 l1_23 x_446 =v
-  ((l0_23 <= 0 \/ x_446 = 0)
-   \/ (l0_23 - 1 <= 0
-       \/ l1_23 (0 + 1)
-           (\y_2322.
-             DIVIDE ((l0_23 - 1) - 1) (\x_2266.\k_divide_l_2267.l1_23 ((x_2266 + 1) + 1) k_divide_l_2267)
-              (\r_divide00_2214.
-                \r_divide01_2215.
-                 \r_divide10_2216.
-                  \r_divide11_2217.
-                   k_divide_185 (1 + r_divide00_2214) (\i_2167.\k_divide_2168.k_divide_2168 0) (1 + r_divide10_2216)
-                    (\i_2180.\k_divide_2181.k_divide_2181 0))))
-      /\ (l0_23 - 1 > 0 \/ true))
-  /\ (l0_23 > 0 /\ x_446 != 0 \/ true).
-LENGTH l0_28 l1_28 k_length_47 =v
-  (l0_28 > 0 \/ k_length_47 0)
-  /\ (l0_28 <= 0
-      \/ (l0_28 <= 0
-          \/ l1_28 0
-              (\u_2422.
-                LENGTH (1 + (l0_28 - 1))
-                 (\i_2272.
-                   \k_length_2273.
-                    (i_2272 != 0 \/ k_length_2273 0) /\ (i_2272 = 0 \/ l1_28 ((i_2272 - 1) + 1) k_length_2273))
-                 (\x_2284.k_length_47 (1 + x_2284))))
-         /\ (l0_28 > 0 \/ true)).
-MAKE_INTLIST x_1 k_main_arg1_make_intlist_1062 =v
-  ∀x_2431.
-   (x_2431 != 0 \/ k_main_arg1_make_intlist_1062 0 (\x_2342.\k_main_arg1_make_intlist_2343.true))
-   /\ (x_2431 = 0
-       \/ (∀n_2347.
-            MAKE_INTLIST true
-             (\p0_2297.
-               \p1_2298.
-                k_main_arg1_make_intlist_1062 (1 + p0_2297)
-                 (\i_2244.
-                   \k_main_arg1_make_intlist_2245.
-                    (i_2244 != 0 \/ k_main_arg1_make_intlist_2245 0)
-                    /\ (i_2244 = 0
-                        \/ MAKE_INTLIST true (\p0_2202.\p1_2203.p1_2203 (i_2244 - 1) k_main_arg1_make_intlist_2245)))))).
-Forall p      =v ∀n. p n.
+   (\arg10.
+     \arg11.
+      DIVIDE arg10 arg11
+       (\r_divide00.
+         \r_divide01.
+          \r_divide10.
+           \r_divide11.
+            LENGTH arg10 arg11
+             (\x_5.
+               LENGTH r_divide00 r_divide01
+                (\x_4.
+                  (x_5 < x_4 \/ LENGTH arg10 arg11 (\x_3.LENGTH r_divide10 r_divide11 (\x_2.x_3 >= x_2))) /\ x_5 >= x_4)))).
+LENGTH l0_37 l1_36 k_length_35 =v
+  (l0_37 > 0 \/ k_length_35 0)
+  /\ (l0_37 <= 0
+      \/ (l0_37 <= 0
+          \/ l1_36 0
+              (\u.
+                LENGTH (1 + (l0_37 - 1))
+                 (\i_33.\k_length.(i_33 != 0 \/ k_length 0) /\ (i_33 = 0 \/ l1_36 ((i_33 - 1) + 1) k_length))
+                 (\x_34.k_length_35 (1 + x_34))))).
+DIVIDE l0 l1 k_divide_32 =v
+  (l0 > 0 \/ k_divide_32 0 (\x_29.\k_divide_28.true) 0 (\x_31.\k_divide_30.true))
+  /\ (l0 <= 0
+      \/ l1 0
+          (\n_27.
+            ((l0 <= 0 \/ l0 - 1 > 0)
+             \/ (l0 - 1 > 0 \/ k_divide_32 1 (\i_24.\k_divide_23.k_divide_23 0) 0 (\x_26.\k_divide_25.true)))
+            /\ (l0 > 0 /\ l0 - 1 <= 0
+                \/ ((l0 <= 0 \/ l0 - 1 <= 0)
+                    \/ (l0 - 1 <= 0
+                        \/ l1 (0 + 1)
+                            (\y.
+                              DIVIDE ((l0 - 1) - 1) (\x_15.\k_divide_l.l1 ((x_15 + 1) + 1) k_divide_l)
+                               (\r_divide00_22.
+                                 \r_divide01_21.
+                                  \r_divide10_20.
+                                   \r_divide11_19.
+                                    k_divide_32 (1 + r_divide00_22) (\i_16.\k_divide.k_divide 0) (1 + r_divide10_20)
+                                     (\i_18.\k_divide_17.k_divide_17 0)))))))).
+MAKE_INTLIST x_13 k_main_arg1_make_intlist_12 =v
+  Forall
+   (\x_11.
+     (x_11 != 0 \/ k_main_arg1_make_intlist_12 0 (\x_10.\k_main_arg1_make_intlist_9.true))
+     /\ (x_11 = 0
+         \/ Forall
+             (\n.
+               MAKE_INTLIST true
+                (\p0_7.
+                  \p1_6.
+                   k_main_arg1_make_intlist_12 (1 + p0_7)
+                    (\i.
+                      \k_main_arg1_make_intlist.
+                       (i != 0 \/ k_main_arg1_make_intlist 0)
+                       /\ (i = 0 \/ MAKE_INTLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

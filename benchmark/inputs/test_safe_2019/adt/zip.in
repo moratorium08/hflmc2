@@ -1,44 +1,38 @@
 %HES
-MAIN_989  =v
-  ∀arg1_1236.
-   MAKE_LIST arg1_1236 (\xs0_1205.\xs1_1206.ZIP xs0_1205 xs1_1206 xs0_1205 xs1_1206 (\main0_1121.\main1_1122.true)).
-FAIL_1074 u_1075 k_1076 =v false.
-FAIL_1077 u_1078 k_1079 =v false.
-MAKE_LIST n_2 k_make_list_397 =v
-  (n_2 >= 0 \/ k_make_list_397 0 (\x_1238.\k_make_list_1239.true))
-  /\ (n_2 < 0
-      \/ MAKE_LIST (n_2 - 1)
-          (\p0_1242.
-            \p1_1243.
-             k_make_list_397 (1 + p0_1242)
-              (\i_1213.
-                \k_make_list_1214.
-                 (i_1213 != 0 \/ k_make_list_1214 0)
-                 /\ (i_1213 = 0 \/ MAKE_LIST (n_2 - 1) (\p0_1188.\p1_1189.p1_1189 (i_1213 - 1) k_make_list_1214))))).
-ZIP xs0_9 xs1_9 ys0 ys1 k_zip_29 =v
-  (xs0_9 > 0 \/ (ys0 > 0 \/ k_zip_29 0 (\x_1246.\k_zip_1247.true)) /\ (ys0 <= 0 \/ FAIL_1074 true (\x_1250.true)))
-  /\ (xs0_9 <= 0
-      \/ (xs0_9 <= 0
-          \/ xs1_9 0
-              (\x_1256.
-                (ys0 > 0 \/ FAIL_1077 true (\x_1194.true))
+MAIN  =v MAKE_LIST arg1 (\xs0.\xs1.ZIP xs0 xs1 xs0 xs1 (\main0.\main1.true)).
+ZIP xs0_24 xs1_23 ys0 ys1 k_zip_22 =v
+  (xs0_24 > 0 \/ (ys0 > 0 \/ k_zip_22 0 (\x_21.\k_zip_20.true)) /\ ys0 <= 0)
+  /\ (xs0_24 <= 0
+      \/ (xs0_24 <= 0
+          \/ xs1_23 0
+              (\x_18.
+                ys0 > 0
                 /\ (ys0 <= 0
                     \/ (ys0 <= 0
                         \/ ys1 0
-                            (\y_1202.
-                              ZIP (xs0_9 - 1) (\x_1219.\k_zip_xs__1220.xs1_9 (x_1219 + 1) k_zip_xs__1220) (ys0 - 1)
-                               (\x_1182.\k_zip_ys__1183.ys1 (x_1182 + 1) k_zip_ys__1183)
-                               (\p0_1165.
-                                 \p1_1166.
-                                  k_zip_29 (1 + p0_1165)
-                                   (\i_1154.
-                                     \k_zip_1155.
-                                      (i_1154 != 0 \/ k_zip_1155 0 0)
-                                      /\ (i_1154 = 0
-                                          \/ ZIP (xs0_9 - 1)
-                                              (\x_1219.\k_zip_xs__1220.xs1_9 (x_1219 + 1) k_zip_xs__1220) (
-                                              ys0 - 1) (\x_1182.\k_zip_ys__1183.ys1 (x_1182 + 1) k_zip_ys__1183)
-                                              (\p0_1132.\p1_1133.p1_1133 (i_1154 - 1) k_zip_1155))))))
-                       /\ (ys0 > 0 \/ true))))
-         /\ (xs0_9 > 0 \/ true)).
-Forall p      =v ∀n. p n.
+                            (\y.
+                              ZIP (xs0_24 - 1) (\x_6.\k_zip_xs_.xs1_23 (x_6 + 1) k_zip_xs_) (ys0 - 1)
+                               (\x_7.\k_zip_ys_.ys1 (x_7 + 1) k_zip_ys_)
+                               (\p0_16.
+                                 \p1_15.
+                                  k_zip_22 (1 + p0_16)
+                                   (\i_14.
+                                     \k_zip.
+                                      (i_14 != 0 \/ k_zip 0 0)
+                                      /\ (i_14 = 0
+                                          \/ ZIP (xs0_24 - 1) (\x_9.\k_zip_xs__8.xs1_23 (x_9 + 1) k_zip_xs__8)
+                                              (ys0 - 1) (\x_11.\k_zip_ys__10.ys1 (x_11 + 1) k_zip_ys__10)
+                                              (\p0_13.\p1_12.p1_12 (i_14 - 1) k_zip)))))))))).
+MAKE_LIST n k_make_list_5 =v
+  (n >= 0 \/ k_make_list_5 0 (\x.\k_make_list_4.true))
+  /\ (n < 0
+      \/ MAKE_LIST (n - 1)
+          (\p0_3.
+            \p1_2.
+             k_make_list_5 (1 + p0_3)
+              (\i.
+                \k_make_list.(i != 0 \/ k_make_list 0) /\ (i = 0 \/ MAKE_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

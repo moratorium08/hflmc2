@@ -1,24 +1,27 @@
 %HES
-MAIN_1614  =v
-  ∀x_1874.
-   (x_1874 < 0
-    \/ TOCHURCH 1 0 0 0 x_1874 1 0 0 0 0 1 0 0 0 (\x_1928.\x_1929.\x_1930.\x_1931.\x_1932.\k_succ_1933.k_succ_1933 0)
-        (\tos_1860.true))
-   /\ (x_1874 >= 0 \/ true).
-FAIL_1744 u_1745 k_1746 =v false.
-TOCHURCH x_13 x_12 x_11 x_10 n x_9 x_8 x_7 x_6 f_EXPARAM_114 set_flag_compose_143_5 s_compose_f_EXPARAM_132_4 s_compose_g_EXPARAM_134_3 s_compose_x_136_2 f k_toChurch_454
+MAIN  =v
+  x < 0
+  \/ TOCHURCH true false 0 0 0 x true false 0 0 0 0 true false 0 0 0
+      (\x_pos_20.\x_neg_20.\x_19.\x_18.\x_17.\x_16.\k_succ.k_succ 0) (
+      \tos.true).
+TOCHURCH x_pos_15 x_neg_15 x_14 x_13 x_12 n x_pos_11 x_neg_11 x_10 x_9 x_8 f_EXPARAM_114 set_flag_compose_143_pos_7 set_flag_compose_143_neg_7 s_compose_f_EXPARAM_132_6 s_compose_g_EXPARAM_134_5 s_compose_x_136_4 f k_toChurch
   =v
-  (n != 0 \/ k_toChurch_454 (\x_1916.\x_1917.\x_1918.\x_1919.\x_1920.\k_id_1921.k_id_1921 0))
+  (n != 0 \/ k_toChurch (\x_pos_25.\x_neg_25.\x_24.\x_23.\x_22.\x_21.\k_id.k_id 0))
   /\ (n = 0
-      \/ TOCHURCH 1 0 0 0 (n - 1) 1 0 0 0 0 1 0 0 0 f
-          (\x_1891.
-            k_toChurch_454
-             (\prev_set_flag_compose_1767.
-               \s_prev_compose_f_EXPARAM_1768.
-                \s_prev_compose_g_EXPARAM_1769.
-                 \s_prev_compose_x_1770.
-                  \x_1771.
-                   \k_compose_1772.
-                    (prev_set_flag_compose_1767 = 0 \/ FAIL_1744 true (\x_1915.true))
-                    /\ (prev_set_flag_compose_1767 != 0 \/ x_1891 1 0 0 0 0 (\x_1852.f 1 0 0 0 x_1852 k_compose_1772))))).
-Forall p      =v ∀n. p n.
+      \/ TOCHURCH true false 0 0 0 (n - 1) true false 0 0 0 0 true false 0 0 0 f
+          (\x_3.
+            k_toChurch
+             (\prev_set_flag_compose_142_pos.
+               \prev_set_flag_compose_142_neg.
+                \s_prev_compose_f_EXPARAM_137.
+                 \s_prev_compose_g_EXPARAM_139.
+                  \s_prev_compose_x_141.
+                   \x_28.
+                    \k_compose.
+                     prev_set_flag_compose_142_neg
+                     /\ (prev_set_flag_compose_142_pos
+                         \/ x_3 true false 0 0 0 0 (\x_30.f true false 0 0 0 x_30 k_compose))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

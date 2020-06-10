@@ -1,21 +1,12 @@
 %HES
-MAIN_490  =v
-  ∀arg1_546.
-   ∀arg2_540.
-    (arg2_540 != 0
-     \/ DOTPROD arg1_546
-         (\i_562.
-           \k_make_array_563.
-            ((0 > i_562 \/ i_562 >= arg1_546) \/ k_make_array_563 0)
-            /\ (0 <= i_562 /\ i_562 < arg1_546 \/ FAIL_516 true (\x_553.true)))
-         (\i_562.
-           \k_make_array_563.
-            ((0 > i_562 \/ i_562 >= arg1_546) \/ k_make_array_563 0)
-            /\ (0 <= i_562 /\ i_562 < arg1_546 \/ FAIL_516 true (\x_553.true)))
-         arg2_540 arg2_540 (\u_544.true))
-    /\ (arg2_540 = 0 \/ true).
-DOTPROD n_4 v1_3 v2_2 i sum k_dotprod_40 =v
-  (i < n_4 \/ k_dotprod_40 0)
-  /\ (i >= n_4 \/ v1_3 i (\x_529.v2_2 i (\x_537.DOTPROD n_4 v1_3 v2_2 (i + 1) (sum + x_529 * x_537) k_dotprod_40))).
-FAIL_516 u_517 k_518 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v
+  arg2 != 0
+  \/ DOTPROD arg1 (\i_11.\k_make_array.((0 > i_11 \/ i_11 >= arg1) \/ k_make_array 0) /\ (0 <= i_11 /\ i_11 < arg1))
+      (\i_11.\k_make_array.((0 > i_11 \/ i_11 >= arg1) \/ k_make_array 0) /\ (0 <= i_11 /\ i_11 < arg1)) arg2 arg2
+      (\u.true).
+DOTPROD n_7 v1 v2 i sum k_dotprod =v
+  (i < n_7 \/ k_dotprod 0) /\ (i >= n_7 \/ v1 i (\x_6.v2 i (\x.DOTPROD n_7 v1 v2 (i + 1) (sum + x_6 * x) k_dotprod))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

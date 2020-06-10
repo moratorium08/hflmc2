@@ -1,26 +1,19 @@
 %HES
-MAIN_677  =v
-  ∀n_851.
-   ∀k_838.
-    ((n_851 < 0 \/ k_838 < 0) \/ BIN_WITHOUT_CHECKING_97 1 0 0 n_851 1 0 0 k_838 (\u_9295_800.true))
-    /\ (n_851 >= 0 /\ k_838 >= 0 \/ true).
-BIN_WITHOUT_CHECKING_97 x_11 x_10 x_9 n_8 x_7 x_6 x_5 k_4 k_bin_without_checking_97_154 =v
-  (n_8 != 0 \/ k_bin_without_checking_97_154 1)
-  /\ (n_8 = 0
-      \/ (k_4 > 0 /\ k_4 < n_8 \/ k_bin_without_checking_97_154 1)
-         /\ ((k_4 <= 0 \/ k_4 >= n_8)
-             \/ BIN_WITHOUT_CHECKING_97 1 0 0 (n_8 - 1) 1 0 0 (k_4 - 1)
-                 (\x_820.
-                   (1 = 0
-                    \/ ((k_4 <= k_4 \/ k_4 < 0)
-                        /\ (k_4 < k_4 \/ (n_8 + (0 - k_4) <= (n_8 - 1) + (0 - k_4) \/ (n_8 - 1) + (0 - k_4) < 0))
-                        \/ BIN_WITHOUT_CHECKING_97 1 0 0 (n_8 - 1) 1 0 0 k_4
-                            (\x_831.k_bin_without_checking_97_154 (x_820 + x_831)))
-                       /\ ((k_4 > k_4 /\ k_4 >= 0
-                            \/ k_4 >= k_4 /\ (n_8 + (0 - k_4) > (n_8 - 1) + (0 - k_4) /\ (n_8 - 1) + (0 - k_4) >= 0))
-                           \/ FAIL_748 true (\x_860.true)))
-                   /\ (1 != 0
-                       \/ BIN_WITHOUT_CHECKING_97 1 0 0 (n_8 - 1) 1 0 0 k_4
-                           (\x_831.k_bin_without_checking_97_154 (x_820 + x_831)))))).
-FAIL_748 u_749 k_750 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v (n < 0 \/ k < 0) \/ BIN_WITHOUT_CHECKING_97 true 0 0 n true 0 0 k (\u_9295.true).
+BIN_WITHOUT_CHECKING_97 x_16 x_15 x_14 n_13 x_12 x_11 x_10 k_9 k_bin_without_checking_97 =v
+  (n_13 != 0 \/ k_bin_without_checking_97 1)
+  /\ (n_13 = 0
+      \/ (k_9 > 0 /\ k_9 < n_13 \/ k_bin_without_checking_97 1)
+         /\ ((k_9 <= 0 \/ k_9 >= n_13)
+             \/ BIN_WITHOUT_CHECKING_97 true 0 0 (n_13 - 1) true 0 0 (k_9 - 1)
+                 (\x_8.
+                   ((k_9 <= k_9 \/ k_9 < 0)
+                    /\ (k_9 < k_9 \/ (n_13 + (0 - k_9) <= (n_13 - 1) + (0 - k_9) \/ (n_13 - 1) + (0 - k_9) < 0))
+                    \/ BIN_WITHOUT_CHECKING_97 true 0 0 (n_13 - 1) true 0 0 k_9
+                        (\x_7.k_bin_without_checking_97 (x_8 + x_7)))
+                   /\ (k_9 > k_9 /\ k_9 >= 0
+                       \/ k_9 >= k_9 /\ (n_13 + (0 - k_9) > (n_13 - 1) + (0 - k_9) /\ (n_13 - 1) + (0 - k_9) >= 0))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

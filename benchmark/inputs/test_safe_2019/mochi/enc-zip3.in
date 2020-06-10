@@ -1,9 +1,8 @@
 %HES
-MAIN_276  =v
-  ∀arg1_322.
-   ZIP arg1_322 arg1_322 (\x_317.(x_317 != arg1_322 \/ true) /\ (x_317 = arg1_322 \/ FAIL_291 true (\x_314.true))).
-FAIL_291 u_292 k_293 =v false.
-ZIP x y k_zip_15 =v
-  (x != 0 \/ (y != 0 \/ k_zip_15 0) /\ (y = 0 \/ true))
-  /\ (x = 0 \/ (y != 0 \/ true) /\ (y = 0 \/ ZIP (x - 1) (y - 1) (\x_326.k_zip_15 (1 + x_326)))).
-Forall p      =v ∀n. p n.
+MAIN  =v ZIP arg1 arg1 (\x_1.x_1 = arg1).
+ZIP x_5 y k_zip =v
+  (x_5 != 0 \/ (y != 0 \/ k_zip 0)) /\ (x_5 = 0 \/ (y = 0 \/ ZIP (x_5 - 1) (y - 1) (\x_4.k_zip (1 + x_4)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

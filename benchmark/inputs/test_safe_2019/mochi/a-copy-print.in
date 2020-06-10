@@ -1,30 +1,21 @@
 %HES
-MAIN_847  =v
-  ∀arg1_939.
-   (arg1_939 <= 0
-    \/ BCOPY arg1_939 arg1_939
-        (\i_959.
-          \k_make_array_960.
-           ((0 > i_959 \/ i_959 >= arg1_939) \/ k_make_array_960 0)
-           /\ (0 <= i_959 /\ i_959 < arg1_939 \/ FAIL_887 true (\x_952.true)))
-        (\i_959.
-          \k_make_array_960.
-           ((0 > i_959 \/ i_959 >= arg1_939) \/ k_make_array_960 0)
-           /\ (0 <= i_959 /\ i_959 < arg1_939 \/ FAIL_887 true (\x_952.true)))
-        0 (\array_905.PRINT_ARRAY arg1_939 arg1_939 array_905 0 (\main_895.true)))
-   /\ (arg1_939 > 0 \/ true).
-BCOPY m_9 m_6 src des_5 i_4 k_f_bcopy_117 =v
-  (i_4 < m_6 \/ k_f_bcopy_117 des_5)
-  /\ (i_4 >= m_6
-      \/ src i_4
-          (\x_902.
-            des_5 i_4
-             (\u_913.
-               BCOPY m_9 m_6 src
-                (\j_936.\k_update_937.(i_4 != j_936 \/ k_update_937 0) /\ (i_4 = j_936 \/ des_5 j_936 k_update_937))
-                (i_4 + 1) k_f_bcopy_117))).
-FAIL_887 u_888 k_889 =v false.
-PRINT_ARRAY m_9 m array_3 i k_f_print_array_233 =v
-  (i < m \/ k_f_print_array_233 true)
-  /\ (i >= m \/ array_3 i (\u_949.PRINT_ARRAY m_9 m array_3 (i + 1) k_f_print_array_233)).
-Forall p      =v ∀n. p n.
+MAIN  =v
+  arg1 <= 0
+  \/ BCOPY arg1 arg1 (\i_15.\k_make_array.((0 > i_15 \/ i_15 >= arg1) \/ k_make_array 0) /\ (0 <= i_15 /\ i_15 < arg1))
+      (\i_15.\k_make_array.((0 > i_15 \/ i_15 >= arg1) \/ k_make_array 0) /\ (0 <= i_15 /\ i_15 < arg1)) 0
+      (\array.PRINT_ARRAY arg1 arg1 array 0 (\main.true)).
+BCOPY m_11 m_8 src des i_7 k_f_bcopy =v
+  (i_7 < m_8 \/ k_f_bcopy des)
+  /\ (i_7 >= m_8
+      \/ src i_7
+          (\x.
+            des i_7
+             (\u_6.
+               BCOPY m_11 m_8 src (\j.\k_update.(i_7 != j \/ k_update 0) /\ (i_7 = j \/ des j k_update)) (i_7 + 1)
+                k_f_bcopy))).
+PRINT_ARRAY m_11 m array_5 i k_f_print_array =v
+  (i < m \/ k_f_print_array true) /\ (i >= m \/ array_5 i (\u.PRINT_ARRAY m_11 m array_5 (i + 1) k_f_print_array)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,16 +1,8 @@
 %HES
-MAIN_405  =v
-  ∀arg1_477.
-   ∀arg2_475.
-    REV arg1_477
-     (\x_472.
-       (x_472 != arg1_477
-        \/ APPEND arg1_477 arg2_475
-            (\x_455.
-              (x_455 != arg1_477 + arg2_475 \/ true) /\ (x_455 = arg1_477 + arg2_475 \/ FAIL_435 true (\x_450.true))))
-       /\ (x_472 = arg1_477 \/ FAIL_432 true (\x_464.true))).
-APPEND x y k_append_7 =v (x != 0 \/ k_append_7 y) /\ (x = 0 \/ APPEND (x - 1) y (\x_445.k_append_7 (1 + x_445))).
-FAIL_432 u_433 k_434 =v false.
-FAIL_435 u_436 k_437 =v false.
-REV n_2 k_rev_34 =v (n_2 != 0 \/ k_rev_34 0) /\ (n_2 = 0 \/ REV (n_2 - 1) (\x_480.APPEND x_480 1 k_rev_34)).
-Forall p      =v ∀n. p n.
+MAIN  =v REV arg1 (\x_3.(x_3 != arg1 \/ APPEND arg1 arg2 (\x_2.x_2 = arg1 + arg2)) /\ x_3 = arg1).
+APPEND x_9 y k_append =v (x_9 != 0 \/ k_append y) /\ (x_9 = 0 \/ APPEND (x_9 - 1) y (\x_8.k_append (1 + x_8))).
+REV n k_rev =v (n != 0 \/ k_rev 0) /\ (n = 0 \/ REV (n - 1) (\x_7.APPEND x_7 1 k_rev)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,14 +1,9 @@
 %HES
-MAIN_376  =v
-  ∀arg1_443.
-   ∀arg2_431.
-    ∀arg3_423.
-     (arg3_423 > arg2_431
-      \/ F arg1_443 arg3_423 arg2_431 arg3_423
-          (\x_441.(x_441 != arg1_443 \/ true) /\ (x_441 = arg1_443 \/ FAIL_404 true (\x_428.true))))
-     /\ (arg3_423 <= arg2_431 \/ true).
-F k_5 n_3 r_4 n_2 k_mc_k_f_16 =v
-  (n_2 <= r_4 \/ k_mc_k_f_16 (n_2 - ((r_4 - k_5) + 1)))
-  /\ (n_2 > r_4 \/ F k_5 n_3 r_4 ((n_2 + ((r_4 - k_5) + 1)) + 1) (\x_419.F k_5 n_3 r_4 x_419 k_mc_k_f_16)).
-FAIL_404 u_405 k_406 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v arg3 > arg2 \/ F arg1 arg3 arg2 arg3 (\x_5.x_5 = arg1).
+F k_12 n_10 r_11 n_9 k_mc_k_f =v
+  (n_9 <= r_11 \/ k_mc_k_f (n_9 - ((r_11 - k_12) + 1)))
+  /\ (n_9 > r_11 \/ F k_12 n_10 r_11 ((n_9 + ((r_11 - k_12) + 1)) + 1) (\x_8.F k_12 n_10 r_11 x_8 k_mc_k_f)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

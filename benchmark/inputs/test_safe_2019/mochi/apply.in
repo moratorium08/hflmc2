@@ -1,5 +1,7 @@
 %HES
-MAIN_265  =v ∀arg1_285.K 0 (\main_277.true).
-FAIL_273 u_274 k_275 =v false.
-K n k_k_49 =v (n != n \/ K (n + 1) k_k_49) /\ (n = n \/ FAIL_273 true (\x_280.true)).
-Forall p      =v ∀n. p n.
+MAIN  =v K 0 (\main.true).
+K n k_k =v (n != n \/ K (n + 1) k_k) /\ n = n.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,7 +1,6 @@
 %HES
-MAIN_226  =v
-  ∀arg1_241.
-   (arg1_241 < 0 \/ (arg1_241 + 1 <= arg1_241 \/ true) /\ (arg1_241 + 1 > arg1_241 \/ FAIL_232 true (\x_239.true)))
-   /\ (arg1_241 >= 0 \/ true).
-FAIL_232 u_233 k_234 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v arg1 < 0 \/ arg1 + 1 > arg1.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

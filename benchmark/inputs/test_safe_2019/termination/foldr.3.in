@@ -1,11 +1,6 @@
 %HES
-MAIN_1001  =v
-  ∀l_1171.
-   (l_1171 < 0
-    \/ (∀x_1135.
-         (0 = 0
-          \/ ((0 <= l_1171 \/ l_1171 < 0) \/ true) /\ (0 > l_1171 /\ l_1171 >= 0 \/ FAIL_1082 true (\x_1191.true)))
-         /\ (0 != 0 \/ true)))
-   /\ (l_1171 >= 0 \/ true).
-FAIL_1082 u_1083 k_1084 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v l < 0 \/ Forall (\x.true).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,13 +1,8 @@
 %HES
-MAIN_317  =v
-  ∀arg1_365.
-   ∀arg2_358.
-    TARAI2 arg1_365 arg2_358
-     (\z_355.
-       (z_355 > arg1_365 /\ z_355 > arg2_358 \/ true)
-       /\ ((z_355 <= arg1_365 \/ z_355 <= arg2_358) \/ FAIL_337 true (\x_347.true))).
-FAIL_337 u_338 k_339 =v false.
-TARAI2 x_3 y_2 k_tarai2_8 =v
-  (x_3 > y_2 \/ k_tarai2_8 y_2)
-  /\ (x_3 <= y_2 \/ TARAI2 (y_2 - 1) x_3 (\x_369.TARAI2 (x_3 - 1) y_2 (\x_363.TARAI2 x_363 x_369 k_tarai2_8))).
-Forall p      =v ∀n. p n.
+MAIN  =v TARAI2 arg1 arg2 (\z.z <= arg1 \/ z <= arg2).
+TARAI2 x_6 y k_tarai2 =v
+  (x_6 > y \/ k_tarai2 y) /\ (x_6 <= y \/ TARAI2 (y - 1) x_6 (\x_5.TARAI2 (x_6 - 1) y (\x_4.TARAI2 x_4 x_5 k_tarai2))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

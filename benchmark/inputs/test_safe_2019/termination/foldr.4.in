@@ -1,23 +1,20 @@
 %HES
-MAIN_1382  =v
-  ∀l_1638.
-   (l_1638 < 0
-    \/ (∀x_1580.
-         FOLDR_WITHOUT_CHECKING_131 1 0 0 0 0 1 0 0 0
-          (\x_1692.\x_1693.\x_1694.\x_1695.\m_1696.\x_1697.\x_1698.\x_1699.\x_1700.\n_1701.\k_sum_1702.k_sum_1702 0) 1
-          0 0 0 x_1580 1 0 0 0 l_1638 (\u_11638_1549.true)))
-   /\ (l_1638 >= 0 \/ true).
-FAIL_1504 u_1505 k_1506 =v false.
-FOLDR_WITHOUT_CHECKING_131 x_30 x_29 x_28 x_27 h_EXPARAM_92_26 x_25 x_24 x_23 x_22 h_21 x_20 x_19 x_18 x_17 e_16 x_15 x_14 x_13 x_12 l_11 k_foldr_without_checking_131_272
+MAIN  =v
+  l < 0
+  \/ Forall
+      (\x.
+        FOLDR_WITHOUT_CHECKING_131 true 0 0 0 0 true 0 0 0
+         (\x_10.\x_9.\x_8.\x_7.\m.\x_6.\x_5.\x_4.\x_3.\n.\k_sum.k_sum 0) true 0 0 0 x true 0 0 0 l (
+         \u_11638.true)).
+FOLDR_WITHOUT_CHECKING_131 x_35 x_34 x_33 x_32 h_EXPARAM_92_31 x_30 x_29 x_28 x_27 h_26 x_25 x_24 x_23 x_22 e_21 x_20 x_19 x_18 x_17 l_16 k_foldr_without_checking_131
   =v
-  (l_11 != 0 \/ k_foldr_without_checking_131_272 0)
-  /\ (l_11 = 0
-      \/ (1 = 0
-          \/ ((l_11 <= l_11 - 1 \/ l_11 - 1 < 0)
-              \/ FOLDR_WITHOUT_CHECKING_131 1 0 0 0 0 1 0 0 0 h_21 1 0 0 0 0 1 0 0 0 (l_11 - 1)
-                  (\x_1624.∀x_1572.h_21 1 0 0 0 x_1572 1 0 0 0 x_1624 k_foldr_without_checking_131_272))
-             /\ (l_11 > l_11 - 1 /\ l_11 - 1 >= 0 \/ FAIL_1504 true (\x_1658.true)))
-         /\ (1 != 0
-             \/ FOLDR_WITHOUT_CHECKING_131 1 0 0 0 0 1 0 0 0 h_21 1 0 0 0 0 1 0 0 0 (l_11 - 1)
-                 (\x_1624.∀x_1572.h_21 1 0 0 0 x_1572 1 0 0 0 x_1624 k_foldr_without_checking_131_272))).
-Forall p      =v ∀n. p n.
+  (l_16 != 0 \/ k_foldr_without_checking_131 0)
+  /\ (l_16 = 0
+      \/ ((l_16 <= l_16 - 1 \/ l_16 - 1 < 0)
+          \/ FOLDR_WITHOUT_CHECKING_131 true 0 0 0 0 true 0 0 0 h_26 true 0 0 0 0 true 0 0 0 (l_16 - 1)
+              (\x_15.Forall (\x_14.h_26 true 0 0 0 x_14 true 0 0 0 x_15 k_foldr_without_checking_131)))
+         /\ (l_16 > l_16 - 1 /\ l_16 - 1 >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

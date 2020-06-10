@@ -1,28 +1,26 @@
 %HES
-MAIN_1141  =v
-  ∀x_5793.
-   ∀x_5741.
-    ((x_5741 < 0 \/ x_5793 < 0) \/ F 1 0 0 x_5741 (\x_5779.x_5779 0 0 0 0 (\u_5702_5732.true)))
-    /\ (x_5741 >= 0 /\ x_5793 >= 0 \/ true).
-F set_flag_g_131_7 s_g_r_EXPARAM_124_6 s_g_a_126_5 n_4 k_f_314 =v
-  (n_4 != 0 \/ k_f_314 (\x_5838.\x_5839.\x_5840.\n_5841.\k_succ_5842.k_succ_5842 0))
-  /\ (n_4 = 0
-      \/ F 1 0 0 (n_4 - 1)
-          (\x_5738.
-            k_f_314
-             (\prev_set_flag_g_5802.
-               \s_prev_g_r_EXPARAM_5803.
-                \s_prev_g_a_5804.
-                 \a_5805.
-                  \k_g_5806.
-                   (prev_set_flag_g_5802 = 0
-                    \/ ((4 + (-2) * s_prev_g_r_EXPARAM_5803 <= 4 + (-2) * ((-4) * n_4 + 1)
-                         \/ 4 + (-2) * ((-4) * n_4 + 1) < 0)
-                        \/ x_5738 1 ((-4) * n_4 + 1) 0 0 (\x_5769.x_5738 1 ((-4) * n_4 + 1) 0 x_5769 k_g_5806))
-                       /\ (4 + (-2) * s_prev_g_r_EXPARAM_5803 > 4 + (-2) * ((-4) * n_4 + 1)
-                           /\ 4 + (-2) * ((-4) * n_4 + 1) >= 0
-                           \/ FAIL_5703 true (\x_5791.true)))
-                   /\ (prev_set_flag_g_5802 != 0
-                       \/ x_5738 1 ((-4) * n_4 + 1) 0 0 (\x_5769.x_5738 1 ((-4) * n_4 + 1) 0 x_5769 k_g_5806))))).
-FAIL_5703 u_5704 k_5705 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v (x < 0 \/ x_1 < 0) \/ F true false 0 0 x (\x_3.x_3 false true 0 0 0 (\u_5702.true)).
+F set_flag_g_131_pos_12 set_flag_g_131_neg_12 s_g_r_EXPARAM_124_11 s_g_a_126_10 n_9 k_f =v
+  (n_9 != 0 \/ k_f (\x_pos_31.\x_neg_31.\x_30.\x_29.\n_28.\k_succ.k_succ 0))
+  /\ (n_9 = 0
+      \/ F true false 0 0 (n_9 - 1)
+          (\x_8.
+            k_f
+             (\prev_set_flag_g_130_pos.
+               \prev_set_flag_g_130_neg.
+                \s_prev_g_r_EXPARAM_127.
+                 \s_prev_g_a_129.
+                  \a.
+                   \k_g.
+                    (prev_set_flag_g_130_neg
+                     \/ ((4 + (-2) * s_prev_g_r_EXPARAM_127 <= 4 + (-2) * ((-4) * n_9 + 1)
+                          \/ 4 + (-2) * ((-4) * n_9 + 1) < 0)
+                         \/ x_8 true false ((-4) * n_9 + 1) 0 0 (\x_15.x_8 true false ((-4) * n_9 + 1) 0 x_15 k_g))
+                        /\ (4 + (-2) * s_prev_g_r_EXPARAM_127 > 4 + (-2) * ((-4) * n_9 + 1)
+                            /\ 4 + (-2) * ((-4) * n_9 + 1) >= 0))
+                    /\ (prev_set_flag_g_130_pos
+                        \/ x_8 true false ((-4) * n_9 + 1) 0 0 (\x_15.x_8 true false ((-4) * n_9 + 1) 0 x_15 k_g))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

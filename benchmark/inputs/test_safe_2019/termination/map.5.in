@@ -1,25 +1,26 @@
 %HES
-MAIN_1627  =v
-  ∀l_1952.
-   (l_1952 < 0
-    \/ MAP 1 0 0 0 0 1 0 0 0
-        (\prev_set_flag_compose_1817.
-          \s_prev_compose_f_EXPARAM_1818.
-           \s_prev_compose_g_EXPARAM_1819.
-            \s_prev_compose_x_1820.
-             \x_1821.
-              \k_compose_1822.
-               (prev_set_flag_compose_1817 = 0 \/ FAIL_1783 true (\x_1993.true))
-               /\ (prev_set_flag_compose_1817 != 0 \/ k_compose_1822 (1 + (2 + x_1821))))
-        0 0 0 0 l_1952 (\u_15314_1849.true))
-   /\ (l_1952 >= 0 \/ true).
-FAIL_1783 u_1784 k_1785 =v false.
-MAP x_49 x_48 x_47 x_46 f_EXPARAM_121 x_45 x_44 x_43 x_42 f_41 set_flag_compose_204_40 s_compose_f_EXPARAM_193_39 s_compose_g_EXPARAM_195_38 s_compose_x_197_37 xs k_map_241
+MAIN  =v
+  l < 0
+  \/ MAP true false 0 0 0 0 true false 0 0 0
+      (\prev_set_flag_compose_203_pos.
+        \prev_set_flag_compose_203_neg.
+         \s_prev_compose_f_EXPARAM_198.
+          \s_prev_compose_g_EXPARAM_200.
+           \s_prev_compose_x_202.
+            \x_13.
+             \k_compose.prev_set_flag_compose_203_neg /\ (prev_set_flag_compose_203_pos \/ k_compose (1 + (2 + x_13))))
+      false true 0 0 0 l (\u_15314.true).
+MAP x_pos_55 x_neg_55 x_54 x_53 x_52 f_EXPARAM_121 x_pos_51 x_neg_51 x_50 x_49 x_48 f_47 set_flag_compose_204_pos_46 set_flag_compose_204_neg_46 s_compose_f_EXPARAM_193_45 s_compose_g_EXPARAM_195_44 s_compose_x_197_43 xs k_map
   =v
-  (xs != 0 \/ k_map_241 0)
+  (xs != 0 \/ k_map 0)
   /\ (xs = 0
-      \/ (∀x_1969.
-           f_41 set_flag_compose_204_40 0 0 0 x_1969
-            (\x_1938.
-              MAP 1 0 0 0 0 1 0 0 0 f_41 set_flag_compose_204_40 0 0 0 (xs - 1) (\x_1920.k_map_241 (x_1938 + x_1920))))).
-Forall p      =v ∀n. p n.
+      \/ Forall
+          (\x_42.
+            f_47 set_flag_compose_204_pos_46 set_flag_compose_204_neg_46 0 0 0 x_42
+             (\x_41.
+               MAP true false 0 0 0 0 true false 0 0 0 f_47 set_flag_compose_204_pos_46 set_flag_compose_204_neg_46 0 0
+                0 (xs - 1) (\x_40.k_map (x_41 + x_40))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,8 +1,7 @@
 %HES
-MAIN_216  =v
-  ∀arg1_251.
-   MAP arg1_251
-    (\x_249.MAP x_249 (\x_246.(x_246 != arg1_251 \/ true) /\ (x_246 = arg1_251 \/ FAIL_230 true (\x_238.true)))).
-FAIL_230 u_231 k_232 =v false.
-MAP x k_map_6 =v (x != 0 \/ k_map_6 x) /\ (x = 0 \/ MAP (x - 1) (\x_254.k_map_6 (1 + x_254))).
-Forall p      =v ∀n. p n.
+MAIN  =v MAP arg1 (\x_2.MAP x_2 (\x_1.x_1 = arg1)).
+MAP x_6 k_map =v (x_6 != 0 \/ k_map x_6) /\ (x_6 = 0 \/ MAP (x_6 - 1) (\x_5.k_map (1 + x_5))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

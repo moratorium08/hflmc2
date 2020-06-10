@@ -1,27 +1,25 @@
 %HES
-MAIN_603  =v
-  ∀arg1_714.∀arg2_704.MAKE_LIST arg2_704 (\x0_694.\x1_695.ASSERT_BOUNDED arg2_704 x0_694 x1_695 (\main_666.true)).
-ASSERT_BOUNDED x_6 x0_5 x1_5 k_assert_bounded_15 =v
-  (x0_5 > 0 \/ k_assert_bounded_15 true)
-  /\ (x0_5 <= 0
-      \/ (x0_5 <= 0
-          \/ x1_5 0
-              (\y_671.
-                (x_6 < y_671
-                 \/ ASSERT_BOUNDED x_6 (x0_5 - 1)
-                     (\x_682.\k_assert_bounded_l_683.x1_5 (x_682 + 1) k_assert_bounded_l_683) k_assert_bounded_15)
-                /\ (x_6 >= y_671 \/ FAIL_650 true (\x_726.true))))
-         /\ (x0_5 > 0 \/ true)).
-FAIL_650 u_651 k_652 =v false.
-MAKE_LIST n_3 k_make_list_131 =v
-  (n_3 > 0 \/ k_make_list_131 0 (\x_716.\k_make_list_717.true))
-  /\ (n_3 <= 0
-      \/ MAKE_LIST (n_3 - 1)
-          (\p0_720.
-            \p1_721.
-             k_make_list_131 (1 + p0_720)
-              (\i_711.
-                \k_make_list_712.
-                 (i_711 != 0 \/ k_make_list_712 n_3)
-                 /\ (i_711 = 0 \/ MAKE_LIST (n_3 - 1) (\p0_700.\p1_701.p1_701 (i_711 - 1) k_make_list_712))))).
-Forall p      =v ∀n. p n.
+MAIN  =v MAKE_LIST arg2 (\x0.\x1.ASSERT_BOUNDED arg2 x0 x1 (\main.true)).
+ASSERT_BOUNDED x_13 x0_12 x1_11 k_assert_bounded =v
+  (x0_12 > 0 \/ k_assert_bounded true)
+  /\ (x0_12 <= 0
+      \/ (x0_12 <= 0
+          \/ x1_11 0
+              (\y.
+                (x_13 < y
+                 \/ ASSERT_BOUNDED x_13 (x0_12 - 1) (\x_8.\k_assert_bounded_l.x1_11 (x_8 + 1) k_assert_bounded_l)
+                     k_assert_bounded)
+                /\ x_13 >= y))).
+MAKE_LIST n k_make_list_7 =v
+  (n > 0 \/ k_make_list_7 0 (\x.\k_make_list_6.true))
+  /\ (n <= 0
+      \/ MAKE_LIST (n - 1)
+          (\p0_5.
+            \p1_4.
+             k_make_list_7 (1 + p0_5)
+              (\i.
+                \k_make_list.(i != 0 \/ k_make_list n) /\ (i = 0 \/ MAKE_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

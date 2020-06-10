@@ -1,14 +1,8 @@
 %HES
-MAIN_485  =v
-  ∀m_2230.
-   ∀n_2232.
-    (m_2230 <= 0
-     \/ (0 = 0
-         \/ ((0 <= m_2230 \/ m_2230 < 0) \/ MULT_WITHOUT_CHECKING_63 1 0 0 0 1 0 0 0 (\u_2206_2235.true))
-            /\ (0 > m_2230 /\ m_2230 >= 0 \/ FAIL_2207 true (\x_2254.true)))
-        /\ (0 != 0 \/ MULT_WITHOUT_CHECKING_63 1 0 0 0 1 0 0 0 (\u_2206_2235.true)))
-    /\ (m_2230 > 0 \/ true).
-FAIL_2207 u_2208 k_2209 =v false.
-MULT_WITHOUT_CHECKING_63 x_10 x_9 x_8 m_7 x_6 x_5 x n_4 k_mult_without_checking_63_120 =v
-  MULT_WITHOUT_CHECKING_63 1 0 0 0 1 0 0 0 k_mult_without_checking_63_120.
-Forall p      =v ∀n. p n.
+MAIN  =v m <= 0 \/ MULT_WITHOUT_CHECKING_63 true 0 0 0 true 0 0 0 (\u_2206.true).
+MULT_WITHOUT_CHECKING_63 x_14 x_13 x_12 m_11 x_10 x_9 x_8 n_7 k_mult_without_checking_63 =v
+  MULT_WITHOUT_CHECKING_63 true 0 0 0 true 0 0 0 k_mult_without_checking_63.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

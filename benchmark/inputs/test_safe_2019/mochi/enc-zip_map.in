@@ -1,11 +1,9 @@
 %HES
-MAIN_353  =v
-  ∀arg1_411.
-   ZIP arg1_411 arg1_411
-    (\x_409.MAP x_409 (\x_406.(x_406 < arg1_411 \/ true) /\ (x_406 >= arg1_411 \/ FAIL_374 true (\x_398.true)))).
-FAIL_374 u_375 k_376 =v false.
-MAP x k_map_71 =v (x != 0 \/ k_map_71 0) /\ (x = 0 \/ MAP (x - 1) (\x_414.k_map_71 (1 + x_414))).
-ZIP x_2 y k_zip_16 =v
-  (x_2 != 0 \/ (y != 0 \/ k_zip_16 0) /\ (y = 0 \/ true))
-  /\ (x_2 = 0 \/ (y != 0 \/ true) /\ (y = 0 \/ ZIP (x_2 - 1) (y - 1) (\x_418.k_zip_16 (1 + x_418)))).
-Forall p      =v ∀n. p n.
+MAIN  =v ZIP arg1 arg1 (\x_2.MAP x_2 (\x_1.x_1 >= arg1)).
+ZIP x_8 y k_zip =v
+  (x_8 != 0 \/ (y != 0 \/ k_zip 0)) /\ (x_8 = 0 \/ (y = 0 \/ ZIP (x_8 - 1) (y - 1) (\x_7.k_zip (1 + x_7)))).
+MAP x_6 k_map =v (x_6 != 0 \/ k_map 0) /\ (x_6 = 0 \/ MAP (x_6 - 1) (\x_5.k_map (1 + x_5))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

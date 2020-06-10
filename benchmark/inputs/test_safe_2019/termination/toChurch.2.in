@@ -1,22 +1,25 @@
 %HES
-MAIN_1056  =v
-  ∀x_1160.
-   (x_1160 < 0 \/ TOCHURCH 1 0 x_1160 1 0 0 1 0 (\x_1184.\x_1185.\x_1186.\k_succ_1187.k_succ_1187 0) (\tos_1145.true))
-   /\ (x_1160 >= 0 \/ true).
-FAIL_1104 u_1105 k_1106 =v false.
-TOCHURCH x_7 x_6 n x_5 x_4 f_EXPARAM_114 set_flag_id_228_3 s_id_x_225_2 f k_toChurch_355 =v
+MAIN  =v
+  x < 0
+  \/ TOCHURCH true false 0 x true false 0 0 true false 0 (\x_pos_12.\x_neg_12.\x_11.\x_10.\k_succ.k_succ 0) (\tos.true).
+TOCHURCH x_pos_9 x_neg_9 x_8 n x_pos_7 x_neg_7 x_6 f_EXPARAM_114 set_flag_id_228_pos_5 set_flag_id_228_neg_5 s_id_x_225_4 f k_toChurch
+  =v
   (n != 0
-   \/ k_toChurch_355
-       (\prev_set_flag_id_1176.
-         \s_prev_id_x_1177.
-          \x_1178.
-           \k_id_1179.
-            (prev_set_flag_id_1176 = 0 \/ FAIL_1104 true (\x_1175.true)) /\ (prev_set_flag_id_1176 != 0 \/ k_id_1179 0)))
+   \/ k_toChurch
+       (\prev_set_flag_id_227_pos.
+         \prev_set_flag_id_227_neg.
+          \s_prev_id_x_226.\x_15.\k_id.prev_set_flag_id_227_neg /\ (prev_set_flag_id_227_pos \/ k_id 0)))
   /\ (n = 0
-      \/ TOCHURCH 1 0 (n - 1) 1 0 0 1 0 f
-          (\x_1171.
-            k_toChurch_355
-             (\set_flag_id_228_1119.
-               \s_id_x_225_1120.
-                \x_1121.\k_compose_1122.x_1171 set_flag_id_228_1119 0 0 (\x_1139.f 1 0 x_1139 k_compose_1122)))).
-Forall p      =v ∀n. p n.
+      \/ TOCHURCH true false 0 (n - 1) true false 0 0 true false 0 f
+          (\x_3.
+            k_toChurch
+             (\set_flag_id_228_pos_19.
+               \set_flag_id_228_neg_19.
+                \s_id_x_225_18.
+                 \x_17.
+                  \k_compose.
+                   x_3 set_flag_id_228_pos_19 set_flag_id_228_neg_19 0 0 (\x_16.f true false 0 x_16 k_compose)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

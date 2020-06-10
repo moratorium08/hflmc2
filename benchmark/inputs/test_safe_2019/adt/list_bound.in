@@ -1,28 +1,26 @@
 %HES
-MAIN_627  =v
-  ∀arg1_745.
-   ∀arg2_733.REPLICATE arg1_745 arg2_733 (\x0_722.\x1_723.ASSERT_BOUNDED arg1_745 x0_722 x1_723 (\main_694.true)).
-ASSERT_BOUNDED x_7 x0_6 x1_6 k_assert_bounded_16 =v
-  (x0_6 > 0 \/ k_assert_bounded_16 true)
-  /\ (x0_6 <= 0
-      \/ (x0_6 <= 0
-          \/ x1_6 0
-              (\y_699.
-                (x_7 < y_699
-                 \/ ASSERT_BOUNDED x_7 (x0_6 - 1)
-                     (\x_710.\k_assert_bounded_l_711.x1_6 (x_710 + 1) k_assert_bounded_l_711) k_assert_bounded_16)
-                /\ (x_7 >= y_699 \/ FAIL_678 true (\x_759.true))))
-         /\ (x0_6 > 0 \/ true)).
-FAIL_678 u_679 k_680 =v false.
-REPLICATE x_4 n_3 k_replicate_132 =v
-  (n_3 > 0 \/ k_replicate_132 0 (\x_748.\k_replicate_749.true))
-  /\ (n_3 <= 0
-      \/ REPLICATE x_4 (n_3 - 1)
-          (\p0_753.
-            \p1_754.
-             k_replicate_132 (1 + p0_753)
-              (\i_742.
-                \k_replicate_743.
-                 (i_742 != 0 \/ k_replicate_743 x_4)
-                 /\ (i_742 = 0 \/ REPLICATE x_4 (n_3 - 1) (\p0_729.\p1_730.p1_730 (i_742 - 1) k_replicate_743))))).
-Forall p      =v ∀n. p n.
+MAIN  =v REPLICATE arg1 arg2 (\x0.\x1.ASSERT_BOUNDED arg1 x0 x1 (\main.true)).
+ASSERT_BOUNDED x_14 x0_13 x1_12 k_assert_bounded =v
+  (x0_13 > 0 \/ k_assert_bounded true)
+  /\ (x0_13 <= 0
+      \/ (x0_13 <= 0
+          \/ x1_12 0
+              (\y.
+                (x_14 < y
+                 \/ ASSERT_BOUNDED x_14 (x0_13 - 1) (\x_9.\k_assert_bounded_l.x1_12 (x_9 + 1) k_assert_bounded_l)
+                     k_assert_bounded)
+                /\ x_14 >= y))).
+REPLICATE x_8 n k_replicate_7 =v
+  (n > 0 \/ k_replicate_7 0 (\x.\k_replicate_6.true))
+  /\ (n <= 0
+      \/ REPLICATE x_8 (n - 1)
+          (\p0_5.
+            \p1_4.
+             k_replicate_7 (1 + p0_5)
+              (\i.
+                \k_replicate.
+                 (i != 0 \/ k_replicate x_8) /\ (i = 0 \/ REPLICATE x_8 (n - 1) (\p0.\p1.p1 (i - 1) k_replicate))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

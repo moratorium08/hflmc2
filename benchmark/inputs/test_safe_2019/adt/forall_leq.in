@@ -1,34 +1,27 @@
 %HES
-MAIN_683  =v
-  ∀arg1_814.
-   MAKE_LIST arg1_814
-    (\x0_798.
-      \x1_799.
-       FOR_ALL (\x_744.\k_check_745.(x_744 < 0 \/ k_check_745 1) /\ (x_744 >= 0 \/ k_check_745 0)) x0_798 x1_799
-        (\x_778.(x_778 = 0 \/ true) /\ (x_778 != 0 \/ FAIL_728 true (\x_756.true)))).
-FAIL_728 u_729 k_730 =v false.
-FOR_ALL f xs0 xs1 k_for_all_17 =v
-  (xs0 > 0 \/ k_for_all_17 1)
+MAIN  =v
+  MAKE_LIST arg1 (\x0.\x1.FOR_ALL (\x_9.\k_check.k_check (x_9 >= 0) (x_9 < 0)) x0 x1 (\x_pos_1.\x_neg_1.x_pos_1)).
+FOR_ALL f xs0 xs1 k_for_all =v
+  (xs0 > 0 \/ k_for_all true false)
   /\ (xs0 <= 0
       \/ (xs0 <= 0
           \/ xs1 0
-              (\x_812.
-                f x_812
-                 (\x_763.
-                   (x_763 = 0
-                    \/ FOR_ALL f (xs0 - 1) (\x_794.\k_for_all_xs__795.xs1 (x_794 + 1) k_for_all_xs__795)
-                        (\x_752.(x_752 = 0 \/ k_for_all_17 1) /\ (x_752 != 0 \/ k_for_all_17 0)))
-                   /\ (x_763 != 0 \/ k_for_all_17 0))))
-         /\ (xs0 > 0 \/ true)).
-MAKE_LIST n_2 k_make_list_171 =v
-  (n_2 >= 0 \/ k_make_list_171 0 (\x_816.\k_make_list_817.true))
-  /\ (n_2 < 0
-      \/ MAKE_LIST (n_2 - 1)
-          (\p0_820.
-            \p1_821.
-             k_make_list_171 (1 + p0_820)
-              (\i_806.
-                \k_make_list_807.
-                 (i_806 != 0 \/ k_make_list_807 n_2)
-                 /\ (i_806 = 0 \/ MAKE_LIST (n_2 - 1) (\p0_783.\p1_784.p1_784 (i_806 - 1) k_make_list_807))))).
-Forall p      =v ∀n. p n.
+              (\x_12.
+                f x_12
+                 (\x_pos_11.
+                   \x_neg_11.
+                    (x_neg_11 \/ FOR_ALL f (xs0 - 1) (\x_10.\k_for_all_xs_.xs1 (x_10 + 1) k_for_all_xs_) k_for_all)
+                    /\ (x_pos_11 \/ k_for_all false true))))).
+MAKE_LIST n k_make_list_8 =v
+  (n >= 0 \/ k_make_list_8 0 (\x_7.\k_make_list_6.true))
+  /\ (n < 0
+      \/ MAKE_LIST (n - 1)
+          (\p0_5.
+            \p1_4.
+             k_make_list_8 (1 + p0_5)
+              (\i.
+                \k_make_list.(i != 0 \/ k_make_list n) /\ (i = 0 \/ MAKE_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

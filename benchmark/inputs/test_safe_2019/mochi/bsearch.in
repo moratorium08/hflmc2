@@ -1,17 +1,14 @@
 %HES
-MAIN_570  =v
-  ∀arg1_660.
-   ∀arg2_658.
-    ((0 > arg1_660 \/ arg1_660 != arg2_658) \/ BS_AUX arg1_660 arg2_658 0 (arg2_658 - 1) (\u_641.true))
-    /\ (0 <= arg1_660 /\ arg1_660 = arg2_658 \/ true).
-BS_AUX key_5 vec_4 l u_3 k_bs_aux_49 =v
-  (u_3 >= l \/ k_bs_aux_49 0)
-  /\ (u_3 < l
-      \/ ((0 > l + (u_3 - l) / 2 \/ l + (u_3 - l) / 2 >= vec_4)
-          \/ (0 >= key_5 \/ BS_AUX key_5 vec_4 ((l + (u_3 - l) / 2) + 1) u_3 k_bs_aux_49)
-             /\ (0 < key_5
-                 \/ (0 <= key_5 \/ BS_AUX key_5 vec_4 l ((l + (u_3 - l) / 2) - 1) k_bs_aux_49)
-                    /\ (0 > key_5 \/ k_bs_aux_49 0)))
-         /\ (0 <= l + (u_3 - l) / 2 /\ l + (u_3 - l) / 2 < vec_4 \/ FAIL_603 true (\x_667.true))).
-FAIL_603 u_604 k_605 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v (0 > arg1 \/ arg1 != arg2) \/ BS_AUX arg1 arg2 0 (arg2 - 1) (\u.true).
+BS_AUX key vec l u_4 k_bs_aux =v
+  (u_4 >= l \/ k_bs_aux 0)
+  /\ (u_4 < l
+      \/ ((0 > l + (u_4 - l) / 2 \/ l + (u_4 - l) / 2 >= vec)
+          \/ (0 >= key \/ BS_AUX key vec ((l + (u_4 - l) / 2) + 1) u_4 k_bs_aux)
+             /\ (0 < key
+                 \/ (0 <= key \/ BS_AUX key vec l ((l + (u_4 - l) / 2) - 1) k_bs_aux) /\ (0 > key \/ k_bs_aux 0)))
+         /\ (0 <= l + (u_4 - l) / 2 /\ l + (u_4 - l) / 2 < vec)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

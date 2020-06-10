@@ -1,64 +1,53 @@
 %HES
-MAIN_1398  =v
-  ∀arg1_1751.
-   MAKE_INTLIST arg1_1751 true
-    (\arg20_1730.
-      \arg21_1731.
-       DIVIDE arg1_1751 arg20_1730 arg21_1731
-        (\r_divide00_1713.
-          \r_divide01_1714.
-           \r_divide10_1715.
-            \r_divide11_1716.
-             LENGTH arg20_1730 arg21_1731
-              (\x_1694.
-                LENGTH r_divide00_1713 r_divide01_1714
-                 (\x_1676.
-                   (x_1694 < x_1676
-                    \/ LENGTH arg20_1730 arg21_1731
-                        (\x_1651.
-                          LENGTH r_divide10_1715 r_divide11_1716
-                           (\x_1642.(x_1651 < x_1642 \/ true) /\ (x_1651 >= x_1642 \/ FAIL_1532 true (\x_1624.true)))))
-                   /\ (x_1694 >= x_1676 \/ FAIL_1529 true (\x_1658.true)))))).
-DIVIDE x_13 l0_12 l1_12 k_divide_128 =v
-  (l0_12 > 0 \/ k_divide_128 0 (\x_1559.\k_divide_1560.true) 0 (\x_1563.\k_divide_1564.true))
-  /\ (l0_12 <= 0
-      \/ (l0_12 <= 0
-          \/ l1_12 0
-              (\y_1569.
-                DIVIDE x_13 (l0_12 - 1) (\x_1580.\k_divide_l__1581.l1_12 (x_1580 + 1) k_divide_l__1581)
-                 (\r_divide00_1596.
-                   \r_divide01_1597.
-                    \r_divide10_1598.
-                     \r_divide11_1599.
-                      (x_13 > y_1569
-                       \/ k_divide_128 (1 + r_divide00_1596) (\i_1606.\k_divide_1607.k_divide_1607 0) r_divide10_1598
-                           r_divide11_1599)
-                      /\ (x_13 <= y_1569
-                          \/ k_divide_128 r_divide00_1596 r_divide01_1597 (1 + r_divide10_1598)
-                              (\i_1614.\k_divide_1615.k_divide_1615 0)))))
-         /\ (l0_12 > 0 \/ true)).
-FAIL_1529 u_1530 k_1531 =v false.
-FAIL_1532 u_1533 k_1534 =v false.
-LENGTH x0_16 x1_16 k_length_31 =v
-  (x0_16 > 0 \/ k_length_31 0)
-  /\ (x0_16 <= 0
-      \/ (x0_16 <= 0
-          \/ LENGTH (x0_16 - 1) (\x_1748.\k_length_l_1749.x1_16 (x_1748 + 1) k_length_l_1749)
-              (\x_1727.k_length_31 (1 + x_1727)))
-         /\ (x0_16 > 0 \/ true)).
-MAKE_INTLIST arg1_921 x_1 k_main_arg2_make_intlist_723 =v
-  ∀x_1759.
-   (x_1759 != 0 \/ k_main_arg2_make_intlist_723 0 (\x_1735.\k_main_arg2_make_intlist_1736.true))
-   /\ (x_1759 = 0
-       \/ (∀n_1741.
-            MAKE_INTLIST arg1_921 true
-             (\p0_1722.
-               \p1_1723.
-                k_main_arg2_make_intlist_723 (1 + p0_1722)
-                 (\i_1707.
-                   \k_main_arg2_make_intlist_1708.
-                    (i_1707 != 0 \/ k_main_arg2_make_intlist_1708 n_1741)
-                    /\ (i_1707 = 0
-                        \/ MAKE_INTLIST arg1_921 true
-                            (\p0_1684.\p1_1685.p1_1685 (i_1707 - 1) k_main_arg2_make_intlist_1708)))))).
-Forall p      =v ∀n. p n.
+MAIN  =v
+  MAKE_INTLIST arg1 true
+   (\arg20.
+     \arg21.
+      DIVIDE arg1 arg20 arg21
+       (\r_divide00.
+         \r_divide01.
+          \r_divide10.
+           \r_divide11.
+            LENGTH arg20 arg21
+             (\x_5.
+               LENGTH r_divide00 r_divide01
+                (\x_4.
+                  (x_5 < x_4 \/ LENGTH arg20 arg21 (\x_3.LENGTH r_divide10 r_divide11 (\x_2.x_3 >= x_2))) /\ x_5 >= x_4)))).
+LENGTH x0 x1 k_length =v
+  (x0 > 0 \/ k_length 0)
+  /\ (x0 <= 0 \/ (x0 <= 0 \/ LENGTH (x0 - 1) (\x_30.\k_length_l.x1 (x_30 + 1) k_length_l) (\x_31.k_length (1 + x_31)))).
+DIVIDE x_29 l0 l1 k_divide_28 =v
+  (l0 > 0 \/ k_divide_28 0 (\x_25.\k_divide_24.true) 0 (\x_27.\k_divide_26.true))
+  /\ (l0 <= 0
+      \/ (l0 <= 0
+          \/ l1 0
+              (\y.
+                DIVIDE x_29 (l0 - 1) (\x_16.\k_divide_l_.l1 (x_16 + 1) k_divide_l_)
+                 (\r_divide00_23.
+                   \r_divide01_22.
+                    \r_divide10_21.
+                     \r_divide11_20.
+                      (x_29 > y
+                       \/ k_divide_28 (1 + r_divide00_23) (\i_19.\k_divide_18.k_divide_18 0) r_divide10_21
+                           r_divide11_20)
+                      /\ (x_29 <= y
+                          \/ k_divide_28 r_divide00_23 r_divide01_22 (1 + r_divide10_21) (\i_17.\k_divide.k_divide 0)))))).
+MAKE_INTLIST arg1 x_13 k_main_arg2_make_intlist_12 =v
+  Forall
+   (\x_11.
+     (x_11 != 0 \/ k_main_arg2_make_intlist_12 0 (\x_10.\k_main_arg2_make_intlist_9.true))
+     /\ (x_11 = 0
+         \/ Forall
+             (\n.
+               MAKE_INTLIST arg1 true
+                (\p0_7.
+                  \p1_6.
+                   k_main_arg2_make_intlist_12 (1 + p0_7)
+                    (\i.
+                      \k_main_arg2_make_intlist.
+                       (i != 0 \/ k_main_arg2_make_intlist n)
+                       /\ (i = 0 \/ MAKE_INTLIST arg1 true (\p0.\p1.p1 (i - 1) k_main_arg2_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

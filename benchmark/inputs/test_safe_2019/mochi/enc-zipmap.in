@@ -1,14 +1,10 @@
 %HES
-MAIN_352  =v
-  ∀arg1_422.
-   ZIP arg1_422 arg1_422
-    (\x_420.MAP x_420 (\x_417.(x_417 != arg1_422 \/ true) /\ (x_417 = arg1_422 \/ FAIL_385 true (\x_409.true)))).
-FAIL_379 u_380 k_381 =v false.
-FAIL_382 u_383 k_384 =v false.
-FAIL_385 u_386 k_387 =v false.
-MAP x k_map_67 =v (x != 0 \/ k_map_67 x) /\ (x = 0 \/ MAP (x - 1) (\x_425.k_map_67 (1 + x_425))).
-ZIP x_3 y k_zip_8 =v
-  (x_3 != 0 \/ (y != 0 \/ k_zip_8 x_3) /\ (y = 0 \/ FAIL_379 true (\x_428.true)))
-  /\ (x_3 = 0
-      \/ (y != 0 \/ FAIL_382 true (\x_431.true)) /\ (y = 0 \/ ZIP (x_3 - 1) (y - 1) (\x_435.k_zip_8 (1 + x_435)))).
-Forall p      =v ∀n. p n.
+MAIN  =v ZIP arg1 arg1 (\x_2.MAP x_2 (\x_1.x_1 = arg1)).
+ZIP x_10 y k_zip =v
+  (x_10 != 0 \/ (y != 0 \/ k_zip x_10) /\ y = 0)
+  /\ (x_10 = 0 \/ y != 0 /\ (y = 0 \/ ZIP (x_10 - 1) (y - 1) (\x_7.k_zip (1 + x_7)))).
+MAP x_6 k_map =v (x_6 != 0 \/ k_map x_6) /\ (x_6 = 0 \/ MAP (x_6 - 1) (\x_5.k_map (1 + x_5))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,13 +1,11 @@
 %HES
-MAIN_325  =v
-  ∀arg1_367.
-   FILTER (\n_343.\k_f_344.k_f_344 1) arg1_367
-    (\x_354.(x_354 > arg1_367 \/ true) /\ (x_354 <= arg1_367 \/ FAIL_338 true (\x_347.true))).
-FAIL_338 u_339 k_340 =v false.
-FILTER f n_2 k_filter_19 =v
-  (n_2 != 0 \/ k_filter_19 0)
-  /\ (n_2 = 0
-      \/ (∀x_365.
-           (x_365 != 0 \/ FILTER f (n_2 - 1) (\x_351.k_filter_19 (1 + x_351)))
-           /\ (x_365 = 0 \/ FILTER f (n_2 - 1) k_filter_19))).
-Forall p      =v ∀n. p n.
+MAIN  =v FILTER (\n_6.\k_f.k_f true) arg1 (\x_1.x_1 <= arg1).
+FILTER f n k_filter =v
+  (n != 0 \/ k_filter 0)
+  /\ (n = 0
+      \/ Forall
+          (\x_5.(x_5 != 0 \/ FILTER f (n - 1) (\x_4.k_filter (1 + x_4))) /\ (x_5 = 0 \/ FILTER f (n - 1) k_filter))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

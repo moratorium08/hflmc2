@@ -1,8 +1,7 @@
 %HES
-MAIN_416  =v ∀arg1_442.F arg1_442 (\q_436.\k_c_437.k_c_437 true) 0 (\main_438.true).
-F n_4 x q_3 k_f_85 =v
-  (n_4 > 0 \/ k_f_85 true)
-  /\ (n_4 <= 0
-      \/ (q_3 != 0 \/ F (n_4 - 1) (\q_434.\k_b_435.k_b_435 true) 0 k_f_85) /\ (q_3 = 0 \/ FAIL_421 true (\x_440.true))).
-FAIL_421 u_422 k_423 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v F arg1 (\q_8.\k_c.k_c true) 0 (\main.true).
+F n x q k_f =v (n > 0 \/ k_f true) /\ (n <= 0 \/ (q != 0 \/ F (n - 1) (\q_6.\k_b.k_b true) 0 k_f) /\ q = 0).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

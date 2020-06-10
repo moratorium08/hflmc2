@@ -1,20 +1,12 @@
 %HES
-MAIN_382  =v
-  ∀arg1_430.
-   (arg1_430 > 101
-    \/ MC91 arg1_430 arg1_430
-        (\x_444.
-          (x_444 != 91
-           \/ SUM arg1_430 arg1_430
-               (\x_425.(arg1_430 > x_425 \/ true) /\ (arg1_430 <= x_425 \/ FAIL_406 true (\x_416.true))))
-          /\ (x_444 = 91 \/ FAIL_409 true (\x_419.true))))
-   /\ (arg1_430 <= 101
-       \/ SUM arg1_430 arg1_430
-           (\x_425.(arg1_430 > x_425 \/ true) /\ (arg1_430 <= x_425 \/ FAIL_406 true (\x_416.true)))).
-FAIL_406 u_407 k_408 =v false.
-FAIL_409 u_410 k_411 =v false.
-MC91 n x k_main_mc91_74 =v
-  (x <= 100 \/ k_main_mc91_74 (x - 10)) /\ (x > 100 \/ MC91 n (x + 11) (\x_434.MC91 n x_434 k_main_mc91_74)).
-SUM n_3 n_2 k_main_sum_13 =v
-  (n_2 > 0 \/ k_main_sum_13 0) /\ (n_2 <= 0 \/ SUM n_3 (n_2 - 1) (\x_438.k_main_sum_13 (n_2 + x_438))).
-Forall p      =v ∀n. p n.
+MAIN  =v
+  (arg1 > 101 \/ MC91 arg1 arg1 (\x_3.(x_3 != 91 \/ SUM arg1 arg1 (\x_10.arg1 <= x_10)) /\ x_3 = 91))
+  /\ (arg1 <= 101 \/ SUM arg1 arg1 (\x_10.arg1 <= x_10)).
+SUM n_14 n_12 k_main_sum =v
+  (n_12 > 0 \/ k_main_sum 0) /\ (n_12 <= 0 \/ SUM n_14 (n_12 - 1) (\x_11.k_main_sum (n_12 + x_11))).
+MC91 n x_6 k_main_mc91 =v
+  (x_6 <= 100 \/ k_main_mc91 (x_6 - 10)) /\ (x_6 > 100 \/ MC91 n (x_6 + 11) (\x_5.MC91 n x_5 k_main_mc91)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

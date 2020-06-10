@@ -1,12 +1,6 @@
 %HES
-MAIN_507  =v
-  ∀m_628.
-   ∀n_615.
-    ((n_615 <= 0 \/ m_628 <= 0)
-     \/ (0 = 0
-         \/ ((0 <= m_628 \/ m_628 < 0) /\ (0 < m_628 \/ (0 <= n_615 \/ n_615 < 0)) \/ true)
-            /\ ((0 > m_628 /\ m_628 >= 0 \/ 0 >= m_628 /\ (0 > n_615 /\ n_615 >= 0)) \/ FAIL_557 true (\x_637.true)))
-        /\ (0 != 0 \/ true))
-    /\ (n_615 > 0 /\ m_628 > 0 \/ true).
-FAIL_557 u_558 k_559 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v true.
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

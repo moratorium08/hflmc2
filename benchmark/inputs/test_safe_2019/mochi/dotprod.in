@@ -1,15 +1,13 @@
 %HES
-MAIN_621  =v
-  ∀arg1_706.
-   ∀arg2_704.
-    ((0 > arg1_706 \/ arg1_706 != arg2_704) \/ DOTPROD_AUX arg1_706 arg1_706 arg2_704 0 0 (\u_687.true))
-    /\ (0 <= arg1_706 /\ arg1_706 = arg2_704 \/ true).
-DOTPROD_AUX n_6 v1_5 v2_4 i sum k_dotprod_aux_51 =v
-  (i != n_6 \/ k_dotprod_aux_51 0)
-  /\ (i = n_6
-      \/ SUB v1_5 i
-          (\x_673.SUB v2_4 i (\x_681.DOTPROD_AUX n_6 v1_5 v2_4 (i + 1) (sum + x_673 * x_681) k_dotprod_aux_51))).
-FAIL_660 u_661 k_662 =v false.
-SUB src i_8 k_sub_29 =v
-  ((0 > i_8 \/ i_8 >= src) \/ k_sub_29 0) /\ (0 <= i_8 /\ i_8 < src \/ FAIL_660 true (\x_713.true)).
-Forall p      =v ∀n. p n.
+MAIN  =v (0 > arg1 \/ arg1 != arg2) \/ DOTPROD_AUX arg1 arg1 arg2 0 0 (\u.true).
+DOTPROD_AUX n v1_6 v2_5 i sum k_dotprod_aux =v
+  (i != n \/ k_dotprod_aux 0)
+  /\ (i = n
+      \/ ((0 > i \/ i >= v1_6)
+          \/ ((0 > i \/ i >= v2_5) \/ DOTPROD_AUX n v1_6 v2_5 (i + 1) (sum + 0 * 0) k_dotprod_aux)
+             /\ (0 <= i /\ i < v2_5))
+         /\ (0 <= i /\ i < v1_6)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

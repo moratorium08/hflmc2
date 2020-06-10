@@ -1,29 +1,19 @@
 %HES
-MAIN_641  =v
-  ∀arg1_729.
-   ∀arg2_727.
-    ∀arg3_724.
-     ((arg3_724 != 0 \/ arg1_729 > arg2_727)
-      \/ BCOPY_AUX arg1_729
-          (\i_747.
-            \k_make_array_748.
-             ((0 > i_747 \/ i_747 >= arg1_729) \/ k_make_array_748 0)
-             /\ (0 <= i_747 /\ i_747 < arg1_729 \/ FAIL_677 true (\x_736.true)))
-          (\i_747.
-            \k_make_array_748.
-             ((0 > i_747 \/ i_747 >= arg2_727) \/ k_make_array_748 0)
-             /\ (0 <= i_747 /\ i_747 < arg2_727 \/ FAIL_677 true (\x_736.true)))
-          arg3_724 (\main_686.true))
-     /\ (arg3_724 = 0 /\ arg1_729 <= arg2_727 \/ true).
-BCOPY_AUX m_3 src des i_2 k_bcopy_aux_95 =v
-  (i_2 < m_3 \/ k_bcopy_aux_95 true)
-  /\ (i_2 >= m_3
-      \/ src i_2
-          (\x_692.
-            des i_2
-             (\u_699.
-               BCOPY_AUX m_3 src
-                (\j_719.\k_update_720.(i_2 != j_719 \/ k_update_720 0) /\ (i_2 = j_719 \/ des j_719 k_update_720))
-                (i_2 + 1) k_bcopy_aux_95))).
-FAIL_677 u_678 k_679 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v
+  (arg3 != 0 \/ arg1 > arg2)
+  \/ BCOPY_AUX arg1 (\i_12.\k_make_array.((0 > i_12 \/ i_12 >= arg1) \/ k_make_array 0) /\ (0 <= i_12 /\ i_12 < arg1))
+      (\i_12.\k_make_array.((0 > i_12 \/ i_12 >= arg2) \/ k_make_array 0) /\ (0 <= i_12 /\ i_12 < arg2)) arg3
+      (\main.true).
+BCOPY_AUX m_8 src des i_7 k_bcopy_aux =v
+  (i_7 < m_8 \/ k_bcopy_aux true)
+  /\ (i_7 >= m_8
+      \/ src i_7
+          (\x.
+            des i_7
+             (\u.
+               BCOPY_AUX m_8 src (\j.\k_update.(i_7 != j \/ k_update 0) /\ (i_7 = j \/ des j k_update)) (i_7 + 1)
+                k_bcopy_aux))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

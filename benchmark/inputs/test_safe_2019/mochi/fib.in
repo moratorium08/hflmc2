@@ -1,7 +1,7 @@
 %HES
-MAIN_217  =v
-  ∀arg1_252.FIB arg1_252 (\x_244.(arg1_252 > x_244 \/ true) /\ (arg1_252 <= x_244 \/ FAIL_230 true (\x_237.true))).
-FAIL_230 u_231 k_232 =v false.
-FIB n_2 k_fib_7 =v
-  (n_2 >= 2 \/ k_fib_7 1) /\ (n_2 < 2 \/ FIB (n_2 - 1) (\x_250.FIB (n_2 - 2) (\x_241.k_fib_7 (x_250 + x_241)))).
-Forall p      =v ∀n. p n.
+MAIN  =v FIB arg1 (\x_1.arg1 <= x_1).
+FIB n k_fib =v (n >= 2 \/ k_fib 1) /\ (n < 2 \/ FIB (n - 1) (\x_5.FIB (n - 2) (\x_4.k_fib (x_5 + x_4)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

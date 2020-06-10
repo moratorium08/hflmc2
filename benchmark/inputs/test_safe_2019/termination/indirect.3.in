@@ -1,18 +1,22 @@
 %HES
-MAIN_1103  =v ∀x_1300.F 1 0 0 x_1300 (\x_1294.x_1294 0 0 0 true (\u_5362_1252.true)).
-F set_flag_app_128_4 s_app_h_EXPARAM_119_3 s_app_v_121_2 x_1 k_f_412 =v
-  (x_1 <= 0
-   \/ k_f_412
-       (\prev_set_flag_app_1196.
-         \s_prev_app_h_EXPARAM_1197.
-          \s_prev_app_v_1198.
-           \u_1199.
-            \k_app_1200.
-             (prev_set_flag_app_1196 = 0
-              \/ ((s_prev_app_v_1198 <= x_1 - 1 \/ x_1 - 1 < 0)
-                  \/ F 1 0 0 (x_1 - 1) (\x_1287.x_1287 1 0 (x_1 - 1) true k_app_1200))
-                 /\ (s_prev_app_v_1198 > x_1 - 1 /\ x_1 - 1 >= 0 \/ FAIL_1181 true (\x_1316.true)))
-             /\ (prev_set_flag_app_1196 != 0 \/ F 1 0 0 (x_1 - 1) (\x_1287.x_1287 1 0 (x_1 - 1) true k_app_1200))))
-  /\ (x_1 > 0 \/ k_f_412 (\x_1317.\x_1318.\x_1319.\x_1320.\k_id_1321.k_id_1321 true)).
-FAIL_1181 u_1182 k_1183 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v F true false 0 0 x_1 (\x.x false true 0 0 true (\u_5362.true)).
+F set_flag_app_128_pos_6 set_flag_app_128_neg_6 s_app_h_EXPARAM_119_5 s_app_v_121_4 x_3 k_f =v
+  (x_3 <= 0
+   \/ k_f
+       (\prev_set_flag_app_127_pos.
+         \prev_set_flag_app_127_neg.
+          \s_prev_app_h_EXPARAM_123.
+           \s_prev_app_v_125.
+            \u_9.
+             \k_app.
+              (prev_set_flag_app_127_neg
+               \/ ((s_prev_app_v_125 <= x_3 - 1 \/ x_3 - 1 < 0)
+                   \/ F true false 0 0 (x_3 - 1) (\x_10.x_10 true false 0 (x_3 - 1) true k_app))
+                  /\ (s_prev_app_v_125 > x_3 - 1 /\ x_3 - 1 >= 0))
+              /\ (prev_set_flag_app_127_pos
+                  \/ F true false 0 0 (x_3 - 1) (\x_10.x_10 true false 0 (x_3 - 1) true k_app))))
+  /\ (x_3 > 0 \/ k_f (\x_pos_30.\x_neg_30.\x_29.\x_28.\x_27.\k_id.k_id true)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

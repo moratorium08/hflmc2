@@ -1,18 +1,20 @@
 %HES
-MAIN_1088  =v
-  ∀x_9480.
-   F_WITHOUT_CHECKING_126 1 0 0 x_9480 1 0 0 0 1 0 0
-    (\x_9485.\x_9486.\x_9487.\n_9488.\k_gt_9489.(n_9488 <= 0 \/ k_gt_9489 1) /\ (n_9488 > 0 \/ k_gt_9489 0))
-    (\u_9381_9424.true).
-FAIL_9382 u_9383 k_9384 =v false.
-F_WITHOUT_CHECKING_126 x_13 x_12 x_11 x_10 x_9 x_8 x_7 p_EXPARAM_61_6 x_5 x_4 x_3 p_2 k_f_without_checking_126_251 =v
-  p_2 1 0 0 x_10
-   (\x_9452.
-     (x_9452 = 0
-      \/ (1 = 0
-          \/ ((x_10 <= x_10 - 1 \/ x_10 - 1 < 0)
-              \/ F_WITHOUT_CHECKING_126 1 0 0 (x_10 - 1) 1 0 0 0 1 0 0 p_2 k_f_without_checking_126_251)
-             /\ (x_10 > x_10 - 1 /\ x_10 - 1 >= 0 \/ FAIL_9382 true (\x_9478.true)))
-         /\ (1 != 0 \/ F_WITHOUT_CHECKING_126 1 0 0 (x_10 - 1) 1 0 0 0 1 0 0 p_2 k_f_without_checking_126_251))
-     /\ (x_9452 != 0 \/ k_f_without_checking_126_251 true)).
-Forall p      =v ∀n. p n.
+MAIN  =v
+  F_WITHOUT_CHECKING_126 true false 0 0 x true false 0 0 0 true false 0 0
+   (\x_pos_20.\x_neg_20.\x_19.\x_18.\n.\k_gt.k_gt (n > 0) (n <= 0)) (
+   \u_9381.true).
+F_WITHOUT_CHECKING_126 x_pos_17 x_neg_17 x_16 x_15 x_14 x_pos_13 x_neg_13 x_12 x_11 p_EXPARAM_61_10 x_pos_9 x_neg_9 x_8 x_7 p_6 k_f_without_checking_126
+  =v
+  p_6 true false 0 0 x_14
+   (\x_pos_5.
+     \x_neg_5.
+      (x_neg_5
+       \/ ((x_14 <= x_14 - 1 \/ x_14 - 1 < 0)
+           \/ F_WITHOUT_CHECKING_126 true false 0 0 (x_14 - 1) true false 0 0 0 true false 0 0 p_6
+               k_f_without_checking_126)
+          /\ (x_14 > x_14 - 1 /\ x_14 - 1 >= 0))
+      /\ (x_pos_5 \/ k_f_without_checking_126 true)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,24 +1,23 @@
 %HES
-MAIN_797  =v
-  ∀x_870.
-   ∀x_844.
-    ((x_844 < 0 \/ x_870 < 0) \/ F 1 0 x_844 (\x_863.x_863 0 0 0 (\u_492_836.true)))
-    /\ (x_844 >= 0 /\ x_870 >= 0 \/ true).
-F set_flag_succ_90_5 s_succ_n_87_4 n_3 k_f_187 =v
-  (n_3 != 0
-   \/ k_f_187
-       (\prev_set_flag_succ_899.
-         \s_prev_succ_n_900.
-          \n_901.
-           \k_succ_902.
-            (prev_set_flag_succ_899 = 0 \/ FAIL_833 true (\x_874.true))
-            /\ (prev_set_flag_succ_899 != 0 \/ k_succ_902 0)))
-  /\ (n_3 = 0
-      \/ F 1 0 (n_3 - 1)
-          (\x_841.
-            k_f_187
-             (\set_flag_succ_90_881.
-               \s_succ_n_87_882.
-                \a_883.\k_g_884.x_841 set_flag_succ_90_881 0 0 (\x_855.x_841 set_flag_succ_90_881 0 x_855 k_g_884)))).
-FAIL_833 u_834 k_835 =v false.
-Forall p      =v ∀n. p n.
+MAIN  =v (x < 0 \/ x_1 < 0) \/ F true false 0 x (\x_3.x_3 false true 0 0 (\u_492.true)).
+F set_flag_succ_90_pos_10 set_flag_succ_90_neg_10 s_succ_n_87_9 n_8 k_f =v
+  (n_8 != 0
+   \/ k_f
+       (\prev_set_flag_succ_89_pos.
+         \prev_set_flag_succ_89_neg.
+          \s_prev_succ_n_88.\n_21.\k_succ.prev_set_flag_succ_89_neg /\ (prev_set_flag_succ_89_pos \/ k_succ 0)))
+  /\ (n_8 = 0
+      \/ F true false 0 (n_8 - 1)
+          (\x_7.
+            k_f
+             (\set_flag_succ_90_pos_13.
+               \set_flag_succ_90_neg_13.
+                \s_succ_n_87_12.
+                 \a.
+                  \k_g.
+                   x_7 set_flag_succ_90_pos_13 set_flag_succ_90_neg_13 0 0
+                    (\x_11.x_7 set_flag_succ_90_pos_13 set_flag_succ_90_neg_13 0 x_11 k_g)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

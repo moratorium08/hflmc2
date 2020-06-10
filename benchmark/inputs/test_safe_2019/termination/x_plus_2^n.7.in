@@ -1,23 +1,13 @@
 %HES
-MAIN_903  =v
-  ∀x_13963.
-   ∀x_13948.
-    ((x_13948 < 0 \/ x_13963 < 0) \/ F_WITHOUT_CHECKING_186 1 0 x_13948 (\x_13961.x_13961 1 0 0 (\u_13922_13940.true)))
-    /\ (x_13948 >= 0 /\ x_13963 >= 0 \/ true).
-FAIL_13923 u_13924 k_13925 =v false.
-F_WITHOUT_CHECKING_186 x_7 x_6 n_5 k_f_without_checking_186_305 =v
-  (n_5 != 0 \/ k_f_without_checking_186_305 (\x_13992.\x_13993.\n_13994.\k_succ_13995.k_succ_13995 0))
-  /\ (n_5 = 0
-      \/ (1 = 0
-          \/ ((n_5 <= n_5 - 1 \/ n_5 - 1 < 0)
-              \/ F_WITHOUT_CHECKING_186 1 0 (n_5 - 1)
-                  (\x_13953.
-                    k_f_without_checking_186_305
-                     (\set_flag_f_178_13974.\s_f_n_175_13975.\a_13976.\k_g_13977.k_g_13977 0)))
-             /\ (n_5 > n_5 - 1 /\ n_5 - 1 >= 0 \/ FAIL_13923 true (\x_13967.true)))
-         /\ (1 != 0
-             \/ F_WITHOUT_CHECKING_186 1 0 (n_5 - 1)
-                 (\x_13953.
-                   k_f_without_checking_186_305
-                    (\set_flag_f_178_13974.\s_f_n_175_13975.\a_13976.\k_g_13977.k_g_13977 0)))).
-Forall p      =v ∀n. p n.
+MAIN  =v (x < 0 \/ x_1 < 0) \/ F_WITHOUT_CHECKING_186 true 0 x (\x_3.x_3 true 0 0 (\u_13922.true)).
+F_WITHOUT_CHECKING_186 x_13 x_12 n_11 k_f_without_checking_186 =v
+  (n_11 != 0 \/ k_f_without_checking_186 (\x_23.\x_22.\n_21.\k_succ.k_succ 0))
+  /\ (n_11 = 0
+      \/ ((n_11 <= n_11 - 1 \/ n_11 - 1 < 0)
+          \/ F_WITHOUT_CHECKING_186 true 0 (n_11 - 1)
+              (\x_10.k_f_without_checking_186 (\set_flag_f_178_15.\s_f_n_175_14.\a.\k_g.k_g 0)))
+         /\ (n_11 > n_11 - 1 /\ n_11 - 1 >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

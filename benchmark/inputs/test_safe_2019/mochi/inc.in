@@ -1,9 +1,9 @@
 %HES
-MAIN_319  =v ∀arg1_343.G arg1_343 (\i_333.\k_ar_334.k_ar_334 0) 0 (\main_336.true).
-FAIL_330 u_331 k_332 =v false.
-G e a j k_g_32 =v
-  (j >= e
-   \/ ((0 > j \/ j >= e) \/ G e (\j_357.\k_update_358.k_update_358 0) (j + 1) k_g_32)
-      /\ (0 <= j /\ j < e \/ FAIL_330 true (\x_346.true)))
-  /\ (j < e \/ k_g_32 true).
-Forall p      =v ∀n. p n.
+MAIN  =v G arg1 (\i_7.\k_ar.k_ar 0) 0 (\main.true).
+G e a j k_g =v
+  (j >= e \/ ((0 > j \/ j >= e) \/ G e (\j_4.\k_update.k_update 0) (j + 1) k_g) /\ (0 <= j /\ j < e))
+  /\ (j < e \/ k_g true).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

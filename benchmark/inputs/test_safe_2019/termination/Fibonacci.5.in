@@ -1,15 +1,13 @@
 %HES
-MAIN_395  =v ∀x_457.FIB_WITHOUT_CHECKING_52 1 0 x_457 (\u_2883_436.true).
-FAIL_423 u_424 k_425 =v false.
-FIB_WITHOUT_CHECKING_52 x_4 x_3 n_2 k_fib_without_checking_52_99 =v
-  (n_2 >= 2 \/ k_fib_without_checking_52_99 1)
-  /\ (n_2 < 2
-      \/ (1 = 0
-          \/ ((n_2 <= n_2 - 1 \/ n_2 - 1 < 0)
-              \/ FIB_WITHOUT_CHECKING_52 1 0 (n_2 - 1)
-                  (\x_452.FIB_WITHOUT_CHECKING_52 1 0 (n_2 - 2) (\x_442.k_fib_without_checking_52_99 (x_452 + x_442))))
-             /\ (n_2 > n_2 - 1 /\ n_2 - 1 >= 0 \/ FAIL_423 true (\x_461.true)))
-         /\ (1 != 0
-             \/ FIB_WITHOUT_CHECKING_52 1 0 (n_2 - 1)
-                 (\x_452.FIB_WITHOUT_CHECKING_52 1 0 (n_2 - 2) (\x_442.k_fib_without_checking_52_99 (x_452 + x_442))))).
-Forall p      =v ∀n. p n.
+MAIN  =v FIB_WITHOUT_CHECKING_52 true 0 x (\u_2883.true).
+FIB_WITHOUT_CHECKING_52 x_8 x_7 n_6 k_fib_without_checking_52 =v
+  (n_6 >= 2 \/ k_fib_without_checking_52 1)
+  /\ (n_6 < 2
+      \/ ((n_6 <= n_6 - 1 \/ n_6 - 1 < 0)
+          \/ FIB_WITHOUT_CHECKING_52 true 0 (n_6 - 1)
+              (\x_5.FIB_WITHOUT_CHECKING_52 true 0 (n_6 - 2) (\x_4.k_fib_without_checking_52 (x_5 + x_4))))
+         /\ (n_6 > n_6 - 1 /\ n_6 - 1 >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).
