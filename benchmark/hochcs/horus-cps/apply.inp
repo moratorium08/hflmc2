@@ -7,4 +7,4 @@ program
 false => F2 v1
 ;
 goal
-∃ dummy:int. F1 0 F2
+∃:int. F1 0 F2

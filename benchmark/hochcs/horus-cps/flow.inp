@@ -5,4 +5,4 @@ program
 true => dummy
 ;
 goal
-∃ dummy:int. false
+∃:int. false
