@@ -3,7 +3,7 @@ from common import *
 ############  Do not change[end]  ############
 
 TARGET = 'mochi -only-result'
-cmd_template = TARGET + ' {}'  # <option> <filename>
+cmd_template = TARGET + ' {} {}'  # <option> <filename>
 
 cfg = None
 
@@ -19,11 +19,17 @@ def config(c):
 
 
 def cli_arg(parser):
+    parser.add_argument('--non-termination', action='store_true')
     return parser
 
 
 def gen_cmd(file):
-    return cmd_template.format(file)
+    args = cfg.args
+    ags = []
+    if args.non_termination:
+        ags.append('-non-termination')
+    ag = ' '.join(ags)
+    return cmd_template.format(ag, file)
 
 
 def parse_stdout(stdout):
