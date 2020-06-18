@@ -2,7 +2,7 @@
 import sys
 import json
 
-TIMEOUT_T = 10
+TIMEOUT_T = 180
 FAIL_T = 100
 # dataset identity
 def ds_iden(x):

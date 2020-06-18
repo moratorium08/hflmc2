@@ -48,3 +48,8 @@ cd ml
 l="test_safe_2019"
 find $l -depth 2 | grep -E ".*ml$" > ../lists/ml
 cd ../
+
+cd ml
+l="higher_nonterminating"
+find $l -depth 1 | grep -E ".*ml$" > ../lists/ml-nonterminating
+cd ../
