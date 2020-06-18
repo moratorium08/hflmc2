@@ -2,8 +2,9 @@
 from common import *
 ############  Do not change[end]  ############
 
-TARGET = 'infer'
-cmd_template = TARGET + ' {} {}'  # <option> <filename>
+TARGET_NON_REACHABILITY = 'infer'
+TARGET_NON_TERMINATION = 'infer-non-term'
+cmd_template = '{} {} {}'  # <option> <filename>
 
 cfg = None
 
@@ -20,6 +21,7 @@ def config(c):
 
 def cli_arg(parser):
     parser.add_argument('--no-inline', action='store_true')
+    parser.add_argument('--non-termination', action='store_true')
     return parser
 
 
@@ -28,9 +30,13 @@ def gen_cmd(file):
     ags = []
     if args.no_inline:
         ags.append('--no-inlining')
+    if args.non_termination:
+        target = TARGET_NON_TERMINATION
+    else:
+        target = TARGET_NON_REACHABILITY
 
     ag = ' '.join(ags)
-    return cmd_template.format(ag, file)
+    return cmd_template.format(target, ag, file)
 
 
 def parse_stdout(stdout):
