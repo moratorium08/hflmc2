@@ -128,7 +128,10 @@ let rec infer_formula track formula env m ints =
       | (RBool(rx), RBool(ry)) -> (rx, ry)
       | _ -> failwith "type is not correct"
     in 
-    RBool(ROr(rx, ry)), m'
+    let t = RBool(RTemplate(generate_id (), ints)) in 
+    let m'' = subtype (x') (t) m' in
+    let m3 = subtype (y') (t) m'' in
+    t, m3
   | And (x, y, t1, t2) -> 
     let (x', mx) = infer_formula track x env m ints in
     let (y', m') = infer_formula track y env mx ints in
