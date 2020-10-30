@@ -6,6 +6,8 @@ open Smt2
 
 type solver = [`Spacer | `Hoice | `Fptprove | `Eldarica]
 
+let fptprove_path_env = "fptprove"
+
 type unsat_proof_node = 
   {
    id: int; 
@@ -32,14 +34,29 @@ let selected_solver size =
   else failwith ("Unknown solver: " ^ sv)
 
 (* set of template *)
-let selected_cmd = function
-  | `Spacer -> 
-    [|"z3"; "fp.engine=spacer"|]
-  | `Hoice ->
-    [|"hoice"|]
-  | `Fptprove ->
-    (* TODO: fix this *)
-    [|"./fptprove/run_fptprove"|]
+let call_template cmd timeout = 
+    let open Hflmc2_util in
+    fun file -> 
+    let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [cmd; [|file|]]) in
+    String.lsplit2 out ~on:'\n'
+
+let call_fptprove timeout file = 
+  let open Hflmc2_util in
+  let fptprove_path = 
+    try Sys.getenv "fptprove" with
+    | Not_found -> Filename.concat (Sys.getenv "HOME") "bitbucket.org/uhiro/fptprove"
+  in
+  Sys.chdir fptprove_path;
+  let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [[|"./script/hflmc3.sh"|]; [|file|]]) in
+  let l = String.split out ~on:',' in
+  match List.nth l 1 with
+    | Some(x) -> Some(x, "")
+    | None -> None
+
+let selected_cmd timeout = function
+  | `Spacer -> call_template [|"z3"; "fp.engine=spacer"|] timeout
+  | `Hoice -> call_template [|"hoice"|] timeout
+  | `Fptprove -> call_fptprove timeout
   | _ -> failwith "you cannot use this"
   
 let selected_cex_cmd = function
@@ -228,11 +245,10 @@ let save_chc_to_smt2 chcs solver =
 
 let check_sat ?(timeout=100000.0) chcs solver = 
   let check_sat_inner timeout solver = 
-    let open Hflmc2_util in
     let file = save_chc_to_smt2 chcs solver in
-    let cmd = selected_cmd solver in
-    let _, out, _ = Fn.run_command ~timeout:timeout (Array.concat [cmd; [|file|]]) in
-    match String.lsplit2 out ~on:'\n' with
+    let open Hflmc2_util in
+    let f = selected_cmd timeout solver in
+    match f file with
     | Some ("unsat", _) -> `Unsat
     | Some ("sat", model) ->
       let open Hflmc2_options in
@@ -241,7 +257,7 @@ let check_sat ?(timeout=100000.0) chcs solver =
       else
         `Sat(Error "did not calculate refinement. Use --show-refinement")
     | Some ("unknown", _) -> `Unknown
-    | _ -> (Printf.printf "Failed to handle the result of chc solver\n\n%s\n" out; `Fail)
+    | _ -> (Printf.printf "Failed to handle the result of chc solver\n\n" ; `Fail)
   in 
   match solver with
   | `Auto(mainly, tries) ->

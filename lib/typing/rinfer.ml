@@ -307,17 +307,17 @@ let rec infer hes env top =
       let target = if size < size_dual then simplified else simplified' in
 
       let target' = expand target in
-      print_string "remove or \n";
+      print_string "remove or or\n";
       print_constraints target';
       (* 3. check satisfiability *)
-      match call_solver_with_timer target' (Chc_solver.selected_solver 1) with
+      (*match call_solver_with_timer target' (Chc_solver.selected_solver 1) with
       | `Sat(x) -> `Sat(x)
       | `Fail -> failwith "hoge"
       | _ ->
-        begin
+        begin*)
           if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
           call_solver_with_timer target Chc_solver.(`Fptprove)
-        end
+        (*end*)
     end else try_intersection_type simplified size
   in 
   let x = infer_main hes env top in
