@@ -4,7 +4,7 @@ open Chc
 open Rtype
 open Smt2
 
-type solver = [`Spacer | `Hoice | `Fptprove | `Eldarica]
+type solver = [`Spacer | `Hoice | `Fptprove | `Eldarica | `Liu]
 
 let fptprove_path_env = "fptprove"
 
@@ -21,6 +21,7 @@ let name_of_solver = function
   | `Hoice -> "hoice"
   | `Fptprove -> "fptprove"
   | `Eldarica -> "eldarica"
+  | `Liu      -> "liu"
 
 let auto = `Auto(`Hoice, [])
 

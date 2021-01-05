@@ -304,6 +304,7 @@ let rec infer hes env top =
       let simplified' = simplify dual in
       let size_dual = dnf_size simplified' in
       Printf.printf "[Dual Size] %d\n" size_dual;
+      let size' = if size < size_dual then size else size_dual in
       let target = if size < size_dual then simplified else simplified' in
 
       let target' = expand target in
@@ -316,7 +317,10 @@ let rec infer hes env top =
       | _ ->
         begin*)
           if size > 1 && size_dual > 1 then print_string "[Warning]Some definite clause has or-head\n";
-          call_solver_with_timer target Chc_solver.(`Fptprove)
+          if size' > 1 then
+            call_solver_with_timer target Chc_solver.(`Fptprove)
+          else
+            try_intersection_type target size'
         (*end*)
     end else try_intersection_type simplified size
   in 
