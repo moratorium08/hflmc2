@@ -27,7 +27,13 @@ let expand unsat_proof hes =
     in
     {rule with body=inner rule.body}
   in
-  let rec expand_nu_formula expand_cnt rule = 
+  (* should use Set-like structure. Current implmenetation: O(n) *)
+  let rec is_fixpoint x rules = match rules with
+    | [] -> None
+    | y::ys when Id.eq x y.var -> Some(y)
+    | y::ys -> is_fixpoint x ys
+  in
+  let rec expand_nu_formula expand_cnt rule rules = 
     if expand_cnt <= 0 then
       Rhflz.top_hflz rule.var.ty
     else begin
@@ -38,7 +44,11 @@ let expand unsat_proof hes =
         | Forall(x, t, s) -> Forall(x, inner t, s)
         | App(x, y, t) -> App(inner x, inner y, t)
         | Abs(x, y) -> Abs(x, inner y)
-        | Var(x) when Id.eq x rule.var -> expand_nu_formula (expand_cnt - 1) rule 
+        | Var(x) -> 
+          begin match is_fixpoint x rules with 
+            | Some(rule) -> expand_nu_formula (expand_cnt - 1) rule rules
+            | None -> Var(x)
+          end
         | x -> x
       in
       inner rule.body
@@ -66,11 +76,12 @@ let expand unsat_proof hes =
     | rule::rules -> 
       {rule with body=inner rule.body}::subst_rules fml var rules
   in
-  let rec expand_rule iters rules = match iters with
+  let rec expand_rule iters rules = 
+    match iters with
     | [] -> rules
     | rule::xs -> 
       let expand_cnt = count_rule map rule in
-      let fml = expand_nu_formula expand_cnt rule in
+      let fml = expand_nu_formula expand_cnt rule rules in
       let rules' = subst_rules fml rule.var rules in
       expand_rule xs rules'
   in
