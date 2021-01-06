@@ -76,11 +76,18 @@ let expand unsat_proof hes =
     | rule::rules -> 
       {rule with body=inner rule.body}::subst_rules fml var rules
   in
+  let rec gen_count_map rules = match rules with
+    | [] -> []
+    | rule::rules -> (rule.var, count_rule map rule)::gen_count_map rules
+  in
   let rec expand_rule iters rules = 
+    let count_map = gen_count_map rules in
     match iters with
     | [] -> rules
     | rule::xs -> 
-      let expand_cnt = count_rule map rule in
+      (* temporal fix *)
+      (*let expand_cnt = count_rule map rule in *)
+      let expand_cnt = List.fold_left (fun x rule -> x + count_rule map rule) 0 rules in
       let fml = expand_nu_formula expand_cnt rule rules in
       let rules' = subst_rules fml rule.var rules in
       expand_rule xs rules'
