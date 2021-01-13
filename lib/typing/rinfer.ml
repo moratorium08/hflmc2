@@ -280,6 +280,7 @@ let rec infer hes env top =
       if unsat then returns check_feasibility
     *)
     match call_solver_with_timer chcs (Chc_solver.selected_solver 1) with
+    | `Unsat when !Hflmc2_options.Typing.no_disprove -> `Unknown
     | `Unsat -> check_feasibility chcs     
     | `Sat(x) -> `Sat(x)
     | `Fail -> `Fail
