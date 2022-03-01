@@ -58,6 +58,18 @@ let main file =
   let psi, top = Syntax.Trans.Preprocess.main psi in
   match top with
   | Some(top) -> begin
+
+    let psi = 
+    if !Options.Preprocess.remove_disjunction then
+      begin
+      (* remove disjunction *)
+        let psi = Syntax.Trans.RemoveDisjunction.f psi top in
+        Log.app begin fun m -> m ~header:"RemoveDisj" "%a"
+          Print.(hflz_hes simple_ty_) psi
+        end;
+        psi
+      end
+    else psi in
     match Typing.main psi top with
     | `Sat ->  `Valid
     | `Unsat ->  `Invalid

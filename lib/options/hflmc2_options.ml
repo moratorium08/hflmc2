@@ -8,7 +8,8 @@ open Hflmc2_util
 let oneshot = ref false
 
 module Preprocess = struct
-  let inlining = ref (Obj.magic())
+  let inlining           = ref (Obj.magic())
+  let remove_disjunction = ref (Obj.magic())
 end
 
 module Abstraction = struct
@@ -59,6 +60,8 @@ type params =
   (* Preprocess *)
   ; no_inlining : bool [@default false]
     (** Disable inlining *)
+  ; remove_disjunction: bool [@default false]
+    (** Remove disjunction *)
 
   (* Logging *)
   ; log_debug : string list [@default []] [@docs "Log"] [@docv "MODULE,..."] [@aka ["debug"]]
@@ -100,6 +103,7 @@ let set_up_params params =
   set_module_log_level Info                params.log_info;
   set_ref oneshot                          params.oneshot;
   set_ref Preprocess.inlining              (not params.no_inlining);
+  set_ref Preprocess.remove_disjunction    params.remove_disjunction;
   set_ref Abstraction.max_I                params.abst_max_I;
   set_ref Abstraction.max_ands             params.abst_max_ands;
   set_ref Abstraction.modify_pred_by_guard (not params.abst_no_modify_pred_by_guard);

@@ -22,6 +22,8 @@ def cli_arg(parser):
     parser.add_argument("--solver", help="set background CHC solver", default="auto")
     parser.add_argument('--no-inline', action='store_true')
     parser.add_argument('--mode-burn-et-al', action='store_true')
+    parser.add_argument('--no-disprove', action='store_true')
+    parser.add_argument('--remove-disjunction', action='store_true')
     return parser
 
 
@@ -32,6 +34,10 @@ def gen_cmd(file):
         ags.append('--no-inlining')
     if args.mode_burn_et_al:
         ags.append('--mode-burn-et-al')
+    if args.remove_disjunction:
+        ags.append('--remove-disjunction')
+    if args.no_disprove:
+        ags.append('--no-disprove')
     s = args.solver
     if s == 'z3':
         ags.append("--solver z3")
@@ -67,6 +73,8 @@ def parse_stdout(stdout):
             return 'valid'
         elif 'Fail' in line:
             return 'fail'
+        elif 'Unknown' in line:
+            return 'unknown'
         else:
             raise ParseError
 
@@ -120,10 +128,10 @@ def stat(results):
         lambda x: 'error' in x and x['error'] == 'timeout', results))
 
     no_errors = [x for x in results if x['ok']]
-    mean = sum(x['total'] for x in no_errors) / len(no_errors)
+    #mean = sum(x['total'] for x in no_errors) / len(no_errors)
     print('[Result]')
     print(f'- solver={cfg.args.solver}')
     print(f'- valid={valid_cnt}')
     print(f'- invalid={invalid_cnt}')
     print(f'- timeout={timeout_cnt}')
-    print(f'- mean_without_errors={mean}')
+    #print(f'- mean_without_errors={mean}')

@@ -258,6 +258,7 @@ let check_sat ?(timeout=100000.0) chcs solver =
       else
         `Sat(Error "did not calculate refinement. Use --show-refinement")
     | Some ("unknown", _) -> `Unknown
+    | Some(x, _) -> (Printf.printf "Failed to handle the result of chc solver: %s\n\n" x; `Fail)
     | _ -> (Printf.printf "Failed to handle the result of chc solver\n\n" ; `Fail)
   in 
   match solver with
