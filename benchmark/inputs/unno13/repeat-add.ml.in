@@ -1,0 +1,9 @@
+%HES
+MAIN_351  =v
+  ((arg1_393 < 0 \/ arg2_383 <= 0)
+   \/ REPEAT (\x2_371.\k_add_372.k_add_372 (arg1_393 + x2_371)) arg2_383 0
+       (\x_391.(x_391 < arg1_393 \/ true) /\ (x_391 >= arg1_393 \/ FAIL_367 true (\x_380.true))))
+  /\ (arg1_393 >= 0 /\ arg2_383 > 0 \/ true).
+FAIL_367 u_368 k_369 =v false.
+REPEAT f k_2 x k_repeat_18 =v
+  (k_2 > 0 \/ k_repeat_18 x) /\ (k_2 <= 0 \/ REPEAT f (k_2 - 1) x (\x_398.f x_398 k_repeat_18)).

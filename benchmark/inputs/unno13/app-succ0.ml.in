@@ -1,0 +1,7 @@
+%HES
+MAIN_314  =v
+  APP (\y_325.\k_check_326.(0 != y_325 \/ k_check_326 true) /\ (0 = y_325 \/ FAIL_321 true (\x_341.true))) 0
+   (\main_330.true).
+APP f x_3 k_app_37 =v
+     APP (\x_343.\k_succ_344.f (x_343 + 1) k_succ_344) (x_3 - 1) k_app_37 /\ f x_3 k_app_37.
+FAIL_321 u_322 k_323 =v false.

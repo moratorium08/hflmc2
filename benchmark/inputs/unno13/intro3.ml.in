@@ -1,0 +1,8 @@
+%HES
+MAIN_486  =v
+  APP3
+   (\y_501.\k_check_502.(arg1_519 > y_501 \/ k_check_502 true) /\ (arg1_519 <= y_501 \/ FAIL_493 true (\x_517.true)))
+   (\f_497.\k_app_498.f_497 arg1_519 k_app_498) (\main_506.true).
+APP3 f_3 g k_app3_43 =v
+     APP3 (\x_522.\k_succ_523.f_3 (x_522 + 1) k_succ_523) g k_app3_43 /\ g f_3 k_app3_43.
+FAIL_493 u_494 k_495 =v false.

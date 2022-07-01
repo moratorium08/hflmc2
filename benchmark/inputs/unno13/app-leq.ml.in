@@ -1,0 +1,9 @@
+%HES
+MAIN_324  =v
+  (arg1_358 > arg2_356 \/ K_MAIN_96 arg1_358 arg2_356 (\main_350.true) 1)
+  /\ (arg1_358 <= arg2_356 \/ K_MAIN_96 arg1_358 arg2_356 (\main_350.true) 0).
+FAIL_338 u_339 k_340 =v false.
+K_MAIN_64 a b x_104 k_main_50 x_76 =v
+  (x_76 != x_104 \/ k_main_50 true) /\ (x_76 = x_104 \/ FAIL_338 true (\x_353.true)).
+K_MAIN_96 a b k_main_50 x_104 =v
+  (a > b \/ K_MAIN_64 a b x_104 k_main_50 1) /\ (a <= b \/ K_MAIN_64 a b x_104 k_main_50 0).

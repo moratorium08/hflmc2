@@ -1,0 +1,5 @@
+%HES
+MAIN_248  =v
+  (4 * arg1_277 + 2 * arg2_275 != 4 * arg1_277 + 2 * arg2_275 \/ true)
+  /\ (4 * arg1_277 + 2 * arg2_275 = 4 * arg1_277 + 2 * arg2_275 \/ FAIL_257 true (\x_272.true)).
+FAIL_257 u_258 k_259 =v false.
