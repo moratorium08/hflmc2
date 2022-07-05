@@ -20,9 +20,6 @@ l="test_safe_2019"
 find $l -depth 2 | grep -E ".*in$" > ../lists/$l
 find $l -depth 2 | grep -E ".*in$" >> ../lists/all
 
-l="test_safe_2019_katsura"
-find $l -depth 2 | grep -E ".*in$" > ../lists/$l
-
 cd ../
 # adhoc
 mv lists/Burn_POPL18 lists/burn
