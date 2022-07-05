@@ -11,7 +11,6 @@ test_unsafe/indirectHO01.ml
 test_unsafe/xyz2.ml
 test_unsafe/mult-e.ml
 test_unsafe/repeat-e.ml
-test_unsafe/search-e.ml
 test_unsafe/zip00.ml
 test_unsafe/01_ic3.ml
 test_unsafe/sum-e.ml

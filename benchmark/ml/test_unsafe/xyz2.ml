@@ -13,7 +13,7 @@ let rec loopb bx by bz =
         let rx = bx - 1 in
         let ry = by - 1 in
         loopb rx ry rz)
-    else assert (bz < 1 = false)
+    else assert (bz >= 1)
 
 let main (mm:unit(*-:{v:Unit | unit}*)) =
     let x = 0 in
