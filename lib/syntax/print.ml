@@ -3,8 +3,6 @@ open Hflmc2_util
 include Fmt
 include Format
 
-let print = Fn.print
-
 let semicolon : unit Fmt.t = fun ppf () -> string ppf ";"
 
 let list_comma : 'a Fmt.t -> 'a list Fmt.t =
