@@ -9,6 +9,8 @@ def ds_iden(x):
         return x
     return '/'.join(l[-2:])
 
+def cmpkey(x):
+    return (x["file"].split("/")[0], x["size"])
 
 def main():
     files = sys.argv[1:]
@@ -27,6 +29,7 @@ def main():
     fail = 0
     wrong_answers = []
     ca_time_sum = 0
+    data = sorted(data, key=cmpkey)
     for x in data:
         key = ds_iden(x['file'])
         target = 'invalid' if key.endswith('-e.in') else 'valid'
