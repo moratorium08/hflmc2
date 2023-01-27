@@ -13,3 +13,7 @@ example:
 ```
 ./x ml-in-nonterminating --timeout=180 
 ```
+
+```
+python3 bench.py --timeout=60 --json mochi_unsafety.json mochi_unsafety
+```
