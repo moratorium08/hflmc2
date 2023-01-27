@@ -1,0 +1,8 @@
+%HES
+MAIN_211  =v
+  MULT arg1_237 arg1_237
+   (\x_232.(arg1_237 + 1 > x_232 \/ true) /\ (arg1_237 + 1 <= x_232 \/ FAIL_222 true (\x_229.true))).
+FAIL_222 u_223 k_224 =v false.
+MULT n_2 m k_mult_7 =v
+  (n_2 > 0 /\ m > 0 \/ k_mult_7 0) /\ ((n_2 <= 0 \/ m <= 0) \/ MULT n_2 (m - 1) (\x_241.k_mult_7 (n_2 + x_241))).
+Forall p      =v ∀n. p n.

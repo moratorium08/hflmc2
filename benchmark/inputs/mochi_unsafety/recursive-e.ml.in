@@ -1,0 +1,7 @@
+%HES
+MAIN_291  =v
+  F (\x_322.\k_succ_323.k_succ_323 (x_322 - 1)) arg1_320
+   (\x_315.(x_315 < 0 \/ true) /\ (x_315 >= 0 \/ FAIL_301 true (\x_312.true))).
+F g x_2 k_f_10 =v (x_2 < 0 \/ g x_2 k_f_10) /\ (x_2 >= 0 \/ g x_2 (\x_309.F (F g) x_309 k_f_10)).
+FAIL_301 u_302 k_303 =v false.
+Forall p      =v ∀n. p n.

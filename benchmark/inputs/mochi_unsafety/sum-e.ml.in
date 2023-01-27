@@ -1,0 +1,6 @@
+%HES
+MAIN_195  =v
+  SUM arg1_220 (\x_215.(arg1_220 + 1 > x_215 \/ true) /\ (arg1_220 + 1 <= x_215 \/ FAIL_205 true (\x_212.true))).
+FAIL_205 u_206 k_207 =v false.
+SUM n_2 k_sum_7 =v (n_2 > 0 \/ k_sum_7 0) /\ (n_2 <= 0 \/ SUM (n_2 - 1) (\x_223.k_sum_7 (n_2 + x_223))).
+Forall p      =v ∀n. p n.

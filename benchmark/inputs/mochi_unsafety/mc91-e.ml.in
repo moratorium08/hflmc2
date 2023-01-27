@@ -1,0 +1,7 @@
+%HES
+MAIN_223  =v
+  (arg1_248 > 102 \/ MC91 arg1_248 (\x_246.(x_246 != 91 \/ true) /\ (x_246 = 91 \/ FAIL_233 true (\x_240.true))))
+  /\ (arg1_248 <= 102 \/ true).
+FAIL_233 u_234 k_235 =v false.
+MC91 x k_mc91_6 =v (x <= 100 \/ k_mc91_6 (x - 10)) /\ (x > 100 \/ MC91 (x + 11) (\x_251.MC91 x_251 k_mc91_6)).
+Forall p      =v ∀n. p n.

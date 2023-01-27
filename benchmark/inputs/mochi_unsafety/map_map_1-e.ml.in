@@ -1,0 +1,7 @@
+%HES
+MAIN_216  =v
+  MAP arg1_251
+   (\x_249.MAP x_249 (\x_246.(x_246 != arg1_251 \/ true) /\ (x_246 = arg1_251 \/ FAIL_230 true (\x_238.true)))).
+FAIL_230 u_231 k_232 =v false.
+MAP x k_map_6 =v (x != 1 \/ k_map_6 0) /\ (x = 1 \/ MAP (x - 1) (\x_254.k_map_6 (1 + x_254))).
+Forall p      =v ∀n. p n.

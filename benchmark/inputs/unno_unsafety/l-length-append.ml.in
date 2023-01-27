@@ -1,0 +1,26 @@
+%HES
+MAIN_770  =v
+  APPEND arg1_892 (\i_876.\k_main_877.k_main_877 1)
+   (\x_881.
+     x_881 arg2_884 (\i_867.\k_main_868.k_main_868 1)
+      (\x0_872.
+        \x1_873.
+         LENGTH x0_872 x1_873
+          (\x_864.
+            (x_864 != arg1_892 + arg2_884 \/ true) /\ (x_864 = arg1_892 + arg2_884 \/ FAIL_816 true (\x_854.true))))).
+APPEND len1__l10 len1__l11 k_append_26 =v
+  k_append_26
+   (\len2__l20_828.
+     \len2__l21_829.
+      \k_append_830.
+       (len1__l10 != 0 \/ k_append_830 len2__l20_828 len2__l21_829)
+       /\ (len1__l10 = 0
+           \/ APPEND (len1__l10 - 1) (\i_833.\k_append_r_append_834.k_append_r_append_834 1)
+               (\x_839.
+                 x_839 len2__l20_828 len2__l21_829
+                  (\r_append0_843.\r_append1_844.k_append_830 (r_append0_843 + 1) (\i_848.\k_append_849.k_append_849 1))))).
+FAIL_816 u_817 k_818 =v false.
+LENGTH len__l0 len__l1 k_length_255 =v
+  (len__l0 != 0 \/ k_length_255 0)
+  /\ (len__l0 = 0 \/ LENGTH (len__l0 - 1) (\i_886.\k_length_887.k_length_887 1) (\x_890.k_length_255 (1 + x_890))).
+Forall p      =v ∀n. p n.

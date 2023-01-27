@@ -1,0 +1,31 @@
+%HES
+MAIN_744  =v
+  RANGE 0 arg1_882
+   (\ds0_861.
+     \ds1_862.
+      FOLD_LEFT (\s_843.\k_844.\k_harmonic_845.DIV 10000 k_844 (\x_832.k_harmonic_845 (s_843 + x_832))) 0 ds0_861
+       ds1_862 (\main_813.true)).
+DIV x_4 y k_div_9 =v
+  (y = 0 \/ (x_4 >= y \/ k_div_9 0) /\ (x_4 < y \/ DIV (x_4 - y) y (\x_826.k_div_9 (1 + x_826))))
+  /\ (y != 0 \/ FAIL_797 true (\x_894.true)).
+FAIL_797 u_798 k_799 =v false.
+FOLD_LEFT f acc xs0 xs1 k_fold_left_57 =v
+  (xs0 > 0 \/ k_fold_left_57 0)
+  /\ (xs0 <= 0
+      \/ (xs0 <= 0
+          \/ xs1 0
+              (\x_880.
+                f acc x_880
+                 (\x_840.
+                   FOLD_LEFT f x_840 (xs0 - 1) (\x_857.\k_fold_left_xs__858.xs1 (x_857 + 1) k_fold_left_xs__858)
+                    k_fold_left_57)))
+         /\ (xs0 > 0 \/ true)).
+RANGE i_1 j k_range_201 =v
+  (i_1 <= j \/ k_range_201 0 (\x_885.\k_range_886.true))
+  /\ (i_1 > j
+      \/ RANGE (i_1 + 1) j
+          (\is0_890.
+            \is1_891.
+             k_range_201 (1 + is0_890)
+              (\i_873.\k_range_874.(i_873 != 0 \/ k_range_874 i_1) /\ (i_873 = 0 \/ is1_891 (i_873 - 1) k_range_874)))).
+Forall p      =v ∀n. p n.

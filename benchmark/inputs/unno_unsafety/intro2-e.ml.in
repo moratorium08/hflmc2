@@ -1,0 +1,8 @@
+%HES
+MAIN_295  =v
+  APP
+   (\y_308.\k_check_309.(arg1_326 > y_308 \/ k_check_309 true) /\ (arg1_326 <= y_308 \/ FAIL_303 true (\x_324.true)))
+   arg1_326 (\main_313.true).
+APP f x_2 k_app_10 =v Forall (\x_321.(x_321 != 0 \/ APP f (x_2 - 1) k_app_10) /\ (x_321 = 0 \/ f x_2 k_app_10)).
+FAIL_303 u_304 k_305 =v false.
+Forall p      =v ∀n. p n.

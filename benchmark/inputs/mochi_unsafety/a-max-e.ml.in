@@ -1,0 +1,15 @@
+%HES
+MAIN_403  =v
+  ((arg1_465 <= 0 \/ (arg2_455 < 0 \/ arg2_455 > 0))
+   \/ ARRAY_MAX arg1_465 arg2_455 (\i_474.\k_make_array_475.k_make_array_475 (arg1_465 - i_474)) (-1)
+       (\m_463.(m_463 < arg1_465 \/ true) /\ (m_463 >= arg1_465 \/ FAIL_429 true (\x_452.true))))
+  /\ (arg1_465 > 0 /\ (arg2_455 >= 0 /\ arg2_455 <= 0) \/ true).
+ARRAY_MAX n_4 i_3 a m_2 k_array_max_22 =v
+  (i_3 < n_4 \/ k_array_max_22 m_2)
+  /\ (i_3 >= n_4
+      \/ a i_3
+          (\x_441.
+            (x_441 >= m_2 \/ ARRAY_MAX n_4 (i_3 + 1) a x_441 k_array_max_22)
+            /\ (x_441 < m_2 \/ ARRAY_MAX n_4 (i_3 + 1) a m_2 k_array_max_22))).
+FAIL_429 u_430 k_431 =v false.
+Forall p      =v ∀n. p n.

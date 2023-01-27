@@ -1,0 +1,15 @@
+%HES
+MAIN_442  =v
+  FACT arg1_481 (\main_467.true)
+   (\e_492.
+     (e_492 != 0 \/ (arg1_481 >= 0 \/ true) /\ (arg1_481 < 0 \/ FAIL_463 true (\x_484.true)))
+     /\ (e_492 = 0 \/ H_193 arg1_481 e_492)).
+FACT n_4 k_fact_11 h_13 =v
+  (n_4 > 0 \/ h_13 0)
+  /\ (n_4 <= 0
+      \/ FACT (n_4 - 1) (\x_472.k_fact_11 (n_4 * x_472))
+          (\e_496.(e_496 != 0 \/ k_fact_11 0) /\ (e_496 = 0 \/ h_13 e_496))).
+FAIL_463 u_464 k_465 =v false.
+F_461 e_223 =v false.
+H_193 arg1_208 e_175 =v false.
+Forall p      =v ∀n. p n.

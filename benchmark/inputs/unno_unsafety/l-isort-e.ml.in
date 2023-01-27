@@ -1,0 +1,59 @@
+%HES
+MAIN_1624  =v
+  ISORT F_1718 arg1_1918 (\i_1882.\k_main_1883.k_main_1883 (arg1_1918 - i_1882))
+   (\x0_1886.
+     \x1_1887.ORDERED x0_1886 x1_1887 (\x_1847.(x_1847 = 0 \/ true) /\ (x_1847 != 0 \/ FAIL_1723 true (\x_1815.true)))).
+CONS a len__l0_12 len__l1_12 k_cons_54 =v
+  k_cons_54 (len__l0_12 + 1)
+   (\i_1739.\k_cons_1740.(i_1739 != 0 \/ k_cons_1740 a) /\ (i_1739 = 0 \/ len__l1_12 (i_1739 - 1) k_cons_1740)).
+FAIL_1723 u_1724 k_1725 =v false.
+F_1718 i_13 k_nil_29 =v false.
+INSERT nil1_1097 x ys0 ys1 k_insert_244 =v
+  IS_NIL ys0 ys1
+   (\x_1899.
+     (x_1899 = 0 \/ CONS x 0 nil1_1097 k_insert_244)
+     /\ (x_1899 != 0
+         \/ ys1 0
+             (\x_1873.
+               (x <= x_1873 \/ CONS x ys0 ys1 k_insert_244)
+               /\ (x > x_1873
+                   \/ TL ys0 ys1
+                       (\x0_1830.
+                         \x1_1831.
+                          INSERT nil1_1097 x x0_1830 x1_1831
+                           (\x0_1802.\x1_1803.ys1 0 (\x_1785.CONS x_1785 x0_1802 x1_1803 k_insert_244))))))).
+ISORT nil1_1097 xs0_2 xs1_2 k_isort_524 =v
+  IS_NIL xs0_2 xs1_2
+   (\x_1910.
+     (x_1910 = 0 \/ k_isort_524 0 nil1_1097)
+     /\ (x_1910 != 0
+         \/ TL xs0_2 xs1_2
+             (\x0_1879.
+               \x1_1880.
+                ISORT nil1_1097 x0_1879 x1_1880
+                 (\x0_1838.\x1_1839.xs1_2 0 (\x_1811.INSERT nil1_1097 x_1811 x0_1838 x1_1839 k_isort_524))))).
+IS_NIL len__l0 len__l1 k_is_nil_225 =v k_is_nil_225 ((len__l0 != 0 \/ 1) /\ (len__l0 = 0 \/ 0)).
+ORDERED xs0 xs1 k_ordered_705 =v
+  IS_NIL xs0 xs1
+   (\x_1922.
+     (x_1922 = 0 \/ k_ordered_705 1)
+     /\ (x_1922 != 0
+         \/ TL xs0 xs1
+             (\x0_1892.
+               \x1_1893.
+                IS_NIL x0_1892 x1_1893
+                 (\x_1853.
+                   (x_1853 = 0 \/ k_ordered_705 1)
+                   /\ (x_1853 != 0
+                       \/ xs1 0
+                           (\x_1822.
+                             TL xs0 xs1
+                              (\x0_1793.
+                                \x1_1794.
+                                 x1_1794 0
+                                  (\x_1776.
+                                    (x_1822 > x_1776
+                                     \/ TL xs0 xs1 (\x0_1757.\x1_1758.ORDERED x0_1757 x1_1758 k_ordered_705))
+                                    /\ (x_1822 <= x_1776 \/ k_ordered_705 0))))))))).
+TL len__l0_6 len__l1_6 k_tl_161 =v k_tl_161 (len__l0_6 - 1) (\i_1929.\k_tl_1930.len__l1_6 (i_1929 + 1) k_tl_1930).
+Forall p      =v ∀n. p n.

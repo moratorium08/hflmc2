@@ -1,0 +1,21 @@
+%HES
+MAIN_448  =v
+  ((arg1_515 <= 0 \/ arg2_505 < 0)
+   \/ ARRAY_MAX 0 arg1_515
+       (\i_535.
+         \k_rand_array_536.
+          Forall
+           (\n_523.
+             ((0 > n_523 \/ n_523 >= arg2_505 + 1) \/ k_rand_array_536 n_523)
+             /\ (0 <= n_523 /\ n_523 < arg2_505 + 1 \/ true)))
+       (-1) (\m_513.(m_513 > arg2_505 \/ true) /\ (m_513 <= arg2_505 \/ FAIL_479 true (\x_502.true))))
+  /\ (arg1_515 > 0 /\ arg2_505 >= 0 \/ true).
+ARRAY_MAX i_7 n_6 ar m_5 k_array_max_15 =v
+  (i_7 < n_6 \/ k_array_max_15 m_5)
+  /\ (i_7 >= n_6
+      \/ ar 0
+          (\x_491.
+            (x_491 > m_5 \/ ARRAY_MAX (i_7 + 1) n_6 ar x_491 k_array_max_15)
+            /\ (x_491 <= m_5 \/ ARRAY_MAX (i_7 + 1) n_6 ar (m_5 + 1) k_array_max_15))).
+FAIL_479 u_480 k_481 =v false.
+Forall p      =v ∀n. p n.

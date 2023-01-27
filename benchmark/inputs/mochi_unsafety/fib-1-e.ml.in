@@ -1,0 +1,6 @@
+%HES
+MAIN_217  =v FIB arg1_252 (\x_244.(arg1_252 > x_244 \/ true) /\ (arg1_252 <= x_244 \/ FAIL_230 true (\x_237.true))).
+FAIL_230 u_231 k_232 =v false.
+FIB n_2 k_fib_7 =v
+  (n_2 >= 2 \/ k_fib_7 1) /\ (n_2 < 2 \/ FIB (n_2 - 2) (\x_250.FIB (n_2 - 3) (\x_241.k_fib_7 (x_250 + x_241)))).
+Forall p      =v ∀n. p n.

@@ -1,0 +1,12 @@
+%HES
+MAIN_355  =v
+  APP
+   (\y_368.\k_check_369.(arg1_386 != y_368 \/ k_check_369 true) /\ (arg1_386 = y_368 \/ FAIL_363 true (\x_384.true)))
+   arg1_386 (\main_373.true).
+APP f x_2 k_app_36 =v
+  Forall
+   (\x_381.
+     (x_381 != 0 \/ APP (\x_389.\k_succ_390.f (x_389 + 1) k_succ_390) (x_2 + 1) k_app_36)
+     /\ (x_381 = 0 \/ f x_2 k_app_36)).
+FAIL_363 u_364 k_365 =v false.
+Forall p      =v ∀n. p n.
