@@ -32,7 +32,7 @@ def main():
     data = sorted(data, key=cmpkey)
     for x in data:
         key = ds_iden(x['file'])
-        target = 'invalid' if key.endswith('-e.in') or key.endswith('-e.ml.in') else 'valid'
+        target = 'invalid' if key.endswith('-e.in') or key.endswith('-e.ml.in') or key.endswith('-e.ml') else 'valid'
         ok = 1 if target == x['result'] else 0
         if ok == 1:
             ca += 1
