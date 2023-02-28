@@ -24,9 +24,7 @@ def cli_arg(parser):
 
 def gen_cmd(file):
     args = cfg.args
-    ags = []
-    ag = ' '.join(ags)
-    return cmd_template.format(ag, file)
+    return cmd_template.format(file)
 
 
 def parse_stdout(stdout):
