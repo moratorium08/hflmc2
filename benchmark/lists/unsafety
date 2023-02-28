@@ -19,3 +19,12 @@ mochi_unsafety/sum-1-e.ml.in
 mochi_unsafety/sum-e.ml.in
 mochi_unsafety/sum3-1-e.ml.in
 mochi_unsafety/tarai2-e.ml.in
+unno_unsafety/a-max-e.ml.in
+unno_unsafety/app-succ-e.ml.in
+unno_unsafety/app-succ0-e.ml.in
+unno_unsafety/intro2-e.ml.in
+unno_unsafety/intro3-e.ml.in
+unno_unsafety/l-forall-leq-e.ml.in
+unno_unsafety/l-isort-e.ml.in
+unno_unsafety/repeat-add-e.ml.in
+implicit/sum-implicit-e.ml.in

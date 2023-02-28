@@ -28,6 +28,7 @@ def gen_cmd(file):
     ags = []
 
     ag = ' '.join(ags)
+    target = TARGET_NON_REACHABILITY
     return cmd_template.format(target, ag, file)
 
 
