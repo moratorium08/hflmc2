@@ -5,6 +5,8 @@ type id = int
 (* adhoc.. *)
 let false_id = -1
 
+let eq x y = x = y
+
 let print_id = print_int
 
 let to_string id = Printf.sprintf "X%d" id

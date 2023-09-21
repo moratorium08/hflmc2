@@ -185,6 +185,10 @@ let parse_model model =
             end
     | s -> fail "parse_arith" s
   in
+  let parse_predicate_name s = 
+    let tail = String.sub s 1 (String.length s - 1) in
+    int_of_string tail
+  in
   let rec parse_formula = function
     | Atom "true"  -> RTrue
     | Atom "false" -> RFalse
@@ -199,6 +203,7 @@ let parse_model model =
           | "and" -> `And 
           | "or"  -> `Or 
           | "not" -> `Not 
+          | var -> `Var var
           | s     -> fail "parse_formula:list" (Atom s)
         in
         begin match a with
@@ -213,6 +218,8 @@ let parse_model model =
         | `Not -> 
             let [@warning "-8"] [f] = List.map ss ~f:parse_formula in
             negate_ref f
+        | `Var var -> 
+          RTemplate ((Rid.from_string var , List.map ~f:parse_arith ss))
         end
     | s -> fail "parse_formula" s
   in
@@ -224,12 +231,32 @@ let parse_model model =
         (id, args, body)
     | s -> fail "parse_def" s
   in
+  let simplify defs = 
+    let rec subst_arg vars args form = match (vars, args) with
+      | ([], []) -> form
+      | (v::vars, x::xs) -> subst_arg vars xs (subst_refinement v (RArith x) form)
+      | _ -> failwith "program error"
+    in
+    let rec simplify_def x = match x with
+      | RAnd(x, y) -> RAnd(simplify x, simplify y)
+      | ROr(x, y) -> ROr(simplify x, simplify y)
+      | RTemplate((name, args)) -> 
+        let (_, vars, form) = List.find_exn defs ~f:(fun (name', _, _) -> (Rid.eq name name')) in
+        subst_arg vars args form
+      | RPred _ | RFalse | RTrue -> x
+    in
+    let rec inner xs = match xs with
+      | [] -> []
+      | (name, args, x)::xs -> (name, args, simplify_def x) :: inner xs
+    in inner defs
+  in
   print_string model;
   match Sexplib.Sexp.parse model with
   | Done(model, _) -> begin 
     match model with
     | List (Atom "model" :: sol) ->
-        Ok(List.map ~f:parse_def sol)
+        let defs = List.map ~f:parse_def sol in
+        Ok(simplify defs)
     | _ -> Error "parse_model" 
     end
   | _ -> Error "failed to parse model"
