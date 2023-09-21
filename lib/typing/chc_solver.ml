@@ -127,7 +127,7 @@ let gen_assert solver chc =
   let body = ref2smt2 chc.body in
   let head = ref2smt2 chc.head in
   let s = Printf.sprintf "(=> %s %s)" body head in
-  if vars_s = "" && (solver == `Spacer || solver == `Fptprove || solver == `Eldarica) then
+  if vars_s = "" && (solver = `Spacer || solver = `Fptprove || solver = `Eldarica) then
     Printf.sprintf "(assert %s)\n" s
   else
     Printf.sprintf "(assert (forall (%s) %s))\n" vars_s s
