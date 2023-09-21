@@ -238,8 +238,8 @@ let parse_model model =
       | _ -> failwith "program error"
     in
     let rec simplify_def x = match x with
-      | RAnd(x, y) -> RAnd(simplify x, simplify y)
-      | ROr(x, y) -> ROr(simplify x, simplify y)
+      | RAnd(x, y) -> RAnd(simplify_def x, simplify_def y)
+      | ROr(x, y) -> ROr(simplify_def x, simplify_def y)
       | RTemplate((name, args)) -> 
         let (_, vars, form) = List.find_exn defs ~f:(fun (name', _, _) -> (Rid.eq name name')) in
         subst_arg vars args form

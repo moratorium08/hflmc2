@@ -100,7 +100,7 @@ let rec print_rtype = function
     Printf.printf " -> ";
     print_rtype y;
     print_string ")";
-  | RInt x -> Printf.printf "int("; print_rint x; Printf.printf ")"
+  | RInt x -> print_rint x; Printf.printf ": int"
 
   
 let rint2arith = function
