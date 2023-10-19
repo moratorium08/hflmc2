@@ -4,7 +4,7 @@ from common import *
 
 TARGET_NON_REACHABILITY = 'pdr-infer'
 TARGET_NON_TERMINATION = 'infer-non-term'
-cmd_template = 'ulimit -v 4194304 {} {} {}'  # <option> <filename>
+cmd_template = 'ulimit -v 4194304 && {} {} {}'  # <option> <filename>
 
 cfg = None
 
