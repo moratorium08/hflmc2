@@ -12,17 +12,17 @@ let pred_def (name, len) =
 
 let var_def id = id |> Id.to_string |> Printf.sprintf "(%s Int)"
 
-let op2smt2 = 
+let op2smt2 =
   let open Arith in
   function
   | Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
   | Div -> "/"
-  | Mod -> "%"
-let pred2smt2 pred args = 
+  | Mod -> "mod"
+let pred2smt2 pred args =
   let open Formula in
-  Printf.sprintf 
+  Printf.sprintf
   begin
     match pred with
     | Eq -> "(= %s)"
