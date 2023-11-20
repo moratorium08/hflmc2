@@ -15,3 +15,4 @@ cp $BASE/burn.py  $BURN/bench.py
 
 mkdir -p $HOPDR/scripts
 cp $BASE/hopdr.py $HOPDR/scripts/bench.py
+cp $BASE/check.py $HOPDR/scripts/check.py
