@@ -5,14 +5,15 @@ from common import *
 # assumption: this script is placed at <project_root>/scripts
 project_root = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 base = os.path.join(project_root, './benchmark')
-TARGET = '../target/release/check'
-cmd_template = TARGET + ' {} --input {}'  # <option> <filename>
+TARGET = 'z3'
+options = "fp.xform.tail_simplifier_pve=false fp.validate=true fp.spacer.mbqi=false fp.spacer.use_iuc=true fp.spacer.global=true  fp.spacer.expand_bnd=true fp.spacer.q3.use_qgen=true fp.spacer.q3.instantiate=true fp.spacer.q3=true fp.spacer.ground_pobs=false"
+cmd_template = TARGET + ' ' + options + ' {} {}'  # <option> <filename>
 
 cfg = None
 
 
 def pre_cmd():
-    return 'cargo build --features "no_simplify_by_finding_eq" --bin check --release'
+    return 'echo spacer'
 
 
 def config(c):
@@ -26,20 +27,13 @@ def cli_arg(parser):
 
 def gen_cmd(file):
     args = []
-    if file.endswith('.smt2'):
-        args.append("--chc")
     ag = ' '.join(args)
     return cmd_template.format(ag, file)
 
 
 def parse_stdout(stdout):
     result_data = dict()
-    import re
-    m = re.search(r"linearity check (\d+)", stdout)
-    if m is not None:
-      result_data['nonlinearity'] = int(m.group(1))
-
-    result_data['result'] = 'invalid' if 'Invalid' in stdout else 'unknown' if 'Unknown' in stdout else 'fail'
+    result_data['result'] = 'invalid' if 'unsat' in stdout else 'valid' if 'sat' in stdout else 'fail'
     return result_data
 
 def p(file, result):
