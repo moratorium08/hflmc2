@@ -39,7 +39,7 @@ def parse_stdout(stdout):
     if m is not None:
       result_data['nonlinearity'] = int(m.group(1))
 
-    result_data['result'] = 'invalid' if 'Invalid' in stdout else 'unknown' if 'Unknown' in stdout else 'fail'
+    result_data['result'] = 'invalid' if 'Verification Result: Invalid' in stdout else 'unknown' if 'Verification Result: Unknown' in stdout else 'fail'
     return result_data
 
 def p(file, result):
