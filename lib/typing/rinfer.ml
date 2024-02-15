@@ -94,7 +94,7 @@ let rec infer_formula track formula env m ints =
     failwith "no var(infer_formula)"
     end
   | Abs (arg, body) -> 
-    let env' = IdMap.add env arg arg.ty in
+    let env' = IdMap.set env arg arg.ty in
     let ints' = 
       begin
       match arg.ty with
@@ -106,7 +106,7 @@ let rec infer_formula track formula env m ints =
     let (body_t, l) = infer_formula track body env' m ints' in
     (RArrow(arg.ty, body_t), l)
   | Forall(arg, body, template) ->
-    let env' = IdMap.add env arg arg.ty in
+    let env' = IdMap.set env arg arg.ty in
     let ints' = 
       begin
       match arg.ty with
